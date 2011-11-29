@@ -18,10 +18,6 @@ import org.joda.time.format.DateTimeFormatter;
 
 import org.springframework.web.context.ContextLoader;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -324,22 +320,9 @@ public class JobsMonitorServlet extends HttpServlet {
             writer.print("/");
             writer.print(worker.getTotalNumberOfItemsToBeProcessed());
             writer.println(")</td>");
+            printCell(writer, worker.getJobHistoryId(), 1);
         } else {
-            writer.println("<td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>");
-        }
-
-        if (jobTypeStatusBean.getRunningWorkers().isEmpty()) {
-            writer.println("<td>&nbsp;</td>\n");
-        } else {
-            printCell(writer,
-                Joiner.on("<br/>").join(
-                    Iterables.transform(jobTypeStatusBean.getRunningWorkers(),
-                        new Function<RunningWorker, String>() {
-                            @Override
-                            public String apply(final RunningWorker input) {
-                                return input.getJobHistoryId();
-                            }
-                        })), 1);
+            writer.println("<td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>");
         }
 
         writer.println("</tr>");
