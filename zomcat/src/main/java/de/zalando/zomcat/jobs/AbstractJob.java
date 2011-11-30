@@ -248,6 +248,10 @@ public abstract class AbstractJob extends QuartzJobBean implements RunningWorker
      */
     @Override
     public String getJobHistoryId() {
+        if (jobHistoryId == null) {
+            return String.valueOf(id);
+        }
+
         return jobHistoryId;
     }
 
