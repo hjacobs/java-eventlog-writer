@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <parent>
+        <artifactId>zalando-parent</artifactId>
+        <groupId>de.zalando</groupId>
+        <version>1.3.9</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>de.zalando</groupId>
+    <artifactId>zomcat-appconfig</artifactId>
+    <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
+    <description>Zomcat Application Config Abstract Classes</description>
+    <version>1.0.0</version>
+    <dependencies>
+        <dependency>
+            <groupId>de.zalando</groupId>
+            <artifactId>zomcat</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.zalando</groupId>
+            <artifactId>appconfig</artifactId>
+        </dependency>
+    </dependencies>
+</project>
