@@ -7,9 +7,8 @@ import com.google.common.collect.Sets;
 import de.zalando.appconfig.ConfigCtx;
 import de.zalando.appconfig.Configuration;
 
-import de.zalando.domain.ComponentBean;
-
 import de.zalando.zomcat.configuration.AppInstanceKeySource;
+import de.zalando.zomcat.jobs.Job;
 import de.zalando.zomcat.jobs.JobConfig;
 import de.zalando.zomcat.jobs.JobConfigSource;
 import de.zalando.zomcat.jobs.JobGroupConfig;
@@ -27,7 +26,7 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
     public abstract Configuration getConfig();
 
     @Override
-    public final JobConfig getJobConfig(final ComponentBean job) {
+    public final JobConfig getJobConfig(final Job job) {
 
         // By Default the JobGroup the Job belongs to (even if the Job has no JobGroup) is active
         boolean groupActive = true;
@@ -43,8 +42,14 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         }
 
         // Load the JobGroup for given Job
-        String jobGroupName = getConfig().getStringConfig(String.format("jobConfig.%s.jobGroup", jobName),
-                new ConfigCtx(null, null), null);
+        String jobGroupName = null;
+
+        if (job.getJobGroup() != null) {
+            jobGroupName = job.getJobGroup().name();
+        } else {
+            jobGroupName = getConfig().getStringConfig(String.format("jobConfig.%s.jobGroup", jobName),
+                    new ConfigCtx(null, null), null);
+        }
 
         // If there is a Job Group defined on Job Config, fetch the JobGroup Active Status
         JobGroupConfig jobGroupConfig = null;
@@ -76,7 +81,7 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
                 new ConfigCtx(null, null), true);
 
         // Create Job Config from loaded Props
-        JobConfig retVal = new JobConfig(Sets.newHashSet(appInstanceKeys), limit, startupLimit, jobActive,
+        final JobConfig retVal = new JobConfig(Sets.newHashSet(appInstanceKeys), limit, startupLimit, jobActive,
                 jobGroupConfig);
 
         // Log the Job Config Properties as loaded from Database
