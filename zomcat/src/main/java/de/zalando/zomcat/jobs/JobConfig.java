@@ -31,22 +31,6 @@ public class JobConfig {
     private final JobGroupConfig jobGroupConfig;
 
     /**
-     * Constructor for Backward Compatibility.
-     *
-     * @param       allowedAppInstanceKeys  App Instance Keys for all App Instances that can execute the current job
-     * @param       limit                   The Processing Item Amount Limit - at Max process this amount of items in a
-     *                                      single job execution
-     * @param       startupLimit            The Processing Item Amount Limit for first run of Job after JVM startup,
-     *                                      currently not used yet
-     *
-     * @deprecated  Has been replaced with new constructor. Please use the Default Constrcutor ASAP.
-     */
-    @Deprecated
-    public JobConfig(final Set<String> allowedAppInstanceKeys, final int limit, final int startupLimit) {
-        this(allowedAppInstanceKeys, limit, startupLimit, true, null);
-    }
-
-    /**
      * Default Constructor.
      *
      * @param  allowedAppInstanceKeys  Set of Application Instance Keys allowed to execute the current Job
@@ -133,7 +117,7 @@ public class JobConfig {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("JobConfig [allowedAppInstanceKeys=");
         builder.append(allowedAppInstanceKeys);
         builder.append(", limit=");
@@ -143,7 +127,7 @@ public class JobConfig {
         builder.append(", active=");
         builder.append(active);
         builder.append(", jobGroupConfig=");
-        builder.append((jobGroupConfig == null) ? "NULL" : jobGroupConfig.toString());
+        builder.append(jobGroupConfig);
         builder.append("]");
         return builder.toString();
     }

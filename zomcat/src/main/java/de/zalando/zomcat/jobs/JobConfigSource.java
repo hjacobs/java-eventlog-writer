@@ -9,10 +9,10 @@ public interface JobConfigSource extends AppInstanceKeySource {
     /**
      * Fetch JobConfig for given {@link ComponentBean} instance.
      *
-     * @param   job  The Job Spring Bean (ComponentBean) to fetch JobConfig for
+     * @param   job  The Job Spring Bean to fetch JobConfig for
      *
      * @return  The JobConfig created for given Job
      */
-    JobConfig getJobConfig(ComponentBean job);
+    JobConfig getJobConfig(Job job);
 
 }

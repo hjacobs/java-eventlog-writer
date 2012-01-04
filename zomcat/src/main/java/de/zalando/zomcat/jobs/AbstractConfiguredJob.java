@@ -4,8 +4,6 @@ import org.apache.log4j.Logger;
 
 import org.quartz.JobExecutionContext;
 
-import de.zalando.domain.ComponentBean;
-
 /**
  * Abstract Job that depends on the {@link JobConfig} in order to be initialized properly. Jobs of this type are passed
  * the {@link JobConfig} instance in their doRun method. Majority of Job Initialization is taken care of in this Base
@@ -16,7 +14,7 @@ import de.zalando.domain.ComponentBean;
  *
  * @author  Thomas Zirke
  */
-public abstract class AbstractConfiguredJob extends AbstractJob implements ComponentBean {
+public abstract class AbstractConfiguredJob extends AbstractJob implements Job {
 
     /**
      * Logger for this class.
@@ -129,23 +127,4 @@ public abstract class AbstractConfiguredJob extends AbstractJob implements Compo
             }
         }
     }
-
-    /**
-     * Getter for Configuration Source - the {@link JobConfigSource} interface is implemented in ApplicationConfig
-     * interfaces.
-     *
-     * @return  The {@link JobConfigSource} instance to be used by the job to configure itself.
-     */
-    protected abstract JobConfigSource getConfigurationSource();
-
-    /**
-     * Execution of Business Logic of Job.
-     *
-     * @param   context {@link JobExecutionContext} instance for Job Run
-     * @param   config {@link JobConfig} instance for Job Run
-     *
-     * @throws  Exception
-     */
-    protected abstract void doRun(final JobExecutionContext context, final JobConfig config) throws Exception;
-
 }
