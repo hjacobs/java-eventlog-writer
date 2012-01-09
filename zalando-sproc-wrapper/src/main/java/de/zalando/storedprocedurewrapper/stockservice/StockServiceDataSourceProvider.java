@@ -2,9 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.zalando.storedprocedurewrapper;
+package de.zalando.storedprocedurewrapper.stockservice;
 
 import javax.sql.DataSource;
+
+import de.zalando.storedprocedurewrapper.DataSourceProvider;
 
 /**
  * @author  jmussler

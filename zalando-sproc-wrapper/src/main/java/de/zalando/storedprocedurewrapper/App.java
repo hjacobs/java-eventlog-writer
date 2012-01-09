@@ -5,6 +5,10 @@ import java.util.logging.Logger;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
+import de.zalando.storedprocedurewrapper.stockservice.StockService;
+import de.zalando.storedprocedurewrapper.stockservice.StockServiceDataSourceProvider;
+import de.zalando.storedprocedurewrapper.stockservice.TestResult;
+
 /**
  * Hello world!
  */

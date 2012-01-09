@@ -1,4 +1,4 @@
-package de.zalando.storedprocedurewrapper;
+package de.zalando.storedprocedurewrapper.stockservice;
 
 import com.typemapper.annotations.DatabaseField;
 
@@ -8,10 +8,10 @@ import com.typemapper.annotations.DatabaseField;
 
 public class TestResult {
     @DatabaseField(name = "a")
-    String a;
+    public String a;
 
     @DatabaseField(name = "b")
-    String b;
+    public String b;
 
     public String getA() {
         return a;

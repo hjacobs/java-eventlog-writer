@@ -5,7 +5,7 @@ import de.zalando.storedprocedurewrapper.proxy.SprocProxyBuilder;
 /**
  * @author  jmussler
  */
-abstract class AbstractSprocService<I extends SprocProxyServiceInterface, P extends DataSourceProvider> {
+public abstract class AbstractSprocService<I extends SprocProxyServiceInterface, P extends DataSourceProvider> {
 
     protected P ds;
 

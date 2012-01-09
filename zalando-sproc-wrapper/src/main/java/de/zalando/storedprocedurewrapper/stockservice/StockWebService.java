@@ -1,4 +1,4 @@
-package de.zalando.storedprocedurewrapper;
+package de.zalando.storedprocedurewrapper.stockservice;
 
 import javax.jws.WebMethod;
 

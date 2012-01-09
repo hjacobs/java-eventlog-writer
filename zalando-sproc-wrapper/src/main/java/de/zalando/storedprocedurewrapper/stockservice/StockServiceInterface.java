@@ -1,7 +1,8 @@
-package de.zalando.storedprocedurewrapper;
+package de.zalando.storedprocedurewrapper.stockservice;
 
 import java.util.List;
 
+import de.zalando.storedprocedurewrapper.SprocProxyServiceInterface;
 import de.zalando.storedprocedurewrapper.annotations.ShardKey;
 import de.zalando.storedprocedurewrapper.annotations.SprocCall;
 import de.zalando.storedprocedurewrapper.annotations.SprocParam;

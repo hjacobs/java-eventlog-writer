@@ -1,11 +1,13 @@
 
-package de.zalando.storedprocedurewrapper;
+package de.zalando.storedprocedurewrapper.stockservice;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Repository;
+
+import de.zalando.storedprocedurewrapper.AbstractSprocService;
 
 /**
  * @author  jmussler
