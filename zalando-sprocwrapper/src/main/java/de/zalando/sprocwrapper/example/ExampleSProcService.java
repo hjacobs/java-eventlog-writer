@@ -2,10 +2,10 @@ package de.zalando.sprocwrapper.example;
 
 import java.util.List;
 
+import de.zalando.sprocwrapper.SProcCall;
+import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
-import de.zalando.sprocwrapper.annotations.SProcCall;
-import de.zalando.sprocwrapper.annotations.SProcParam;
-import de.zalando.sprocwrapper.annotations.ShardKey;
+import de.zalando.sprocwrapper.sharding.ShardKey;
 import de.zalando.sprocwrapper.sharding.VirtualShardIdFromLongStrategy;
 
 /**
@@ -17,8 +17,7 @@ public interface ExampleSProcService extends SProcService {
 
     @SProcCall(name = "create_article_simple_items")
     String createArticleSimpleItems(@SProcParam(name = "sku")
-            @ShardKey String sku,
-            @SProcParam(name = "stockid") int stockId,
+            @ShardKey String sku, @SProcParam int stockId,
             @SProcParam(name = "quantity") int quantity,
             @SProcParam(name = "price") int purchasePrice,
             @SProcParam(name = "referencenumber") String referenceNumber);

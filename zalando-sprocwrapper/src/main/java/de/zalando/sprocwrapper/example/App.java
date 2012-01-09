@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.BasicConfigurator;
+
 import com.jolbox.bonecp.BoneCPDataSource;
 
 import de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider;
@@ -15,6 +17,9 @@ import de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider;
 public class App {
 
     public static void main(final String[] args) {
+
+        // configure basic log4j console appender
+        BasicConfigurator.configure();
 
         try {
             Class.forName("org.postgresql.Driver"); // load the DB driver

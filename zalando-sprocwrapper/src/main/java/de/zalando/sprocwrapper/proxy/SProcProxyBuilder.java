@@ -7,10 +7,10 @@ import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
 
-import de.zalando.sprocwrapper.annotations.SProcCall;
-import de.zalando.sprocwrapper.annotations.SProcParam;
-import de.zalando.sprocwrapper.annotations.ShardKey;
+import de.zalando.sprocwrapper.SProcCall;
+import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
+import de.zalando.sprocwrapper.sharding.ShardKey;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 
 /**

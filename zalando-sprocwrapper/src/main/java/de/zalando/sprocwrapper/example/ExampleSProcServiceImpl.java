@@ -23,7 +23,7 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     public void createArticleSimple(final String sku) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        service.createArticleSimple(sku);
     }
 
     public String createArticleSimpleItems(final String sku, final int stockId, final int quantity,

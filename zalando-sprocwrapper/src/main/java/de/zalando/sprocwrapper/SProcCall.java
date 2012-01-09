@@ -1,4 +1,4 @@
-package de.zalando.sprocwrapper.annotations;
+package de.zalando.sprocwrapper;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
