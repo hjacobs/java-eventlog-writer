@@ -3,6 +3,7 @@ package de.zalando.storedprocedurewrapper.stockservice;
 import java.util.List;
 
 import de.zalando.storedprocedurewrapper.SprocProxyServiceInterface;
+import de.zalando.storedprocedurewrapper.VirtualShardIdFromLong;
 import de.zalando.storedprocedurewrapper.annotations.ShardKey;
 import de.zalando.storedprocedurewrapper.annotations.SprocCall;
 import de.zalando.storedprocedurewrapper.annotations.SprocParam;
@@ -39,4 +40,7 @@ public interface StockServiceInterface extends SprocProxyServiceInterface {
 
     @SprocCall(sql = "SELECT 5555")
     Integer getBla();
+
+    @SprocCall(sql = "SELECT current_database()", shardStrategy = VirtualShardIdFromLong.class)
+    String getDatabase(@ShardKey int shard);
 }

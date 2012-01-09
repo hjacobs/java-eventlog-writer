@@ -19,7 +19,6 @@ class SprocProxy implements java.lang.reflect.InvocationHandler {
 
     private final HashMap<String, StoredProcedure> sprocs = new HashMap<String, StoredProcedure>();
     private final DataSourceProvider dp;
-    private int shardKeyIndex = -1;
 
     private static final Logger LOG = Logger.getLogger(SprocProxy.class);
 
@@ -34,10 +33,6 @@ class SprocProxy implements java.lang.reflect.InvocationHandler {
 
     public SprocProxy(final DataSourceProvider d) {
         dp = d;
-    }
-
-    public void setShardKeyParamterIndex(final int i) {
-        shardKeyIndex = i;
     }
 
     @Override

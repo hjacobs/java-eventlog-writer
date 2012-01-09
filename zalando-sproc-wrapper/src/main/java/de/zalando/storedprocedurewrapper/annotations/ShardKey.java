@@ -14,6 +14,4 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface ShardKey {
     int pos() default -1;
-
-    Class strategy() default Void.class;
 }

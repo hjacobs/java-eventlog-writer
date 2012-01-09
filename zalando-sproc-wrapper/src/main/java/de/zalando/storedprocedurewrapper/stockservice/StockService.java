@@ -8,16 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import de.zalando.storedprocedurewrapper.AbstractSprocService;
+import de.zalando.storedprocedurewrapper.ArrayDataSourceProvider;
 
 /**
  * @author  jmussler
  */
 @Repository
-public class StockService extends AbstractSprocService<StockServiceInterface, StockServiceDataSourceProvider>
+public class StockService extends AbstractSprocService<StockServiceInterface, ArrayDataSourceProvider>
     implements StockServiceInterface {
 
     @Autowired
-    public StockService(final StockServiceDataSourceProvider p) {
+    public StockService(final ArrayDataSourceProvider p) {
         super(p, StockServiceInterface.class);
     }
 
@@ -57,5 +58,9 @@ public class StockService extends AbstractSprocService<StockServiceInterface, St
 
     public Integer getBla() {
         return service.getBla();
+    }
+
+    public String getDatabase(final int i) {
+        return service.getDatabase(i);
     }
 }

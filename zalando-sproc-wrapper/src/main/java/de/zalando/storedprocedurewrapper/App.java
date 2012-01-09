@@ -3,10 +3,11 @@ package de.zalando.storedprocedurewrapper;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.sql.DataSource;
+
 import com.jolbox.bonecp.BoneCPDataSource;
 
 import de.zalando.storedprocedurewrapper.stockservice.StockService;
-import de.zalando.storedprocedurewrapper.stockservice.StockServiceDataSourceProvider;
 import de.zalando.storedprocedurewrapper.stockservice.TestResult;
 
 /**
@@ -27,7 +28,12 @@ public class App {
         ds.setUsername("postgres");                                // set the username
         ds.setPassword("postgres");                                // set the password
 
-        StockService service = new StockService(new StockServiceDataSourceProvider(ds));
+        BoneCPDataSource ds2 = new BoneCPDataSource();          // create a new datasource object
+        ds2.setJdbcUrl("jdbc:postgresql://localhost/postgres"); // set the JDBC url
+        ds2.setUsername("postgres");                            // set the username
+        ds2.setPassword("postgres");                            // set the password
+
+        StockService service = new StockService(new ArrayDataSourceProvider(new DataSource[] {ds, ds2}));
 
         System.out.println(service.getSimpleInt());
 
@@ -64,5 +70,8 @@ public class App {
         System.out.println("Single result: a) " + r.a + " b) " + r.b);
 
         System.out.println(service.getBla());
+
+        System.out.println(service.getDatabase(0));
+        System.out.println(service.getDatabase(1));
     }
 }

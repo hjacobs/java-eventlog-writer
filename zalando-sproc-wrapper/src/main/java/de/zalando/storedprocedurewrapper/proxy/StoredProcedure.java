@@ -21,8 +21,6 @@ class StoredProcedure {
     private String query = null;
     private Class returnType = null;
 
-    private static final ExecuteStrategy typeMapperExecutor = new RowMapperStrategy();
-
     private ExecuteStrategy executor = null;
 
     private VirtualShardKeyStrategy shardStrategy = new VirtualShardKeyStrategy();
@@ -102,7 +100,16 @@ class StoredProcedure {
     }
 
     public int getShardId(final Object[] objs) {
-        return shardStrategy.getShardId(objs);
+        if (shardKeyParameters == null) {
+            return shardStrategy.getShardId(null);
+        }
+
+        Object[] keys = new Object[shardKeyParameters.size()];
+        for (ShardKeyParameter p : shardKeyParameters) {
+            keys[p.keyPos] = objs[p.javaPos];
+        }
+
+        return shardStrategy.getShardId(keys);
     }
 
     public String getSqlParameterList() {
