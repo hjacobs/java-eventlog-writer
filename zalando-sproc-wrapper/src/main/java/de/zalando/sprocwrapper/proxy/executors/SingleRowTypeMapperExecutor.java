@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.zalando.storedprocedurewrapper.proxy.executestrategies;
+package de.zalando.sprocwrapper.proxy.executors;
 
 import java.util.List;
 
@@ -12,14 +12,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.typemapper.core.TypeMapperFactory;
 
-import de.zalando.storedprocedurewrapper.proxy.ExecuteStrategy;
-
 /**
  * @author  jmussler
  */
-public class RowMapperStrategySingleElement implements ExecuteStrategy {
+public class SingleRowTypeMapperExecutor implements Executor {
     @Override
-    public Object executeSproc(final DataSource ds, final String sql, final Object[] args, final int[] types,
+    public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
             final Class returnType) {
         List list = (new JdbcTemplate(ds)).query(sql, args, types, TypeMapperFactory.createTypeMapper(returnType));
         if (list.size() > 0) {

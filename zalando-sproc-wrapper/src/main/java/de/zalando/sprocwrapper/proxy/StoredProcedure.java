@@ -1,36 +1,43 @@
-package de.zalando.storedprocedurewrapper.proxy;
+package de.zalando.sprocwrapper.proxy;
 
 import java.lang.reflect.ParameterizedType;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import de.zalando.storedprocedurewrapper.DataSourceProvider;
-import de.zalando.storedprocedurewrapper.VirtualShardKeyStrategy;
-import de.zalando.storedprocedurewrapper.proxy.executestrategies.GenericSingleColumnSimpleType;
-import de.zalando.storedprocedurewrapper.proxy.executestrategies.RowMapperStrategy;
-import de.zalando.storedprocedurewrapper.proxy.executestrategies.RowMapperStrategySingleElement;
+import org.apache.log4j.Logger;
+
+import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
+import de.zalando.sprocwrapper.proxy.executors.Executor;
+import de.zalando.sprocwrapper.proxy.executors.MultiRowTypeMapperExecutor;
+import de.zalando.sprocwrapper.proxy.executors.SingleRowSimpleTypeExecutor;
+import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
+import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 
 /**
  * @author  jmussler
  */
 class StoredProcedure {
 
-    private final ArrayList<StoredProcedureParameter> params = new ArrayList<StoredProcedureParameter>();
+    private static final Logger LOG = Logger.getLogger(StoredProcedure.class);
+
+    private final List<StoredProcedureParameter> params = new ArrayList<StoredProcedureParameter>();
 
     private String name;
     private String query = null;
     private Class returnType = null;
 
-    private ExecuteStrategy executor = null;
+    private Executor executor = null;
 
     private VirtualShardKeyStrategy shardStrategy = new VirtualShardKeyStrategy();
-    private ArrayList<ShardKeyParameter> shardKeyParameters = null;
+    private List<ShardKeyParameter> shardKeyParameters = null;
 
-    private static final ExecuteStrategy SINGLE_ROW_TYPEMAPPER = new RowMapperStrategySingleElement();
-    private static final ExecuteStrategy TYPEMAPPER = new RowMapperStrategy();
-    private static final ExecuteStrategy GENERIC_SIMPLE_TYPE_SINGLE_COLUMN = new GenericSingleColumnSimpleType();
+    private static final Executor MULTI_ROW_TYPE_MAPPER_EXECUTOR = new MultiRowTypeMapperExecutor();
+    private static final Executor SINGLE_ROW_SIMPLE_TYPE_EXECUTOR = new SingleRowSimpleTypeExecutor();
+    private static final Executor SINGLE_ROW_TYPE_MAPPER_EXECUTOR = new SingleRowTypeMapperExecutor();
 
-    public StoredProcedure(final String n, final java.lang.reflect.Type genericType) {
+    public StoredProcedure(final String name, final java.lang.reflect.Type genericType) {
+        this.name = name;
 
         if (genericType instanceof ParameterizedType) {
             ParameterizedType pType = (ParameterizedType) genericType;
@@ -38,9 +45,9 @@ class StoredProcedure {
             if (java.util.List.class.isAssignableFrom((Class) pType.getRawType())
                     && pType.getActualTypeArguments().length > 0) {
                 returnType = (Class) pType.getActualTypeArguments()[0];
-                executor = TYPEMAPPER;
+                executor = MULTI_ROW_TYPE_MAPPER_EXECUTOR;
             } else {
-                executor = SINGLE_ROW_TYPEMAPPER;
+                executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
                 returnType = (Class) pType.getRawType();
             }
 
@@ -49,13 +56,11 @@ class StoredProcedure {
 
             Class clazz = (Class) genericType;
             if (clazz == String.class || clazz == Integer.class || clazz == int.class) {
-                executor = GENERIC_SIMPLE_TYPE_SINGLE_COLUMN;
+                executor = SINGLE_ROW_SIMPLE_TYPE_EXECUTOR;
             } else {
-                executor = SINGLE_ROW_TYPEMAPPER;
+                executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
             }
         }
-
-        name = n;
     }
 
     public void addParam(final StoredProcedureParameter p) {
@@ -141,7 +146,7 @@ class StoredProcedure {
     }
 
     public Object execute(final DataSourceProvider dp, final Object[] args) {
-        return executor.executeSproc(dp.getDataSource(getShardId(args)), getQuery(), getParams(args), getTypes(),
+        return executor.executeSProc(dp.getDataSource(getShardId(args)), getQuery(), getParams(args), getTypes(),
                 returnType);
     }
 

@@ -1,4 +1,4 @@
-package de.zalando.storedprocedurewrapper;
+package de.zalando.sprocwrapper.example;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -7,8 +7,7 @@ import javax.sql.DataSource;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
-import de.zalando.storedprocedurewrapper.stockservice.StockService;
-import de.zalando.storedprocedurewrapper.stockservice.TestResult;
+import de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider;
 
 /**
  * Hello world!
@@ -33,9 +32,12 @@ public class App {
         ds2.setUsername("postgres");                            // set the username
         ds2.setPassword("postgres");                            // set the password
 
-        StockService service = new StockService(new ArrayDataSourceProvider(new DataSource[] {ds, ds2}));
+        ExampleSProcServiceImpl service = new ExampleSProcServiceImpl(new ArrayDataSourceProvider(
+                    new DataSource[] {ds, ds2}));
 
         System.out.println(service.getSimpleInt());
+
+        service.getSimpleIntIgnore();
 
         /****
          CREATE OR REPLACE FUNCTION create_article_simple_items(sku text, stockid integer, quantity integer, price integer,
@@ -45,7 +47,7 @@ public class App {
          LANGUAGE plpgsql VOLATILE
          COST 100;
 
-          CREATE OR REPLACE FUNCTION getsimpleint()
+          CREATE OR REPLACE FUNCTION get_simple_int()
           RETURNS integer AS
         ' begin return 3; end; '
           LANGUAGE plpgsql VOLATILE
@@ -61,12 +63,12 @@ public class App {
         System.out.println(service.getSelectValue(1234));
 
         // Query for a Multi Row Resultset of TestResult Objects
-        for (TestResult r : service.getResult()) {
+        for (ExampleResult r : service.getResult()) {
             System.out.println("a: " + r.a + " b: " + r.b);
         }
 
         // Query a single TestResult Object
-        TestResult r = service.getSingleResult();
+        ExampleResult r = service.getSingleResult();
         System.out.println("Single result: a) " + r.a + " b) " + r.b);
 
         System.out.println(service.getBla());

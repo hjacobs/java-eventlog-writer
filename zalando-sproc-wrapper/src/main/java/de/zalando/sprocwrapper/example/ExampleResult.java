@@ -1,4 +1,4 @@
-package de.zalando.storedprocedurewrapper.stockservice;
+package de.zalando.sprocwrapper.example;
 
 import com.typemapper.annotations.DatabaseField;
 
@@ -6,7 +6,7 @@ import com.typemapper.annotations.DatabaseField;
  * @author  jmussler
  */
 
-public class TestResult {
+public class ExampleResult {
     @DatabaseField(name = "a")
     public String a;
 
@@ -29,9 +29,9 @@ public class TestResult {
         this.b = b;
     }
 
-    public TestResult() { }
+    public ExampleResult() { }
 
-    public TestResult(final String _a, final String _b) {
+    public ExampleResult(final String _a, final String _b) {
         a = _a;
         b = _b;
     }

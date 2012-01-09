@@ -1,4 +1,4 @@
-package de.zalando.storedprocedurewrapper.annotations;
+package de.zalando.sprocwrapper.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,12 +10,12 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface SprocParam {
+public @interface SProcParam {
     String name() default "";
 
     String type() default "";
 
     int javaPosition() default -1;
 
-    int sqlPosPosition() default -1;
+    int sqlPosition() default -1;
 }

@@ -1,5 +1,5 @@
 
-package de.zalando.storedprocedurewrapper.stockservice;
+package de.zalando.sprocwrapper.example;
 
 import java.util.List;
 
@@ -7,19 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Repository;
 
-import de.zalando.storedprocedurewrapper.AbstractSprocService;
-import de.zalando.storedprocedurewrapper.ArrayDataSourceProvider;
+import de.zalando.sprocwrapper.AbstractSProcService;
+import de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider;
 
 /**
  * @author  jmussler
  */
 @Repository
-public class StockService extends AbstractSprocService<StockServiceInterface, ArrayDataSourceProvider>
-    implements StockServiceInterface {
+public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcService, ArrayDataSourceProvider>
+    implements ExampleSProcService {
 
     @Autowired
-    public StockService(final ArrayDataSourceProvider p) {
-        super(p, StockServiceInterface.class);
+    public ExampleSProcServiceImpl(final ArrayDataSourceProvider p) {
+        super(p, ExampleSProcService.class);
     }
 
     public void createArticleSimple(final String sku) {
@@ -39,6 +39,10 @@ public class StockService extends AbstractSprocService<StockServiceInterface, Ar
         return service.getSimpleInt();
     }
 
+    public void getSimpleIntIgnore() {
+        service.getSimpleInt();
+    }
+
     public Integer getOtherInt() {
 
         return service.getOtherInt();
@@ -48,11 +52,11 @@ public class StockService extends AbstractSprocService<StockServiceInterface, Ar
         return service.getSelectValue(i);
     }
 
-    public List<TestResult> getResult() {
+    public List<ExampleResult> getResult() {
         return service.getResult();
     }
 
-    public TestResult getSingleResult() {
+    public ExampleResult getSingleResult() {
         return service.getSingleResult();
     }
 

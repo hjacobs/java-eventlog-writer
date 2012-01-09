@@ -1,4 +1,4 @@
-package de.zalando.storedprocedurewrapper.proxy;
+package de.zalando.sprocwrapper.proxy;
 
 /**
  * @author  jmussler

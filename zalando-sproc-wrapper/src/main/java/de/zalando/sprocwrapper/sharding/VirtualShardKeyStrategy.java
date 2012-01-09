@@ -1,4 +1,4 @@
-package de.zalando.storedprocedurewrapper;
+package de.zalando.sprocwrapper.sharding;
 
 /**
  * @author  jmussler

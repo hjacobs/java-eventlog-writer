@@ -1,8 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package de.zalando.storedprocedurewrapper.proxy;
+package de.zalando.sprocwrapper.proxy;
 
 import java.lang.reflect.Method;
 
@@ -10,17 +6,17 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import de.zalando.storedprocedurewrapper.DataSourceProvider;
+import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 
 /**
  * @author  jmussler
  */
-class SprocProxy implements java.lang.reflect.InvocationHandler {
+class SProcProxy implements java.lang.reflect.InvocationHandler {
 
     private final HashMap<String, StoredProcedure> sprocs = new HashMap<String, StoredProcedure>();
     private final DataSourceProvider dp;
 
-    private static final Logger LOG = Logger.getLogger(SprocProxy.class);
+    private static final Logger LOG = Logger.getLogger(SProcProxy.class);
 
     public boolean addStoredProcedure(final String methodName, final StoredProcedure p) {
         if (sprocs.containsKey(methodName)) {
@@ -31,7 +27,7 @@ class SprocProxy implements java.lang.reflect.InvocationHandler {
         return true;
     }
 
-    public SprocProxy(final DataSourceProvider d) {
+    public SProcProxy(final DataSourceProvider d) {
         dp = d;
     }
 

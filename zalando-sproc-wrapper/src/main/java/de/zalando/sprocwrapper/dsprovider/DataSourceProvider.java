@@ -1,4 +1,4 @@
-package de.zalando.storedprocedurewrapper;
+package de.zalando.sprocwrapper.dsprovider;
 
 import javax.sql.DataSource;
 

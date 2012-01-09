@@ -1,34 +1,45 @@
-package de.zalando.storedprocedurewrapper.proxy;
+package de.zalando.sprocwrapper.proxy;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.apache.log4j.Logger;
 
-import de.zalando.storedprocedurewrapper.DataSourceProvider;
-import de.zalando.storedprocedurewrapper.VirtualShardKeyStrategy;
-import de.zalando.storedprocedurewrapper.annotations.ShardKey;
-import de.zalando.storedprocedurewrapper.annotations.SprocCall;
-import de.zalando.storedprocedurewrapper.annotations.SprocParam;
+import de.zalando.sprocwrapper.annotations.SProcCall;
+import de.zalando.sprocwrapper.annotations.SProcParam;
+import de.zalando.sprocwrapper.annotations.ShardKey;
+import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
+import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 
 /**
  * @author  jmussler
  */
-public class SprocProxyBuilder {
+public class SProcProxyBuilder {
 
-    private static final Logger LOG = Logger.getLogger(SprocProxyBuilder.class);
+    private static final Logger LOG = Logger.getLogger(SProcProxyBuilder.class);
 
-    private static String getSqlNameForMethod(final String s) {
-        return s;
+    private static String camelCaseToUnderscore(final String camelCase) {
+        String[] camelCaseParts = StringUtils.splitByCharacterTypeCamelCase(camelCase);
+        for (int i = 0; i < camelCaseParts.length; i++) {
+            camelCaseParts[i] = camelCaseParts[i].toLowerCase();
+        }
+
+        return StringUtils.join(camelCaseParts, "_");
+    }
+
+    private static String getSqlNameForMethod(final String methodName) {
+        return camelCaseToUnderscore(methodName);
     }
 
     public static <T> T build(final DataSourceProvider d, final Class<T> c) {
-        Method[] ms = c.getMethods();
+        Method[] methods = c.getMethods();
 
-        SprocProxy proxy = new SprocProxy(d);
+        SProcProxy proxy = new SProcProxy(d);
 
-        for (Method m : ms) {
-            SprocCall scA = m.getAnnotation(SprocCall.class);
+        for (final Method method : methods) {
+            SProcCall scA = method.getAnnotation(SProcCall.class);
 
             if (scA == null) {
                 continue;
@@ -36,10 +47,10 @@ public class SprocProxyBuilder {
 
             String name = scA.name();
             if ("".equals(name)) {
-                name = getSqlNameForMethod(m.getName());
+                name = getSqlNameForMethod(method.getName());
             }
 
-            StoredProcedure p = new StoredProcedure(name, m.getGenericReturnType());
+            StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType());
 
             if (!"".equals(scA.sql())) {
                 p.setQuery(scA.sql());
@@ -56,9 +67,9 @@ public class SprocProxyBuilder {
             }
 
             int pos = 0;
-            for (Annotation[] as : m.getParameterAnnotations()) {
+            for (final Annotation[] as : method.getParameterAnnotations()) {
 
-                for (Annotation a : as) {
+                for (final Annotation a : as) {
                     if (a instanceof ShardKey) {
                         int kp = ((ShardKey) a).pos();
                         if (kp == -1) {
@@ -68,12 +79,12 @@ public class SprocProxyBuilder {
                         p.addShardKeyParamter(pos, kp);
                     }
 
-                    if (a instanceof SprocParam) {
-                        SprocParam sParam = (SprocParam) a;
+                    if (a instanceof SProcParam) {
+                        SProcParam sParam = (SProcParam) a;
 
                         int sqlPos = pos;
-                        if (sParam.sqlPosPosition() != -1) {
-                            sqlPos = sParam.sqlPosPosition();
+                        if (sParam.sqlPosition() != -1) {
+                            sqlPos = sParam.sqlPosition();
                         }
 
                         int javaPos = pos;
@@ -83,7 +94,7 @@ public class SprocProxyBuilder {
 
                         String type = sParam.type();
                         if ("".equals(type)) {
-                            type = m.getParameterTypes()[pos].getName();
+                            type = method.getParameterTypes()[pos].getName();
                         }
 
                         p.addParam(new StoredProcedureParameter(type, sqlPos, javaPos));
@@ -94,7 +105,7 @@ public class SprocProxyBuilder {
             }
 
             LOG.debug("registering stored procedure: " + p);
-            proxy.addStoredProcedure(m.getName(), p);
+            proxy.addStoredProcedure(method.getName(), p);
         }
 
         return (T) java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), new Class[] {c}, proxy);

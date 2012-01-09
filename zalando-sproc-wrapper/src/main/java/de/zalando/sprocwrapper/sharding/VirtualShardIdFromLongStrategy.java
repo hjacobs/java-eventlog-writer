@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.zalando.storedprocedurewrapper;
+package de.zalando.sprocwrapper.sharding;
 
 /**
  * @author  jmussler
  */
-public class VirtualShardIdFromLong extends VirtualShardKeyStrategy {
+public class VirtualShardIdFromLongStrategy extends VirtualShardKeyStrategy {
 
     @Override
     public int getShardId(final Object[] objs) {
