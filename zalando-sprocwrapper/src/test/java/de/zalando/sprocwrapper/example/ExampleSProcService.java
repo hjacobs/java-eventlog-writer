@@ -26,6 +26,9 @@ public interface ExampleSProcService extends SProcService {
     Integer getSimpleInt();
 
     @SProcCall(name = "get_simple_int")
+    int getSimpleIntAsPrimitive();
+
+    @SProcCall(name = "get_simple_int")
     void getSimpleIntIgnore();
 
     @SProcCall(sql = "SELECT 100")

@@ -6,5 +6,5 @@ import javax.sql.DataSource;
  * @author  jmussler
  */
 public interface DataSourceProvider {
-    DataSource getDataSource(int id);
+    DataSource getDataSource(int virtualShardId);
 }

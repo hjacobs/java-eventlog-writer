@@ -10,14 +10,14 @@ public abstract class AbstractSProcService<I extends SProcService, P extends Dat
 
     protected P ds;
 
-    protected I service;
+    protected I sproc;
 
     protected Class<I> interfaceClass;
 
     protected AbstractSProcService(final P ps, final Class<I> clazz) {
         interfaceClass = clazz;
         ds = ps;
-        service = SProcProxyBuilder.build(ds, interfaceClass);
+        sproc = SProcProxyBuilder.build(ds, interfaceClass);
     }
 
 }

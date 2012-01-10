@@ -54,8 +54,7 @@ class StoredProcedure {
         } else {
             returnType = (Class) genericType;
 
-            Class clazz = (Class) genericType;
-            if (clazz == String.class || clazz == Integer.class || clazz == int.class) {
+            if (SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
                 executor = SINGLE_ROW_SIMPLE_TYPE_EXECUTOR;
             } else {
                 executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;

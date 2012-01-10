@@ -23,7 +23,7 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     public void createArticleSimple(final String sku) {
-        service.createArticleSimple(sku);
+        sproc.createArticleSimple(sku);
     }
 
     public String createArticleSimpleItems(final String sku, final int stockId, final int quantity,
@@ -32,39 +32,43 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
             throw new IllegalArgumentException("SKU");
         }
 
-        return service.createArticleSimpleItems(sku, stockId, quantity, purchasePrice, referenceNumber);
+        return sproc.createArticleSimpleItems(sku, stockId, quantity, purchasePrice, referenceNumber);
     }
 
     public Integer getSimpleInt() {
-        return service.getSimpleInt();
+        return sproc.getSimpleInt();
+    }
+
+    public int getSimpleIntAsPrimitive() {
+        return sproc.getSimpleIntAsPrimitive();
     }
 
     public void getSimpleIntIgnore() {
-        service.getSimpleInt();
+        sproc.getSimpleInt();
     }
 
     public Integer getOtherInt() {
 
-        return service.getOtherInt();
+        return sproc.getOtherInt();
     }
 
     public Integer getSelectValue(final int i) {
-        return service.getSelectValue(i);
+        return sproc.getSelectValue(i);
     }
 
     public List<ExampleResult> getResult() {
-        return service.getResult();
+        return sproc.getResult();
     }
 
     public ExampleResult getSingleResult() {
-        return service.getSingleResult();
+        return sproc.getSingleResult();
     }
 
     public Integer getBla() {
-        return service.getBla();
+        return sproc.getBla();
     }
 
     public String getDatabase(final int i) {
-        return service.getDatabase(i);
+        return sproc.getDatabase(i);
     }
 }
