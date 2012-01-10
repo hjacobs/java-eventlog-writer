@@ -1,6 +1,7 @@
 package de.zalando.sprocwrapper.proxy;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,14 +26,14 @@ class StoredProcedureParameter {
         SQL_MAPPING.put(String.class.getName(), java.sql.Types.VARCHAR);
         SQL_MAPPING.put(java.sql.Date.class.getName(), java.sql.Types.TIMESTAMP);
         SQL_MAPPING.put(java.sql.Date.class.getName(), java.sql.Types.TIMESTAMP);
+        SQL_MAPPING.put(List.class.getName(), java.sql.Types.ARRAY);
     }
 
     public StoredProcedureParameter(final String t, final int s, final int j) {
         Integer typeId = SQL_MAPPING.get(t);
         if (typeId == null) {
 
-            // @TODO consider exception
-            typeId = java.sql.Types.VARCHAR;
+            typeId = java.sql.Types.OTHER;
         }
 
         type = typeId;

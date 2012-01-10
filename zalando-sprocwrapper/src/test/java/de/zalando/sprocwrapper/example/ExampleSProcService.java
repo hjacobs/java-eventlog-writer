@@ -6,7 +6,7 @@ import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
 import de.zalando.sprocwrapper.sharding.ShardKey;
-import de.zalando.sprocwrapper.sharding.VirtualShardIdFromLongStrategy;
+import de.zalando.sprocwrapper.sharding.VirtualShardIdentityStrategy;
 
 /**
  * @author  jmussler
@@ -31,21 +31,27 @@ public interface ExampleSProcService extends SProcService {
     @SProcCall(name = "get_simple_int")
     void getSimpleIntIgnore();
 
-    @SProcCall(sql = "SELECT 100")
-    Integer getOtherInt();
+    @SProcCall
+    long getSimpleLong();
 
-    @SProcCall(sql = "SELECT ?")
-    Integer getSelectValue(@SProcParam int i);
+    @SProcCall
+    int getSimpleInt(@SProcParam int i);
 
     @SProcCall(sql = "SELECT 'a' AS a, 'b' AS b UNION ALL SELECT 'c', 'd'")
-    List<ExampleResult> getResult();
+    List<ExampleDomainObject> getResult();
 
     @SProcCall(sql = "SELECT 'a' AS a, 'b' AS b")
-    ExampleResult getSingleResult();
+    ExampleDomainObject getSingleResult();
 
     @SProcCall(sql = "SELECT 5555")
     Integer getBla();
 
-    @SProcCall(sql = "SELECT current_database()", shardStrategy = VirtualShardIdFromLongStrategy.class)
-    String getDatabase(@ShardKey int shard);
+    @SProcCall(shardStrategy = VirtualShardIdentityStrategy.class)
+    int getShardIndex(@ShardKey int shard);
+
+    @SProcCall
+    String createOrUpdateObject(@SProcParam ExampleDomainObject object);
+
+    @SProcCall
+    String createOrUpdateMultipleObjects(@SProcParam List<ExampleDomainObject> objects);
 }

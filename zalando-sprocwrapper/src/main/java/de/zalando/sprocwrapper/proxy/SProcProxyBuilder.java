@@ -20,7 +20,7 @@ public class SProcProxyBuilder {
 
     private static final Logger LOG = Logger.getLogger(SProcProxyBuilder.class);
 
-    private static String camelCaseToUnderscore(final String camelCase) {
+    public static String camelCaseToUnderscore(final String camelCase) {
         String[] camelCaseParts = StringUtils.splitByCharacterTypeCamelCase(camelCase);
         for (int i = 0; i < camelCaseParts.length; i++) {
             camelCaseParts[i] = camelCaseParts[i].toLowerCase();
@@ -105,7 +105,7 @@ public class SProcProxyBuilder {
             }
 
             LOG.debug("registering stored procedure: " + p);
-            proxy.addStoredProcedure(method.getName(), p);
+            proxy.addStoredProcedure(method, p);
         }
 
         return (T) java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), new Class[] {c}, proxy);

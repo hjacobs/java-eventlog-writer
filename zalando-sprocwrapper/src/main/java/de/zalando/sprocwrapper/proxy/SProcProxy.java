@@ -13,17 +13,17 @@ import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
  */
 class SProcProxy implements java.lang.reflect.InvocationHandler {
 
-    private final HashMap<String, StoredProcedure> sprocs = new HashMap<String, StoredProcedure>();
+    private final HashMap<Method, StoredProcedure> sprocs = new HashMap<Method, StoredProcedure>();
     private final DataSourceProvider dp;
 
     private static final Logger LOG = Logger.getLogger(SProcProxy.class);
 
-    public boolean addStoredProcedure(final String methodName, final StoredProcedure p) {
-        if (sprocs.containsKey(methodName)) {
+    public boolean addStoredProcedure(final Method method, final StoredProcedure p) {
+        if (sprocs.containsKey(method)) {
             return false;
         }
 
-        sprocs.put(methodName, p);
+        sprocs.put(method, p);
         return true;
     }
 
@@ -35,7 +35,7 @@ class SProcProxy implements java.lang.reflect.InvocationHandler {
     public Object invoke(final Object proxy, final Method m, final Object[] args) {
         LOG.debug("try to invoke sproc for " + m.getName());
 
-        StoredProcedure p = sprocs.get(m.getName());
+        StoredProcedure p = sprocs.get(m);
 
         if (p == null) {
             LOG.debug("no sproc found!");

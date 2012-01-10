@@ -1,11 +1,27 @@
 package de.zalando.sprocwrapper.proxy;
 
+import java.beans.PropertyDescriptor;
+
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+
+import java.sql.Array;
+import java.sql.SQLException;
+import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import org.postgresql.util.PGobject;
+
+import org.springframework.beans.BeanUtils;
+
+import com.typemapper.annotations.DatabaseField;
+
+import com.typemapper.serialization.postgres.PgArray;
+import com.typemapper.serialization.postgres.PgRow;
 
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.proxy.executors.Executor;
@@ -82,11 +98,66 @@ class StoredProcedure {
         return name;
     }
 
+    private static PGobject serializePGObject(final Object obj) {
+        List<Object> attributes = new ArrayList<Object>();
+
+        for (PropertyDescriptor descr : BeanUtils.getPropertyDescriptors(obj.getClass())) {
+            try {
+                Field field = obj.getClass().getField(descr.getName());
+                DatabaseField annotation = field.getAnnotation(DatabaseField.class);
+                if (annotation != null) {
+                    attributes.add(field.get(obj));
+                }
+
+            } catch (Exception e) {
+                continue;
+            }
+
+        }
+
+        PGobject result = null;
+        try {
+            result = PgRow.ROW(attributes).asPGobject(SProcProxyBuilder.camelCaseToUnderscore(
+                        obj.getClass().getSimpleName()));
+        } catch (final SQLException ex) {
+            LOG.error("Failed to serialize PG object", ex);
+        }
+
+        return result;
+    }
+
+    private static Object mapParam(final Object param, final int sqlType) {
+        if (param == null) {
+            return null;
+        }
+
+        switch (sqlType) {
+
+            case Types.ARRAY :
+
+                List<PGobject> pgobjects = new ArrayList<PGobject>();
+                List list = (List) param;
+                for (Object obj : list) {
+                    pgobjects.add(serializePGObject(obj));
+                }
+
+                Array arr = null;
+                arr = PgArray.ARRAY(pgobjects).asJdbcArray(pgobjects.get(0).getType());
+
+                return arr;
+
+            case Types.OTHER :
+                return serializePGObject(param);
+        }
+
+        return param;
+    }
+
     public Object[] getParams(final Object[] origParams) {
         Object[] ps = new Object[params.size()];
 
         for (StoredProcedureParameter p : params) {
-            ps[p.sqlPos] = origParams[p.javaPos];
+            ps[p.sqlPos] = mapParam(origParams[p.javaPos], p.type);
         }
 
         return ps;

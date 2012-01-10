@@ -47,20 +47,20 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         sproc.getSimpleInt();
     }
 
-    public Integer getOtherInt() {
+    public long getSimpleLong() {
 
-        return sproc.getOtherInt();
+        return sproc.getSimpleLong();
     }
 
-    public Integer getSelectValue(final int i) {
-        return sproc.getSelectValue(i);
+    public int getSimpleInt(final int i) {
+        return sproc.getSimpleInt(i);
     }
 
-    public List<ExampleResult> getResult() {
+    public List<ExampleDomainObject> getResult() {
         return sproc.getResult();
     }
 
-    public ExampleResult getSingleResult() {
+    public ExampleDomainObject getSingleResult() {
         return sproc.getSingleResult();
     }
 
@@ -68,7 +68,18 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         return sproc.getBla();
     }
 
-    public String getDatabase(final int i) {
-        return sproc.getDatabase(i);
+    public int getShardIndex(final int shard) {
+        return sproc.getShardIndex(shard);
     }
+
+    @Override
+    public String createOrUpdateObject(final ExampleDomainObject object) {
+        return sproc.createOrUpdateObject(object);
+    }
+
+    @Override
+    public String createOrUpdateMultipleObjects(final List<ExampleDomainObject> objects) {
+        return sproc.createOrUpdateMultipleObjects(objects);
+    }
+
 }

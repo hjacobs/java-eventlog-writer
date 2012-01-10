@@ -13,7 +13,7 @@ public class ArrayDataSourceProvider implements DataSourceProvider {
     }
 
     public DataSource getDataSource(final int id) {
-        return dss[id];
+        return dss[id % dss.length];
     }
 
 }
