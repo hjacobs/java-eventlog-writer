@@ -92,12 +92,10 @@ public class SProcProxyBuilder {
                             javaPos = sParam.javaPosition();
                         }
 
-                        String type = sParam.type();
-                        if ("".equals(type)) {
-                            type = method.getParameterTypes()[pos].getName();
-                        }
+                        String dbTypeName = sParam.type();
+                        Class clazz = method.getParameterTypes()[pos];
 
-                        p.addParam(new StoredProcedureParameter(type, sqlPos, javaPos));
+                        p.addParam(new StoredProcedureParameter(clazz, dbTypeName, sqlPos, javaPos));
                     }
                 }
 

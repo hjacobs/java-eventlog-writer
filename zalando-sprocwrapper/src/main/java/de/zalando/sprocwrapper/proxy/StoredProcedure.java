@@ -12,6 +12,8 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.apache.log4j.Logger;
 
 import org.postgresql.util.PGobject;
@@ -98,7 +100,7 @@ class StoredProcedure {
         return name;
     }
 
-    private static PGobject serializePGObject(final Object obj) {
+    private static PGobject serializePGObject(final Object obj, final String typeHint) {
         List<Object> attributes = new ArrayList<Object>();
 
         for (PropertyDescriptor descr : BeanUtils.getPropertyDescriptors(obj.getClass())) {
@@ -116,9 +118,13 @@ class StoredProcedure {
         }
 
         PGobject result = null;
+        String typeName = typeHint;
+        if (StringUtils.isEmpty(typeName)) {
+            typeName = SProcProxyBuilder.camelCaseToUnderscore(obj.getClass().getSimpleName());
+        }
+
         try {
-            result = PgRow.ROW(attributes).asPGobject(SProcProxyBuilder.camelCaseToUnderscore(
-                        obj.getClass().getSimpleName()));
+            result = PgRow.ROW(attributes).asPGobject(typeName);
         } catch (final SQLException ex) {
             LOG.error("Failed to serialize PG object", ex);
         }
@@ -126,7 +132,7 @@ class StoredProcedure {
         return result;
     }
 
-    private static Object mapParam(final Object param, final int sqlType) {
+    private static Object mapParam(final Object param, final int sqlType, final String typeName) {
         if (param == null) {
             return null;
         }
@@ -138,16 +144,31 @@ class StoredProcedure {
                 List<PGobject> pgobjects = new ArrayList<PGobject>();
                 List list = (List) param;
                 for (Object obj : list) {
-                    pgobjects.add(serializePGObject(obj));
+                    pgobjects.add(serializePGObject(obj, null));
+                }
+
+                String innerTypeName = null;
+
+                if (typeName != null && typeName.endsWith("[]")) {
+                    innerTypeName = typeName.substring(0, typeName.length() - 2);
+                }
+
+                if (innerTypeName == null && !pgobjects.isEmpty()) {
+                    innerTypeName = pgobjects.get(0).getType();
+                }
+
+                if (innerTypeName == null) {
+                    throw new IllegalArgumentException(
+                        "Could not determine PG array type: Empty list parameter without @SProcParam(type = \"..[]\")");
                 }
 
                 Array arr = null;
-                arr = PgArray.ARRAY(pgobjects).asJdbcArray(pgobjects.get(0).getType());
+                arr = PgArray.ARRAY(pgobjects).asJdbcArray(innerTypeName);
 
                 return arr;
 
             case Types.OTHER :
-                return serializePGObject(param);
+                return serializePGObject(param, typeName);
         }
 
         return param;
@@ -157,7 +178,7 @@ class StoredProcedure {
         Object[] ps = new Object[params.size()];
 
         for (StoredProcedureParameter p : params) {
-            ps[p.sqlPos] = mapParam(origParams[p.javaPos], p.type);
+            ps[p.sqlPos] = mapParam(origParams[p.javaPos], p.type, p.typeName);
         }
 
         return ps;

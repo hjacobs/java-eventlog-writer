@@ -65,20 +65,29 @@ public class SimpleIT {
     @Test
     public void testObjectParam() {
 
+        String result = exampleSProcService.createOrUpdateObject(null);
+        assertEquals(null, result);
+
         ExampleDomainObject obj = new ExampleDomainObject("a", "b");
-        String result = exampleSProcService.createOrUpdateObject(obj);
+        result = exampleSProcService.createOrUpdateObject(obj);
         assertEquals("a b", result);
     }
 
     @Test
     public void testListParam() {
 
+        String result = exampleSProcService.createOrUpdateMultipleObjects(null);
+        assertEquals("", result);
+
+        result = exampleSProcService.createOrUpdateMultipleObjects(new ArrayList<ExampleDomainObject>());
+        assertEquals("", result);
+
         ExampleDomainObject obj = new ExampleDomainObject("a", "b");
         List<ExampleDomainObject> list = new ArrayList<ExampleDomainObject>();
         list.add(obj);
         list.add(new ExampleDomainObject("c", "d"));
 
-        String result = exampleSProcService.createOrUpdateMultipleObjects(list);
+        result = exampleSProcService.createOrUpdateMultipleObjects(list);
         assertEquals("a_b,c_d,", result);
     }
 }

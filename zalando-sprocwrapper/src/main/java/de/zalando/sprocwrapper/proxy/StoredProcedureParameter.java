@@ -8,36 +8,38 @@ import java.util.Map;
  * @author  jmussler
  */
 class StoredProcedureParameter {
+    String typeName;
     int type;
     int sqlPos;
     int javaPos;
 
-    private static final Map<String, Integer> SQL_MAPPING = new HashMap<String, Integer>();
+    private static final Map<Class, Integer> SQL_MAPPING = new HashMap<Class, Integer>();
 
     static {
-        SQL_MAPPING.put(int.class.getName(), java.sql.Types.INTEGER);
-        SQL_MAPPING.put(Integer.class.getName(), java.sql.Types.INTEGER);
-        SQL_MAPPING.put(long.class.getName(), java.sql.Types.BIGINT);
-        SQL_MAPPING.put(Long.class.getName(), java.sql.Types.BIGINT);
-        SQL_MAPPING.put(float.class.getName(), java.sql.Types.FLOAT);
-        SQL_MAPPING.put(Float.class.getName(), java.sql.Types.FLOAT);
-        SQL_MAPPING.put(double.class.getName(), java.sql.Types.DOUBLE);
-        SQL_MAPPING.put(Double.class.getName(), java.sql.Types.DOUBLE);
-        SQL_MAPPING.put(String.class.getName(), java.sql.Types.VARCHAR);
-        SQL_MAPPING.put(java.sql.Date.class.getName(), java.sql.Types.TIMESTAMP);
-        SQL_MAPPING.put(java.sql.Date.class.getName(), java.sql.Types.TIMESTAMP);
-        SQL_MAPPING.put(List.class.getName(), java.sql.Types.ARRAY);
+        SQL_MAPPING.put(int.class, java.sql.Types.INTEGER);
+        SQL_MAPPING.put(Integer.class, java.sql.Types.INTEGER);
+        SQL_MAPPING.put(long.class, java.sql.Types.BIGINT);
+        SQL_MAPPING.put(Long.class, java.sql.Types.BIGINT);
+        SQL_MAPPING.put(float.class, java.sql.Types.FLOAT);
+        SQL_MAPPING.put(Float.class, java.sql.Types.FLOAT);
+        SQL_MAPPING.put(double.class, java.sql.Types.DOUBLE);
+        SQL_MAPPING.put(Double.class, java.sql.Types.DOUBLE);
+        SQL_MAPPING.put(String.class, java.sql.Types.VARCHAR);
+        SQL_MAPPING.put(java.sql.Date.class, java.sql.Types.TIMESTAMP);
+        SQL_MAPPING.put(List.class, java.sql.Types.ARRAY);
     }
 
-    public StoredProcedureParameter(final String t, final int s, final int j) {
-        Integer typeId = SQL_MAPPING.get(t);
-        if (typeId == null) {
+    public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlPosition,
+            final int javaPosition) {
+        this.typeName = typeName;
 
+        Integer typeId = SQL_MAPPING.get(clazz);
+        if (typeId == null) {
             typeId = java.sql.Types.OTHER;
         }
 
         type = typeId;
-        sqlPos = s;
-        javaPos = j;
+        sqlPos = sqlPosition;
+        javaPos = javaPosition;
     }
 }

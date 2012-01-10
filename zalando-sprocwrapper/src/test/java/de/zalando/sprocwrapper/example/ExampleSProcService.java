@@ -53,5 +53,6 @@ public interface ExampleSProcService extends SProcService {
     String createOrUpdateObject(@SProcParam ExampleDomainObject object);
 
     @SProcCall
-    String createOrUpdateMultipleObjects(@SProcParam List<ExampleDomainObject> objects);
+    String createOrUpdateMultipleObjects(
+            @SProcParam(type = "example_domain_object[]") List<ExampleDomainObject> objects);
 }
