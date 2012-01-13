@@ -55,4 +55,7 @@ public interface ExampleSProcService extends SProcService {
     @SProcCall
     String createOrUpdateMultipleObjects(
             @SProcParam(type = "example_domain_object[]") List<ExampleDomainObject> objects);
+
+    @SProcCall
+    boolean reserveStock(@ShardKey @SProcParam String sku);
 }

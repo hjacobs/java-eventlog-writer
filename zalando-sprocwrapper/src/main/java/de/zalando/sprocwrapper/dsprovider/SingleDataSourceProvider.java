@@ -11,6 +11,7 @@ public class SingleDataSourceProvider implements DataSourceProvider {
         dataSource = ds;
     }
 
+    @Override
     public DataSource getDataSource(final int id) {
         return dataSource;
     }

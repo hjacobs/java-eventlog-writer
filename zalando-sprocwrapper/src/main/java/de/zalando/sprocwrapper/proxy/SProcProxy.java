@@ -33,7 +33,7 @@ class SProcProxy implements java.lang.reflect.InvocationHandler {
 
     @Override
     public Object invoke(final Object proxy, final Method m, final Object[] args) {
-        LOG.debug("try to invoke sproc for " + m.getName());
+        LOG.debug("invoke stored procedure for method " + m);
 
         StoredProcedure p = sprocs.get(m);
 
@@ -46,6 +46,8 @@ class SProcProxy implements java.lang.reflect.InvocationHandler {
             LOG.debug("no datasource set!");
             return null;
         }
+
+        LOG.debug("executing " + p);
 
         return p.execute(dp, args);
     }

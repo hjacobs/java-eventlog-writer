@@ -132,12 +132,13 @@ class StoredProcedure {
         return result;
     }
 
-    private static Object mapParam(final Object param, final int sqlType, final String typeName) {
+    private static Object mapParam(final Object param, final StoredProcedureParameter p) {
         if (param == null) {
             return null;
         }
 
-        switch (sqlType) {
+        switch (p.type) {
+// @TODO use method parameter to detect input array/list
 
             case Types.ARRAY :
 
@@ -149,8 +150,8 @@ class StoredProcedure {
 
                 String innerTypeName = null;
 
-                if (typeName != null && typeName.endsWith("[]")) {
-                    innerTypeName = typeName.substring(0, typeName.length() - 2);
+                if (p.typeName != null && p.typeName.endsWith("[]")) {
+                    innerTypeName = p.typeName.substring(0, p.typeName.length() - 2);
                 }
 
                 if (innerTypeName == null && !pgobjects.isEmpty()) {
@@ -168,7 +169,7 @@ class StoredProcedure {
                 return arr;
 
             case Types.OTHER :
-                return serializePGObject(param, typeName);
+                return serializePGObject(param, p.typeName);
         }
 
         return param;
@@ -178,7 +179,7 @@ class StoredProcedure {
         Object[] ps = new Object[params.size()];
 
         for (StoredProcedureParameter p : params) {
-            ps[p.sqlPos] = mapParam(origParams[p.javaPos], p.type, p.typeName);
+            ps[p.sqlPos] = mapParam(origParams[p.javaPos], p);
         }
 
         return ps;
@@ -264,6 +265,9 @@ class StoredProcedure {
 
             f = false;
             s += p.type;
+            if (!"".equals(p.typeName)) {
+                s += "=>" + p.typeName;
+            }
         }
 
         s += ")";

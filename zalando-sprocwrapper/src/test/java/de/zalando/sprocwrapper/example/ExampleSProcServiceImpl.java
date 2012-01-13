@@ -82,4 +82,9 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         return sproc.createOrUpdateMultipleObjects(objects);
     }
 
+    @Override
+    public boolean reserveStock(final String sku) {
+        return sproc.reserveStock(sku);
+    }
+
 }

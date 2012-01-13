@@ -12,6 +12,7 @@ class StoredProcedureParameter {
     int type;
     int sqlPos;
     int javaPos;
+    Class clazz;
 
     private static final Map<Class, Integer> SQL_MAPPING = new HashMap<Class, Integer>();
 
@@ -32,6 +33,7 @@ class StoredProcedureParameter {
     public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlPosition,
             final int javaPosition) {
         this.typeName = typeName;
+        this.clazz = clazz;
 
         Integer typeId = SQL_MAPPING.get(clazz);
         if (typeId == null) {
