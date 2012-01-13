@@ -2,16 +2,25 @@ package de.zalando.sprocwrapper;
 
 import static org.junit.Assert.assertEquals;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -25,6 +34,10 @@ public class SimpleIT {
 
     @Autowired
     private ExampleSProcService exampleSProcService;
+
+    @Autowired
+    @Qualifier("testDataSource1")
+    private DataSource dataSource1;
 
     @Test
     public void testSample() throws SQLException {
@@ -89,5 +102,64 @@ public class SimpleIT {
 
         result = exampleSProcService.createOrUpdateMultipleObjects(list);
         assertEquals("a_b,c_d,", result);
+    }
+
+    @Test
+    @Ignore("performance test only")
+    public void testRuntime() {
+        assertEquals(1, 1);
+
+        int loops = 10000;
+
+        String sql = "SELECT ";
+
+        int xx = (new JdbcTemplate(dataSource1)).queryForInt(sql + 11111);
+
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < loops; i++) {
+            int j = (new JdbcTemplate(dataSource1)).queryForInt(sql + i);
+        }
+
+        long endTime = System.currentTimeMillis();
+
+        long startTimeW = System.currentTimeMillis();
+        for (int i = 0; i < loops; i++) {
+            int j = exampleSProcService.getSimpleInt(i);
+        }
+
+        long endTimeW = System.currentTimeMillis();
+
+        long startTimeN = System.currentTimeMillis();
+
+        for (int i = 0; i < loops; i++) {
+            Connection conn = null;
+            try {
+                conn = dataSource1.getConnection();
+
+                Statement st = conn.createStatement();
+
+                int j = 0;
+
+                ResultSet rs = st.executeQuery("SELECT " + i);
+
+                if (rs.next()) {
+                    j = rs.getInt(1);
+                }
+
+            } catch (SQLException e) { }
+            finally {
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) { }
+                }
+            }
+        }
+
+        long endTimeN = System.currentTimeMillis();
+
+        System.out.println("Time used for native JdbcTemplate: " + (endTime - startTime));
+        System.out.println("Time used for SprocWrapper: " + (endTimeW - startTimeW));
+        System.out.println("Time used for Native: " + (endTimeN - startTimeN));
     }
 }
