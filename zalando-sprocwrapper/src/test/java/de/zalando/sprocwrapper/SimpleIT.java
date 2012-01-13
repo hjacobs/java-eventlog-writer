@@ -1,6 +1,7 @@
 package de.zalando.sprocwrapper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -8,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -26,6 +28,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -102,6 +105,30 @@ public class SimpleIT {
 
         result = exampleSProcService.createOrUpdateMultipleObjects(list);
         assertEquals("a_b,c_d,", result);
+    }
+
+    @Test
+    public void testListParamWithMap() {
+
+        String result = exampleSProcService.createOrUpdateMultipleObjectsWithMap(null);
+        assertNull(result);
+
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithMap(new ArrayList<ExampleDomainObjectWithMap>());
+        assertNull(result);
+
+        ExampleDomainObjectWithMap obj = new ExampleDomainObjectWithMap("a", null);
+        List<ExampleDomainObjectWithMap> list = new ArrayList<ExampleDomainObjectWithMap>();
+        list.add(obj);
+        list.add(new ExampleDomainObjectWithMap("c", new HashMap<String, String>()));
+        list.get(1).b.put("key", "val");
+
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithMap(list);
+        assertEquals("<c_key_val>", result);
+
+        list.get(0).b = new HashMap<String, String>();
+
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithMap(list);
+        assertEquals("<a__>,<c_key_val>", result);
     }
 
     @Test

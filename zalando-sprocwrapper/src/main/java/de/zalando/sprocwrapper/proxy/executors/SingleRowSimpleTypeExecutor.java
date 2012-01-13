@@ -16,6 +16,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
 
     static {
         SIMPLE_TYPES.put(Void.class, Void.class);
+        SIMPLE_TYPES.put(void.class, Void.class);
         SIMPLE_TYPES.put(Integer.class, Integer.class);
         SIMPLE_TYPES.put(String.class, String.class);
         SIMPLE_TYPES.put(Float.class, Float.class);

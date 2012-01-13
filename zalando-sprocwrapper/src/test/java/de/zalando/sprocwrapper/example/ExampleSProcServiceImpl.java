@@ -83,6 +83,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public String createOrUpdateMultipleObjectsWithMap(final List<ExampleDomainObjectWithMap> objects) {
+        return sproc.createOrUpdateMultipleObjectsWithMap(objects);
+    }
+
+    @Override
     public boolean reserveStock(final String sku) {
         return sproc.reserveStock(sku);
     }

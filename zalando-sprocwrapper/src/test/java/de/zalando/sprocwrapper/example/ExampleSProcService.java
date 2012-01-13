@@ -57,5 +57,9 @@ public interface ExampleSProcService extends SProcService {
             @SProcParam(type = "example_domain_object[]") List<ExampleDomainObject> objects);
 
     @SProcCall
+    String createOrUpdateMultipleObjectsWithMap(
+            @SProcParam(type = "example_domain_object_with_map[]") List<ExampleDomainObjectWithMap> objects);
+
+    @SProcCall
     boolean reserveStock(@ShardKey @SProcParam String sku);
 }

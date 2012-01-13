@@ -1,7 +1,5 @@
 package de.zalando.sprocwrapper.proxy;
 
-import java.beans.PropertyDescriptor;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 
@@ -10,7 +8,11 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -18,12 +20,12 @@ import org.apache.log4j.Logger;
 
 import org.postgresql.util.PGobject;
 
-import org.springframework.beans.BeanUtils;
-
 import com.typemapper.annotations.DatabaseField;
 
 import com.typemapper.serialization.postgres.PgArray;
 import com.typemapper.serialization.postgres.PgRow;
+
+import de.zalando.dbutils.ParseUtils;
 
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.proxy.executors.Executor;
@@ -103,18 +105,58 @@ class StoredProcedure {
     private static PGobject serializePGObject(final Object obj, final String typeHint) {
         List<Object> attributes = new ArrayList<Object>();
 
-        for (PropertyDescriptor descr : BeanUtils.getPropertyDescriptors(obj.getClass())) {
+        Field[] fields = obj.getClass().getDeclaredFields();
+
+        // Hacky: sort fields alphabetically as class fields' order is undefined
+        // http://stackoverflow.com/questions/1097807/java-reflection-is-the-order-of-class-fields-and-methods-standardized
+        Arrays.sort(fields, new Comparator<Field>() {
+
+                @Override
+                public int compare(final Field a, final Field b) {
+                    return a.getName().compareTo(b.getName());
+                }
+
+            });
+        for (Field field : fields) {
             try {
-                Field field = obj.getClass().getField(descr.getName());
+                field.setAccessible(true);
+
                 DatabaseField annotation = field.getAnnotation(DatabaseField.class);
                 if (annotation != null) {
-                    attributes.add(field.get(obj));
+                    Object attr = field.get(obj);
+                    if (attr instanceof Map) {
+
+                        // TODO: move HSTORE serialization into PGSerializer in typemapper
+                        Map<String, String> map = (Map<String, String>) attr;
+                        int j = 0;
+                        StringBuilder hstore = new StringBuilder();
+                        for (Entry<String, String> entry : map.entrySet()) {
+                            if (j > 0) {
+                                hstore.append(",");
+                            }
+
+                            hstore.append("\"");
+                            hstore.append(ParseUtils.quotePgArrayElement(entry.getKey()));
+                            hstore.append("\"=>\"");
+                            hstore.append(ParseUtils.quotePgArrayElement(entry.getValue()));
+                            hstore.append("\"");
+                            j++;
+                        }
+
+                        attr = hstore.toString();
+                    }
+
+                    attributes.add(attr);
                 }
 
             } catch (Exception e) {
                 continue;
             }
+        }
 
+        if (attributes.isEmpty()) {
+            throw new IllegalArgumentException("Cannot serialize object of class " + obj.getClass().getName()
+                    + " to PGObject: No attributes");
         }
 
         PGobject result = null;
