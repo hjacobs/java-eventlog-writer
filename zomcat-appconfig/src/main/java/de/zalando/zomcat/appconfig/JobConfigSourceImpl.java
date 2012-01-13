@@ -45,7 +45,7 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         String jobGroupName = null;
 
         if (job.getJobGroup() != null) {
-            jobGroupName = job.getJobGroup().name();
+            jobGroupName = job.getJobGroup().groupName();
         } else {
             jobGroupName = getConfig().getStringConfig(String.format("jobConfig.%s.jobGroup", jobName),
                     new ConfigCtx(null, null), null);
