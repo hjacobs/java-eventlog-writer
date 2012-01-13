@@ -184,12 +184,16 @@ class StoredProcedure {
         return ps;
     }
 
-    public int[] getTypes() {
-        int[] types = new int[params.size()];
+    private int[] types = null;
 
-        int i = 0;
-        for (StoredProcedureParameter p : params) {
-            types[i++] = p.type;
+    public int[] getTypes() {
+        if (types == null) {
+            types = new int[params.size()];
+
+            int i = 0;
+            for (StoredProcedureParameter p : params) {
+                types[i++] = p.type;
+            }
         }
 
         return types;

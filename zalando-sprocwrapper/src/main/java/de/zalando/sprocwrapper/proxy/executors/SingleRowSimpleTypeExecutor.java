@@ -36,6 +36,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
         return returnType;
     }
 
+    @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
             final Class returnType) {
         return (new JdbcTemplate(ds)).queryForObject(sql, args, types, mapReturnType(returnType));
