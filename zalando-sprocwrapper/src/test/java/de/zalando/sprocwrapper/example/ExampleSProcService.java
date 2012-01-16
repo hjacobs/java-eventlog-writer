@@ -61,6 +61,10 @@ public interface ExampleSProcService extends SProcService {
             @SProcParam(type = "example_domain_object_with_map[]") List<ExampleDomainObjectWithMap> objects);
 
     @SProcCall
+    String createOrUpdateMultipleObjectsWithInnerObject(
+            @SProcParam(type = "example_domain_object_with_inner_object[]") List<ExampleDomainObjectWithInnerObject> objects);
+
+    @SProcCall
     void createOrUpdateMultipleObjectsWithMapVoid(
             @SProcParam(type = "example_domain_object_with_map[]") List<ExampleDomainObjectWithMap> objects);
 

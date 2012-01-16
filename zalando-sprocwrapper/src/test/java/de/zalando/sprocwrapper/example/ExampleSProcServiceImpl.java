@@ -88,6 +88,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public String createOrUpdateMultipleObjectsWithInnerObject(final List<ExampleDomainObjectWithInnerObject> objects) {
+        return sproc.createOrUpdateMultipleObjectsWithInnerObject(objects);
+    }
+
+    @Override
     public void createOrUpdateMultipleObjectsWithMapVoid(final List<ExampleDomainObjectWithMap> objects) {
         sproc.createOrUpdateMultipleObjectsWithMapVoid(objects);
     }

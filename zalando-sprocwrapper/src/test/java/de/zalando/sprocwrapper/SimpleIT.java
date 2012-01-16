@@ -28,6 +28,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 
@@ -132,6 +133,30 @@ public class SimpleIT {
 
         // test void result
         exampleSProcService.createOrUpdateMultipleObjectsWithMapVoid(list);
+    }
+
+    @Test
+    public void textComplexParam() {
+
+        String result = exampleSProcService.createOrUpdateMultipleObjectsWithInnerObject(null);
+        assertNull(result);
+
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithInnerObject(
+                new ArrayList<ExampleDomainObjectWithInnerObject>());
+        assertNull(result);
+
+        ExampleDomainObjectWithInnerObject obj = new ExampleDomainObjectWithInnerObject("a", null);
+        List<ExampleDomainObjectWithInnerObject> list = new ArrayList<ExampleDomainObjectWithInnerObject>();
+        list.add(obj);
+        list.add(new ExampleDomainObjectWithInnerObject("c", new ExampleDomainObject("d", "e")));
+
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithInnerObject(list);
+        assertEquals("<c_d|e>", result);
+
+        obj.setC(new ArrayList<ExampleDomainObject>());
+        obj.getC().add(new ExampleDomainObject("f", "g"));
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithInnerObject(list);
+        assertEquals("<c_d|e>", result);
     }
 
     @Test

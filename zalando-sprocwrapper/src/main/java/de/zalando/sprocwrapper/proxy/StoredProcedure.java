@@ -9,6 +9,7 @@ import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,28 @@ class StoredProcedure {
         return name;
     }
 
+    private static boolean isPgSerializable(final Object o) {
+        if (o == null) {
+            return true;
+        }
+
+        Class clazz = o.getClass();
+        if (o instanceof PGobject || o instanceof java.sql.Array || o instanceof CharSequence || o instanceof Character
+                || clazz == Character.TYPE) {
+            return true;
+        } else if (clazz.isArray()) {
+            return true;
+        } else if (o instanceof Collection) {
+            return true;
+        } else if (clazz == Boolean.TYPE || clazz == Boolean.class) {
+            return true;
+        } else if (clazz.isPrimitive() || o instanceof Number) {
+            return true;
+        }
+
+        return false;
+    }
+
     private static PGobject serializePGObject(final Object obj, final String typeHint) {
         List<Object> attributes = new ArrayList<Object>();
 
@@ -144,6 +167,16 @@ class StoredProcedure {
                         }
 
                         attr = hstore.toString();
+                    } else if (attr instanceof List) {
+                        List<PGobject> pgobjects = new ArrayList<PGobject>();
+                        List list = (List) attr;
+                        for (Object o : list) {
+                            pgobjects.add(serializePGObject(o, null));
+                        }
+
+                        attr = pgobjects;
+                    } else if (!isPgSerializable(attr)) {
+                        attr = serializePGObject(attr, null);
                     }
 
                     attributes.add(attr);
