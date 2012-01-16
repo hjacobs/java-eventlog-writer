@@ -35,6 +35,19 @@ public abstract class AbstractConfiguredJob extends AbstractJob implements Job {
         addJobListener(getApplicationContext().getBean(JobHistoryListener.beanName(), JobHistoryListener.class));
     }
 
+    @Override
+    public JobGroup getJobGroup() {
+        return null;
+    }
+
+    @Override
+    public String getBeanName() {
+
+        // default implementation: return class name with first character lower case
+        final String className = getClass().getSimpleName();
+        return className.substring(0, 1).toLowerCase() + className.substring(1);
+    }
+
     /**
      * Do Run Implementation - calls new doRun method also containing a {@link JobConfig} instance for the current job.
      * This method is not meant to be overridden - for extensions of this class implement the new doRun method provided
