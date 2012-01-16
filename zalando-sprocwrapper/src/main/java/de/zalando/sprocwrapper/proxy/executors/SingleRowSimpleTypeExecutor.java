@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.postgresql.util.PGobject;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -15,8 +17,10 @@ public class SingleRowSimpleTypeExecutor implements Executor {
     public static final Map<Class, Class> SIMPLE_TYPES = new HashMap<Class, Class>();
 
     static {
-        SIMPLE_TYPES.put(Void.class, Void.class);
-        SIMPLE_TYPES.put(void.class, Void.class);
+
+        // sproc with VOID result has type PGobject in Java
+        SIMPLE_TYPES.put(Void.class, PGobject.class);
+        SIMPLE_TYPES.put(void.class, PGobject.class);
         SIMPLE_TYPES.put(Integer.class, Integer.class);
         SIMPLE_TYPES.put(String.class, String.class);
         SIMPLE_TYPES.put(Float.class, Float.class);

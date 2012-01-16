@@ -28,14 +28,14 @@ public interface ExampleSProcService extends SProcService {
     @SProcCall(name = "get_simple_int")
     int getSimpleIntAsPrimitive();
 
-    @SProcCall(name = "get_simple_int")
-    void getSimpleIntIgnore();
-
     @SProcCall
     long getSimpleLong();
 
     @SProcCall
     int getSimpleInt(@SProcParam int i);
+
+    @SProcCall
+    void getSimpleIntVoid(@SProcParam int i);
 
     @SProcCall(sql = "SELECT 'a' AS a, 'b' AS b UNION ALL SELECT 'c', 'd'")
     List<ExampleDomainObject> getResult();
@@ -58,6 +58,10 @@ public interface ExampleSProcService extends SProcService {
 
     @SProcCall
     String createOrUpdateMultipleObjectsWithMap(
+            @SProcParam(type = "example_domain_object_with_map[]") List<ExampleDomainObjectWithMap> objects);
+
+    @SProcCall
+    void createOrUpdateMultipleObjectsWithMapVoid(
             @SProcParam(type = "example_domain_object_with_map[]") List<ExampleDomainObjectWithMap> objects);
 
     @SProcCall

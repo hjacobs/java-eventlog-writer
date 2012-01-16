@@ -46,7 +46,7 @@ public class SimpleIT {
     public void testSample() throws SQLException {
 
         // test void result
-        exampleSProcService.getSimpleIntIgnore();
+        exampleSProcService.getSimpleIntVoid(1);
 
         assertEquals(3, (int) exampleSProcService.getSimpleInt());
         assertEquals(3, exampleSProcService.getSimpleIntAsPrimitive());
@@ -129,6 +129,9 @@ public class SimpleIT {
 
         result = exampleSProcService.createOrUpdateMultipleObjectsWithMap(list);
         assertEquals("<a__>,<c_key_val>", result);
+
+        // test void result
+        exampleSProcService.createOrUpdateMultipleObjectsWithMapVoid(list);
     }
 
     @Test

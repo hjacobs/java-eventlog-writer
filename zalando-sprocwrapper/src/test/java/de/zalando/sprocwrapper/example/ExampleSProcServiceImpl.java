@@ -43,10 +43,6 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         return sproc.getSimpleIntAsPrimitive();
     }
 
-    public void getSimpleIntIgnore() {
-        sproc.getSimpleInt();
-    }
-
     public long getSimpleLong() {
 
         return sproc.getSimpleLong();
@@ -54,6 +50,10 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
 
     public int getSimpleInt(final int i) {
         return sproc.getSimpleInt(i);
+    }
+
+    public void getSimpleIntVoid(final int i) {
+        sproc.getSimpleIntVoid(i);
     }
 
     public List<ExampleDomainObject> getResult() {
@@ -85,6 +85,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     @Override
     public String createOrUpdateMultipleObjectsWithMap(final List<ExampleDomainObjectWithMap> objects) {
         return sproc.createOrUpdateMultipleObjectsWithMap(objects);
+    }
+
+    @Override
+    public void createOrUpdateMultipleObjectsWithMapVoid(final List<ExampleDomainObjectWithMap> objects) {
+        sproc.createOrUpdateMultipleObjectsWithMapVoid(objects);
     }
 
     @Override
