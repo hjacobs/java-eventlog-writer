@@ -23,8 +23,8 @@ import org.postgresql.util.PGobject;
 
 import com.typemapper.annotations.DatabaseField;
 
-import com.typemapper.serialization.postgres.PgArray;
-import com.typemapper.serialization.postgres.PgRow;
+import com.typemapper.postgres.PgArray;
+import com.typemapper.postgres.PgRow;
 
 import de.zalando.dbutils.ParseUtils;
 
