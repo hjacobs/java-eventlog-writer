@@ -52,6 +52,8 @@ public class SimpleIT {
         assertEquals(3, (int) exampleSProcService.getSimpleInt());
         assertEquals(3, exampleSProcService.getSimpleIntAsPrimitive());
         exampleSProcService.createArticleSimpleItems("sku", 1, 12, 13, "1001");
+
+        assertEquals(true, exampleSProcService.getBoolean());
     }
 
     @Test

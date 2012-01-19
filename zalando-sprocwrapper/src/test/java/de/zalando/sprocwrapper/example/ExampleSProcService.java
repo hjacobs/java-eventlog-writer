@@ -35,6 +35,9 @@ public interface ExampleSProcService extends SProcService {
     int getSimpleInt(@SProcParam int i);
 
     @SProcCall
+    boolean getBoolean();
+
+    @SProcCall
     void getSimpleIntVoid(@SProcParam int i);
 
     @SProcCall(sql = "SELECT 'a' AS a, 'b' AS b UNION ALL SELECT 'c', 'd'")

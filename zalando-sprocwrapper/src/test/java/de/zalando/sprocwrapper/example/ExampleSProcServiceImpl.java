@@ -52,6 +52,10 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         return sproc.getSimpleInt(i);
     }
 
+    public boolean getBoolean() {
+        return sproc.getBoolean();
+    }
+
     public void getSimpleIntVoid(final int i) {
         sproc.getSimpleIntVoid(i);
     }
