@@ -50,7 +50,7 @@ public class SProcProxyBuilder {
                 name = getSqlNameForMethod(method.getName());
             }
 
-            StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType());
+            final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType());
 
             if (!"".equals(scA.sql())) {
                 p.setQuery(scA.sql());
@@ -102,7 +102,7 @@ public class SProcProxyBuilder {
                 pos++;
             }
 
-            LOG.debug("registering stored procedure: " + p);
+            LOG.debug("registering " + p);
             proxy.addStoredProcedure(method, p);
         }
 

@@ -13,8 +13,12 @@ import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
  */
 class SProcProxy implements java.lang.reflect.InvocationHandler {
 
+    private static final String NULL = "NULL";
+    private static final int TRUNCATE_DEBUG_PARAMS_MAX_LENGTH = 1024;
+    private static final String TRUNCATE_DEBUG_PARAMS_ELLIPSIS = " ...";
+
     private final HashMap<Method, StoredProcedure> sprocs = new HashMap<Method, StoredProcedure>();
-    private final DataSourceProvider dp;
+    private final DataSourceProvider dataSourceProvider;
 
     private static final Logger LOG = Logger.getLogger(SProcProxy.class);
 
@@ -27,28 +31,23 @@ class SProcProxy implements java.lang.reflect.InvocationHandler {
         return true;
     }
 
-    public SProcProxy(final DataSourceProvider d) {
-        dp = d;
+    public SProcProxy(final DataSourceProvider provider) {
+        if (provider == null) {
+            throw new IllegalArgumentException("DataSourceProvider cannot be null");
+        }
+
+        dataSourceProvider = provider;
     }
 
     @Override
     public Object invoke(final Object proxy, final Method m, final Object[] args) {
-        LOG.debug("invoke stored procedure for method " + m);
-
         StoredProcedure p = sprocs.get(m);
 
         if (p == null) {
-            LOG.debug("no sproc found!");
+            LOG.warn("no StoredProcedure found for method " + m);
             return null;
         }
 
-        if (dp == null) {
-            LOG.debug("no datasource set!");
-            return null;
-        }
-
-        LOG.debug("executing " + p);
-
-        return p.execute(dp, args);
+        return p.execute(dataSourceProvider, args);
     }
 }

@@ -40,6 +40,9 @@ import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
  */
 class StoredProcedure {
 
+    private static final int TRUNCATE_DEBUG_PARAMS_MAX_LENGTH = 1024;
+    private static final String TRUNCATE_DEBUG_PARAMS_ELLIPSIS = " ...";
+
     private static final Logger LOG = Logger.getLogger(StoredProcedure.class);
 
     private final List<StoredProcedureParameter> params = new ArrayList<StoredProcedureParameter>();
@@ -316,9 +319,52 @@ class StoredProcedure {
         return query;
     }
 
+    /**
+     * build execution string like create_or_update_multiple_objects({"(a,b)","(c,d)" }).
+     *
+     * @param   args
+     *
+     * @return
+     */
+    private String getDebugLog(final Object[] args) {
+        final StringBuilder sb = new StringBuilder(name);
+        sb.append('(');
+
+        int i = 0;
+        for (Object param : args) {
+            if (i > 0) {
+                sb.append(',');
+            }
+
+            if (param == null) {
+                sb.append("NULL");
+            } else {
+                sb.append(param);
+            }
+
+            i++;
+            if (sb.length() > TRUNCATE_DEBUG_PARAMS_MAX_LENGTH) {
+                break;
+            }
+        }
+
+        if (sb.length() > TRUNCATE_DEBUG_PARAMS_MAX_LENGTH) {
+
+            // Truncate params for debug output
+            return sb.substring(0, TRUNCATE_DEBUG_PARAMS_MAX_LENGTH) + TRUNCATE_DEBUG_PARAMS_ELLIPSIS + ")";
+        } else {
+            sb.append(')');
+            return sb.toString();
+        }
+    }
+
     public Object execute(final DataSourceProvider dp, final Object[] args) {
-        return executor.executeSProc(dp.getDataSource(getShardId(args)), getQuery(), getParams(args), getTypes(),
-                returnType);
+        final Object[] params = getParams(args);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(getDebugLog(params));
+        }
+
+        return executor.executeSProc(dp.getDataSource(getShardId(args)), getQuery(), params, getTypes(), returnType);
     }
 
     @Override
