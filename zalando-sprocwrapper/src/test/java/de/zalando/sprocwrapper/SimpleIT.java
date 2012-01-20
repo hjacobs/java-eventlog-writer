@@ -57,6 +57,16 @@ public class SimpleIT {
     }
 
     @Test
+    public void testSimpleListParam() throws SQLException {
+
+        List<String> skus = new ArrayList<String>();
+        skus.add("ABC123");
+        skus.add("ABC456");
+
+        exampleSProcService.createArticleSimples(skus);
+    }
+
+    @Test
     public void testMultiRowTypeMappedResult() {
 
         // Query for a Multi Row Resultset of TestResult Objects

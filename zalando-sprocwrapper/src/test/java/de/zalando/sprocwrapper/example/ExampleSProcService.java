@@ -15,6 +15,9 @@ public interface ExampleSProcService extends SProcService {
     @SProcCall(name = "create_article_simple")
     void createArticleSimple(@SProcParam String sku);
 
+    @SProcCall
+    void createArticleSimples(@SProcParam List<String> skus);
+
     @SProcCall(name = "create_article_simple_items")
     String createArticleSimpleItems(@SProcParam(name = "sku")
             @ShardKey String sku, @SProcParam int stockId,

@@ -3,7 +3,6 @@ package de.zalando.sprocwrapper.proxy;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 
-import java.sql.Array;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -25,6 +24,7 @@ import com.typemapper.annotations.DatabaseField;
 
 import com.typemapper.postgres.PgArray;
 import com.typemapper.postgres.PgRow;
+import com.typemapper.postgres.PgTypeHelper;
 
 import de.zalando.dbutils.ParseUtils;
 
@@ -215,16 +215,10 @@ class StoredProcedure {
             return null;
         }
 
+        Object result = param;
         switch (p.type) {
-// @TODO use method parameter to detect input array/list
 
             case Types.ARRAY :
-
-                List<PGobject> pgobjects = new ArrayList<PGobject>();
-                List list = (List) param;
-                for (Object obj : list) {
-                    pgobjects.add(serializePGObject(obj, null));
-                }
 
                 String innerTypeName = null;
 
@@ -232,25 +226,27 @@ class StoredProcedure {
                     innerTypeName = p.typeName.substring(0, p.typeName.length() - 2);
                 }
 
-                if (innerTypeName == null && !pgobjects.isEmpty()) {
-                    innerTypeName = pgobjects.get(0).getType();
+                result = PgArray.ARRAY((Collection) param);
+
+                if (innerTypeName != null) {
+                    result = ((PgArray) result).asJdbcArray(innerTypeName);
                 }
 
-                if (innerTypeName == null) {
-                    throw new IllegalArgumentException(
-                        "Could not determine PG array type: Empty list parameter without @SProcParam(type = \"..[]\")");
-                }
-
-                Array arr = null;
-                arr = PgArray.ARRAY(pgobjects).asJdbcArray(innerTypeName);
-
-                return arr;
+                break;
 
             case Types.OTHER :
-                return serializePGObject(param, p.typeName);
+
+                try {
+                    result = PgTypeHelper.asPGobject(param, p.typeName);
+                } catch (final SQLException ex) {
+                    LOG.error("Failed to serialize PG object", ex);
+                }
+
+                break;
+
         }
 
-        return param;
+        return result;
     }
 
     public Object[] getParams(final Object[] origParams) {

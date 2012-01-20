@@ -26,6 +26,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         sproc.createArticleSimple(sku);
     }
 
+    @Override
+    public void createArticleSimples(final List<String> skus) {
+        sproc.createArticleSimples(skus);
+    }
+
     public String createArticleSimpleItems(final String sku, final int stockId, final int quantity,
             final int purchasePrice, final String referenceNumber) {
         if (sku == null) {
