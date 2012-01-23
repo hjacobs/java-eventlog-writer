@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import org.postgresql.util.PGobject;
+
 import com.typemapper.postgres.PgArray;
 import com.typemapper.postgres.PgTypeHelper;
 
@@ -121,10 +123,25 @@ class StoredProcedure {
 
             case Types.OTHER :
 
-                try {
-                    result = PgTypeHelper.asPGobject(param, p.typeName);
-                } catch (final SQLException ex) {
-                    LOG.error("Failed to serialize PG object", ex);
+                if (p.clazz.isEnum()) {
+
+                    // HACK: should be implemented in PgTypeHelper
+                    PGobject pgobj = new PGobject();
+                    pgobj.setType(p.typeName);
+                    try {
+                        pgobj.setValue(((Enum) param).name());
+                    } catch (final SQLException ex) {
+                        LOG.error("Failed to set PG object value", ex);
+                    }
+
+                    result = pgobj;
+
+                } else {
+                    try {
+                        result = PgTypeHelper.asPGobject(param, p.typeName);
+                    } catch (final SQLException ex) {
+                        LOG.error("Failed to serialize PG object", ex);
+                    }
                 }
 
                 break;

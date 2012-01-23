@@ -69,6 +69,16 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public void setBoolean(final boolean bool) {
+        sproc.setBoolean(bool);
+    }
+
+    @Override
+    public void useEnumParam(final ExampleEnum param) {
+        sproc.useEnumParam(param);
+    }
+
+    @Override
     public void getSimpleIntVoid(final int i) {
         sproc.getSimpleIntVoid(i);
     }

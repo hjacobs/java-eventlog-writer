@@ -30,11 +30,18 @@ class StoredProcedureParameter {
         SQL_MAPPING.put(List.class, java.sql.Types.ARRAY);
         SQL_MAPPING.put(short.class, java.sql.Types.SMALLINT);
         SQL_MAPPING.put(Short.class, java.sql.Types.SMALLINT);
+        SQL_MAPPING.put(boolean.class, java.sql.Types.BOOLEAN);
+        SQL_MAPPING.put(Boolean.class, java.sql.Types.BOOLEAN);
     }
 
     public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlPosition,
             final int javaPosition) {
-        this.typeName = typeName;
+        if (typeName == null || typeName.isEmpty()) {
+            this.typeName = SProcProxyBuilder.camelCaseToUnderscore(clazz.getSimpleName());
+        } else {
+            this.typeName = typeName;
+        }
+
         this.clazz = clazz;
 
         Integer typeId = SQL_MAPPING.get(clazz);
@@ -45,5 +52,6 @@ class StoredProcedureParameter {
         type = typeId;
         sqlPos = sqlPosition;
         javaPos = javaPosition;
+
     }
 }

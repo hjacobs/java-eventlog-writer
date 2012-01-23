@@ -42,6 +42,12 @@ public interface ExampleSProcService {
     boolean getBoolean();
 
     @SProcCall
+    void setBoolean(@SProcParam boolean bool);
+
+    @SProcCall
+    void useEnumParam(@SProcParam ExampleEnum enumParameter);
+
+    @SProcCall
     void getSimpleIntVoid(@SProcParam int i);
 
     @SProcCall(sql = "SELECT 'a' AS a, 'b' AS b UNION ALL SELECT 'c', 'd'")

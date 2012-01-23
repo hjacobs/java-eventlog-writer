@@ -30,6 +30,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
+import de.zalando.sprocwrapper.example.ExampleEnum;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -54,6 +55,8 @@ public class SimpleIT {
         exampleSProcService.createArticleSimpleItems("sku", 1, 12, 13, "1001");
 
         assertEquals(true, exampleSProcService.getBoolean());
+
+        exampleSProcService.setBoolean(true);
     }
 
     @Test
@@ -169,6 +172,11 @@ public class SimpleIT {
         obj.getC().add(new ExampleDomainObject("f", "g"));
         result = exampleSProcService.createOrUpdateMultipleObjectsWithInnerObject(list);
         assertEquals("<c_d|e>", result);
+    }
+
+    @Test
+    public void testEnum() {
+        exampleSProcService.useEnumParam(ExampleEnum.ENUM_CONST_1);
     }
 
     @Test
