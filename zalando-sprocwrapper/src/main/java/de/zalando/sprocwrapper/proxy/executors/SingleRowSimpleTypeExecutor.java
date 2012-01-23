@@ -29,6 +29,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
         SIMPLE_TYPES.put(Boolean.class, Boolean.class);
         SIMPLE_TYPES.put(int.class, Integer.class);
         SIMPLE_TYPES.put(long.class, Long.class);
+        SIMPLE_TYPES.put(short.class, Short.class);
         SIMPLE_TYPES.put(float.class, Float.class);
         SIMPLE_TYPES.put(double.class, Double.class);
         SIMPLE_TYPES.put(boolean.class, Boolean.class);
