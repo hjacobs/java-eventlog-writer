@@ -28,6 +28,8 @@ class StoredProcedureParameter {
         SQL_MAPPING.put(String.class, java.sql.Types.VARCHAR);
         SQL_MAPPING.put(java.sql.Date.class, java.sql.Types.TIMESTAMP);
         SQL_MAPPING.put(List.class, java.sql.Types.ARRAY);
+        SQL_MAPPING.put(short.class, java.sql.Types.SMALLINT);
+        SQL_MAPPING.put(Short.class, java.sql.Types.SMALLINT);
     }
 
     public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlPosition,

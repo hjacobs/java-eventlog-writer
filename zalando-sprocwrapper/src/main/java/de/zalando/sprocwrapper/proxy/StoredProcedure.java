@@ -1,32 +1,18 @@
 package de.zalando.sprocwrapper.proxy;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 
 import java.sql.SQLException;
 import java.sql.Types;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
 
-import org.postgresql.util.PGobject;
-
-import com.typemapper.annotations.DatabaseField;
-
 import com.typemapper.postgres.PgArray;
-import com.typemapper.postgres.PgRow;
 import com.typemapper.postgres.PgTypeHelper;
-
-import de.zalando.dbutils.ParseUtils;
 
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.proxy.executors.Executor;
@@ -109,110 +95,6 @@ class StoredProcedure {
         return name;
     }
 
-    private static boolean isPgSerializable(final Object o) {
-        if (o == null) {
-            return true;
-        }
-
-        Class clazz = o.getClass();
-        if (o instanceof PGobject || o instanceof java.sql.Array || o instanceof CharSequence || o instanceof Character
-                || clazz == Character.TYPE) {
-            return true;
-        } else if (clazz.isArray()) {
-            return true;
-        } else if (o instanceof Collection) {
-            return true;
-        } else if (clazz == Boolean.TYPE || clazz == Boolean.class) {
-            return true;
-        } else if (clazz.isPrimitive() || o instanceof Number) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private static PGobject serializePGObject(final Object obj, final String typeHint) {
-        List<Object> attributes = new ArrayList<Object>();
-
-        Field[] fields = obj.getClass().getDeclaredFields();
-
-        // Hacky: sort fields alphabetically as class fields' order is undefined
-        // http://stackoverflow.com/questions/1097807/java-reflection-is-the-order-of-class-fields-and-methods-standardized
-        Arrays.sort(fields, new Comparator<Field>() {
-
-                @Override
-                public int compare(final Field a, final Field b) {
-                    return a.getName().compareTo(b.getName());
-                }
-
-            });
-        for (Field field : fields) {
-            try {
-                field.setAccessible(true);
-
-                DatabaseField annotation = field.getAnnotation(DatabaseField.class);
-                if (annotation != null) {
-                    Object attr = field.get(obj);
-                    if (attr instanceof Map) {
-
-                        // TODO: move HSTORE serialization into PGSerializer in typemapper
-                        Map<String, String> map = (Map<String, String>) attr;
-                        int j = 0;
-                        StringBuilder hstore = new StringBuilder();
-                        for (Entry<String, String> entry : map.entrySet()) {
-                            if (j > 0) {
-                                hstore.append(",");
-                            }
-
-                            hstore.append("\"");
-                            hstore.append(ParseUtils.quotePgArrayElement(entry.getKey()));
-                            hstore.append("\"=>\"");
-                            hstore.append(ParseUtils.quotePgArrayElement(entry.getValue()));
-                            hstore.append("\"");
-                            j++;
-                        }
-
-                        attr = hstore.toString();
-                    } else if (attr instanceof List) {
-                        List<PGobject> pgobjects = new ArrayList<PGobject>();
-                        List list = (List) attr;
-                        for (Object o : list) {
-                            pgobjects.add(serializePGObject(o, null));
-                        }
-
-                        attr = pgobjects;
-                    } else if (!isPgSerializable(attr)) {
-                        attr = serializePGObject(attr, null);
-                    }
-
-                    attributes.add(attr);
-                }
-
-            } catch (Exception e) {
-                continue;
-            }
-        }
-
-        if (attributes.isEmpty()) {
-            throw new IllegalArgumentException("Cannot serialize object of class " + obj.getClass().getName()
-                    + " to PGObject: No attributes");
-        }
-
-        PGobject result = null;
-        String typeName = typeHint;
-        if (StringUtils.isEmpty(typeName)) {
-            typeName = SProcProxyBuilder.camelCaseToUnderscore(obj.getClass().getSimpleName());
-        }
-
-        try {
-            result = PgRow.ROW(attributes).asPGobject(typeName);
-        } catch (final SQLException ex) {
-            LOG.error("Failed to serialize PG object", ex);
-        }
-
-        return result;
-    }
-
     private static Object mapParam(final Object param, final StoredProcedureParameter p) {
         if (param == null) {
             return null;
@@ -256,7 +138,14 @@ class StoredProcedure {
         Object[] ps = new Object[params.size()];
 
         for (StoredProcedureParameter p : params) {
-            ps[p.sqlPos] = mapParam(origParams[p.javaPos], p);
+            try {
+                ps[p.sqlPos] = mapParam(origParams[p.javaPos], p);
+            } catch (Exception e) {
+                final String errorMessage = "Could not map input parameter for stored procedure " + name + " of type "
+                        + p.type + " at position " + p.javaPos + ": " + origParams[p.javaPos];
+                LOG.error(errorMessage, e);
+                throw new IllegalArgumentException(errorMessage);
+            }
         }
 
         return ps;
