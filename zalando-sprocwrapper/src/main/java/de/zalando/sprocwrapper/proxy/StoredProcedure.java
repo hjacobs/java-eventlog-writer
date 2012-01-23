@@ -53,15 +53,18 @@ class StoredProcedure {
 
     private Executor executor = null;
 
-    private VirtualShardKeyStrategy shardStrategy = new VirtualShardKeyStrategy();
+    private VirtualShardKeyStrategy shardStrategy;
     private List<ShardKeyParameter> shardKeyParameters = null;
 
     private static final Executor MULTI_ROW_TYPE_MAPPER_EXECUTOR = new MultiRowTypeMapperExecutor();
     private static final Executor SINGLE_ROW_SIMPLE_TYPE_EXECUTOR = new SingleRowSimpleTypeExecutor();
     private static final Executor SINGLE_ROW_TYPE_MAPPER_EXECUTOR = new SingleRowTypeMapperExecutor();
 
-    public StoredProcedure(final String name, final java.lang.reflect.Type genericType) {
+    public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
+            final VirtualShardKeyStrategy sStrategy) {
         this.name = name;
+
+        shardStrategy = sStrategy;
 
         if (genericType instanceof ParameterizedType) {
             ParameterizedType pType = (ParameterizedType) genericType;

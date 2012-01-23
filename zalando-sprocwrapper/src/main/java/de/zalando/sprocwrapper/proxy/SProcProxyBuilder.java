@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcParam;
+import de.zalando.sprocwrapper.SProcService;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.sharding.ShardKey;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
@@ -17,6 +18,8 @@ import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
  * @author  jmussler
  */
 public class SProcProxyBuilder {
+
+    private static final VirtualShardKeyStrategy VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT = new VirtualShardKeyStrategy();
 
     private static final Logger LOG = Logger.getLogger(SProcProxyBuilder.class);
 
@@ -38,6 +41,20 @@ public class SProcProxyBuilder {
 
         SProcProxy proxy = new SProcProxy(d);
 
+        SProcService serviceAnnotation = c.getAnnotation(SProcService.class);
+        VirtualShardKeyStrategy keyStrategy = VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT;
+        if (serviceAnnotation != null) {
+            try {
+                keyStrategy = (VirtualShardKeyStrategy) serviceAnnotation.shardStrategy().newInstance();
+            } catch (InstantiationException ex) {
+                LOG.fatal("ShardKey strategy for service can not be instantiated", ex);
+                return null;
+            } catch (IllegalAccessException ex) {
+                LOG.fatal("ShardKey strategy for service can not be instantiated", ex);
+                return null;
+            }
+        }
+
         for (final Method method : methods) {
             SProcCall scA = method.getAnnotation(SProcCall.class);
 
@@ -50,20 +67,23 @@ public class SProcProxyBuilder {
                 name = getSqlNameForMethod(method.getName());
             }
 
-            final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType());
+            VirtualShardKeyStrategy sprocStrategy = keyStrategy;
+            if (scA.shardStrategy() != Void.class) {
+                try {
+                    sprocStrategy = (VirtualShardKeyStrategy) scA.shardStrategy().newInstance();
+                } catch (InstantiationException ex) {
+                    LOG.fatal("Shard strategy for sproc can not be instantiated", ex);
+                    return null;
+                } catch (IllegalAccessException ex) {
+                    LOG.fatal("Shard strategy for sproc can not be instantiated", ex);
+                    return null;
+                }
+            }
+
+            final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy);
 
             if (!"".equals(scA.sql())) {
                 p.setQuery(scA.sql());
-            }
-
-            try {
-                p.setVirtualShardKeyStrategy((VirtualShardKeyStrategy) scA.shardStrategy().newInstance());
-            } catch (InstantiationException ex) {
-                throw new IllegalArgumentException("Illegal VirtualShardKeyStrategy " + scA.shardStrategy().getName(),
-                    ex);
-            } catch (IllegalAccessException ex) {
-                throw new IllegalArgumentException("Illegal VirtualShardKeyStrategy " + scA.shardStrategy().getName(),
-                    ex);
             }
 
             int pos = 0;

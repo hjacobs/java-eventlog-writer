@@ -11,7 +11,8 @@ import de.zalando.sprocwrapper.sharding.VirtualShardIdentityStrategy;
 /**
  * @author  jmussler
  */
-public interface ExampleSProcService extends SProcService {
+@SProcService
+public interface ExampleSProcService {
     @SProcCall(name = "create_article_simple")
     void createArticleSimple(@SProcParam String sku);
 

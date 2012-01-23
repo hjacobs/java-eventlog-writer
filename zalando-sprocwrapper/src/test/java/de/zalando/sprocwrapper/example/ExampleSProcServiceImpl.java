@@ -22,6 +22,7 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         super(p, ExampleSProcService.class);
     }
 
+    @Override
     public void createArticleSimple(final String sku) {
         sproc.createArticleSimple(sku);
     }
@@ -31,6 +32,7 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         sproc.createArticleSimples(skus);
     }
 
+    @Override
     public String createArticleSimpleItems(final String sku, final int stockId, final int quantity,
             final int purchasePrice, final String referenceNumber) {
         if (sku == null) {
@@ -40,43 +42,53 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         return sproc.createArticleSimpleItems(sku, stockId, quantity, purchasePrice, referenceNumber);
     }
 
+    @Override
     public Integer getSimpleInt() {
         return sproc.getSimpleInt();
     }
 
+    @Override
     public int getSimpleIntAsPrimitive() {
         return sproc.getSimpleIntAsPrimitive();
     }
 
+    @Override
     public long getSimpleLong() {
 
         return sproc.getSimpleLong();
     }
 
+    @Override
     public int getSimpleInt(final int i) {
         return sproc.getSimpleInt(i);
     }
 
+    @Override
     public boolean getBoolean() {
         return sproc.getBoolean();
     }
 
+    @Override
     public void getSimpleIntVoid(final int i) {
         sproc.getSimpleIntVoid(i);
     }
 
+    @Override
     public List<ExampleDomainObject> getResult() {
         return sproc.getResult();
     }
 
+    @Override
     public ExampleDomainObject getSingleResult() {
         return sproc.getSingleResult();
     }
 
+    @Override
     public Integer getBla() {
         return sproc.getBla();
     }
 
+    @Override
     public int getShardIndex(final int shard) {
         return sproc.getShardIndex(shard);
     }

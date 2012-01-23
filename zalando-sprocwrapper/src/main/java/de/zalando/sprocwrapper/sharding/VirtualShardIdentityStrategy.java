@@ -7,6 +7,7 @@ public class VirtualShardIdentityStrategy extends VirtualShardKeyStrategy {
      *
      * @return  virtual shard id
      */
+    @Override
     public int getShardId(final Object[] objs) {
         return (Integer) objs[0];
     }

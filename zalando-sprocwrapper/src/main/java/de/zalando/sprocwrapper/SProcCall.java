@@ -6,8 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
-
 /**
  * @author  jmussler
  */
@@ -19,5 +17,5 @@ public @interface SProcCall {
 
     String sql() default "";
 
-    Class shardStrategy() default VirtualShardKeyStrategy.class;
+    Class shardStrategy() default Void.class;
 }
