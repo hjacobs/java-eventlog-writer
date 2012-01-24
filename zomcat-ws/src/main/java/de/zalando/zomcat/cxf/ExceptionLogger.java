@@ -1,0 +1,50 @@
+package de.zalando.zomcat.cxf;
+
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.cxf.logging.FaultListener;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+
+import org.apache.log4j.Logger;
+
+public class ExceptionLogger implements FaultListener {
+
+    private static final Logger LOG = Logger.getLogger(ExceptionLogger.class);
+
+    private static final Pattern NAMESPACE_PATTERN = Pattern.compile("\\{[^}]*\\}");
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean faultOccurred(final Exception exception, final String description, final Message message) {
+        final HttpServletRequest httpServletRequest = (HttpServletRequest) message.get(
+                AbstractHTTPDestination.HTTP_REQUEST);
+        String length = null;
+        String from = httpServletRequest.getRemoteAddr();
+        if (httpServletRequest != null) {
+            length = httpServletRequest.getHeader("Content-Length");
+
+            final String forwardedFor = httpServletRequest.getHeader("X-Forwarded-For");
+            if (forwardedFor != null) {
+                from = forwardedFor + " via " + from;
+            }
+        }
+
+        // strip some unnecessary chars,
+        // because the CXF description is very verbose and looks like
+        // '{http://../}StockWebServiceService#{http://../}bookIncomingReturnsBatch'
+        String service = description.trim().replace("'", "");
+        service = NAMESPACE_PATTERN.matcher(service).replaceAll("");
+
+        LOG.error("Exception in " + service + " processing " + length + " bytes from " + from + ": "
+                + exception.getMessage(), exception);
+
+        // return false: do not log it somewhere else.
+        return false;
+    }
+
+}
