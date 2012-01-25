@@ -83,4 +83,10 @@ public interface ExampleSProcService {
 
     @SProcCall
     boolean reserveStock(@ShardKey @SProcParam String sku);
+
+    @SProcCall(name = "create_or_update_address")
+    AddressPojo createAddress(@SProcParam AddressPojo a);
+
+    @SProcCall(name = "get_address")
+    AddressPojo getAddress(@SProcParam AddressPojo a);
 }

@@ -27,6 +27,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import de.zalando.sprocwrapper.example.AddressPojo;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
@@ -177,6 +178,21 @@ public class SimpleIT {
     @Test
     public void testEnum() {
         exampleSProcService.useEnumParam(ExampleEnum.ENUM_CONST_1);
+    }
+
+    @Test
+    public void testAdress() {
+        AddressPojo a = new AddressPojo();
+        a.customerId = 99;
+        a.street = "Auf Beverau";
+        a.number = "11";
+
+        AddressPojo b = exampleSProcService.createAddress(a);
+        assertEquals((int) b.id, (int) 1);
+
+        AddressPojo c = exampleSProcService.createAddress(a);
+
+        assertEquals((int) c.id, (int) 2);
     }
 
     @Test

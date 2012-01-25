@@ -7,7 +7,7 @@ import com.typemapper.annotations.DatabaseField;
  */
 
 public class ExampleDomainObject {
-    @DatabaseField(name = "a")
+    @DatabaseField
     public String a;
 
     @DatabaseField(name = "b")

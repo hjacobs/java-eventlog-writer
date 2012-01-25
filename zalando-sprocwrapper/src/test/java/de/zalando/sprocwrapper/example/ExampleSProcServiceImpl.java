@@ -23,11 +23,6 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
-    public void createArticleSimple(final String sku) {
-        sproc.createArticleSimple(sku);
-    }
-
-    @Override
     public void createArticleSimples(final List<String> skus) {
         sproc.createArticleSimples(skus);
     }
@@ -133,4 +128,18 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         return sproc.reserveStock(sku);
     }
 
+    @Override
+    public void createArticleSimple(final String sku) {
+        sproc.createArticleSimple(sku);
+    }
+
+    @Override
+    public AddressPojo createAddress(final AddressPojo a) {
+        return sproc.createAddress(a);
+    }
+
+    @Override
+    public AddressPojo getAddress(final AddressPojo a) {
+        return sproc.getAddress(a);
+    }
 }
