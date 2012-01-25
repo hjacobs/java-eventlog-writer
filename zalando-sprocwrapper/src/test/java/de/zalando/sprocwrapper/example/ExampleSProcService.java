@@ -1,5 +1,6 @@
 package de.zalando.sprocwrapper.example;
 
+import java.util.Date;
 import java.util.List;
 
 import de.zalando.sprocwrapper.SProcCall;
@@ -46,6 +47,12 @@ public interface ExampleSProcService {
 
     @SProcCall
     void useEnumParam(@SProcParam ExampleEnum enumParameter);
+
+    @SProcCall
+    void useDateParam(@SProcParam Date d);
+
+    @SProcCall
+    void useCharParam(@SProcParam char c);
 
     @SProcCall
     void getSimpleIntVoid(@SProcParam int i);

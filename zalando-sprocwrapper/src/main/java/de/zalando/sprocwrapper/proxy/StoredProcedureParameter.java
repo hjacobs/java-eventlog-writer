@@ -1,5 +1,6 @@
 package de.zalando.sprocwrapper.proxy;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +28,14 @@ class StoredProcedureParameter {
         SQL_MAPPING.put(Double.class, java.sql.Types.DOUBLE);
         SQL_MAPPING.put(String.class, java.sql.Types.VARCHAR);
         SQL_MAPPING.put(java.sql.Date.class, java.sql.Types.TIMESTAMP);
+        SQL_MAPPING.put(Date.class, java.sql.Types.TIMESTAMP);
         SQL_MAPPING.put(List.class, java.sql.Types.ARRAY);
         SQL_MAPPING.put(short.class, java.sql.Types.SMALLINT);
         SQL_MAPPING.put(Short.class, java.sql.Types.SMALLINT);
         SQL_MAPPING.put(boolean.class, java.sql.Types.BOOLEAN);
         SQL_MAPPING.put(Boolean.class, java.sql.Types.BOOLEAN);
+        SQL_MAPPING.put(char.class, java.sql.Types.CHAR);
+        SQL_MAPPING.put(Character.class, java.sql.Types.CHAR);
     }
 
     public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlPosition,

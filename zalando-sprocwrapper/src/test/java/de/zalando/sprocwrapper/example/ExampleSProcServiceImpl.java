@@ -1,6 +1,7 @@
 
 package de.zalando.sprocwrapper.example;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,16 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     @Override
     public void useEnumParam(final ExampleEnum param) {
         sproc.useEnumParam(param);
+    }
+
+    @Override
+    public void useCharParam(final char c) {
+        sproc.useCharParam(c);
+    }
+
+    @Override
+    public void useDateParam(final Date d) {
+        sproc.useDateParam(d);
     }
 
     @Override
