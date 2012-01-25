@@ -41,15 +41,15 @@ public class AddressPojo {
         this.street = street;
     }
 
-    @DatabaseField(position = 1)
+    @DatabaseField
     public Integer id;
 
-    @DatabaseField(position = 2)
+    @DatabaseField
     public int customerId;
 
-    @DatabaseField(position = 3)
+    @DatabaseField
     public String street;
 
-    @DatabaseField(position = 4)
+    @DatabaseField
     public String number;
 }

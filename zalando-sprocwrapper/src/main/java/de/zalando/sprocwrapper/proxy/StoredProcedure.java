@@ -2,12 +2,15 @@ package de.zalando.sprocwrapper.proxy;
 
 import java.lang.reflect.ParameterizedType;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
@@ -97,7 +100,7 @@ class StoredProcedure {
         return name;
     }
 
-    private static Object mapParam(final Object param, final StoredProcedureParameter p) {
+    private static Object mapParam(final Object param, final StoredProcedureParameter p, final Connection connection) {
         if (param == null) {
             return null;
         }
@@ -138,7 +141,7 @@ class StoredProcedure {
 
                 } else {
                     try {
-                        result = PgTypeHelper.asPGobject(param, p.typeName);
+                        result = PgTypeHelper.asPGobject(param, p.typeName, connection);
                     } catch (final SQLException ex) {
                         LOG.error("Failed to serialize PG object", ex);
                     }
@@ -151,17 +154,17 @@ class StoredProcedure {
         return result;
     }
 
-    public Object[] getParams(final Object[] origParams) {
+    public Object[] getParams(final Object[] origParams, final Connection connection) {
         Object[] ps = new Object[params.size()];
 
         for (StoredProcedureParameter p : params) {
             try {
-                ps[p.sqlPos] = mapParam(origParams[p.javaPos], p);
+                ps[p.sqlPos] = mapParam(origParams[p.javaPos], p, connection);
             } catch (Exception e) {
                 final String errorMessage = "Could not map input parameter for stored procedure " + name + " of type "
                         + p.type + " at position " + p.javaPos + ": " + origParams[p.javaPos];
                 LOG.error(errorMessage, e);
-                throw new IllegalArgumentException(errorMessage);
+                throw new IllegalArgumentException(errorMessage, e);
             }
         }
 
@@ -264,12 +267,24 @@ class StoredProcedure {
     }
 
     public Object execute(final DataSourceProvider dp, final Object[] args) {
-        final Object[] params = getParams(args);
+
+        final int shardId = getShardId(args);
+        final DataSource ds = dp.getDataSource(shardId);
+        Connection connection = null;
+        try {
+            connection = ds.getConnection();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to acquire connection for virtual shard " + shardId + " for "
+                    + name, e);
+        }
+
+        final Object[] params = getParams(args, connection);
         if (LOG.isDebugEnabled()) {
             LOG.debug(getDebugLog(params));
         }
 
-        return executor.executeSProc(dp.getDataSource(getShardId(args)), getQuery(), params, getTypes(), returnType);
+        return executor.executeSProc(ds, getQuery(), params, getTypes(), returnType);
     }
 
     @Override
