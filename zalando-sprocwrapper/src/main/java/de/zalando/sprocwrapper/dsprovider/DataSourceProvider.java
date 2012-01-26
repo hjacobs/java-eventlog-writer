@@ -1,5 +1,7 @@
 package de.zalando.sprocwrapper.dsprovider;
 
+import java.util.List;
+
 import javax.sql.DataSource;
 
 /**
@@ -7,4 +9,6 @@ import javax.sql.DataSource;
  */
 public interface DataSourceProvider {
     DataSource getDataSource(int virtualShardId);
+
+    List<Integer> getDistinctShardIds();
 }

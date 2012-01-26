@@ -18,4 +18,19 @@ public @interface SProcCall {
     String sql() default "";
 
     Class shardStrategy() default Void.class;
+
+    /**
+     * whether the stored procedure should be called on all shards --- results are concatenated together.
+     *
+     * @return
+     */
+    boolean runOnAllShards() default false;
+
+    /**
+     * flag this stored procedure call as read only: read only sprocs may run in cases were writing calls would not be
+     * allowed (maintenance, migration, ..)
+     *
+     * @return
+     */
+    boolean readOnly() default false;
 }

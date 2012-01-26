@@ -80,7 +80,8 @@ public class SProcProxyBuilder {
                 }
             }
 
-            final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy);
+            final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
+                    scA.runOnAllShards());
 
             if (!"".equals(scA.sql())) {
                 p.setQuery(scA.sql());
@@ -103,19 +104,17 @@ public class SProcProxyBuilder {
                         SProcParam sParam = (SProcParam) a;
 
                         int sqlPos = pos;
-                        if (sParam.sqlPosition() != -1) {
-                            sqlPos = sParam.sqlPosition();
+                        if (sParam.position() != -1) {
+                            sqlPos = sParam.position();
                         }
 
                         int javaPos = pos;
-                        if (sParam.javaPosition() != -1) {
-                            javaPos = sParam.javaPosition();
-                        }
 
                         String dbTypeName = sParam.type();
                         Class clazz = method.getParameterTypes()[pos];
 
-                        p.addParam(new StoredProcedureParameter(clazz, dbTypeName, sqlPos, javaPos));
+                        p.addParam(new StoredProcedureParameter(clazz, dbTypeName, sParam.sqlType(), sqlPos, javaPos,
+                                sParam.sensitive()));
                     }
                 }
 

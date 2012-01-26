@@ -1,0 +1,11 @@
+CREATE OR REPLACE FUNCTION collect_data_from_all_shards(p_some_param text)
+    RETURNS SETOF text AS
+$BODY$
+BEGIN
+    RETURN NEXT 'shard1row1';
+    RETURN NEXT 'shard1row2';
+    RETURN;
+END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE
+    COST 100;

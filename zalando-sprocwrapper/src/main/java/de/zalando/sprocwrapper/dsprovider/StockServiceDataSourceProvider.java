@@ -1,5 +1,6 @@
 package de.zalando.sprocwrapper.dsprovider;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -24,4 +25,10 @@ public class StockServiceDataSourceProvider implements DataSourceProvider {
     public DataSource getDataSource(final int virtualShardId) {
         return dss[virtualShardId & (1 + 2 + 4)];
     }
+
+    @Override
+    public List<Integer> getDistinctShardIds() {
+        throw null;
+    }
+
 }

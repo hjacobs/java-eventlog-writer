@@ -85,8 +85,18 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public void useDateParam2(final Date d) {
+        sproc.useDateParam2(d);
+    }
+
+    @Override
     public void getSimpleIntVoid(final int i) {
         sproc.getSimpleIntVoid(i);
+    }
+
+    @Override
+    public boolean login(final String userName, final String password) {
+        return sproc.login(userName, password);
     }
 
     @Override
@@ -107,6 +117,21 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     @Override
     public int getShardIndex(final int shard) {
         return sproc.getShardIndex(shard);
+    }
+
+    @Override
+    public List<String> collectDataFromAllShards(final String someParameter) {
+        return sproc.collectDataFromAllShards(someParameter);
+    }
+
+    @Override
+    public List<Integer> getInts() {
+        return sproc.getInts();
+    }
+
+    @Override
+    public List<Long> getLongs() {
+        return sproc.getLongs();
     }
 
     @Override

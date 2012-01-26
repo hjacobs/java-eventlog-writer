@@ -52,10 +52,17 @@ public interface ExampleSProcService {
     void useDateParam(@SProcParam Date d);
 
     @SProcCall
+    void useDateParam2(@SProcParam(sqlType = java.sql.Types.DATE) Date d);
+
+    @SProcCall
     void useCharParam(@SProcParam char c);
 
     @SProcCall
     void getSimpleIntVoid(@SProcParam int i);
+
+    @SProcCall
+    boolean login(@SProcParam String userName,
+            @SProcParam(sensitive = true) String password);
 
     @SProcCall(sql = "SELECT 'a' AS a, 'b' AS b UNION ALL SELECT 'c', 'd'")
     List<ExampleDomainObject> getResult();
@@ -68,6 +75,15 @@ public interface ExampleSProcService {
 
     @SProcCall(shardStrategy = VirtualShardIdentityStrategy.class)
     int getShardIndex(@ShardKey int shard);
+
+    @SProcCall(runOnAllShards = true)
+    List<String> collectDataFromAllShards(@SProcParam String someParameter);
+
+    @SProcCall(sql = "SELECT 1 UNION ALL SELECT 2")
+    List<Integer> getInts();
+
+    @SProcCall(sql = "SELECT 1000 UNION ALL SELECT 2002")
+    List<Long> getLongs();
 
     @SProcCall
     String createOrUpdateObject(@SProcParam ExampleDomainObject object);

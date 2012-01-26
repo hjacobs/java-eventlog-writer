@@ -35,7 +35,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
         SIMPLE_TYPES.put(boolean.class, Boolean.class);
     }
 
-    private Class mapReturnType(final Class returnType) {
+    public static Class mapReturnType(final Class returnType) {
         Class clazz = SIMPLE_TYPES.get(returnType);
         if (clazz != null) {
             return clazz;

@@ -1,19 +1,28 @@
 package de.zalando.sprocwrapper.proxy;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Types;
+
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import org.postgresql.util.PGobject;
+
+import com.typemapper.postgres.PgArray;
+import com.typemapper.postgres.PgTypeHelper;
+
 /**
  * @author  jmussler
  */
 class StoredProcedureParameter {
-    String typeName;
-    int type;
-    int sqlPos;
-    int javaPos;
-    Class clazz;
+
+    private static final Logger LOG = Logger.getLogger(StoredProcedureParameter.class);
 
     private static final Map<Class, Integer> SQL_MAPPING = new HashMap<Class, Integer>();
 
@@ -38,8 +47,15 @@ class StoredProcedureParameter {
         SQL_MAPPING.put(Character.class, java.sql.Types.CHAR);
     }
 
-    public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlPosition,
-            final int javaPosition) {
+    private String typeName;
+    private int type;
+    private int sqlPos;
+    private int javaPos;
+    private Class clazz;
+    private boolean sensitive;
+
+    public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlType, final int sqlPosition,
+            final int javaPosition, final boolean sensitive) {
         if (typeName == null || typeName.isEmpty()) {
             this.typeName = SProcProxyBuilder.camelCaseToUnderscore(clazz.getSimpleName());
         } else {
@@ -48,7 +64,11 @@ class StoredProcedureParameter {
 
         this.clazz = clazz;
 
-        Integer typeId = SQL_MAPPING.get(clazz);
+        Integer typeId = sqlType;
+        if (typeId == null || typeId == -1) {
+            typeId = SQL_MAPPING.get(clazz);
+        }
+
         if (typeId == null) {
             typeId = java.sql.Types.OTHER;
         }
@@ -56,6 +76,90 @@ class StoredProcedureParameter {
         type = typeId;
         sqlPos = sqlPosition;
         javaPos = javaPosition;
+        this.sensitive = sensitive;
 
     }
+
+    public Object mapParam(final Object value, final Connection connection) {
+        if (value == null) {
+            return null;
+        }
+
+        Object result = value;
+        switch (type) {
+
+            case Types.ARRAY :
+
+                String innerTypeName = null;
+
+                if (typeName != null && typeName.endsWith("[]")) {
+                    innerTypeName = typeName.substring(0, typeName.length() - 2);
+                }
+
+                result = PgArray.ARRAY((Collection) value);
+
+                if (innerTypeName != null) {
+                    result = ((PgArray) result).asJdbcArray(innerTypeName);
+                }
+
+                break;
+
+            case Types.OTHER :
+
+                if (clazz.isEnum()) {
+
+                    // HACK: should be implemented in PgTypeHelper
+                    PGobject pgobj = new PGobject();
+                    pgobj.setType(typeName);
+                    try {
+                        pgobj.setValue(((Enum) value).name());
+                    } catch (final SQLException ex) {
+                        if (sensitive) {
+                            LOG.error("Failed to set PG object value (sensitive parameter, stacktrace hidden)");
+                        } else {
+                            LOG.error("Failed to set PG object value", ex);
+                        }
+                    }
+
+                    result = pgobj;
+
+                } else {
+                    try {
+                        result = PgTypeHelper.asPGobject(value, typeName, connection);
+                    } catch (final SQLException ex) {
+                        if (sensitive) {
+                            LOG.error("Failed to serialize PG object (sensitive parameter, stacktrace hidden)");
+                        } else {
+                            LOG.error("Failed to serialize PG object", ex);
+                        }
+                    }
+                }
+
+                break;
+
+        }
+
+        return result;
+    }
+
+    public int getJavaPos() {
+        return javaPos;
+    }
+
+    public boolean isSensitive() {
+        return sensitive;
+    }
+
+    public int getSqlPos() {
+        return sqlPos;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
 }

@@ -30,7 +30,6 @@
         <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="partitionCount" value="2"/>
         <property name="initSQL" value="SET search_path to ztest_shard1, public;" />
     </bean>
 
@@ -39,7 +38,6 @@
         <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="partitionCount" value="2"/>
         <property name="initSQL" value="SET search_path to ztest_shard2, public;" />
     </bean>
 

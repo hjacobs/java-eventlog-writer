@@ -185,6 +185,9 @@ public class SimpleIT {
     public void testDate() {
         exampleSProcService.useDateParam(null);
         exampleSProcService.useDateParam(new Date(System.currentTimeMillis()));
+
+        // commented out, because date input parameters are not working at the moment
+        // exampleSProcService.useDateParam2(new Date(System.currentTimeMillis()));
     }
 
     @Test
@@ -205,6 +208,36 @@ public class SimpleIT {
         AddressPojo c = exampleSProcService.createAddress(a);
 
         assertEquals((int) c.id, (int) 2);
+    }
+
+    @Test
+    public void testSensitiveParameter() {
+
+        // password should not be logged to logfile!
+        exampleSProcService.login("henning.jacobs", "mySecR3tPassW0rd");
+    }
+
+    @Test
+    public void testRunOnAllShards() {
+
+        List<String> results = exampleSProcService.collectDataFromAllShards("a");
+        assertEquals(4, results.size());
+        assertEquals("shard1row1", results.get(0));
+        assertEquals("shard2row1", results.get(2));
+        assertEquals("shard2row2", results.get(3));
+    }
+
+    @Test
+    public void testPrimitiveListResults() {
+        List<Integer> ints = exampleSProcService.getInts();
+        assertEquals(2, ints.size());
+        assertEquals(1, (int) ints.get(0));
+        assertEquals(2, (int) ints.get(1));
+
+        List<Long> longs = exampleSProcService.getLongs();
+        assertEquals(2, longs.size());
+        assertEquals(1000, (long) longs.get(0));
+        assertEquals(2002, (long) longs.get(1));
     }
 
     @Test
