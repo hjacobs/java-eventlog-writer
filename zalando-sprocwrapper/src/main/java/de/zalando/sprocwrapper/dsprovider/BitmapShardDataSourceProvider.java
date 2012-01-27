@@ -21,11 +21,11 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
     private static final Logger LOG = Logger.getLogger(BitmapShardDataSourceProvider.class);
 
-    private DataSource[] dataSources;
+    private final DataSource[] dataSources;
 
-    private int mask;
+    private final int mask;
 
-    private List<Integer> distinctShardIds;
+    private final List<Integer> distinctShardIds;
 
     public BitmapShardDataSourceProvider(final Class<? extends DataSource> dataSourceClass,
             final Map<String, String> commonDataSourceProperties, final Map<String, String> connectionUrls)
@@ -60,9 +60,10 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
             for (int i = 0; i < dataSources.length; i++) {
                 String binaryString = StringUtils.repeat("0", maskLength) + Integer.toBinaryString(i);
                 if (binaryString.endsWith(entry.getKey())) {
-                    LOG.debug("Configured datasource connection " + entry.getValue() + " at index " + i);
+                    LOG.debug("Configured " + entry.getValue() + " at index " + i);
                     if (dataSources[i] != null) {
-                        throw new IllegalArgumentException("Bitmask misconfigured for shards");
+                        throw new IllegalArgumentException(
+                            "Bitmask misconfigured for shards: two connections configured for index " + i);
                     }
 
                     dataSources[i] = ds;
@@ -74,6 +75,17 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
             if (dataSources[i] == null) {
                 throw new IllegalArgumentException("Not enough connection URLs configured for mask length " + maskLength
                         + ": datasource at index " + i + " is missing");
+            }
+        }
+
+        distinctShardIds = Lists.newArrayList();
+
+        Set<DataSource> seenDataSources = Sets.newHashSet();
+
+        for (int i = 0; i < dataSources.length; i++) {
+            if (!seenDataSources.contains(dataSources[i])) {
+                distinctShardIds.add(i);
+                seenDataSources.add(dataSources[i]);
             }
         }
 
@@ -89,19 +101,6 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
     @Override
     public List<Integer> getDistinctShardIds() {
-        if (distinctShardIds == null) {
-            distinctShardIds = Lists.newArrayList();
-
-            Set<DataSource> seenDataSources = Sets.newHashSet();
-
-            for (int i = 0; i < dataSources.length; i++) {
-                if (!seenDataSources.contains(dataSources[i])) {
-                    distinctShardIds.add(i);
-                    seenDataSources.add(dataSources[i]);
-                }
-            }
-        }
-
         return distinctShardIds;
     }
 
