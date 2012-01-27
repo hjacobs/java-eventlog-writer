@@ -89,6 +89,12 @@ public interface ExampleSProcService {
     String createOrUpdateObject(@SProcParam ExampleDomainObject object);
 
     @SProcCall
+    String createOrUpdateObjectWithEnum(@SProcParam ExampleDomainObjectWithEnum object);
+
+    @SProcCall
+    String createOrUpdateObjectWithDate(@SProcParam ExampleDomainObjectWithDate object);
+
+    @SProcCall
     String createOrUpdateMultipleObjects(
             @SProcParam(type = "example_domain_object[]") List<ExampleDomainObject> objects);
 

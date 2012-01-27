@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +32,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import de.zalando.sprocwrapper.example.AddressPojo;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEnum;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
 import de.zalando.sprocwrapper.example.ExampleEnum;
@@ -179,6 +183,15 @@ public class SimpleIT {
     @Test
     public void testEnum() {
         exampleSProcService.useEnumParam(ExampleEnum.ENUM_CONST_1);
+
+        // exampleSProcService.createOrUpdateObjectWithEnum(null);
+
+        ExampleDomainObjectWithEnum obj = new ExampleDomainObjectWithEnum();
+        obj.setX("X");
+        obj.setMyEnum(ExampleEnum.ENUM_CONST_1);
+
+        String result = exampleSProcService.createOrUpdateObjectWithEnum(obj);
+        assertEquals("XENUM_CONST_1", result);
     }
 
     @Test
@@ -188,6 +201,22 @@ public class SimpleIT {
 
         // commented out, because date input parameters are not working at the moment
         // exampleSProcService.useDateParam2(new Date(System.currentTimeMillis()));
+
+        ExampleDomainObjectWithDate obj = new ExampleDomainObjectWithDate();
+        obj.setX("X");
+
+        String result = exampleSProcService.createOrUpdateObjectWithDate(obj);
+        assertNull(result);
+
+        Date d = new Date(System.currentTimeMillis());
+        obj.setMyDate(d);
+        result = exampleSProcService.createOrUpdateObjectWithDate(obj);
+        assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d)), result);
+
+        obj.setMyTimestamp(d);
+        result = exampleSProcService.createOrUpdateObjectWithDate(obj);
+        assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d))
+                + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(d)), result);
     }
 
     @Test

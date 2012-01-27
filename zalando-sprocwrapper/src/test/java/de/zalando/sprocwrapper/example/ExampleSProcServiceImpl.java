@@ -140,6 +140,16 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public String createOrUpdateObjectWithEnum(final ExampleDomainObjectWithEnum object) {
+        return sproc.createOrUpdateObjectWithEnum(object);
+    }
+
+    @Override
+    public String createOrUpdateObjectWithDate(final ExampleDomainObjectWithDate object) {
+        return sproc.createOrUpdateObjectWithDate(object);
+    }
+
+    @Override
     public String createOrUpdateMultipleObjects(final List<ExampleDomainObject> objects) {
         return sproc.createOrUpdateMultipleObjects(objects);
     }
