@@ -23,11 +23,6 @@ public @interface SProcParam {
     int sqlType() default -1;
 
     /**
-     * database stored procedure argument index.
-     */
-    int position() default -1;
-
-    /**
      * whether the stored procedure argument contains sensitive information: sensitive parameters (e.g. "password") are
      * masked out in the debug log
      *

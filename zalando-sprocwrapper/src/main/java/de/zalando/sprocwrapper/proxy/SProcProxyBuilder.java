@@ -7,6 +7,8 @@ import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
 
+import org.springframework.jdbc.core.RowMapper;
+
 import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
@@ -80,8 +82,23 @@ public class SProcProxyBuilder {
                 }
             }
 
+            RowMapper<?> resultMapper = null;
+
+            if (scA.resultMapper() != Void.class) {
+                try {
+                    resultMapper = (RowMapper<?>) scA.resultMapper().newInstance();
+                } catch (InstantiationException ex) {
+                    LOG.fatal("Result mapper for sproc can not be instantiated", ex);
+                    return null;
+                } catch (IllegalAccessException ex) {
+                    LOG.fatal("Result mapper for sproc can not be instantiated", ex);
+                    return null;
+                }
+
+            }
+
             final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
-                    scA.runOnAllShards());
+                    scA.runOnAllShards(), resultMapper);
 
             if (!"".equals(scA.sql())) {
                 p.setQuery(scA.sql());
@@ -98,17 +115,12 @@ public class SProcProxyBuilder {
                     if (a instanceof SProcParam) {
                         SProcParam sParam = (SProcParam) a;
 
-                        int sqlPos = pos;
-                        if (sParam.position() != -1) {
-                            sqlPos = sParam.position();
-                        }
-
                         int javaPos = pos;
 
                         String dbTypeName = sParam.type();
                         Class clazz = method.getParameterTypes()[pos];
 
-                        p.addParam(new StoredProcedureParameter(clazz, dbTypeName, sParam.sqlType(), sqlPos, javaPos,
+                        p.addParam(new StoredProcedureParameter(clazz, dbTypeName, sParam.sqlType(), javaPos,
                                 sParam.sensitive()));
                     }
                 }

@@ -13,12 +13,15 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
+import org.springframework.jdbc.core.RowMapper;
+
 import com.google.common.collect.Lists;
 
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.proxy.executors.Executor;
 import de.zalando.sprocwrapper.proxy.executors.MultiRowSimpleTypeExecutor;
 import de.zalando.sprocwrapper.proxy.executors.MultiRowTypeMapperExecutor;
+import de.zalando.sprocwrapper.proxy.executors.SingleRowCustomMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowSimpleTypeExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
@@ -44,6 +47,7 @@ class StoredProcedure {
 
     private VirtualShardKeyStrategy shardStrategy;
     private List<ShardKeyParameter> shardKeyParameters = null;
+    private RowMapper<?> resultMapper;
 
     private int[] types = null;
 
@@ -53,9 +57,10 @@ class StoredProcedure {
     private static final Executor SINGLE_ROW_TYPE_MAPPER_EXECUTOR = new SingleRowTypeMapperExecutor();
 
     public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
-            final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards) {
+            final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final RowMapper<?> resultMapper) {
         this.name = name;
         this.runOnAllShards = runOnAllShards;
+        this.resultMapper = resultMapper;
 
         shardStrategy = sStrategy;
 
@@ -81,7 +86,11 @@ class StoredProcedure {
             if (SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
                 executor = SINGLE_ROW_SIMPLE_TYPE_EXECUTOR;
             } else {
-                executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
+                if (resultMapper != null) {
+                    executor = new SingleRowCustomMapperExecutor(resultMapper);
+                } else {
+                    executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
+                }
             }
         }
     }
@@ -109,9 +118,10 @@ class StoredProcedure {
     public Object[] getParams(final Object[] origParams, final Connection connection) {
         Object[] ps = new Object[params.size()];
 
+        int i = 0;
         for (StoredProcedureParameter p : params) {
             try {
-                ps[p.getSqlPos()] = p.mapParam(origParams[p.getJavaPos()], connection);
+                ps[i] = p.mapParam(origParams[p.getJavaPos()], connection);
             } catch (Exception e) {
                 final String errorMessage = "Could not map input parameter for stored procedure " + name + " of type "
                         + p.getType() + " at position " + p.getJavaPos() + ": "
@@ -119,6 +129,8 @@ class StoredProcedure {
                 LOG.error(errorMessage, e);
                 throw new IllegalArgumentException(errorMessage, e);
             }
+
+            i++;
         }
 
         return ps;
@@ -280,13 +292,8 @@ class StoredProcedure {
         s += name;
         s += "(";
 
-        StoredProcedureParameter[] ps = new StoredProcedureParameter[params.size()];
-        for (StoredProcedureParameter p : params) {
-            ps[p.getSqlPos()] = p;
-        }
-
         boolean f = true;
-        for (StoredProcedureParameter p : ps) {
+        for (StoredProcedureParameter p : params) {
             if (!f) {
                 s += ",";
             }

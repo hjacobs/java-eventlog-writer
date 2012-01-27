@@ -49,13 +49,12 @@ class StoredProcedureParameter {
 
     private String typeName;
     private int type;
-    private int sqlPos;
     private int javaPos;
     private Class clazz;
     private boolean sensitive;
 
-    public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlType, final int sqlPosition,
-            final int javaPosition, final boolean sensitive) {
+    public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlType, final int javaPosition,
+            final boolean sensitive) {
         if (typeName == null || typeName.isEmpty()) {
             this.typeName = SProcProxyBuilder.camelCaseToUnderscore(clazz.getSimpleName());
         } else {
@@ -74,7 +73,6 @@ class StoredProcedureParameter {
         }
 
         type = typeId;
-        sqlPos = sqlPosition;
         javaPos = javaPosition;
         this.sensitive = sensitive;
 
@@ -148,10 +146,6 @@ class StoredProcedureParameter {
 
     public boolean isSensitive() {
         return sensitive;
-    }
-
-    public int getSqlPos() {
-        return sqlPos;
     }
 
     public int getType() {

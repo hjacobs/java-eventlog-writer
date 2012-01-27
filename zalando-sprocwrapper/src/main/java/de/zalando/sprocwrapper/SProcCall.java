@@ -33,4 +33,6 @@ public @interface SProcCall {
      * @return
      */
     boolean readOnly() default false;
+
+    Class resultMapper() default Void.class;
 }
