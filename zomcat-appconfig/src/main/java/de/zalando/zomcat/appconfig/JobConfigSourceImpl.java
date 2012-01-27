@@ -62,8 +62,11 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
             groupActive = getConfig().getBooleanConfig(String.format("jobGroupConfig.%s.active", jobGroupName),
                     new ConfigCtx(null, null));
 
+            final String[] groupAppInstanceKeys = getConfig().getStringArrayConfig(String.format(
+                        "jobGroupConfig.%s.appInstanceKey", jobGroupName), new ConfigCtx(null, null), true);
+
             // Create JobGroupConfig from JobGroupName as set in JobConfig and ActiveState from JobConfig
-            jobGroupConfig = new JobGroupConfig(jobGroupName, groupActive);
+            jobGroupConfig = new JobGroupConfig(jobGroupName, groupActive, Sets.newHashSet(groupAppInstanceKeys));
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Job: %s has no configured JobGroup. Relying on JobConfig only.", jobName));
