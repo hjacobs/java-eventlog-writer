@@ -31,6 +31,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import de.zalando.sprocwrapper.example.AddressPojo;
+import de.zalando.sprocwrapper.example.ExampleBitmapShardSProcService;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEnum;
@@ -45,6 +46,9 @@ public class SimpleIT {
 
     @Autowired
     private ExampleSProcService exampleSProcService;
+
+    @Autowired
+    private ExampleBitmapShardSProcService exampleBitmapShardSProcService;
 
     @Autowired
     @Qualifier("testDataSource1")
@@ -254,6 +258,19 @@ public class SimpleIT {
         assertEquals("shard1row1", results.get(0));
         assertEquals("shard2row1", results.get(2));
         assertEquals("shard2row2", results.get(3));
+    }
+
+    @Test
+    public void testBitmapShards() {
+        assertEquals(0, exampleBitmapShardSProcService.getShardIndex(0));
+        assertEquals(1, exampleBitmapShardSProcService.getShardIndex(1));
+        assertEquals(0, exampleBitmapShardSProcService.getShardIndex(124));
+        assertEquals(1, exampleBitmapShardSProcService.getShardIndex(125));
+
+        assertEquals("00", exampleBitmapShardSProcService.getShardName(0));
+        assertEquals("1", exampleBitmapShardSProcService.getShardName(1));
+        assertEquals("10", exampleBitmapShardSProcService.getShardName(2));
+        assertEquals("1", exampleBitmapShardSProcService.getShardName(3));
     }
 
     @Test

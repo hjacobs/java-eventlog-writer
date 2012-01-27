@@ -5,10 +5,8 @@ package de.zalando.sprocwrapper.proxy;
  */
 public class ShardKeyParameter {
     public int javaPos;
-    public int keyPos;
 
-    public ShardKeyParameter(final int j, final int k) {
+    public ShardKeyParameter(final int j) {
         javaPos = j;
-        keyPos = k;
     }
 }

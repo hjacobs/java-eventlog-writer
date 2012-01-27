@@ -94,12 +94,12 @@ class StoredProcedure {
         shardStrategy = s;
     }
 
-    public void addShardKeyParamter(final int jp, final int kp) {
+    public void addShardKeyParamter(final int jp) {
         if (shardKeyParameters == null) {
             shardKeyParameters = new ArrayList<ShardKeyParameter>(1);
         }
 
-        shardKeyParameters.add(new ShardKeyParameter(jp, kp));
+        shardKeyParameters.add(new ShardKeyParameter(jp));
     }
 
     public String getName() {
@@ -143,8 +143,10 @@ class StoredProcedure {
         }
 
         Object[] keys = new Object[shardKeyParameters.size()];
+        int i = 0;
         for (ShardKeyParameter p : shardKeyParameters) {
-            keys[p.keyPos] = objs[p.javaPos];
+            keys[i] = objs[p.javaPos];
+            i++;
         }
 
         return shardStrategy.getShardId(keys);

@@ -92,12 +92,7 @@ public class SProcProxyBuilder {
 
                 for (final Annotation a : as) {
                     if (a instanceof ShardKey) {
-                        int kp = ((ShardKey) a).pos();
-                        if (kp == -1) {
-                            kp = pos;
-                        }
-
-                        p.addShardKeyParamter(pos, kp);
+                        p.addShardKeyParamter(pos);
                     }
 
                     if (a instanceof SProcParam) {
