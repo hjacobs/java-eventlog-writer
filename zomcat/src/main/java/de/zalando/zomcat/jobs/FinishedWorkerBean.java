@@ -13,29 +13,31 @@ public class FinishedWorkerBean extends RunningWorkerBean {
     private final DateTime endTime = new DateTime();
 
     public FinishedWorkerBean(final RunningWorker runningWorker) {
-        this(runningWorker.getJobHistoryId(), runningWorker.getId(), runningWorker.getStartTime(),
-            runningWorker.getActualProcessedItemNumber(), runningWorker.getTotalNumberOfItemsToBeProcessed(),
-            runningWorker.getInternalStartTime());
+        this(runningWorker.getJobConfig(), runningWorker.getJobHistoryId(), runningWorker.getId(),
+            runningWorker.getStartTime(), runningWorker.getActualProcessedItemNumber(),
+            runningWorker.getTotalNumberOfItemsToBeProcessed(), runningWorker.getInternalStartTime());
     }
 
-    public FinishedWorkerBean(final String jobHistoryId, final int id, final DateTime startTime) {
-        this(jobHistoryId, id, startTime, null, null);
+    public FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime) {
+        this(jobConfig, jobHistoryId, id, startTime, null, null);
     }
 
-    public FinishedWorkerBean(final String jobHistoryId, final int id, final DateTime startTime,
+    public FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime, final Integer totalNumberOfItemsToBeProcessed) {
+        this(jobConfig, jobHistoryId, id, startTime, null, totalNumberOfItemsToBeProcessed);
+    }
+
+    public FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime, final Integer actualProcessedItemNumber,
             final Integer totalNumberOfItemsToBeProcessed) {
-        this(jobHistoryId, id, startTime, null, totalNumberOfItemsToBeProcessed);
+        this(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed, null);
     }
 
-    public FinishedWorkerBean(final String jobHistoryId, final int id, final DateTime startTime,
-            final Integer actualProcessedItemNumber, final Integer totalNumberOfItemsToBeProcessed) {
-        this(jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed, null);
-    }
-
-    public FinishedWorkerBean(final String jobHistoryId, final int id, final DateTime startTime,
-            final Integer actualProcessedItemNumber, final Integer totalNumberOfItemsToBeProcessed,
-            final DateTime internalStartTime) {
-        super(jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed,
+    public FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime, final Integer actualProcessedItemNumber,
+            final Integer totalNumberOfItemsToBeProcessed, final DateTime internalStartTime) {
+        super(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed,
             internalStartTime);
     }
 

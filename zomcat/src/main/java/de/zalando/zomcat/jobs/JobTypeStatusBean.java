@@ -38,6 +38,8 @@ public class JobTypeStatusBean implements Serializable {
     private static final String KEY_LAST_MODIFIED = "LAST_MODIFIED";
 
     private final Class<?> jobClass;
+    private final JobConfig jobConfig;
+
     private final String description;
     private DateTime lastModified = null;
     private boolean disabled = false;
@@ -49,9 +51,10 @@ public class JobTypeStatusBean implements Serializable {
     // the last QuartzJobInfoBean, to trigger it again
     private QuartzJobInfoBean lastQuartzJobInfoBean = null;
 
-    public JobTypeStatusBean(final Class<?> jobClass, final String description) {
+    public JobTypeStatusBean(final Class<?> jobClass, final String description, final JobConfig jobConfig) {
         this.jobClass = jobClass;
         this.description = description;
+        this.jobConfig = jobConfig;
     }
 
     /**
@@ -215,6 +218,10 @@ public class JobTypeStatusBean implements Serializable {
         }
 
         return id2Worker.values();
+    }
+
+    public JobConfig getJobConfig() {
+        return jobConfig;
     }
 
     /**

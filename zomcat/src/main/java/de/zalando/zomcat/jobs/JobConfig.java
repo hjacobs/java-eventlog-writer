@@ -76,7 +76,11 @@ public class JobConfig {
      */
     public boolean isAllowedAppInstanceKey(final String appInstanceKey) {
         return allowedAppInstanceKeys.contains(appInstanceKey)
-                || allowedAppInstanceKeys.contains(ALL_APP_INSTANCE_KEYS_ALLOWED);
+                || allowedAppInstanceKeys.contains(ALL_APP_INSTANCE_KEYS_ALLOWED)
+                || (jobGroupConfig == null
+                    ? false
+                    : (jobGroupConfig.getGroupAppInstanceKeys().contains(appInstanceKey)
+                        || allowedAppInstanceKeys.contains(ALL_APP_INSTANCE_KEYS_ALLOWED)));
     }
 
     /**

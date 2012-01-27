@@ -4,7 +4,7 @@ import org.quartz.JobExecutionContext;
 
 public interface JobListener {
 
-    void startRunning(RunningWorker runningWorker, JobExecutionContext context, String host);
+    void startRunning(RunningWorker runningWorker, JobExecutionContext context, String appInstanceKey);
 
     void stopRunning(RunningWorker runningWorker, Throwable t);
 

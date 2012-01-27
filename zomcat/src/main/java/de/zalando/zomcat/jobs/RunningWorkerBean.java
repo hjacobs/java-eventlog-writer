@@ -15,39 +15,41 @@ public class RunningWorkerBean implements RunningWorker {
     private final Integer actualProcessedItemNumber;
     private final Integer totalNumberOfItemsToBeProcessed;
     private final String description;
-
+    private final JobConfig jobConfig;
     private String jobHistoryId = null;
 
     public RunningWorkerBean(final RunningWorker runningWorker) {
-        this(runningWorker.getJobHistoryId(), runningWorker.getId(), runningWorker.getStartTime(),
-            runningWorker.getActualProcessedItemNumber(), runningWorker.getTotalNumberOfItemsToBeProcessed(),
-            runningWorker.getInternalStartTime());
+        this(runningWorker.getJobConfig(), runningWorker.getJobHistoryId(), runningWorker.getId(),
+            runningWorker.getStartTime(), runningWorker.getActualProcessedItemNumber(),
+            runningWorker.getTotalNumberOfItemsToBeProcessed(), runningWorker.getInternalStartTime());
     }
 
-    public RunningWorkerBean(final String jobHistoryId, final int id, final DateTime startTime) {
-        this(jobHistoryId, id, startTime, null, null);
+    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime) {
+        this(jobConfig, jobHistoryId, id, startTime, null, null);
     }
 
-    public RunningWorkerBean(final String jobHistoryId, final int id, final DateTime startTime,
+    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime, final Integer totalNumberOfItemsToBeProcessed) {
+        this(jobConfig, jobHistoryId, id, startTime, null, totalNumberOfItemsToBeProcessed);
+    }
+
+    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime, final Integer actualProcessedItemNumber,
             final Integer totalNumberOfItemsToBeProcessed) {
-        this(jobHistoryId, id, startTime, null, totalNumberOfItemsToBeProcessed);
+        this(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed, null);
     }
 
-    public RunningWorkerBean(final String jobHistoryId, final int id, final DateTime startTime,
-            final Integer actualProcessedItemNumber, final Integer totalNumberOfItemsToBeProcessed) {
-        this(jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed, null);
+    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime, final Integer actualProcessedItemNumber,
+            final Integer totalNumberOfItemsToBeProcessed, final DateTime internalStartTime) {
+        this(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed,
+            internalStartTime, null);
     }
 
-    public RunningWorkerBean(final String jobHistoryId, final int id, final DateTime startTime,
-            final Integer actualProcessedItemNumber, final Integer totalNumberOfItemsToBeProcessed,
-            final DateTime internalStartTime) {
-        this(jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed, internalStartTime,
-            null);
-    }
-
-    public RunningWorkerBean(final String jobHistoryId, final int id, final DateTime startTime,
-            final Integer actualProcessedItemNumber, final Integer totalNumberOfItemsToBeProcessed,
-            final DateTime internalStartTime, final String description) {
+    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+            final DateTime startTime, final Integer actualProcessedItemNumber,
+            final Integer totalNumberOfItemsToBeProcessed, final DateTime internalStartTime, final String description) {
         super();
 
         this.id = id;
@@ -57,6 +59,7 @@ public class RunningWorkerBean implements RunningWorker {
         this.internalStartTime = internalStartTime;
         this.description = description;
         this.jobHistoryId = jobHistoryId;
+        this.jobConfig = jobConfig;
     }
 
     /**
@@ -149,5 +152,10 @@ public class RunningWorkerBean implements RunningWorker {
         builder.append(jobHistoryId);
         builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public JobConfig getJobConfig() {
+        return jobConfig;
     }
 }

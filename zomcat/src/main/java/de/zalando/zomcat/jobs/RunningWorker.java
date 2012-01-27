@@ -52,6 +52,13 @@ public interface RunningWorker {
     String getJobHistoryId();
 
     /**
+     * Retrieve the jobHistoryId assigned to this running job.
+     *
+     * @return  the JobHistoryId assigned to this running job
+     */
+    JobConfig getJobConfig();
+
+    /**
      * Set the jobHistoryId assigned to this running job.
      *
      * @param  historyId  the jobHistoryId assigned to this running job

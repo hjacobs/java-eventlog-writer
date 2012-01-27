@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.apache.log4j.Logger;
 
 import org.quartz.Scheduler;
@@ -22,6 +24,10 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import org.springframework.stereotype.Component;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import de.zalando.zomcat.OperationMode;
 
@@ -116,7 +122,8 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
 
         // check if we already know this job type
         if (jobTypeStatusBean == null) {
-            jobTypeStatusBean = new JobTypeStatusBean(runningWorker.getClass(), runningWorker.getDescription());
+            jobTypeStatusBean = new JobTypeStatusBean(runningWorker.getClass(), runningWorker.getDescription(),
+                    runningWorker.getJobConfig());
 
             jobs.put(runningWorker.getClass().getName(), jobTypeStatusBean);
         }
@@ -138,6 +145,7 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
     /**
      * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#getJobTypeStatusBeans()
      */
+    @Override
     public List<JobTypeStatusBean> getJobTypeStatusBeans() {
         return new ArrayList<JobTypeStatusBean>(jobs.values());
     }
@@ -174,7 +182,7 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
         } else {
             jobTypeStatusBean.setDisabled(!running);
 
-            LOG.info("set enabled/disabled mode of job + " + jobName + ", now it is: " + jobTypeStatusBean);
+            LOG.info("set enabled/disabled mode of job + " + jobName + ", now it is: " + !running);
         }
 
         return !jobTypeStatusBean.isDisabled();
@@ -316,5 +324,33 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
         builder.append(operationMode);
         builder.append("]");
         return builder.toString();
+    }
+
+    public List<JobGroupConfig> getJobGroups() {
+        return Lists.newArrayList();
+// return Lists.newArrayList(new JobGroupConfig("docDataJobs", true, Sets.newHashSet("123")),
+
+// new JobGroupConfig("partnerJobs", true, Sets.newHashSet("345")));
+    }
+
+    public List<JobTypeStatusBean> getJobTypeStatusBeansForGroup(final String jobGroupName) {
+        return Lists.newArrayList(Iterables.filter(getJobTypeStatusBeans(), new Predicate<JobTypeStatusBean>() {
+                        @Override
+                        public boolean apply(final JobTypeStatusBean input) {
+                            if (StringUtils.isEmpty(jobGroupName)) {
+
+                                // filter this one if getJobGroupConfig() != null
+                                return input.getJobConfig().getJobGroupConfig() != null;
+                            }
+
+                            if (input.getJobConfig().getJobGroupConfig() == null) {
+
+                                // filter this one
+                                return true;
+                            }
+
+                            return jobGroupName.equals(input.getJobConfig().getJobGroupConfig().getJobGroupName());
+                        }
+                    }));
     }
 }
