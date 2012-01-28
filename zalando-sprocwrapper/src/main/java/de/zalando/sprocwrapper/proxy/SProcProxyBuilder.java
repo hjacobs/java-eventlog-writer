@@ -3,6 +3,8 @@ package de.zalando.sprocwrapper.proxy;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import java.util.Locale;
+
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -25,10 +27,14 @@ public class SProcProxyBuilder {
 
     private static final Logger LOG = Logger.getLogger(SProcProxyBuilder.class);
 
+    private SProcProxyBuilder() {
+        // utility class: private constructor
+    }
+
     public static String camelCaseToUnderscore(final String camelCase) {
         String[] camelCaseParts = StringUtils.splitByCharacterTypeCamelCase(camelCase);
         for (int i = 0; i < camelCaseParts.length; i++) {
-            camelCaseParts[i] = camelCaseParts[i].toLowerCase();
+            camelCaseParts[i] = camelCaseParts[i].toLowerCase(Locale.ENGLISH);
         }
 
         return StringUtils.join(camelCaseParts, "_");

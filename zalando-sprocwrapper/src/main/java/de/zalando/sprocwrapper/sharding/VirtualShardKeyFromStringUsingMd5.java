@@ -40,7 +40,7 @@ public class VirtualShardKeyFromStringUsingMd5 extends VirtualShardKeyStrategy {
         }
 
         final byte[] md5 = digest.digest(input.getBytes());
+        return (md5[15] & 0xff) + ((md5[14] & 0xff) << 8) + ((md5[13] & 0xff) << 16);
 
-        return md5[15] + md5[14] << 8 + md5[13] << 16;
     }
 }

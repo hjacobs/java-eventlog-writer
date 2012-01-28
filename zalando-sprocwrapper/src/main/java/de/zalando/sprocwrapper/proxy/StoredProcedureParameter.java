@@ -47,11 +47,11 @@ class StoredProcedureParameter {
         SQL_MAPPING.put(Character.class, java.sql.Types.CHAR);
     }
 
-    private String typeName;
-    private int type;
-    private int javaPos;
-    private Class clazz;
-    private boolean sensitive;
+    private final String typeName;
+    private final int type;
+    private final int javaPos;
+    private final Class clazz;
+    private final boolean sensitive;
 
     public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlType, final int javaPosition,
             final boolean sensitive) {
@@ -133,6 +133,11 @@ class StoredProcedureParameter {
                     }
                 }
 
+                break;
+
+            default :
+
+                // return argument as-is
                 break;
 
         }

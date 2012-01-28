@@ -13,10 +13,6 @@ import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
  */
 class SProcProxy implements java.lang.reflect.InvocationHandler {
 
-    private static final String NULL = "NULL";
-    private static final int TRUNCATE_DEBUG_PARAMS_MAX_LENGTH = 1024;
-    private static final String TRUNCATE_DEBUG_PARAMS_ELLIPSIS = " ...";
-
     private final HashMap<Method, StoredProcedure> sprocs = new HashMap<Method, StoredProcedure>();
     private final DataSourceProvider dataSourceProvider;
 

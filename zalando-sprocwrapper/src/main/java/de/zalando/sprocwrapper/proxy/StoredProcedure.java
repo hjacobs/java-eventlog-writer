@@ -263,7 +263,9 @@ class StoredProcedure {
             if (connection != null) {
                 try {
                     connection.close();
-                } catch (Throwable t) { }
+                } catch (Throwable t) {
+                    LOG.warn("Could not release connection", t);
+                }
             }
         }
 
@@ -288,24 +290,23 @@ class StoredProcedure {
 
     @Override
     public String toString() {
-        String s = "";
-        s += name;
-        s += "(";
+        StringBuilder sb = new StringBuilder(name);
+        sb.append('(');
 
         boolean f = true;
         for (StoredProcedureParameter p : params) {
             if (!f) {
-                s += ",";
+                sb.append(',');
             }
 
             f = false;
-            s += p.getType();
+            sb.append(p.getType());
             if (!"".equals(p.getTypeName())) {
-                s += "=>" + p.getTypeName();
+                sb.append("=>").append(p.getTypeName());
             }
         }
 
-        s += ")";
-        return s;
+        sb.append(')');
+        return sb.toString();
     }
 }

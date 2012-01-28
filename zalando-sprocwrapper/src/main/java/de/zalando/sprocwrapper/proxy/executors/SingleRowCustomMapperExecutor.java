@@ -22,7 +22,7 @@ public class SingleRowCustomMapperExecutor implements Executor {
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
             final Class returnType) {
         List list = (new JdbcTemplate(ds)).query(sql, args, types, resultMapper);
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             return list.iterator().next();
         }
 
