@@ -90,6 +90,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public void useIntegerListParam(final List<Integer> l) {
+        sproc.useIntegerListParam(l);
+    }
+
+    @Override
     public void getSimpleIntVoid(final int i) {
         sproc.getSimpleIntVoid(i);
     }

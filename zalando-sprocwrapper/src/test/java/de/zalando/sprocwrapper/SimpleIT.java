@@ -30,6 +30,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.collect.Lists;
+
 import de.zalando.sprocwrapper.example.AddressPojo;
 import de.zalando.sprocwrapper.example.ExampleBitmapShardSProcService;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
@@ -226,6 +228,11 @@ public class SimpleIT {
     @Test
     public void testChar() {
         exampleSProcService.useCharParam('m');
+    }
+
+    @Test
+    public void testIntegerListParam() {
+        exampleSProcService.useIntegerListParam(Lists.newArrayList(1, 2));
     }
 
     @Test

@@ -58,6 +58,9 @@ public interface ExampleSProcService {
     void useCharParam(@SProcParam char c);
 
     @SProcCall
+    void useIntegerListParam(@SProcParam List<Integer> l);
+
+    @SProcCall
     void getSimpleIntVoid(@SProcParam int i);
 
     @SProcCall
