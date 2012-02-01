@@ -92,6 +92,9 @@ public interface ExampleSProcService {
     String createOrUpdateObject(@SProcParam ExampleDomainObject object);
 
     @SProcCall
+    String createOrUpdateObjectWithRandomFields(@SProcParam ExampleDomainObjectWithRandomFields object);
+
+    @SProcCall
     String createOrUpdateObjectWithEnum(@SProcParam ExampleDomainObjectWithEnum object);
 
     @SProcCall

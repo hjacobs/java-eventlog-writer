@@ -145,6 +145,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public String createOrUpdateObjectWithRandomFields(final ExampleDomainObjectWithRandomFields object) {
+        return sproc.createOrUpdateObjectWithRandomFields(object);
+    }
+
+    @Override
     public String createOrUpdateObjectWithEnum(final ExampleDomainObjectWithEnum object) {
         return sproc.createOrUpdateObjectWithEnum(object);
     }

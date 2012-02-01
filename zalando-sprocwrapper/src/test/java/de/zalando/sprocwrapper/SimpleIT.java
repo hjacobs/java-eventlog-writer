@@ -39,6 +39,8 @@ import de.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEnum;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFields;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsInner;
 import de.zalando.sprocwrapper.example.ExampleEnum;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 
@@ -291,6 +293,29 @@ public class SimpleIT {
         assertEquals(2, longs.size());
         assertEquals(1000, (long) longs.get(0));
         assertEquals(2002, (long) longs.get(1));
+    }
+
+    /**
+     * test correct mapping of complex types with inner type and random field ordering (i.e. not alphabetically sorted)
+     */
+    @Test
+    public void textComplexParamNameMapping() {
+
+        String result = exampleSProcService.createOrUpdateObjectWithRandomFields(null);
+        assertNull(result);
+
+        ExampleDomainObjectWithRandomFields obj = new ExampleDomainObjectWithRandomFields();
+        obj.setX("X");
+        obj.setY("Y");
+        obj.setZ("Z");
+        obj.setInnerObject(new ExampleDomainObjectWithRandomFieldsInner());
+        obj.getInnerObject().setX("x");
+        obj.getInnerObject().setY("y");
+        obj.getInnerObject().setZ("z");
+        result = exampleSProcService.createOrUpdateObjectWithRandomFields(obj);
+
+        // check that field ordering is correct
+        assertEquals("XYZxyz", result);
     }
 
     @Test
