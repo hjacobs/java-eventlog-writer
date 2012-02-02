@@ -1,5 +1,7 @@
 package de.zalando.sprocwrapper.example;
 
+import java.util.List;
+
 import com.typemapper.annotations.DatabaseField;
 
 public class ExampleDomainObjectWithRandomFields {
@@ -14,6 +16,9 @@ public class ExampleDomainObjectWithRandomFields {
 
     @DatabaseField
     private ExampleDomainObjectWithRandomFieldsInner innerObject;
+
+    @DatabaseField
+    private List<ExampleDomainObjectWithRandomFieldsInner> list;
 
     public ExampleDomainObjectWithRandomFieldsInner getInnerObject() {
         return innerObject;
@@ -45,6 +50,14 @@ public class ExampleDomainObjectWithRandomFields {
 
     public void setZ(final String z) {
         this.z = z;
+    }
+
+    public List<ExampleDomainObjectWithRandomFieldsInner> getList() {
+        return list;
+    }
+
+    public void setList(final List<ExampleDomainObjectWithRandomFieldsInner> list) {
+        this.list = list;
     }
 
 }

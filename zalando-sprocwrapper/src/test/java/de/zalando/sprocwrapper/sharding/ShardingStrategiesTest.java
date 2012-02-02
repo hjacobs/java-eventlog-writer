@@ -10,7 +10,7 @@ public class ShardingStrategiesTest {
 
     @Test
     public void testPerformance() {
-        VirtualShardKeyStrategy strategy1 = new VirtualShardKeyFromStringUsingMd5();
+        VirtualShardKeyStrategy strategy1 = new VirtualShardMd5Strategy();
         VirtualShardKeyStrategy strategy2 = new VirtualShardMurmur2HashStrategy();
 
         Object[] args = new Object[1];
@@ -49,7 +49,7 @@ public class ShardingStrategiesTest {
 
     @Test
     public void testVirtualShardKeyFromStringUsingMd5() {
-        VirtualShardKeyStrategy strategy = new VirtualShardKeyFromStringUsingMd5();
+        VirtualShardKeyStrategy strategy = new VirtualShardMd5Strategy();
         Assert.assertEquals(0, strategy.getShardId(null));
         Assert.assertEquals(0, strategy.getShardId(new Object[0]));
         Assert.assertEquals(0, strategy.getShardId(new Object[1]));
@@ -60,5 +60,31 @@ public class ShardingStrategiesTest {
         // MD5("A") => 7fc56270e7a70fa81a5935b72eacbe29
         // decodeHex("acbe29") => 11320873
         Assert.assertEquals(11320873, strategy.getShardId(args));
+    }
+
+    @Test
+    public void testVirtualShardAwareIdStrategy() {
+        VirtualShardAwareIdStrategy strategy = new VirtualShardAwareIdStrategy();
+        Assert.assertEquals(0, strategy.getShardId(null));
+        Assert.assertEquals(0, strategy.getShardId(new Object[0]));
+        Assert.assertEquals(0, strategy.getShardId(new Object[1]));
+
+        Object[] args = new Object[1];
+        args[0] = 0;
+
+        Assert.assertEquals(0, strategy.getShardId(args));
+
+        // bin(0x3ff) => 1111111111 (10 bits)
+        args[0] = 0x3ff;
+        Assert.assertEquals(0, strategy.getShardId(args));
+
+        Assert.assertEquals(0, strategy.getShardId(args));
+
+        // bin(0x7ff) => 11111111111 (11 bits)
+        args[0] = 0x7ff;
+        Assert.assertEquals(1, strategy.getShardId(args));
+
+        args[0] = 0x8ff;
+        Assert.assertEquals(2, strategy.getShardId(args));
     }
 }

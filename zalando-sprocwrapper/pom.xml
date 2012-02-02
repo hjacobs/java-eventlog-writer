@@ -8,7 +8,7 @@
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>0.1.13</version>
+    <version>0.1.14</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
     <dependencies>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.typemapper</groupId>
             <artifactId>sproc-spring-mapper</artifactId>
-            <version>1.9.5</version>
+            <version>1.9.6</version>
         </dependency>
         <dependency>
             <groupId>com.jolbox</groupId>

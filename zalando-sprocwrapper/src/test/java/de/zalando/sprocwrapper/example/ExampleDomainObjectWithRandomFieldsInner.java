@@ -12,6 +12,12 @@ public class ExampleDomainObjectWithRandomFieldsInner {
     @DatabaseField
     private String x;
 
+    public ExampleDomainObjectWithRandomFieldsInner(final String x, final String y, final String z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
     public String getX() {
         return x;
     }

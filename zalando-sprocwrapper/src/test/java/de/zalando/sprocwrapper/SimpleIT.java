@@ -354,14 +354,12 @@ public class SimpleIT {
         obj.setX("X");
         obj.setY("Y");
         obj.setZ("Z");
-        obj.setInnerObject(new ExampleDomainObjectWithRandomFieldsInner());
-        obj.getInnerObject().setX("x");
-        obj.getInnerObject().setY("y");
-        obj.getInnerObject().setZ("z");
+        obj.setInnerObject(new ExampleDomainObjectWithRandomFieldsInner("x", "y", "z"));
+        obj.setList(Lists.newArrayList(new ExampleDomainObjectWithRandomFieldsInner("a", "b", "c")));
         result = exampleSProcService.createOrUpdateObjectWithRandomFields(obj);
 
         // check that field ordering is correct
-        assertEquals("XYZxyz", result);
+        assertEquals("XYZxyz(<abc>)", result);
     }
 
     @Test

@@ -6,9 +6,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
+ * extract the last 3 bytes of the shard key's MD5 hash: the shard key must be either a string or a string list (the
+ * first list item is used in this case)
+ *
  * @author  jmussler
+ * @author  hjacobs
  */
-public class VirtualShardKeyFromStringUsingMd5 extends VirtualShardKeyStrategy {
+public class VirtualShardMd5Strategy extends VirtualShardKeyStrategy {
     @Override
     public int getShardId(final Object[] objs) {
         if (objs == null || objs.length == 0) {
