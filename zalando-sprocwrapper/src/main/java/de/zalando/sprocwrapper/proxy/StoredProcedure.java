@@ -7,7 +7,9 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -16,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.proxy.executors.Executor;
@@ -238,15 +241,32 @@ class StoredProcedure {
         }
     }
 
+    private Map<Integer, Object[]> partitionArguments(final Object[] args) {
+
+        // TODO split arguments by shard
+        return null;
+    }
+
     public Object execute(final DataSourceProvider dp, final Object[] args) {
 
         List<Integer> shardIds = null;
+        Map<Integer, Object[]> partitionedArguments = null;
         if (runOnAllShards) {
             shardIds = dp.getDistinctShardIds();
         } else {
-            if (autoPartition) { }
-            else {
+            if (autoPartition) {
+                partitionedArguments = partitionArguments(args);
+                shardIds = Lists.newArrayList(partitionedArguments.keySet());
+                Collections.sort(shardIds);
+            } else {
                 shardIds = Lists.newArrayList(getShardId(args));
+            }
+        }
+
+        if (partitionedArguments == null) {
+            partitionedArguments = Maps.newHashMap();
+            for (int shardId : shardIds) {
+                partitionedArguments.put(shardId, args);
             }
         }
 
@@ -260,11 +280,13 @@ class StoredProcedure {
                     + " for " + name, e);
         }
 
-        final Object[] paramValues;
+        final List<Object[]> paramValues = Lists.newArrayList();
         try {
-            paramValues = getParams(args, connection);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(getDebugLog(paramValues));
+            for (int shardId : shardIds) {
+                paramValues.add(getParams(partitionedArguments.get(shardId), connection));
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(getDebugLog(paramValues.get(paramValues.size() - 1)));
+                }
             }
 
         } finally {
@@ -280,15 +302,17 @@ class StoredProcedure {
         if (shardIds.size() == 1) {
 
             // most common case: only one shard
-            return executor.executeSProc(firstDs, getQuery(), paramValues, getTypes(), returnType);
+            return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), returnType);
         } else {
             List<?> results = Lists.newArrayList();
             DataSource shardDs;
             Object sprocResult;
+            int i = 0;
             for (int shardId : shardIds) {
                 shardDs = dp.getDataSource(shardId);
-                sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues, getTypes(), returnType);
+                sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), returnType);
                 results.addAll((Collection) sprocResult);
+                i++;
             }
 
             return results;
