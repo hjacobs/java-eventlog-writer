@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -250,6 +251,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      *
      * @return
      */
+    @VisibleForTesting
     private boolean shouldRun(final JobConfig config) {
 
         // check for maintenance mode
@@ -280,8 +282,10 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         final boolean isActive = config.isActive();
         final boolean isGroupActive = config.getJobGroupConfig() == null
                 || config.getJobGroupConfig().isJobGroupActive();
-        final boolean shouldRun = hasAllowedInstanceKey && (isActive || isGroupActive);
-        if (shouldRun == false && LOG.isTraceEnabled()) {
+
+        // Run Job Only if Job is active AND JobGroup is active
+        final boolean shouldRun = hasAllowedInstanceKey && isActive && isGroupActive;
+        if (!shouldRun && LOG.isTraceEnabled()) {
             LOG.trace("Job: " + this.getBeanName() + " has been deactivated: hasAllowedInstanceKey = "
                     + hasAllowedInstanceKey + ", isActive: " + isActive + ", isGroupActive: " + isGroupActive
                     + ", shouldRun: " + shouldRun);

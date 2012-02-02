@@ -71,16 +71,25 @@ public class JobConfig {
      *
      * @param   appInstanceKey  The AppInstanceKey to check
      *
-     * @return  <code>true</code> if given AppInstanceKey is contained in Set of allowed AppInstanceKeys or if the Set
-     *          of allowed AppInstanceKeys contains the '*' asterisk, <code>false</code> otherwise
+     * @return  <code>true</code> if given AppInstanceKey is contained in {@link JobConfig}s Set of allowed
+     *          AppInstanceKeys, OR if the {@link JobConfig}s Set of allowed AppInstanceKeys contains the '*' asterisk,
+     *          OR if the {@link JobConfig}s Set of AppInstanceKeys isEmpty AND the {@link JobGroupConfig}s Set of
+     *          AppInstanceKeys contains either the current AppInstanceKey or the '*' asterisk character. Otherwise
+     *          <code>false</code> is returned
      */
     public boolean isAllowedAppInstanceKey(final String appInstanceKey) {
+
+        // If JobConfig.appInstanceKeys.contains(curAppInstanceKey) OR
+        // JobConfig.appInstanceKeys.contains(ALL_APP_INSTANCE_KEYS) OR
+        // (JobAppInstanceKeysSet.isEmpty && JobGroupConfig != null AND
+        // (JobGroupConfig.appInstanceKeys.contains(curAppInstanceKey) ||
+        // JobGroupConfig.appInstanceKey.contains(ALL_APP_INSTANCE_KEYS)))
         return allowedAppInstanceKeys.contains(appInstanceKey)
                 || allowedAppInstanceKeys.contains(ALL_APP_INSTANCE_KEYS_ALLOWED)
-                || (jobGroupConfig == null
-                    ? false
-                    : (jobGroupConfig.getGroupAppInstanceKeys().contains(appInstanceKey)
-                        || allowedAppInstanceKeys.contains(ALL_APP_INSTANCE_KEYS_ALLOWED)));
+                || (allowedAppInstanceKeys.isEmpty()
+                    && (jobGroupConfig != null
+                        && (jobGroupConfig.getGroupAppInstanceKeys().contains(appInstanceKey)
+                            || jobGroupConfig.getGroupAppInstanceKeys().contains(ALL_APP_INSTANCE_KEYS_ALLOWED))));
     }
 
     /**
