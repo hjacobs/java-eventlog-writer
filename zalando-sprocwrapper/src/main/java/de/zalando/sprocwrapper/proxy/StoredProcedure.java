@@ -42,6 +42,7 @@ class StoredProcedure {
     private String query = null;
     private Class returnType = null;
     private boolean runOnAllShards;
+    private boolean autoPartition;
 
     private Executor executor = null;
 
@@ -103,9 +104,13 @@ class StoredProcedure {
         shardStrategy = s;
     }
 
-    public void addShardKeyParamter(final int jp) {
+    public void addShardKeyParameter(final int jp, final Class clazz) {
         if (shardKeyParameters == null) {
             shardKeyParameters = new ArrayList<ShardKeyParameter>(1);
+        }
+
+        if (List.class.isAssignableFrom(clazz)) {
+            autoPartition = true;
         }
 
         shardKeyParameters.add(new ShardKeyParameter(jp));
@@ -239,7 +244,10 @@ class StoredProcedure {
         if (runOnAllShards) {
             shardIds = dp.getDistinctShardIds();
         } else {
-            shardIds = Lists.newArrayList(getShardId(args));
+            if (autoPartition) { }
+            else {
+                shardIds = Lists.newArrayList(getShardId(args));
+            }
         }
 
         final DataSource firstDs = dp.getDataSource(shardIds.get(0));

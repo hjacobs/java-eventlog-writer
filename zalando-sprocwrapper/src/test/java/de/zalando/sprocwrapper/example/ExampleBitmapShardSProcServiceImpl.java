@@ -35,4 +35,9 @@ public class ExampleBitmapShardSProcServiceImpl
         return sproc.getShardName(shard);
     }
 
+    @Override
+    public List<String> collectDataUsingAutoPartition(final List<String> keys) {
+        return sproc.collectDataUsingAutoPartition(keys);
+    }
+
 }

@@ -114,8 +114,10 @@ public class SProcProxyBuilder {
             for (final Annotation[] as : method.getParameterAnnotations()) {
 
                 for (final Annotation a : as) {
+                    final Class clazz = method.getParameterTypes()[pos];
+
                     if (a instanceof ShardKey) {
-                        p.addShardKeyParamter(pos);
+                        p.addShardKeyParameter(pos, clazz);
                     }
 
                     if (a instanceof SProcParam) {
@@ -124,7 +126,6 @@ public class SProcProxyBuilder {
                         int javaPos = pos;
 
                         String dbTypeName = sParam.type();
-                        Class clazz = method.getParameterTypes()[pos];
 
                         p.addParam(new StoredProcedureParameter(clazz, dbTypeName, sParam.sqlType(), javaPos,
                                 sParam.sensitive()));
