@@ -198,4 +198,9 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public AddressPojo getAddress(final AddressPojo a) {
         return sproc.getAddress(a);
     }
+
+    @Override
+    public AddressPojo getAddressSql(final AddressPojo a) {
+        return sproc.getAddressSql(a);
+    }
 }

@@ -238,11 +238,8 @@ public class SimpleIT {
     }
 
     @Test
-    public void testAdress() {
-        AddressPojo a = new AddressPojo();
-        a.customerId = 99;
-        a.street = "Auf Beverau";
-        a.number = "11";
+    public void testCreateAddress() {
+        AddressPojo a = getNewTestAddress();
 
         AddressPojo b = exampleSProcService.createAddress(a);
         assertEquals((int) b.id, (int) 1);
@@ -250,6 +247,55 @@ public class SimpleIT {
         AddressPojo c = exampleSProcService.createAddress(a);
 
         assertEquals((int) c.id, (int) 2);
+    }
+
+    @Test
+    public void testGetAddress() {
+        AddressPojo a = getNewTestAddress();
+
+        AddressPojo b = exampleSProcService.createAddress(a);
+
+        AddressPojo c = new AddressPojo();
+        c.id = b.getId();
+
+        AddressPojo l = exampleSProcService.getAddress(c);
+        System.out.println(l);
+
+        assertEquals(l.customerId, a.customerId);
+        assertEquals(l.number, a.number);
+        assertEquals(l.street, a.street);
+
+        System.out.println(l);
+    }
+
+    private static int addresscount = 1;
+
+    private AddressPojo getNewTestAddress() {
+        AddressPojo a = new AddressPojo();
+        a.customerId = addresscount++;
+        a.street = "Auf Beverau";
+        a.number = "11";
+        return a;
+    }
+
+    @Test
+    public void testGetAddressSql() {
+
+        AddressPojo a = getNewTestAddress();
+
+        AddressPojo b = exampleSProcService.createAddress(a);
+
+        AddressPojo c = new AddressPojo();
+        c.id = b.getId();
+
+        AddressPojo l = exampleSProcService.getAddress(c);
+        System.out.println(l);
+
+        assertEquals(l.customerId, a.customerId);
+        assertEquals(l.number, a.number);
+        assertEquals(l.street, a.street);
+
+        System.out.println(l);
     }
 
     @Test

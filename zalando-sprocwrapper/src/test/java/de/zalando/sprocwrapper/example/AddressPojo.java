@@ -45,11 +45,15 @@ public class AddressPojo {
     public Integer id;
 
     @DatabaseField
-    public int customerId;
+    public int customerId = 0;
 
     @DatabaseField
-    public String street;
+    public String street = "";
 
     @DatabaseField
-    public String number;
+    public String number = "";
+
+    public String toString() {
+        return "AddressPojo [" + id + "," + customerId + "," + street + "," + number + "]";
+    }
 }

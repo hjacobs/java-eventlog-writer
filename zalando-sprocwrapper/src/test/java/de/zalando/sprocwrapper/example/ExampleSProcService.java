@@ -124,4 +124,7 @@ public interface ExampleSProcService {
 
     @SProcCall(name = "get_address")
     AddressPojo getAddress(@SProcParam AddressPojo a);
+
+    @SProcCall(name = "get_address_sql")
+    AddressPojo getAddressSql(@SProcParam AddressPojo a);
 }
