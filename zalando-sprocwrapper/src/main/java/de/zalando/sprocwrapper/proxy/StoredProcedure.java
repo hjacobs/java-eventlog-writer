@@ -7,7 +7,6 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +43,9 @@ class StoredProcedure {
     private String name;
     private String query = null;
     private Class returnType = null;
+
+    // whether the result type is a collection (List)
+    private boolean collectionResult = false;
     private boolean runOnAllShards;
     private boolean autoPartition;
 
@@ -79,6 +81,8 @@ class StoredProcedure {
                 } else {
                     executor = MULTI_ROW_TYPE_MAPPER_EXECUTOR;
                 }
+
+                collectionResult = true;
             } else {
                 executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
                 returnType = (Class) pType.getRawType();
@@ -241,10 +245,59 @@ class StoredProcedure {
         }
     }
 
-    private Map<Integer, Object[]> partitionArguments(final Object[] args) {
+    /**
+     * split arguments by shard.
+     *
+     * @param   dataSourceProvider
+     * @param   args                the original argument list
+     *
+     * @return  map of virtual shard ID to argument list (TreeMap with ordered keys: sorted by shard ID)
+     */
+    private Map<Integer, Object[]> partitionArguments(final DataSourceProvider dataSourceProvider,
+            final Object[] args) {
 
-        // TODO split arguments by shard
-        return null;
+        // use TreeMap here to maintain ordering by shard ID
+        final Map<Integer, Object[]> argumentsByShardId = Maps.newTreeMap();
+
+        // we need to partition by datasource instead of virtual shard ID (different virtual shard IDs are mapped to
+        // the same datasource e.g. by VirtualShardMd5Strategy)
+        final Map<DataSource, Integer> shardIdByDataSource = Maps.newHashMap();
+
+        // TODO: currently only implemented for a single shardKey argument!
+        final List<Object> originalArgument = (List) args[0];
+        List<Object> partitionedArgument = null;
+        Object[] partitionedArguments = null;
+        int shardId;
+        Integer existingShardId;
+        DataSource dataSource;
+        for (Object key : originalArgument) {
+            shardId = getShardId(new Object[] {key});
+            dataSource = dataSourceProvider.getDataSource(shardId);
+            existingShardId = shardIdByDataSource.get(dataSource);
+            if (existingShardId != null) {
+
+                // we already saw the same datasource => use the virtual shard ID of the first argument with the same
+                // datasource
+                shardId = existingShardId;
+            } else {
+                shardIdByDataSource.put(dataSource, shardId);
+            }
+
+            partitionedArguments = argumentsByShardId.get(shardId);
+            if (partitionedArguments == null) {
+
+                partitionedArgument = Lists.newArrayList();
+                partitionedArguments = new Object[] {partitionedArgument};
+                argumentsByShardId.put(shardId, partitionedArguments);
+            } else {
+                partitionedArgument = (List<Object>) partitionedArguments[0];
+            }
+
+            partitionedArgument.add(key);
+
+        }
+
+        return argumentsByShardId;
     }
 
     public Object execute(final DataSourceProvider dp, final Object[] args) {
@@ -255,9 +308,8 @@ class StoredProcedure {
             shardIds = dp.getDistinctShardIds();
         } else {
             if (autoPartition) {
-                partitionedArguments = partitionArguments(args);
+                partitionedArguments = partitionArguments(dp, args);
                 shardIds = Lists.newArrayList(partitionedArguments.keySet());
-                Collections.sort(shardIds);
             } else {
                 shardIds = Lists.newArrayList(getShardId(args));
             }
@@ -299,23 +351,34 @@ class StoredProcedure {
             }
         }
 
-        if (shardIds.size() == 1) {
+        if (shardIds.size() == 1 && !autoPartition) {
 
-            // most common case: only one shard
+            // most common case: only one shard and no argument partitioning
             return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), returnType);
         } else {
             List<?> results = Lists.newArrayList();
             DataSource shardDs;
-            Object sprocResult;
+            Object sprocResult = null;
             int i = 0;
             for (int shardId : shardIds) {
                 shardDs = dp.getDataSource(shardId);
                 sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), returnType);
-                results.addAll((Collection) sprocResult);
+                if (collectionResult) {
+                    results.addAll((Collection) sprocResult);
+
+                }
+
                 i++;
             }
 
-            return results;
+            if (collectionResult) {
+                return results;
+            } else {
+
+                // return last result
+                return sprocResult;
+            }
+
         }
 
     }

@@ -33,7 +33,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.google.common.collect.Lists;
 
 import de.zalando.sprocwrapper.example.AddressPojo;
-import de.zalando.sprocwrapper.example.ExampleBitmapShardSProcService;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEnum;
@@ -42,6 +41,7 @@ import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFields;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsInner;
 import de.zalando.sprocwrapper.example.ExampleEnum;
+import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -52,7 +52,7 @@ public class SimpleIT {
     private ExampleSProcService exampleSProcService;
 
     @Autowired
-    private ExampleBitmapShardSProcService exampleBitmapShardSProcService;
+    private ExampleNamespacedSProcService exampleNamespacedSProcService;
 
     @Autowired
     @Qualifier("testDataSource1")
@@ -98,14 +98,6 @@ public class SimpleIT {
     public void testParameterOverloading() {
         assertEquals(3, (int) exampleSProcService.getSimpleInt());
         assertEquals(1234, exampleSProcService.getSimpleInt(1234));
-    }
-
-    @Test
-    public void testSharding() {
-
-        // test simple identity + modulo sharding strategy
-        assertEquals(0, exampleSProcService.getShardIndex(122));
-        assertEquals(1, exampleSProcService.getShardIndex(123));
     }
 
     @Test
@@ -306,26 +298,8 @@ public class SimpleIT {
     }
 
     @Test
-    public void testRunOnAllShards() {
-
-        List<String> results = exampleSProcService.collectDataFromAllShards("a");
-        assertEquals(4, results.size());
-        assertEquals("shard1row1", results.get(0));
-        assertEquals("shard2row1", results.get(2));
-        assertEquals("shard2row2", results.get(3));
-    }
-
-    @Test
-    public void testBitmapShards() {
-        assertEquals(0, exampleBitmapShardSProcService.getShardIndex(0));
-        assertEquals(1, exampleBitmapShardSProcService.getShardIndex(1));
-        assertEquals(0, exampleBitmapShardSProcService.getShardIndex(124));
-        assertEquals(1, exampleBitmapShardSProcService.getShardIndex(125));
-
-        assertEquals("00", exampleBitmapShardSProcService.getShardName(0));
-        assertEquals("1", exampleBitmapShardSProcService.getShardName(1));
-        assertEquals("10", exampleBitmapShardSProcService.getShardName(2));
-        assertEquals("1", exampleBitmapShardSProcService.getShardName(3));
+    public void testNamespacedService() {
+        assertEquals("TESTRESULT", exampleNamespacedSProcService.test());
     }
 
     @Test

@@ -25,6 +25,6 @@ public interface ExampleBitmapShardSProcService {
     String getShardName(@ShardKey int shard);
 
     @SProcCall(shardStrategy = VirtualShardMd5Strategy.class)
-    List<String> collectDataUsingAutoPartition(@ShardKey List<String> keys);
+    List<String> collectDataUsingAutoPartition(@ShardKey @SProcParam List<String> keys);
 
 }

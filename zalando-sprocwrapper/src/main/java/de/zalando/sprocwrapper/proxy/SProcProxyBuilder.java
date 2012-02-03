@@ -51,6 +51,7 @@ public class SProcProxyBuilder {
 
         SProcService serviceAnnotation = c.getAnnotation(SProcService.class);
         VirtualShardKeyStrategy keyStrategy = VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT;
+        String prefix = "";
         if (serviceAnnotation != null) {
             try {
                 keyStrategy = (VirtualShardKeyStrategy) serviceAnnotation.shardStrategy().newInstance();
@@ -60,6 +61,10 @@ public class SProcProxyBuilder {
             } catch (IllegalAccessException ex) {
                 LOG.fatal("ShardKey strategy for service can not be instantiated", ex);
                 return null;
+            }
+
+            if (!"".equals(serviceAnnotation.namespace())) {
+                prefix = serviceAnnotation.namespace() + "_";
             }
         }
 
@@ -74,6 +79,8 @@ public class SProcProxyBuilder {
             if ("".equals(name)) {
                 name = getSqlNameForMethod(method.getName());
             }
+
+            name = prefix + name;
 
             VirtualShardKeyStrategy sprocStrategy = keyStrategy;
             if (scA.shardStrategy() != Void.class) {

@@ -17,4 +17,6 @@ import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 @Inherited
 public @interface SProcService {
     Class shardStrategy() default VirtualShardKeyStrategy.class;
+
+    String namespace() default "";
 }
