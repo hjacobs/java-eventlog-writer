@@ -11,8 +11,8 @@
     <groupId>de.zalando</groupId>
     <artifactId>eventlog</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-    <description>Event Log</description>
+    <name>Event Log</name>
+    <description>Event Log Library: API to log business events</description>
     <version>1.0.0</version>
     <dependencies>
         <dependency>

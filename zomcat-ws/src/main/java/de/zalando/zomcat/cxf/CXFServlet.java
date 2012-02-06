@@ -36,6 +36,8 @@ import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.cxf.transport.servlet.BaseUrlHelper;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
 import org.springframework.context.ApplicationContext;
 
 import com.google.common.collect.Lists;
@@ -179,8 +181,16 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
         // workaround to get implementor class: relies on naming convention in cxf.xml
         // (e.g. "MyExampleWebService" needs to have "myExampleWebService" implementor bean)
-        final Object implementor = getBus().getExtension(ApplicationContext.class).getBean(name.substring(0, 1)
-                    .toLowerCase() + name.substring(1));
+        Object implementor = null;
+        try {
+            implementor = getBus().getExtension(ApplicationContext.class).getBean(name.substring(0, 1).toLowerCase()
+                        + name.substring(1));
+        } catch (NoSuchBeanDefinitionException e) {
+            // probably our assumption (naming convention) was incorrect and the bean was not found with the assumed
+            // name
+            // => ignore the "bean not found" error
+        }
+
         if (implementor != null) {
             final Class clazz = implementor.getClass();
             final Method[] methods = clazz.getMethods();
