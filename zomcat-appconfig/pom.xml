@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Zomcat Application Config Abstract Classes</description>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
@@ -22,6 +22,7 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>appconfig</artifactId>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
 </project>
