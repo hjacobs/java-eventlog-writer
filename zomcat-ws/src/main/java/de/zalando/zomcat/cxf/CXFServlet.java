@@ -96,7 +96,8 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         writer.write("<title>CXF - Service list</title>");
         writer.write("<style>");
         writer.write("html { font: 13px Arial, Helvetica, sans-serif; }");
-        writer.write("h2 { font-size: 16px; margin: 8px 0; padding: 0 0 4px 0; border-bottom: 4px solid #eee; }");
+        writer.write(
+            "h2 { font-size: 16px; margin: 16px 0 4px 0; padding: 0 0 4px 0; border-bottom: 4px solid #eee; }");
         writer.write("h2 a { font-size: 12px; margin-left: 24px; }");
         writer.write(".doc { color: #888; font-style: italic; }");
         writer.write("p { margin: 4px 0; }");
@@ -109,8 +110,10 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         writer.write("</style>");
         writer.write("</head><body>");
         writer.write("<p>Available SOAP services:</p>");
+
+        boolean collapsed = destinations.length > 1;
         for (AbstractDestination dest : destinations) {
-            writeSoapEndpoint(writer, dest);
+            writeSoapEndpoint(writer, dest, collapsed);
         }
 
         writer.write("</body>");
@@ -162,7 +165,11 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         return null;
     }
 
-    private void writeSoapEndpoint(final PrintWriter writer, final AbstractDestination sd) {
+    private static String getDocumentationAsHtml(final String doc) {
+        return StringEscapeUtils.escapeXml(doc).replace("\n", "<br />");
+    }
+
+    private void writeSoapEndpoint(final PrintWriter writer, final AbstractDestination sd, final boolean collapsed) {
         final EndpointInfo ei = sd.getEndpointInfo();
         final String address = ei.getAddress();
         final String name = ei.getInterface().getName().getLocalPart();
@@ -212,15 +219,26 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
         writer.write("<h2>" + name + " ");
         writer.write("<a href=\"" + address + "?wsdl\">WSDL</a>");
-        writer.write("<a href=\"javascript:document.getElementById('" + name
-                + "-ops').style.display='block'; return false\">Operations (" + operations.size() + ")</a>");
-        writer.write("</h2>");
-        if (ei.getService().getDocumentation() != null) {
-            writer.write("<p class=\"doc\">" + StringEscapeUtils.escapeXml(ei.getService().getDocumentation())
-                    + "</p>");
+        if (collapsed) {
+            writer.write("<a href=\"javascript:document.getElementById('" + name
+                    + "-ops').style.display='block';\">Operations (" + operations.size() + ")</a>");
         }
 
-        writer.write("<ul id=\"" + name + "-ops\" style=\"display:none\">");
+        writer.write("</h2>");
+        if (ei.getInterface().getDocumentation() != null) {
+            writer.write("<p class=\"doc\">" + getDocumentationAsHtml(ei.getInterface().getDocumentation()) + "</p>");
+        }
+
+        if (ei.getService().getDocumentation() != null) {
+            writer.write("<p class=\"doc\">" + getDocumentationAsHtml(ei.getService().getDocumentation()) + "</p>");
+        }
+
+        writer.write("<ul id=\"" + name + "-ops\"");
+        if (collapsed) {
+            writer.write(" style=\"display:none\"");
+        }
+
+        writer.write(">");
 
         for (OperationInfo oi : operations) {
             if (oi.getProperty("operation.is.synthetic") != Boolean.TRUE) {
@@ -253,7 +271,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
                 }
 
                 if (oi.getDocumentation() != null) {
-                    writer.write("<p class=\"doc\">" + StringEscapeUtils.escapeXml(oi.getDocumentation()) + "</p>");
+                    writer.write("<p class=\"doc\">" + getDocumentationAsHtml(oi.getDocumentation()) + "</p>");
                 }
 
                 writer.write("</li>");
