@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>rule-engine</groupId>
+   <artifactId>rule-engine</artifactId>
+   <version>0.0.1-SNAPSHOT</version>
+   <name>rule-engine</name>
+   <dependencies>
+      <dependency>
+         <groupId>org.codehaus.groovy</groupId>
+         <artifactId>groovy-all</artifactId>
+         <version>2.0.0-beta-2</version>
+         <exclusions>
+            <exclusion>
+               <groupId>xerces</groupId>
+               <artifactId>xercesImpl</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>net.sourceforge.jexcelapi</groupId>
+         <artifactId>jxl</artifactId>
+         <version>2.6.12</version>
+      </dependency>
+   </dependencies>
+</project>
