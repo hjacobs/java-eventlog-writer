@@ -315,7 +315,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
     protected void invoke(final HttpServletRequest request, final HttpServletResponse response)
         throws ServletException {
         String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
-        if (StringUtils.isBlank(pathInfo)) {
+        if (StringUtils.isBlank(pathInfo) || "/".equals(pathInfo)) {
             try {
                 renderServiceList(request, response);
             } catch (IOException ex) {
