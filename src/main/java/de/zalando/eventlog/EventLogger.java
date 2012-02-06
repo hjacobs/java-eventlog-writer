@@ -77,7 +77,7 @@ public class EventLogger {
 
     private void logLayout(final EventType type) {
         StringBuilder sb = new StringBuilder();
-        sb.append(type.getId());
+        sb.append(Integer.toHexString(type.getId()));
         sb.append('\t');
         sb.append(getValue(type.getName()));
         for (String name : type.getFieldNames()) {
@@ -98,7 +98,7 @@ public class EventLogger {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(id);
+        sb.append(Integer.toHexString(id));
 
         int i = 0;
         for (Object o : values) {
