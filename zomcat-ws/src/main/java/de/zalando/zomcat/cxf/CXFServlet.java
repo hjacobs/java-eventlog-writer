@@ -111,6 +111,11 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         // writer.write("ul { color: #888; }");
         writer.write("</style>");
         writer.write("</head><body>");
+        writer.write("<script>");
+        writer.write("function toggleOperations(id) { var elem = document.getElementById(id);"
+                + "if (elem.style.display == 'block') { elem.style.display='none'; } else { elem.style.display='block'; }"
+                + "}");
+        writer.write("</script>");
         writer.write("<p>Available SOAP services:</p>");
 
         boolean collapsed = destinations.length > 1;
@@ -193,15 +198,16 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
         if (implementor != null) {
             final Class clazz = implementor.getClass();
-            final Method[] methods = clazz.getMethods();
+            Method[] methods = clazz.getMethods();
 
             List<OperationParameter> params;
 
+            int pos;
             for (final Method method : methods) {
                 operationReturnTypes.put(method.getName(), method.getGenericReturnType());
                 params = Lists.newArrayList();
 
-                int pos = 0;
+                pos = 0;
                 for (final Type t : method.getGenericParameterTypes()) {
                     params.add(new OperationParameter("arg" + pos, t));
                     pos++;
@@ -220,6 +226,28 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
                 operationParameters.put(method.getName(), params);
             }
+
+            // also scan interface annotations
+            for (Class intface : clazz.getInterfaces()) {
+                methods = intface.getMethods();
+                for (final Method method : methods) {
+                    params = operationParameters.get(method.getName());
+                    if (params == null) {
+                        continue;
+                    }
+
+                    pos = 0;
+                    for (final Annotation[] as : method.getParameterAnnotations()) {
+                        for (final Annotation a : as) {
+                            if (a instanceof WebParam) {
+                                params.get(pos).name = ((WebParam) a).name();
+                            }
+                        }
+
+                        pos++;
+                    }
+                }
+            }
         }
 
         final List<OperationInfo> operations = Lists.newArrayList(ei.getInterface().getOperations());
@@ -230,8 +258,8 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         writer.write("<h2>" + name + " ");
         writer.write("<a href=\"" + address + "?wsdl\">WSDL</a>");
         if (collapsed) {
-            writer.write("<a href=\"javascript:document.getElementById('" + name
-                    + "-ops').style.display='block';\">Operations (" + operations.size() + ")</a>");
+            writer.write("<a href=\"javascript:void toggleOperations('" + name + "-ops')\">Operations ("
+                    + operations.size() + ")</a>");
         }
 
         writer.write("</h2>");
