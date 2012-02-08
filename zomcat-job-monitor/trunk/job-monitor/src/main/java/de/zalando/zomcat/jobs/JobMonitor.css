@@ -1,0 +1,88 @@
+html {
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 13px;
+}
+h1 {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-bottom: 1px solid #CCCCCC;
+    margin: -10px -10px 20px;
+    padding: 10px;
+}
+h1 a {
+    color: #BBBBBB;
+    text-decoration: none;
+}
+h1 a:hover {
+    text-decoration: underline;
+}
+h1 form.filter {
+    float: right;
+    font-size: 13px;
+}
+h3 {
+    font-size: 15px;
+}
+h3 a {
+    color: #BBBBBB;
+    text-decoration: none;
+}
+h3 a:hover {
+    text-decoration: underline;
+}
+a {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+.tabcont {
+    position: relative;
+}
+ul.tabs {
+    border-bottom: 1px solid #666666;
+    height: 24px;
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
+ul.tabs li {
+    background: none repeat scroll 0 0 #CCCCCC;
+    border-left: 1px solid #FFFFFF;
+    border-right: 1px solid #FFFFFF;
+    border-top: 1px solid #FFFFFF;
+    float: left;
+    margin: 0 2px 0 0;
+    padding: 4px 8px;
+}
+ul.tabs li a {
+    color: #000000;
+    text-decoration: none;
+}
+ul.tabs li.active {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-color: #666666 #666666 #FFFFFF;
+    border-left: 1px solid #666666;
+    border-style: solid;
+    border-width: 1px;
+    font-weight: bold;
+}
+tr.even td {
+    background: none repeat scroll 0 0 #EEEEEE;
+}
+tr.even th {
+    background: none repeat scroll 0 0 #EEEEEE;
+}
+#ftr {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-top: 1px solid #CCCCCC;
+    color: #999999;
+    font-size: 12px;
+    margin: 20px -10px -10px;
+    padding: 10px;
+}
+tr.selected td {
+    background: none repeat scroll 0 0 #FFEE00;
+}
+tr.selected th {
+    background: none repeat scroll 0 0 #FFEE00;
+}

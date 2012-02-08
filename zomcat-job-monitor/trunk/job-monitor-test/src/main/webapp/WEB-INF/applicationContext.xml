@@ -8,5 +8,5 @@
         <context:component-scan base-package="de.zalando" />
 
       <!-- Wicket WebApplication setup -->
-      <bean id="wicketApplication" class="de.zalando.WicketApplication"/>
+      <bean id="wicketApplication" class="de.zalando.zomcat.jobs.WicketApplication"/>
 </beans>
