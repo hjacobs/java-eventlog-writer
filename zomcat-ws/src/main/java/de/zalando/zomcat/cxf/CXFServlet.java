@@ -52,6 +52,12 @@ import com.google.common.collect.Maps;
  */
 public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
+    // URL to source code browser (e.g. OpenGrok)
+    // %1$s is replaced with service name
+    // %2$s is replaced with method name
+    private static final String SOURCE_LINK =
+        "https://opengrok.zalando.net/search?q=%2$s&project=reboot&defs=%1$s&refs=&path=&hist=";
+
     /**
      * helper method to update the destination URLs (using the current context base URL).
      *
@@ -105,6 +111,8 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         writer.write("p { margin: 4px 0; }");
         writer.write("ul { margin: 0 0 16px 8px; padding: 0; list-style: none;}");
         writer.write("li { margin: 3px 0; padding: 0 0 3px 0; border-bottom: 1px dotted #ccc;}");
+        writer.write("li a { font-weight: bold; color: #000; text-decoration: none; }");
+        writer.write("li a:hover { color: #333; text-decoration: underline; }");
         writer.write("li p { margin: 0; }");
         writer.write("li em { color: #336; font-style: normal; }");
 
@@ -281,7 +289,9 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         for (OperationInfo oi : operations) {
             if (oi.getProperty("operation.is.synthetic") != Boolean.TRUE) {
                 String localName = oi.getName().getLocalPart();
-                writer.write("<li><strong>" + localName + "</strong>");
+
+                writer.write("<li><a href=\"" + String.format(SOURCE_LINK, name, localName) + "\">" + localName
+                        + "</a>");
 
                 List<OperationParameter> params = operationParameters.get(localName);
                 if (params != null) {
