@@ -26,6 +26,7 @@ import de.zalando.sprocwrapper.proxy.executors.MultiRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowCustomMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowSimpleTypeExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
+import de.zalando.sprocwrapper.sharding.ShardedObject;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 
 /**
@@ -168,8 +169,14 @@ class StoredProcedure {
 
         Object[] keys = new Object[shardKeyParameters.size()];
         int i = 0;
+        Object obj;
         for (ShardKeyParameter p : shardKeyParameters) {
-            keys[i] = objs[p.javaPos];
+            obj = objs[p.javaPos];
+            if (obj instanceof ShardedObject) {
+                obj = ((ShardedObject) obj).getShardKey();
+            }
+
+            keys[i] = obj;
             i++;
         }
 
@@ -263,7 +270,7 @@ class StoredProcedure {
         // the same datasource e.g. by VirtualShardMd5Strategy)
         final Map<DataSource, Integer> shardIdByDataSource = Maps.newHashMap();
 
-        // TODO: currently only implemented for a single shardKey argument!
+        // TODO: currently only implemented for single shardKey argument as first argument!
         final List<Object> originalArgument = (List) args[0];
         List<Object> partitionedArgument = null;
         Object[] partitionedArguments = null;
@@ -287,7 +294,12 @@ class StoredProcedure {
             if (partitionedArguments == null) {
 
                 partitionedArgument = Lists.newArrayList();
-                partitionedArguments = new Object[] {partitionedArgument};
+                partitionedArguments = new Object[args.length];
+                partitionedArguments[0] = partitionedArgument;
+                if (args.length > 1) {
+                    System.arraycopy(args, 1, partitionedArguments, 1, args.length - 1);
+                }
+
                 argumentsByShardId.put(shardId, partitionedArguments);
             } else {
                 partitionedArgument = (List<Object>) partitionedArguments[0];

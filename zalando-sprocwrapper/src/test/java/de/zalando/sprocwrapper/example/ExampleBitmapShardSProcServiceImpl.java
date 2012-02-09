@@ -40,4 +40,10 @@ public class ExampleBitmapShardSProcServiceImpl
         return sproc.collectDataUsingAutoPartition(keys);
     }
 
+    @Override
+    public List<String> collectDataUsingAutoPartition2(final List<ExampleShardedObject> keys,
+            final int additionalParam) {
+        return sproc.collectDataUsingAutoPartition2(keys, additionalParam);
+    }
+
 }

@@ -27,4 +27,10 @@ public interface ExampleBitmapShardSProcService {
     @SProcCall(shardStrategy = VirtualShardMd5Strategy.class)
     List<String> collectDataUsingAutoPartition(@ShardKey @SProcParam List<String> keys);
 
+    @SProcCall(shardStrategy = VirtualShardMd5Strategy.class, name = "collect_data_using_auto_partition2")
+    List<String> collectDataUsingAutoPartition2(
+            @ShardKey
+            @SProcParam(type = "example_sharded_object[]")
+            List<ExampleShardedObject> keys, @SProcParam int additionalParam);
+
 }

@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 
 import de.zalando.sprocwrapper.example.ExampleBitmapShardSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
+import de.zalando.sprocwrapper.example.ExampleShardedObject;
 
 /**
  * @author  hjacobs
@@ -96,6 +97,13 @@ public class ShardingIT {
         assertEquals("shard1row2e", results.get(1));
         assertEquals("shard2row1a", results.get(2));
         assertEquals("shard2row2a", results.get(3));
+
+        List<ExampleShardedObject> objectKeys = Lists.newArrayList(new ExampleShardedObject("a", "b"),
+                new ExampleShardedObject("c", "d"), new ExampleShardedObject("e", "f"));
+        results = exampleBitmapShardSProcService.collectDataUsingAutoPartition2(objectKeys, 3);
+        assertEquals(2, results.size());
+        assertEquals("shard1row1ef3", results.get(0));
+        assertEquals("shard2row1ab3", results.get(1));
 
     }
 }
