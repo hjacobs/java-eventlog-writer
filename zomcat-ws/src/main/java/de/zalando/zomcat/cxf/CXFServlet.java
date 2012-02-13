@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.jws.WebParam;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,12 +37,17 @@ import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.cxf.transport.servlet.BaseUrlHelper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import org.springframework.context.ApplicationContext;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.google.gson.Gson;
 
 /**
  * Overridden CXFServlet with custom service list rendering: The service list additionally contains WSDL documentation
@@ -51,6 +57,8 @@ import com.google.common.collect.Maps;
  * @author  henning
  */
 public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CXFServlet.class);
 
     // URL to source code browser (e.g. OpenGrok)
     // %1$s is replaced with service name
@@ -91,100 +99,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         }
     }
 
-    private void doRenderServiceList(final HttpServletRequest request, final HttpServletResponse response)
-        throws IOException {
-        DestinationRegistry registry = getDestinationRegistryFromBus(getBus());
-        updateDestinations(registry, request);
-
-        AbstractDestination[] destinations = registry.getSortedDestinations();
-        response.setContentType("text/html; charset=UTF-8");
-
-        PrintWriter writer = response.getWriter();
-        writer.write("<html><head><meta http-equiv=content-type content=\"text/html; charset=UTF-8\">");
-        writer.write("<title>CXF - Service list</title>");
-        writer.write("<style>");
-        writer.write("html { font: 13px Arial, Helvetica, sans-serif; }");
-        writer.write(
-            "h2 { font-size: 16px; margin: 16px 0 4px 0; padding: 0 0 4px 0; border-bottom: 4px solid #eee; }");
-        writer.write("h2 a { font-size: 12px; margin-left: 24px; }");
-        writer.write(".doc { color: #888; font-style: italic; }");
-        writer.write("p { margin: 4px 0; }");
-        writer.write("ul { margin: 0 0 16px 8px; padding: 0; list-style: none;}");
-        writer.write("li { margin: 3px 0; padding: 0 0 3px 0; border-bottom: 1px dotted #ccc;}");
-        writer.write("li a { font-weight: bold; color: #000; text-decoration: none; }");
-        writer.write("li a:hover { color: #333; text-decoration: underline; }");
-        writer.write("li p { margin: 0; }");
-        writer.write("li em { color: #336; font-style: normal; }");
-
-        // writer.write("ul { color: #888; }");
-        writer.write("</style>");
-        writer.write("</head><body>");
-        writer.write("<script>");
-        writer.write("function toggleOperations(id) { var elem = document.getElementById(id);"
-                + "if (elem.style.display == 'block') { elem.style.display='none'; } else { elem.style.display='block'; }"
-                + "}");
-        writer.write("</script>");
-        writer.write("<p>Available SOAP services:</p>");
-
-        boolean collapsed = destinations.length > 1;
-        for (AbstractDestination dest : destinations) {
-            writeSoapEndpoint(writer, dest, collapsed);
-        }
-
-        writer.write("</body>");
-    }
-
-    protected static class OperationInfoComparator implements Comparator<OperationInfo> {
-
-        @Override
-        public int compare(final OperationInfo a, final OperationInfo b) {
-            return a.getName().getLocalPart().compareTo(b.getName().getLocalPart());
-        }
-
-    }
-
-    protected static class OperationParameter {
-        public String name;
-        public Type type;
-
-        public OperationParameter(final String name, final Type type) {
-            this.name = name;
-            this.type = type;
-        }
-    }
-
-    private static final OperationInfoComparator OPERATION_INFO_COMPARATOR = new OperationInfoComparator();
-
-    private static String getTypeString(final Type type) {
-        if (type instanceof ParameterizedType) {
-            ParameterizedType pType = (ParameterizedType) type;
-            StringBuilder sb = new StringBuilder(getTypeString(pType.getRawType()));
-            sb.append('<');
-
-            int i = 0;
-            for (Type t : pType.getActualTypeArguments()) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-
-                sb.append(getTypeString(t));
-                i++;
-            }
-
-            sb.append('>');
-            return sb.toString();
-        } else if (type instanceof Class) {
-            return ((Class) type).getSimpleName();
-        }
-
-        return null;
-    }
-
-    private static String getDocumentationAsHtml(final String doc) {
-        return StringEscapeUtils.escapeXml(doc).replace("\n", "<br />");
-    }
-
-    private void writeSoapEndpoint(final PrintWriter writer, final AbstractDestination sd, final boolean collapsed) {
+    private WebServiceInfo getWebServiceInfo(final AbstractDestination sd) {
         final EndpointInfo ei = sd.getEndpointInfo();
         final String address = ei.getAddress();
         final String name = ei.getInterface().getName().getLocalPart();
@@ -263,71 +178,242 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         // sort operations (methods) by name
         Collections.sort(operations, OPERATION_INFO_COMPARATOR);
 
-        writer.write("<h2>" + name + " ");
-        writer.write("<a href=\"" + address + "?wsdl\">WSDL</a>");
-        if (collapsed) {
-            writer.write("<a href=\"javascript:void toggleOperations('" + name + "-ops')\">Operations ("
-                    + operations.size() + ")</a>");
-        }
+        WebServiceInfo info = new WebServiceInfo();
+        info.setName(name);
+        info.setAddress(address);
 
-        writer.write("</h2>");
+        StringBuilder doc = new StringBuilder();
         if (ei.getInterface().getDocumentation() != null) {
-            writer.write("<p class=\"doc\">" + getDocumentationAsHtml(ei.getInterface().getDocumentation()) + "</p>");
+            doc.append(ei.getInterface().getDocumentation());
+
         }
 
         if (ei.getService().getDocumentation() != null) {
-            writer.write("<p class=\"doc\">" + getDocumentationAsHtml(ei.getService().getDocumentation()) + "</p>");
+            if (doc.length() > 0) {
+                doc.append('\n');
+            }
+
+            doc.append(ei.getService().getDocumentation());
         }
 
-        writer.write("<ul id=\"" + name + "-ops\"");
+        if (doc.length() > 0) {
+            info.setDocumentation(doc.toString());
+        }
+
+        List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
+        for (OperationInfo oi : operations) {
+            if (oi.getProperty("operation.is.synthetic") != Boolean.TRUE) {
+                WebServiceInfo.OperationInfo op = new WebServiceInfo.OperationInfo();
+                String localName = oi.getName().getLocalPart();
+                op.setName(localName);
+
+                List<OperationParameter> params = operationParameters.get(localName);
+                if (params != null) {
+                    List<WebServiceInfo.OperationParameter> opParams = Lists.newArrayList();
+                    op.setParameters(opParams);
+
+                    for (OperationParameter param : params) {
+                        WebServiceInfo.OperationParameter opParam = new WebServiceInfo.OperationParameter();
+                        opParam.setName(param.name);
+                        opParam.setType(getTypeString(param.type));
+                        opParams.add(opParam);
+                    }
+                }
+
+                Type returnType = operationReturnTypes.get(localName);
+                if (returnType != null) {
+                    op.setReturnType(getTypeString(returnType));
+                }
+
+                if (oi.getDocumentation() != null) {
+                    op.setDocumentation(oi.getDocumentation());
+                }
+
+                ops.add(op);
+            }
+        }
+
+        info.setOperations(ops);
+
+        return info;
+    }
+
+    private String getTitle() {
+        ServletContext application = getServletConfig().getServletContext();
+        return application.getServletContextName();
+    }
+
+    private void doRenderServiceList(final HttpServletRequest request, final HttpServletResponse response)
+        throws IOException {
+        DestinationRegistry registry = getDestinationRegistryFromBus(getBus());
+        updateDestinations(registry, request);
+
+        final AbstractDestination[] destinations = registry.getSortedDestinations();
+
+        boolean json = request.getParameterMap().containsKey("view");
+
+        final List<WebServiceInfo> webServices = Lists.newArrayList();
+        final WebServiceOverview overview = new WebServiceOverview();
+        overview.setTitle(getTitle());
+        overview.setWebServices(webServices);
+
+        for (AbstractDestination dest : destinations) {
+            webServices.add(getWebServiceInfo(dest));
+        }
+
+        final PrintWriter writer = response.getWriter();
+        if (json) {
+            response.setContentType("text/plain; charset=UTF-8");
+
+            Gson gson = new Gson();
+            writer.print(gson.toJson(overview));
+
+        } else {
+            response.setContentType("text/html; charset=UTF-8");
+
+            writer.write("<html><head><meta http-equiv=content-type content=\"text/html; charset=UTF-8\">");
+            writer.write("<title>CXF - Service list for " + overview.getTitle() + "</title>");
+            writer.write("<style>");
+            writer.write("html { font: 13px Arial, Helvetica, sans-serif; }");
+            writer.write(
+                "h2 { font-size: 16px; margin: 16px 0 4px 0; padding: 0 0 4px 0; border-bottom: 4px solid #eee; }");
+            writer.write("h2 a { font-size: 12px; margin-left: 24px; }");
+            writer.write(".doc { color: #888; font-style: italic; }");
+            writer.write("p { margin: 4px 0; }");
+            writer.write("ul { margin: 0 0 16px 8px; padding: 0; list-style: none;}");
+            writer.write("li { margin: 3px 0; padding: 0 0 3px 0; border-bottom: 1px dotted #ccc;}");
+            writer.write("li a { font-weight: bold; color: #000; text-decoration: none; }");
+            writer.write("li a:hover { color: #333; text-decoration: underline; }");
+            writer.write("li p { margin: 0; }");
+            writer.write("li em { color: #336; font-style: normal; }");
+
+            // writer.write("ul { color: #888; }");
+            writer.write("</style>");
+            writer.write("</head><body>");
+            writer.write("<script>");
+            writer.write("function toggleOperations(id) { var elem = document.getElementById(id);"
+                    + "if (elem.style.display == 'block') { elem.style.display='none'; } else { elem.style.display='block'; }"
+                    + "}");
+            writer.write("</script>");
+            writer.write("<p>Available SOAP services for <strong>" + overview.getTitle() + "</strong>:</p>");
+
+            boolean collapsed = destinations.length > 1;
+            for (WebServiceInfo info : webServices) {
+                writeSoapEndpoint(writer, info, collapsed);
+            }
+
+            writer.write("</body>");
+        }
+    }
+
+    protected static class OperationInfoComparator implements Comparator<OperationInfo> {
+
+        @Override
+        public int compare(final OperationInfo a, final OperationInfo b) {
+            return a.getName().getLocalPart().compareTo(b.getName().getLocalPart());
+        }
+
+    }
+
+    protected static class OperationParameter {
+        public String name;
+        public Type type;
+
+        public OperationParameter(final String name, final Type type) {
+            this.name = name;
+            this.type = type;
+        }
+    }
+
+    private static final OperationInfoComparator OPERATION_INFO_COMPARATOR = new OperationInfoComparator();
+
+    private static String getTypeString(final Type type) {
+        if (type instanceof ParameterizedType) {
+            ParameterizedType pType = (ParameterizedType) type;
+            StringBuilder sb = new StringBuilder(getTypeString(pType.getRawType()));
+            sb.append('<');
+
+            int i = 0;
+            for (Type t : pType.getActualTypeArguments()) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+
+                sb.append(getTypeString(t));
+                i++;
+            }
+
+            sb.append('>');
+            return sb.toString();
+        } else if (type instanceof Class) {
+            return ((Class) type).getSimpleName();
+        }
+
+        return null;
+    }
+
+    private static String getDocumentationAsHtml(final String doc) {
+        return StringEscapeUtils.escapeXml(doc).replace("\n", "<br />");
+    }
+
+    private void writeSoapEndpoint(final PrintWriter writer, final WebServiceInfo ws, final boolean collapsed) {
+
+        writer.write("<h2>" + ws.getName() + " ");
+        writer.write("<a href=\"" + ws.getAddress() + "?wsdl\">WSDL</a>");
+        if (collapsed) {
+            writer.write("<a href=\"javascript:void toggleOperations('" + ws.getName() + "-ops')\">Operations ("
+                    + ws.getOperations().size() + ")</a>");
+        }
+
+        writer.write("</h2>");
+        if (ws.getDocumentation() != null) {
+            writer.write("<p class=\"doc\">" + getDocumentationAsHtml(ws.getDocumentation()) + "</p>");
+        }
+
+        writer.write("<ul id=\"" + ws.getName() + "-ops\"");
         if (collapsed) {
             writer.write(" style=\"display:none\"");
         }
 
         writer.write(">");
 
-        for (OperationInfo oi : operations) {
-            if (oi.getProperty("operation.is.synthetic") != Boolean.TRUE) {
-                String localName = oi.getName().getLocalPart();
+        for (WebServiceInfo.OperationInfo oi : ws.getOperations()) {
+            String localName = oi.getName();
 
-                writer.write("<li><a href=\"" + String.format(SOURCE_LINK, name, localName) + "\">" + localName
-                        + "</a>");
+            writer.write("<li><a href=\"" + String.format(SOURCE_LINK, ws.getName(), localName) + "\">" + localName
+                    + "</a>");
 
-                List<OperationParameter> params = operationParameters.get(localName);
-                if (params != null) {
-                    writer.write(" (");
+            if (oi.getParameters() != null) {
+                writer.write(" (");
 
-                    int i = 0;
-                    for (OperationParameter param : params) {
-                        if (i > 0) {
-                            writer.write(", ");
-                        }
-
-                        writer.write("<em>" + StringEscapeUtils.escapeXml(getTypeString(param.type)) + "</em>");
-                        writer.write(" ");
-                        writer.write(param.name);
-                        i++;
+                int i = 0;
+                for (WebServiceInfo.OperationParameter param : oi.getParameters()) {
+                    if (i > 0) {
+                        writer.write(", ");
                     }
 
-                    writer.write(")");
+                    writer.write("<em>" + StringEscapeUtils.escapeXml(param.getType()) + "</em>");
+                    writer.write(" ");
+                    writer.write(param.getName());
+                    i++;
                 }
 
-                Type returnType = operationReturnTypes.get(localName);
-                if (returnType != null) {
-                    writer.write(" : ");
-                    writer.write("<em>" + StringEscapeUtils.escapeXml(getTypeString(returnType)) + "</em>");
-                }
-
-                if (oi.getDocumentation() != null) {
-                    writer.write("<p class=\"doc\">" + getDocumentationAsHtml(oi.getDocumentation()) + "</p>");
-                }
-
-                writer.write("</li>");
+                writer.write(")");
             }
+
+            if (oi.getReturnType() != null) {
+                writer.write(" : ");
+                writer.write("<em>" + StringEscapeUtils.escapeXml(oi.getReturnType()) + "</em>");
+            }
+
+            if (oi.getDocumentation() != null) {
+                writer.write("<p class=\"doc\">" + getDocumentationAsHtml(oi.getDocumentation()) + "</p>");
+            }
+
+            writer.write("</li>");
         }
 
         writer.write("</ul>");
-
     }
 
     /**
