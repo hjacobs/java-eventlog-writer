@@ -48,6 +48,7 @@ class StoredProcedure {
     // whether the result type is a collection (List)
     private boolean collectionResult = false;
     private boolean runOnAllShards;
+    private boolean searchShards;
     private boolean autoPartition;
 
     private Executor executor = null;
@@ -64,9 +65,11 @@ class StoredProcedure {
     private static final Executor SINGLE_ROW_TYPE_MAPPER_EXECUTOR = new SingleRowTypeMapperExecutor();
 
     public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
-            final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final RowMapper<?> resultMapper) {
+            final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final boolean searchShards,
+            final RowMapper<?> resultMapper) {
         this.name = name;
         this.runOnAllShards = runOnAllShards;
+        this.searchShards = searchShards;
         this.resultMapper = resultMapper;
 
         shardStrategy = sStrategy;
@@ -316,7 +319,7 @@ class StoredProcedure {
 
         List<Integer> shardIds = null;
         Map<Integer, Object[]> partitionedArguments = null;
-        if (runOnAllShards) {
+        if (runOnAllShards || searchShards) {
             shardIds = dp.getDistinctShardIds();
         } else {
             if (autoPartition) {
@@ -348,9 +351,6 @@ class StoredProcedure {
         try {
             for (int shardId : shardIds) {
                 paramValues.add(getParams(partitionedArguments.get(shardId), connection));
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(getDebugLog(paramValues.get(paramValues.size() - 1)));
-                }
             }
 
         } finally {
@@ -364,6 +364,9 @@ class StoredProcedure {
         }
 
         if (shardIds.size() == 1 && !autoPartition) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(getDebugLog(paramValues.get(0)));
+            }
 
             // most common case: only one shard and no argument partitioning
             return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), returnType);
@@ -374,7 +377,15 @@ class StoredProcedure {
             int i = 0;
             for (int shardId : shardIds) {
                 shardDs = dp.getDataSource(shardId);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(getDebugLog(paramValues.get(i)));
+                }
+
                 sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), returnType);
+                if (searchShards && sprocResult != null) {
+                    return sprocResult;
+                }
+
                 if (collectionResult) {
                     results.addAll((Collection) sprocResult);
 

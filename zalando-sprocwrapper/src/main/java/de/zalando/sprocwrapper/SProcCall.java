@@ -27,6 +27,13 @@ public @interface SProcCall {
     boolean runOnAllShards() default false;
 
     /**
+     * whether the stored procedure should be called on all shards --- return the first result found.
+     *
+     * @return
+     */
+    boolean searchShards() default false;
+
+    /**
      * flag this stored procedure call as read only: read only sprocs may run in cases were writing calls would not be
      * allowed (maintenance, migration, ..)
      *

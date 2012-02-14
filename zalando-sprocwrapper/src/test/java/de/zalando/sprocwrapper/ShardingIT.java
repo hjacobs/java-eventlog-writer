@@ -1,6 +1,7 @@
 package de.zalando.sprocwrapper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
@@ -48,6 +49,19 @@ public class ShardingIT {
         assertEquals("shard1row1", results.get(0));
         assertEquals("shard2row1", results.get(2));
         assertEquals("shard2row2", results.get(3));
+    }
+
+    @Test
+    public void testSearchShards() {
+
+        Integer result = exampleBitmapShardSProcService.searchSomethingOnShards("X");
+        assertNull(result);
+
+        result = exampleBitmapShardSProcService.searchSomethingOnShards("A");
+        assertEquals(1, (int) result);
+
+        result = exampleBitmapShardSProcService.searchSomethingOnShards("B");
+        assertEquals(2, (int) result);
     }
 
     @Test
