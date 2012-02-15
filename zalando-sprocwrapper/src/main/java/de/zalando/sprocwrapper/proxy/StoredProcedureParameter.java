@@ -97,7 +97,7 @@ class StoredProcedureParameter {
                 result = PgArray.ARRAY((Collection) value);
 
                 if (innerTypeName != null) {
-                    result = ((PgArray) result).asJdbcArray(innerTypeName);
+                    result = ((PgArray) result).asJdbcArray(innerTypeName, connection);
                 }
 
                 break;

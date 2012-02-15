@@ -334,6 +334,10 @@ public class SimpleIT {
 
         // check that field ordering is correct
         assertEquals("XYZxyz(<abc>)", result);
+
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithRandomFields(Lists.newArrayList(
+                    new ExampleDomainObjectWithRandomFields("X", "Y", "Z")));
+        assertEquals("XYZ", result);
     }
 
     @Test

@@ -170,6 +170,12 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public String createOrUpdateMultipleObjectsWithRandomFields(
+            final List<ExampleDomainObjectWithRandomFields> object) {
+        return sproc.createOrUpdateMultipleObjectsWithRandomFields(object);
+    }
+
+    @Override
     public String createOrUpdateMultipleObjectsWithMap(final List<ExampleDomainObjectWithMap> objects) {
         return sproc.createOrUpdateMultipleObjectsWithMap(objects);
     }

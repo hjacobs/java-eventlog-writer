@@ -108,6 +108,10 @@ public interface ExampleSProcService {
             @SProcParam(type = "example_domain_object[]") List<ExampleDomainObject> objects);
 
     @SProcCall
+    String createOrUpdateMultipleObjectsWithRandomFields(
+            @SProcParam(type = "example_domain_object_with_random_fields[]") List<ExampleDomainObjectWithRandomFields> object);
+
+    @SProcCall
     String createOrUpdateMultipleObjectsWithMap(
             @SProcParam(type = "example_domain_object_with_map[]") List<ExampleDomainObjectWithMap> objects);
 

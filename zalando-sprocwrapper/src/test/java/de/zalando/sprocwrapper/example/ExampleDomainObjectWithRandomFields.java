@@ -20,6 +20,15 @@ public class ExampleDomainObjectWithRandomFields {
     @DatabaseField
     private List<ExampleDomainObjectWithRandomFieldsInner> list;
 
+    public ExampleDomainObjectWithRandomFields() { }
+
+    public ExampleDomainObjectWithRandomFields(final String x, final String y, final String z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+
+    }
+
     public ExampleDomainObjectWithRandomFieldsInner getInnerObject() {
         return innerObject;
     }
