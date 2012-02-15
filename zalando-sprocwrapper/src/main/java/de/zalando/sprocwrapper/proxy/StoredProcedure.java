@@ -9,10 +9,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -37,7 +43,7 @@ class StoredProcedure {
     private static final int TRUNCATE_DEBUG_PARAMS_MAX_LENGTH = 1024;
     private static final String TRUNCATE_DEBUG_PARAMS_ELLIPSIS = " ...";
 
-    private static final Logger LOG = Logger.getLogger(StoredProcedure.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StoredProcedure.class);
 
     private final List<StoredProcedureParameter> params = new ArrayList<StoredProcedureParameter>();
 
@@ -50,6 +56,7 @@ class StoredProcedure {
     private boolean runOnAllShards;
     private boolean searchShards;
     private boolean autoPartition;
+    private boolean parallel;
 
     private Executor executor = null;
 
@@ -66,10 +73,11 @@ class StoredProcedure {
 
     public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
             final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final boolean searchShards,
-            final RowMapper<?> resultMapper) {
+            final boolean parallel, final RowMapper<?> resultMapper) {
         this.name = name;
         this.runOnAllShards = runOnAllShards;
         this.searchShards = searchShards;
+        this.parallel = parallel;
         this.resultMapper = resultMapper;
 
         shardStrategy = sStrategy;
@@ -315,6 +323,26 @@ class StoredProcedure {
         return argumentsByShardId;
     }
 
+    private static class Call implements Callable<Object> {
+        private StoredProcedure sproc;
+        private DataSource shardDs;
+        private Object[] params;
+
+        public Call(final StoredProcedure sproc, final DataSource shardDs, final Object[] params) {
+            this.sproc = sproc;
+            this.shardDs = shardDs;
+            this.params = params;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            return sproc.executor.executeSProc(shardDs, sproc.getQuery(), params, sproc.getTypes(), sproc.returnType);
+        }
+
+    }
+
+    private static ExecutorService parallelThreadPool = Executors.newCachedThreadPool();
+
     public Object execute(final DataSourceProvider dp, final Object[] args) {
 
         List<Integer> shardIds = null;
@@ -371,27 +399,74 @@ class StoredProcedure {
             // most common case: only one shard and no argument partitioning
             return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), returnType);
         } else {
-            List<?> results = Lists.newArrayList();
-            DataSource shardDs;
+            final List<?> results = Lists.newArrayList();
             Object sprocResult = null;
-            int i = 0;
-            for (int shardId : shardIds) {
-                shardDs = dp.getDataSource(shardId);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(getDebugLog(paramValues.get(i)));
+            DataSource shardDs;
+            long start = System.currentTimeMillis();
+            if (parallel) {
+                final List<FutureTask<Object>> taskList = Lists.newArrayList();
+                FutureTask<Object> task;
+                int i = 0;
+                for (int shardId : shardIds) {
+                    shardDs = dp.getDataSource(shardId);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(getDebugLog(paramValues.get(i)));
+                    }
+
+                    task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i)));
+                    taskList.add(task);
+                    parallelThreadPool.execute(task);
+                    i++;
                 }
 
-                sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), returnType);
-                if (searchShards && sprocResult != null) {
-                    return sprocResult;
+                for (FutureTask<Object> taskToFinish : taskList) {
+                    try {
+                        sprocResult = taskToFinish.get();
+                    } catch (InterruptedException ex) {
+                        throw new IllegalStateException("Thread was interrupted while executing " + name, ex);
+                    } catch (ExecutionException ex) {
+                        throw new IllegalStateException("Execution of " + name + " threw exception: "
+                                + ex.getCause().getMessage(), ex);
+                    }
+
+                    if (searchShards && sprocResult != null) {
+                        break;
+                    }
+
+                    if (collectionResult) {
+                        results.addAll((Collection) sprocResult);
+                    }
                 }
 
-                if (collectionResult) {
-                    results.addAll((Collection) sprocResult);
+            } else {
+                int i = 0;
+                for (int shardId : shardIds) {
+                    shardDs = dp.getDataSource(shardId);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(getDebugLog(paramValues.get(i)));
+                    }
 
+                    sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(),
+                            returnType);
+                    if (searchShards && sprocResult != null) {
+                        break;
+                    }
+
+                    if (collectionResult) {
+                        results.addAll((Collection) sprocResult);
+
+                    }
+
+                    i++;
                 }
 
-                i++;
+            }
+
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("{} execution of {} on {} shards took {} ms",
+                    new Object[] {
+                        parallel ? "parallel" : "serial", name, shardIds.size(), System.currentTimeMillis() - start
+                    });
             }
 
             if (collectionResult) {

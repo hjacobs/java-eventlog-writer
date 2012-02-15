@@ -52,6 +52,18 @@ public class ShardingIT {
     }
 
     @Test
+    public void testRunOnAllShardsParallel() {
+
+        List<String> results = exampleSProcService.collectDataFromAllShardsParallel("a");
+        assertEquals(4, results.size());
+        assertEquals("shard1row1", results.get(0));
+        assertEquals("shard2row1", results.get(2));
+        assertEquals("shard2row2", results.get(3));
+
+        exampleSProcService.collectDataFromAllShardsParallel("a");
+    }
+
+    @Test
     public void testSearchShards() {
 
         Integer result = exampleBitmapShardSProcService.searchSomethingOnShards("X");

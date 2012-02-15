@@ -130,6 +130,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public List<String> collectDataFromAllShardsParallel(final String someParameter) {
+        return sproc.collectDataFromAllShardsParallel(someParameter);
+    }
+
+    @Override
     public List<Integer> getInts() {
         return sproc.getInts();
     }

@@ -12,7 +12,7 @@
     </appender>
 
     <logger name="de.zalando.sprocwrapper" additivity="false">
-        <level value="debug"/>
+        <level value="trace"/>
         <appender-ref ref="default"/>
     </logger>
 

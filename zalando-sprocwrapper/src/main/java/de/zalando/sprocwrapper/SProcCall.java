@@ -34,6 +34,13 @@ public @interface SProcCall {
     boolean searchShards() default false;
 
     /**
+     * run sproc on multiple shards in parallel?
+     *
+     * @return
+     */
+    boolean parallel() default false;
+
+    /**
      * flag this stored procedure call as read only: read only sprocs may run in cases were writing calls would not be
      * allowed (maintenance, migration, ..)
      *
