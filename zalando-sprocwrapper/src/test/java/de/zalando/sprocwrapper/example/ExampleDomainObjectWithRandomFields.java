@@ -6,7 +6,7 @@ import com.typemapper.annotations.DatabaseField;
 
 public class ExampleDomainObjectWithRandomFields {
     @DatabaseField
-    private String z;
+    private Integer z;
 
     @DatabaseField
     private String y;
@@ -22,7 +22,7 @@ public class ExampleDomainObjectWithRandomFields {
 
     public ExampleDomainObjectWithRandomFields() { }
 
-    public ExampleDomainObjectWithRandomFields(final String x, final String y, final String z) {
+    public ExampleDomainObjectWithRandomFields(final String x, final String y, final Integer z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -53,11 +53,11 @@ public class ExampleDomainObjectWithRandomFields {
         this.y = y;
     }
 
-    public String getZ() {
+    public Integer getZ() {
         return z;
     }
 
-    public void setZ(final String z) {
+    public void setZ(final Integer z) {
         this.z = z;
     }
 
