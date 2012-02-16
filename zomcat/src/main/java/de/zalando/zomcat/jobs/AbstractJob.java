@@ -342,6 +342,27 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     /**
+     * default implementation to return null for job group, override in actual job class to assign the job to a group.
+     *
+     * @return
+     */
+    @Override
+    public JobGroup getJobGroup() {
+        return null;
+    }
+
+    /**
+     * default implementation for job name: return class name with first char lowercased
+     *
+     * @return
+     */
+    @Override
+    public String getBeanName() {
+        final String className = getClass().getSimpleName();
+        return className.substring(0, 1).toLowerCase() + className.substring(1);
+    }
+
+    /**
      * Inner {@link JobListener} implementation for notifying the JobsStatusBean about the start/stop of the current
      * {@link RunningWorker}.
      *
