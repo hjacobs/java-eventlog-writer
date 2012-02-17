@@ -134,15 +134,15 @@ public class SProcProxyBuilder {
 
                         String dbTypeName = sParam.type();
 
-                        p.addParam(new StoredProcedureParameter(clazz, dbTypeName, sParam.sqlType(), javaPos,
-                                sParam.sensitive()));
+                        p.addParam(StoredProcedureParameter.CreateParameter(clazz, method, dbTypeName, sParam.sqlType(),
+                                javaPos, sParam.sensitive()));
                     }
                 }
 
                 pos++;
             }
 
-            LOG.debug("registering " + p);
+            LOG.debug("SprocService [ " + c.getName() + " ] registering " + p);
             proxy.addStoredProcedure(method, p);
         }
 

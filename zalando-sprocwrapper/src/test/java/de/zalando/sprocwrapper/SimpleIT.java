@@ -40,6 +40,7 @@ import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFields;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsInner;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsOverride;
 import de.zalando.sprocwrapper.example.ExampleEnum;
 import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
@@ -333,11 +334,37 @@ public class SimpleIT {
         result = exampleSProcService.createOrUpdateObjectWithRandomFields(obj);
 
         // check that field ordering is correct
-        assertEquals("XY3xyz<abc>)", result);
+        assertEquals("XY3xyz(<abc>)", result);
 
         result = exampleSProcService.createOrUpdateMultipleObjectsWithRandomFields(Lists.newArrayList(
                     new ExampleDomainObjectWithRandomFields("X", "Y", 1)));
-        assertEquals("XY3", result);
+        assertEquals("XY1", result);
+    }
+
+    /**
+     * test correct mapping of complex types with inner type and random field ordering (i.e. not alphabetically sorted)
+     */
+    @Test
+    public void textComplexParamNameMappingNoAnnotation() {
+
+        String result;
+
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithRandomFieldsNoAnnotation(Lists.newArrayList(
+                    new ExampleDomainObjectWithRandomFields("X", "Y", 1)));
+        assertEquals("XY1", result);
+    }
+
+    /**
+     * Test override of database type in domain objects passed in lists.
+     */
+    @Test
+    public void textComplexParamNameMappingNoAnnotationOverride() {
+
+        String result;
+
+        result = exampleSProcService.createOrUpdateMultipleObjectsWithRandomFieldsNoAnnotationOverride(Lists
+                    .newArrayList(new ExampleDomainObjectWithRandomFieldsOverride("X", "Y", 1)));
+        assertEquals("XY1", result);
     }
 
     @Test

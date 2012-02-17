@@ -111,6 +111,14 @@ public interface ExampleSProcService {
     String createOrUpdateMultipleObjectsWithRandomFields(
             @SProcParam(type = "example_domain_object_with_random_fields[]") List<ExampleDomainObjectWithRandomFields> object);
 
+    @SProcCall(name = "create_or_update_multiple_objects_with_random_fields")
+    String createOrUpdateMultipleObjectsWithRandomFieldsNoAnnotation(
+            @SProcParam List<ExampleDomainObjectWithRandomFields> object);
+
+    @SProcCall(name = "create_or_update_multiple_objects_with_random_fields")
+    String createOrUpdateMultipleObjectsWithRandomFieldsNoAnnotationOverride(
+            @SProcParam List<ExampleDomainObjectWithRandomFieldsOverride> object);
+
     @SProcCall
     String createOrUpdateMultipleObjectsWithMap(
             @SProcParam(type = "example_domain_object_with_map[]") List<ExampleDomainObjectWithMap> objects);

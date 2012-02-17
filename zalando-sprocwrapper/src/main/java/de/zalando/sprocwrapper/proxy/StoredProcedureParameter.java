@@ -1,10 +1,10 @@
 package de.zalando.sprocwrapper.proxy;
 
+import java.lang.reflect.Method;
+
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Types;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,19 +12,14 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import org.postgresql.util.PGobject;
-
-import com.typemapper.postgres.PgArray;
-import com.typemapper.postgres.PgTypeHelper;
-
 /**
  * @author  jmussler
  */
 class StoredProcedureParameter {
 
-    private static final Logger LOG = Logger.getLogger(StoredProcedureParameter.class);
+    protected static final Logger LOG = Logger.getLogger(StoredProcedureParameter.class);
 
-    private static final Map<Class, Integer> SQL_MAPPING = new HashMap<Class, Integer>();
+    protected static final Map<Class, Integer> SQL_MAPPING = new HashMap<Class, Integer>();
 
     static {
         SQL_MAPPING.put(int.class, java.sql.Types.INTEGER);
@@ -47,19 +42,35 @@ class StoredProcedureParameter {
         SQL_MAPPING.put(Character.class, java.sql.Types.CHAR);
     }
 
-    private final String typeName;
-    private final int type;
-    private final int javaPos;
-    private final Class clazz;
-    private final boolean sensitive;
+    protected final String typeName;
+    protected final int type;
+    protected final int javaPos;
+    protected final Class clazz;
+    protected final boolean sensitive;
 
-    public StoredProcedureParameter(final Class clazz, final String typeName, final int sqlType, final int javaPosition,
-            final boolean sensitive) {
-        if (typeName == null || typeName.isEmpty()) {
-            this.typeName = SProcProxyBuilder.camelCaseToUnderscore(clazz.getSimpleName());
-        } else {
-            this.typeName = typeName;
+    public static StoredProcedureParameter CreateParameter(final Class clazz, final Method m, final String typeName,
+            final int sqlType, final int javaPosition, final boolean sensitive) {
+
+        Integer typeId = sqlType;
+        if (typeId == null || typeId == -1) {
+            typeId = SQL_MAPPING.get(clazz);
         }
+
+        if (typeId == null) {
+            typeId = java.sql.Types.OTHER;
+        }
+
+        if (typeId == Types.ARRAY) {
+            return new ArrayStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
+        } else if (typeId == Types.OTHER) {
+            return new OtherStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
+        }
+
+        return new StoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
+    }
+
+    public StoredProcedureParameter(final Class clazz, final Method m, final String typeName, final int sqlType,
+            final int javaPosition, final boolean sensitive) {
 
         this.clazz = clazz;
 
@@ -73,76 +84,20 @@ class StoredProcedureParameter {
         }
 
         type = typeId;
+
+        if (typeName == null || typeName.isEmpty()) {
+            this.typeName = SProcProxyBuilder.camelCaseToUnderscore(clazz.getSimpleName());
+        } else {
+            this.typeName = typeName;
+        }
+
         javaPos = javaPosition;
         this.sensitive = sensitive;
 
     }
 
     public Object mapParam(final Object value, final Connection connection) {
-        if (value == null) {
-            return null;
-        }
-
-        Object result = value;
-        switch (type) {
-
-            case Types.ARRAY :
-
-                String innerTypeName = null;
-
-                if (typeName != null && typeName.endsWith("[]")) {
-                    innerTypeName = typeName.substring(0, typeName.length() - 2);
-                }
-
-                result = PgArray.ARRAY((Collection) value);
-
-                if (innerTypeName != null) {
-                    result = ((PgArray) result).asJdbcArray(innerTypeName, connection);
-                }
-
-                break;
-
-            case Types.OTHER :
-
-                if (clazz.isEnum()) {
-
-                    // HACK: should be implemented in PgTypeHelper
-                    PGobject pgobj = new PGobject();
-                    pgobj.setType(typeName);
-                    try {
-                        pgobj.setValue(((Enum) value).name());
-                    } catch (final SQLException ex) {
-                        if (sensitive) {
-                            LOG.error("Failed to set PG object value (sensitive parameter, stacktrace hidden)");
-                        } else {
-                            LOG.error("Failed to set PG object value", ex);
-                        }
-                    }
-
-                    result = pgobj;
-
-                } else {
-                    try {
-                        result = PgTypeHelper.asPGobject(value, typeName, connection);
-                    } catch (final SQLException ex) {
-                        if (sensitive) {
-                            LOG.error("Failed to serialize PG object (sensitive parameter, stacktrace hidden)");
-                        } else {
-                            LOG.error("Failed to serialize PG object", ex);
-                        }
-                    }
-                }
-
-                break;
-
-            default :
-
-                // return argument as-is
-                break;
-
-        }
-
-        return result;
+        return value;
     }
 
     public int getJavaPos() {
