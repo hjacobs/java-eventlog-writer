@@ -58,7 +58,12 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
 
     @Override
     public Environment getEnvironment() {
-        return Environment.valueOf(config.getStringConfig("application.environment"));
+        String environment = config.getStringConfig("application.environment");
+        if (environment == null) {
+            return null;
+        }
+
+        return Environment.valueOf(environment);
     }
 
     @Override
