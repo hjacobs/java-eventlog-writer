@@ -24,8 +24,9 @@ public class ExceptionLogger implements FaultListener {
         final HttpServletRequest httpServletRequest = (HttpServletRequest) message.get(
                 AbstractHTTPDestination.HTTP_REQUEST);
         String length = null;
-        String from = httpServletRequest.getRemoteAddr();
+        String from = null;
         if (httpServletRequest != null) {
+            from = httpServletRequest.getRemoteAddr();
             length = httpServletRequest.getHeader("Content-Length");
 
             final String forwardedFor = httpServletRequest.getHeader("X-Forwarded-For");
