@@ -142,7 +142,7 @@ public class SProcProxyBuilder {
                 pos++;
             }
 
-            LOG.debug("SprocService [ " + c.getName() + " ] registering " + p);
+            LOG.debug(c.getSimpleName() + " registering " + p);
             proxy.addStoredProcedure(method, p);
         }
 
