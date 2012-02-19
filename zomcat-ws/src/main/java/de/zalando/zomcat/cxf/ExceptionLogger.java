@@ -8,11 +8,12 @@ import org.apache.cxf.logging.FaultListener;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExceptionLogger implements FaultListener {
 
-    private static final Logger LOG = Logger.getLogger(ExceptionLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionLogger.class);
 
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("\\{[^}]*\\}");
 

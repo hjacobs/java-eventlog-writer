@@ -3,6 +3,8 @@ package de.zalando.zomcat.cxf;
 import java.util.List;
 
 /**
+ * simple DTO with human readable information about a particular web service with all it's operations.
+ *
  * @author  hjacobs
  */
 public class WebServiceInfo {

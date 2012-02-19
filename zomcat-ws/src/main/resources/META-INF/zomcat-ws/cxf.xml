@@ -30,14 +30,15 @@
     <bean id="flowIdInbound" class="de.zalando.zomcat.cxf.FlowIdInboundInterceptor"/>
     <bean id="flowIdOutbound" class="de.zalando.zomcat.cxf.FlowIdOutboundInterceptor"/>
 
-    <!--
-    <bean id="webServiceAuthorizationLogServiceImpl" class="de.zalando.commons.backend.service.impl.WebServiceAuthorizationLogServiceImpl"/>
-
-    <bean id="webServiceAuthorizationInterceptor" class="de.zalando.commons.backend.service.impl.WebServiceAuthorizationInInterceptor">
-        <property name="applicationConfig" ref="applicationConfig"/>
+    <bean id="webServiceAuthorizationLogServiceImpl" class="de.zalando.zomcat.cxf.authorization.impl.WebServiceAuthorizationLogServiceImpl"/>
+    <bean id="webServiceAuthorizationConfig" class="de.zalando.zomcat.cxf.authorization.impl.AccessConfigImpl">
+        <!-- uses global appconfig Configuration bean (configured in META-INF/appconfig/default.xml): -->
+        <property name="config" ref="compositeConfiguration"/>
+    </bean>
+    <bean id="webServiceAuthorizationInInterceptor" class="de.zalando.zomcat.cxf.authorization.WebServiceAuthorizationInInterceptor">
+        <property name="applicationConfig" ref="webServiceAuthorizationConfig"/>
         <property name="webServiceAuthorizationLogService" ref="webServiceAuthorizationLogServiceImpl"/>
     </bean>
-    -->
 
     <cxf:bus>
         <cxf:properties>
@@ -47,6 +48,7 @@
         </cxf:properties>
         <cxf:inInterceptors>
             <ref bean="flowIdInbound" />
+            <ref bean="webServiceAuthorizationInInterceptor" />
             <ref bean="logInbound"/>
         </cxf:inInterceptors>
         <cxf:outInterceptors>

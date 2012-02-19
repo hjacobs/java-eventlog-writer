@@ -12,7 +12,8 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.zalando.zomcat.flowid.FlowId;
 
@@ -22,7 +23,7 @@ import de.zalando.zomcat.flowid.FlowId;
  * @author  carsten.wolters
  */
 public class FlowIdOutboundInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final Logger LOG = Logger.getLogger(FlowIdOutboundInterceptor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FlowIdOutboundInterceptor.class);
 
     public FlowIdOutboundInterceptor() {
         super(Phase.PRE_STREAM);
