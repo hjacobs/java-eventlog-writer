@@ -1,0 +1,27 @@
+zomcat-ws: Zomcat Webservice/CXF Support Classes
+================================================
+
+Usage:
+
+Include the following line in your project's cxf.xml file to get the default CXF bus configuration (including flowID and wsauth):
+
+    <import resource="classpath:META-INF/zomcat-ws/cxf.xml"/>
+
+If you need a custom bus configuration (e.g. to add additional interceptors), you can only import the bean definitions:
+
+    <import resource="classpath:META-INF/zomcat-ws/cxf-nobus.xml"/>
+    <cxf:bus>
+        <!-- your bus config here -->
+    </cxf:bus>
+    
+
+To enable WS authorization you must configure the following appconfig properties:
+
+    wsauth.enable = true
+    wsauth.roles.allowed = [...]
+    wsauth.roles.denied = [...]
+
+To use "logging-only" mode additionally set:
+
+    wsauth.level = LOGGING_MODE
+

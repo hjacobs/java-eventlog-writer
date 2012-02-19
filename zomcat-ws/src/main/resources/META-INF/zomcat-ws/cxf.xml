@@ -18,27 +18,7 @@
            http://cxf.apache.org/configuration/security
            http://cxf.apache.org/schemas/configuration/security.xsd">
 
-
-    <import resource="classpath:META-INF/cxf/cxf.xml"/>
-    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
-    <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
-
-
-    <!-- interceptors -->
-    <bean id="logInbound" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
-    <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
-    <bean id="flowIdInbound" class="de.zalando.zomcat.cxf.FlowIdInboundInterceptor"/>
-    <bean id="flowIdOutbound" class="de.zalando.zomcat.cxf.FlowIdOutboundInterceptor"/>
-
-    <bean id="webServiceAuthorizationLogServiceImpl" class="de.zalando.zomcat.cxf.authorization.impl.WebServiceAuthorizationLogServiceImpl"/>
-    <bean id="webServiceAuthorizationConfig" class="de.zalando.zomcat.cxf.authorization.impl.AccessConfigImpl">
-        <!-- uses global appconfig Configuration bean (configured in META-INF/appconfig/default.xml): -->
-        <property name="config" ref="compositeConfiguration"/>
-    </bean>
-    <bean id="webServiceAuthorizationInInterceptor" class="de.zalando.zomcat.cxf.authorization.WebServiceAuthorizationInInterceptor">
-        <property name="applicationConfig" ref="webServiceAuthorizationConfig"/>
-        <property name="webServiceAuthorizationLogService" ref="webServiceAuthorizationLogServiceImpl"/>
-    </bean>
+    <import resource="classpath:META-INF/zomcat-ws/cxf-nobus.xml"/>
 
     <cxf:bus>
         <cxf:properties>
