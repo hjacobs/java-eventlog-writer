@@ -1,10 +1,10 @@
 package de.zalando.zomcat.appconfig;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
-import de.zalando.appconfig.ConfigCtx;
 import de.zalando.appconfig.Configuration;
 
 import de.zalando.zomcat.configuration.AppInstanceKeySource;
@@ -21,7 +21,7 @@ import de.zalando.zomcat.jobs.JobGroupConfig;
  */
 public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanceKeySource {
 
-    private static final Logger LOG = Logger.getLogger(JobConfigSourceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobConfigSourceImpl.class);
 
     public abstract Configuration getConfig();
 
@@ -37,9 +37,7 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         // Get Job Bean Name which is used to create JobConfig Property Names
         final String jobName = job.getBeanName();
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Attempting to create JobConfig for Job: %s", jobName));
-        }
+        LOG.trace("Attempting to create JobConfig for Job {}", jobName);
 
         // Load the JobGroup for given Job
         String jobGroupName = null;
@@ -47,51 +45,41 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         if (job.getJobGroup() != null) {
             jobGroupName = job.getJobGroup().groupName();
         } else {
-            jobGroupName = getConfig().getStringConfig(String.format("jobConfig.%s.jobGroup", jobName),
-                    new ConfigCtx(null, null), null);
+            jobGroupName = getConfig().getStringConfig(String.format("jobConfig.%s.jobGroup", jobName), null, null);
         }
 
         // If there is a Job Group defined on Job Config, fetch the JobGroup Active Status
         JobGroupConfig jobGroupConfig = null;
         if (jobGroupName != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Attempting to fetch create JobGroupConfig for JobGroup: %s", jobGroupName));
-            }
+            LOG.trace("Attempting to fetch create JobGroupConfig for JobGroup {}", jobGroupName);
 
             // Load Job Group Config Properties
-            groupActive = getConfig().getBooleanConfig(String.format("jobGroupConfig.%s.active", jobGroupName),
-                    new ConfigCtx(null, null));
+            groupActive = getConfig().getBooleanConfig(String.format("jobGroupConfig.%s.active", jobGroupName), null,
+                    true);
 
             final String[] groupAppInstanceKeys = getConfig().getStringArrayConfig(String.format(
-                        "jobGroupConfig.%s.appInstanceKey", jobGroupName), new ConfigCtx(null, null), true);
+                        "jobGroupConfig.%s.appInstanceKey", jobGroupName), null, true);
 
             // Create JobGroupConfig from JobGroupName as set in JobConfig and ActiveState from JobConfig
             jobGroupConfig = new JobGroupConfig(jobGroupName, groupActive, Sets.newHashSet(groupAppInstanceKeys));
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Job: %s has no configured JobGroup. Relying on JobConfig only.", jobName));
-            }
+            LOG.trace("Job {} has no configured JobGroup. Relying on JobConfig only.", jobName);
         }
 
         // Load Job Config Properties
         final String[] appInstanceKeys = getConfig().getStringArrayConfig(String.format("jobConfig.%s.appInstanceKey",
-                    jobName), new ConfigCtx(null, null), true);
-        final int limit = getConfig().getIntegerConfig(String.format("jobConfig.%s.limit", jobName),
-                new ConfigCtx(null, null), 0);
-        final int startupLimit = getConfig().getIntegerConfig(String.format("jobConfig.%s.startupLimit", jobName),
-                new ConfigCtx(null, null), limit);
-        jobActive = getConfig().getBooleanConfig(String.format("jobConfig.%s.active", jobName),
-                new ConfigCtx(null, null), true);
+                    jobName), null, true);
+        final int limit = getConfig().getIntegerConfig(String.format("jobConfig.%s.limit", jobName), null, 0);
+        final int startupLimit = getConfig().getIntegerConfig(String.format("jobConfig.%s.startupLimit", jobName), null,
+                limit);
+        jobActive = getConfig().getBooleanConfig(String.format("jobConfig.%s.active", jobName), null, true);
 
         // Create Job Config from loaded Props
         final JobConfig retVal = new JobConfig(Sets.newHashSet(appInstanceKeys), limit, startupLimit, jobActive,
                 jobGroupConfig);
 
         // Log the Job Config Properties as loaded from Database
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Created JobConfig for Job: %s.  JobConfig is: %s", job.getBeanName(),
-                    retVal.toString()));
-        }
+        LOG.debug("Config for {}: {}", job.getBeanName(), retVal);
 
         return retVal;
     }
