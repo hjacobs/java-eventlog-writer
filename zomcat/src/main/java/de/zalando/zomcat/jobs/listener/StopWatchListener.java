@@ -2,17 +2,18 @@ package de.zalando.zomcat.jobs.listener;
 
 import java.lang.management.ThreadMXBean;
 
-import org.apache.log4j.Logger;
-
 import org.joda.time.DateTime;
 
 import org.quartz.JobExecutionContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.zalando.zomcat.jobs.JobListener;
 import de.zalando.zomcat.jobs.RunningWorker;
 
 public class StopWatchListener implements JobListener {
-    private static final Logger LOG = Logger.getLogger(StopWatchListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StopWatchListener.class);
 
     private long threadStartNanoSeconds = -1;
     private long timeStart = -1;
@@ -39,8 +40,9 @@ public class StopWatchListener implements JobListener {
         }
 
         timeStop = System.currentTimeMillis();
-        LOG.debug("Job finished. thread CPU usage: " + getThreadCPUNanoSeconds() + ", thread duration: "
-                + getThreadDuration());
+
+        // TODO: add "getThreadCPUNanoSeconds" again (as soon as it's working)
+        LOG.debug("Job finished in {} ms", getThreadDuration());
     }
 
     public boolean isRunning() {
@@ -52,7 +54,7 @@ public class StopWatchListener implements JobListener {
     }
 
     public long getThreadDuration() {
-        return isRunning() == true ? -1 : (timeStart - timeStop);
+        return isRunning() ? -1 : (timeStop - timeStart);
     }
 
     public DateTime getStartTime() {

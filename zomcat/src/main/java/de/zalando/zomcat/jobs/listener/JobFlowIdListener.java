@@ -1,8 +1,9 @@
 package de.zalando.zomcat.jobs.listener;
 
-import org.apache.log4j.Logger;
-
 import org.quartz.JobExecutionContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ import de.zalando.zomcat.jobs.RunningWorker;
 
 @Component(JobFlowIdListener.JOB_FLOW_ID_LISTENER)
 public class JobFlowIdListener implements JobListener, ComponentBean {
-    private static final Logger LOG = Logger.getLogger(JobFlowIdListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobFlowIdListener.class);
 
     // The bean name
     static final String JOB_FLOW_ID_LISTENER = "jobFlowIdListener";
@@ -35,16 +36,12 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
         // clear this thread: there can be no other context in there...
         FlowId.clear();
         FlowId.generateAndPushFlowId();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("start running job with flowId: " + FlowId.peekFlowId());
-        }
+        LOG.trace("start running job with flowId {}", FlowId.peekFlowId());
     }
 
     @Override
     public void stopRunning(final RunningWorker runningWorker, final Throwable t) {
         final String flowId = FlowId.popFlowId();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("stop running job with flowId: " + flowId);
-        }
+        LOG.trace("stop running job with flowId {}", flowId);
     }
 }
