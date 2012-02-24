@@ -35,6 +35,31 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+strong.normal, strong.ok, strong.enabled {
+    background-color: #99FF99;
+    padding: 2px 8px;
+}
+
+strong.maintenance, strong.deploy, strong.disabled {
+    background-color: #FF9999;
+    padding: 2px 8px;
+}
+
+a.normal, a.ok, a.enabled {
+#    background-color: #EEEEEE;
+    color: #000000;
+    padding: 2px 8px;
+}
+
+a.maintenance, a.deploy, a.disabled {
+#    background-color: #EEEEEE;
+    color: #000000;
+    padding: 2px 8px;
+}
+
+
+
 .tabcont {
     position: relative;
 }
@@ -66,23 +91,161 @@ ul.tabs li.active {
     border-width: 1px;
     font-weight: bold;
 }
+
+.operationMode {
+    width: 1200px;
+    border-top: 1px;
+    border-bottom: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-color: black;
+    border-style: solid;
+    border-collapse: true;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.hearbeatMode {
+    width: 1200px;
+    border-top: 1px;
+    border-bottom: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-color: black;
+    border-style: solid;
+    border-collapse: true;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.group-selection {
+    width: 1200px;
+    border-top: 1px;
+    border-bottom: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-color: black;
+    border-style: solid;
+    border-collapse: true;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.group-checkbox {
+}
+
+.groupEnableSelected {
+    margin-left: 20px;
+    float: right;
+}
+
+.groupDisableSelected {
+    float: right;
+}
+
+.jobGroupRow {
+    width: 1200px;
+    border-top: 1px;
+    border-bottom: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-color: black;
+    border-style: solid;
+    border-collapse: true;
+    margin-top: 10px;
+}
+
+.jobGroup {
+    width: 1200px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    background-color: #CCCCCC;
+}
+
+.jobGroupName {
+    font-size: 18px;
+    font-weight: bold;    
+}
+
+.jobGroupEnabled {
+#    width: 100px;
+    float: right;
+    margin-top: 3px;    
+}
+
+.history {
+    color: #999999;
+}
+
+table {
+    border: 1px;
+    table-layout: fixed;
+    border-collapse: true;
+}
+
 tr.even td {
     background: none repeat scroll 0 0 #EEEEEE;
 }
 tr.even th {
     background: none repeat scroll 0 0 #EEEEEE;
 }
-#ftr {
-    background: none repeat scroll 0 0 #EEEEEE;
-    border-top: 1px solid #CCCCCC;
-    color: #999999;
-    font-size: 12px;
-    margin: 20px -10px -10px;
-    padding: 10px;
+tr.litupRowOver {
+    background: none repeat scroll 0 0 #FFEE00;
 }
 tr.selected td {
     background: none repeat scroll 0 0 #FFEE00;
 }
 tr.selected th {
     background: none repeat scroll 0 0 #FFEE00;
+}
+
+td {
+    overflow: hidden;
+}
+
+td.checkbox {
+    width: 10px;
+}
+
+td.trigger {
+    width: 40px;
+}
+
+td.jobEnabled {
+    width: 100px;
+}
+
+td.name {
+    width: 100px;
+}
+
+td.description {
+    width: 150px;
+}
+
+td.worker {
+    width: 10px;
+}
+
+td.timestamp {
+    width: 170px;
+}
+
+td.history {
+    width: 10px;
+}
+
+td.hosts{
+    width: 70px;
+}
+
+td.batchsize{
+    width: 20px;
+}
+
+td.flowIds{
+    width: 250px;
 }

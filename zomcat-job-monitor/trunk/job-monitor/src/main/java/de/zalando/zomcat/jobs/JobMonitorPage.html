@@ -10,46 +10,80 @@
     <body>
         <h1>Job Monitor</h1>
 
-        <div>Operation mode: <span wicket:id="placeholderForOperationMode">[content will go here]</span></div>
-        <wicket:fragment wicket:id="operationModeNormal"><span>Normal/</span><a href="#" wicket:id="operationModeToggle">Maintenance</a></wicket:fragment>
-        <wicket:fragment wicket:id="operationModeMaintenance"><a href="#" wicket:id="operationModeToggle">Normal</a><span>/Maintenance</span></wicket:fragment>
+        <div class="operationMode">Operation mode: <span wicket:id="placeholderForOperationMode">[content will go here]</span></div>
+        <wicket:fragment wicket:id="operationModeNormal"><strong class="normal">Normal</strong>/<a class="maintenance" href="#" wicket:id="operationModeToggle">Maintenance</a></wicket:fragment>
+        <wicket:fragment wicket:id="operationModeMaintenance"><a class="normal" href="#" wicket:id="operationModeToggle">Normal</a>/<strong class="maintenance">Maintenance</strong></wicket:fragment>
 
-        <div>Hearbeat mode: <span wicket:id="placeholderForHeartbeatMode">[content will go here]</span></div>
-        <wicket:fragment wicket:id="hearbeatModeOk"><span>OK/</span><a href="#" wicket:id="hearbeatModeToggle">DEPLOY</a></wicket:fragment>
-        <wicket:fragment wicket:id="hearbeatModeDeploy"><a href="#" wicket:id="hearbeatModeToggle">OK</a><span>/DEPLOY</span></wicket:fragment>
+        <div class="hearbeatMode">Hearbeat mode: <span wicket:id="placeholderForHeartbeatMode">[content will go here]</span></div>
+        <wicket:fragment wicket:id="hearbeatModeOk"><strong class="ok">OK</strong>/<a class="deploy" href="#" wicket:id="hearbeatModeToggle">DEPLOY</a></wicket:fragment>
+        <wicket:fragment wicket:id="hearbeatModeDeploy"><a class="ok" href="#" wicket:id="hearbeatModeToggle">OK</a>/<strong class="deploy">DEPLOY</strong></wicket:fragment>
 
         <form wicket:id="form">
             <div wicket:id="group">
-                <div id="checkbox-selection">
-                    <span><input type="checkbox" wicket:id="groupselector">check/uncheck all</input></span>
-                    <span><a href="#" wicket:id="enableSelected" type="submit">Enable Selected</a></span>
-                    <span><a href="#" wicket:id="disableSelected" type="submit">Disable Selected</a></span>
+                <div class="group-selection" id="checkbox-selection">
+                    <span class="group-checkbox"><input type="checkbox" wicket:id="groupselector">Check/Uncheck all jobs.</input></span>
+                    <span class="groupEnableSelected"><a href="#" wicket:id="enableSelected" type="submit">Enable Selected</a></span>
+                    <span class="groupDisableSelected"><a href="#" wicket:id="disableSelected" type="submit">Disable Selected</a></span>
                 </div>
                 <div wicket:id="listContainer">
-                    <div wicket:id="jobGroupRow">
-                        <span wicket:id="jobGroupName">job group name</span>
+                    <div class="jobGroupRow" wicket:id="jobGroupRow">
+                        <div class="jobGroup">
+                            <span class="jobGroupName" wicket:id="jobGroupName">job group name</span>
 
-                        <span wicket:id="placeholderForJobGroupEnabled">[content will go here]</span>
-                        <wicket:fragment wicket:id="jobGroupEnabled"><span>Running/</span><a href="#" wicket:id="jobGroupToggle">Paused</a></wicket:fragment>
-                        <wicket:fragment wicket:id="jobGroupDisabled"><a href="#" wicket:id="jobGroupToggle">Running</a><span>/Paused</span></wicket:fragment>
-
+                            <span class="jobGroupEnabled" wicket:id="placeholderForJobGroupEnabled">[content will go here]</span>
+                            <wicket:fragment wicket:id="jobGroupEnabled"><strong class="enabled">Running</strong>/<a class="disabled" href="#" wicket:id="jobGroupToggle">Paused</a></wicket:fragment>
+                            <wicket:fragment wicket:id="jobGroupDisabled"><a class="enabled" href="#" wicket:id="jobGroupToggle">Running</a>/<strong class="disabled" >Paused</strong></wicket:fragment>
+                        </div>
                         <div>
                             <table class="jobDetailView">
+                            <thead>
+                                <tr>
+                                  <th class="checkbox"></th>
+                                  <th class="trigger">Trigger</th>
+                                  <th class="jobEnabled">Job Enabled</th>
+                                  <th class="name">Name</th>
+                                  <th class="description">Description</th>
+                                  <th class="worker">Worker</th>
+                                  <th class="timestamp">Last modified</th>
+                                  <th class="history"></th>
+                                  <th class="hosts">Hosts</th>
+                                  <th class="batchsize" >BS</th>
+                                  <th class="flowIds">FlowIds</th>
+                                </tr>
+                              </thead>
                                 <tbody>
                                     <tr wicket:id="jobDetailRow">
-                                        <td><input type="checkbox" wicket:id="checkbox"/></td>
-                                        <td><a href="#" wicket:id="trigger">Trigger</a></td>
-                                        <td wicket:id="placeholderForJobEnabled">[content will go here]</td>
-                                        <td wicket:id="name">ProcessIncomingDocdataFile</td>
-                                        <td wicket:id="description">Full update</td>
-                                        <td wicket:id="workers">1</td>
-                                        <td wicket:id="timestamp">2011-12-12 12:32</td>
-                                        <td wicket:id="historyButton">history</td>
-                                        <td wicket:id="instances">bm01_p9820</td>
-                                        <td wicket:id="batchSize">500</td>
-                                        <td><a href="#" wicket:id="flowIdLink">---</a></td>
-                                        <wicket:fragment wicket:id="jobEnabled">Running/<a href="#" wicket:id="jobToggle">Paused</a></wicket:fragment>
-                                        <wicket:fragment wicket:id="jobDisabled"><a href="#" wicket:id="jobToggle">Running</a>/Paused</wicket:fragment>
+                                        <wicket:container wicket:id="placeholderForJob">[content will go here]</wicket:container>
+                                        <wicket:fragment wicket:id="simpleJob">
+                                            <td class="checkbox"><input type="checkbox" wicket:id="checkbox"/></td>
+                                            <td class="trigger"><a href="#" wicket:id="trigger">Trigger</a></td>
+                                            <td class="jobEnabled" wicket:id="placeholderForJobEnabled">[content will go here]</td>
+                                            <td class="name" wicket:id="name">ProcessIncomingDocdataFile</td>
+                                            <td class="description" wicket:id="description">Full update</td>
+                                            <td class="worker" wicket:id="workers">1</td>
+                                            <td class="timestamp" wicket:id="timestamp">2011-12-12 12:32</td>
+                                            <td class="history" wicket:id="placeholderForHistory">[content will go here]</td>
+                                            <td class="hosts" wicket:id="instances">bm01_p9820</td>
+                                            <td class="batchsize" wicket:id="batchSize">500</td>
+                                            <td class="flowIds">
+                                                    <span wicket:id="jobFlowIds">
+                                                        <a href="#" wicket:id="flowIdLink" target="_blank"><span wicket:id="flowId">12345678</span></a>
+                                                    </span>
+                                            </td>
+                                            <wicket:fragment wicket:id="jobEnabled"><strong class="enabled">Running</strong>/<a class="disabled" href="#" wicket:id="jobToggle">Paused</a></wicket:fragment>
+                                            <wicket:fragment wicket:id="jobDisabled"><a class="enabled" href="#" wicket:id="jobToggle">Running</a>/<strong class="disabled">Paused</strong></wicket:fragment>
+                                            <wicket:fragment wicket:id="historyEnabled"><a href="#" wicket:id="historyToggle">-</a></wicket:fragment>
+                                            <wicket:fragment wicket:id="historyDisabled"><a href="#" wicket:id="historyToggle">+</a></wicket:fragment>
+                                         </wicket:fragment>
+                                        <wicket:fragment wicket:id="jobHistory">
+                                            <td colspan="4"></td>
+                                            <td colspan="2" class="history startTime" wicket:id="startTime">2011-12-12 12:32</td>
+                                            <td class="history endTime" wicket:id="endTime">2011-12-12 12:32</td>
+                                            <td class="history workerId" wicket:id="workerId">123</td>
+                                            <td class="history threadCPUNanoSeconds" wicket:id="threadCPUNanoSeconds">100</td>
+                                            <td class="history duration" wicket:id="duration">1:00</td>
+                                            <td class="history flowId"><a class="history" href="#" wicket:id="flowIdLink" target="_blank"><span class="history" wicket:id="flowId">12345678</span></a></td>
+                                         </wicket:fragment>
                                     </tr>
                                 </tbody>
                             </table>
