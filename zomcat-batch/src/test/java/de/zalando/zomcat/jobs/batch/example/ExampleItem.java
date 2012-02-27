@@ -1,11 +1,9 @@
 package de.zalando.zomcat.jobs.batch.example;
 
-import de.zalando.zomcat.jobs.batch.JobItem;
-
 /**
  * @author  hjacobs
  */
-public class ExampleItem implements JobItem {
+public class ExampleItem {
 
     private long id;
     private String text;
@@ -14,7 +12,6 @@ public class ExampleItem implements JobItem {
         this.id = id;
     }
 
-    @Override
     public long getId() {
         return id;
     }

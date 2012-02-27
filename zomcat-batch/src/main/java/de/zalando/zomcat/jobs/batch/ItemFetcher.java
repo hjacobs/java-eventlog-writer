@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author  teppel
  */
-public interface ItemFetcher<Item extends JobItem> {
+public interface ItemFetcher<Item> {
 
     /**
      * Fetches items.

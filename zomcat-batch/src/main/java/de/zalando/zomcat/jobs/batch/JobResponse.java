@@ -7,14 +7,14 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-public class JobResponse<Item extends JobItem> {
+public class JobResponse<Item> {
 
-    private final Item jobItem;
+    private final Item item;
 
     private final List<String> errorMessages;
 
     public JobResponse(final Item item) {
-        jobItem = item;
+        this.item = item;
         errorMessages = Lists.newArrayList();
     }
 
@@ -43,19 +43,15 @@ public class JobResponse<Item extends JobItem> {
         return ImmutableList.copyOf(errorMessages);
     }
 
-    public Item getJobItem() {
-        return jobItem;
-    }
-
-    public long getJobItemId() {
-        return jobItem.getId();
+    public Item getItem() {
+        return item;
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("JobResponse [jobItem=");
-        builder.append(jobItem);
+        builder.append(item);
         builder.append(", errorMessages=");
         builder.append(errorMessages);
         builder.append(']');

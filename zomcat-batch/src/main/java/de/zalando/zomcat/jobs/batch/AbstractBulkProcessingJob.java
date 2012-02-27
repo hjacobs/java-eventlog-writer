@@ -23,7 +23,7 @@ import de.zalando.zomcat.jobs.AbstractJob;
 import de.zalando.zomcat.jobs.JobConfig;
 import de.zalando.zomcat.jobs.JobConfigSource;
 
-public abstract class AbstractBulkProcessingJob<Item extends JobItem> extends AbstractJob {
+public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBulkProcessingJob.class);
 
@@ -123,7 +123,7 @@ public abstract class AbstractBulkProcessingJob<Item extends JobItem> extends Ab
             List<String> errorMessages;
             for (JobResponse<Item> item : validItems) {
                 try {
-                    errorMessages = processor.validate(item.getJobItem());
+                    errorMessages = processor.validate(item.getItem());
                     if (errorMessages != null && !errorMessages.isEmpty()) {
                         item.addErrorMessages(errorMessages);
                         failedItems.add(item);
@@ -153,13 +153,13 @@ public abstract class AbstractBulkProcessingJob<Item extends JobItem> extends Ab
             processedCount++;
 
             try {
-                processor.process(item.getJobItem());
+                processor.process(item.getItem());
                 successfulItems.add(item);
             } catch (final Throwable e) {
-                LOG.error("Failed to process item [{}]", item.getJobItem(), e);
+                LOG.error("Failed to process item [{}]", item.getItem(), e);
 
                 final String message = String.format("[%s] exception occured on processing item [%d]: %s",
-                        e.getClass().getName(), item.getJobItemId(), Throwables.getStackTraceAsString(e));
+                        e.getClass().getName(), item.getItem(), Throwables.getStackTraceAsString(e));
 
                 item.addErrorMessage(message);
                 failedItems.add(item);
@@ -225,7 +225,7 @@ public abstract class AbstractBulkProcessingJob<Item extends JobItem> extends Ab
                 final List<String> messages = getMessageList(violations);
                 response.addErrorMessages(messages);
                 failedItems.add(response);
-                LOG.warn(String.format("item [%d] failed validation [%s]", item.getId(), messages));
+                LOG.warn(String.format("item [%d] failed validation [%s]", item, messages));
             }
         }
 

@@ -22,7 +22,7 @@ public class AbstractBulkProcessingJobTest {
         Assert.assertEquals("TEST", job.getItems().get(0).getText());
         Assert.assertEquals(1, job.getSuccessfulItems().size());
         Assert.assertEquals(0, job.getFailedItems().size());
-        Assert.assertEquals(99, job.getSuccessfulItems().get(0).getJobItemId());
+        Assert.assertEquals(99, job.getSuccessfulItems().get(0).getItem().getId());
     }
 
 }

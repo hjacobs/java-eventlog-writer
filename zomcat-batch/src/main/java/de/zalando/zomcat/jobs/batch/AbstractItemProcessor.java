@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author  teppel
  */
-public abstract class AbstractItemProcessor<Item extends JobItem> implements ItemProcessor<Item> {
+public abstract class AbstractItemProcessor<Item> implements ItemProcessor<Item> {
 
     @Override
     public abstract void process(Item item) throws Exception;

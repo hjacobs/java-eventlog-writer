@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author  teppel
  */
-public abstract class AbstractItemFetcher<Item extends JobItem> implements ItemFetcher<Item> {
+public abstract class AbstractItemFetcher<Item> implements ItemFetcher<Item> {
 
     /**
      * Fetches items.

@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author  teppel
  */
-public interface ItemProcessor<Item extends JobItem> {
+public interface ItemProcessor<Item> {
 
     void process(Item item) throws Exception;
 

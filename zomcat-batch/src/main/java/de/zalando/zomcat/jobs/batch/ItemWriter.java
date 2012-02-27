@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author  teppel
  */
-public interface ItemWriter<Item extends JobItem> {
+public interface ItemWriter<Item> {
 
     void writeItems(List<JobResponse<Item>> successfulItems, List<JobResponse<Item>> failedItems) throws Exception;
 
