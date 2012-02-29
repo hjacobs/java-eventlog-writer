@@ -14,10 +14,11 @@ import java.util.LinkedList;
  * @author  fbrick
  */
 public class LinkedBoundedQueue<E> {
+    private static final long serialVersionUID = 2890178068529481219L;
 
     private final LinkedList<E> elements = new LinkedList<E>();
     private Integer capacity = null;
-    private final Object guard = new Object();
+    private final transient Object guard = new Object();
 
     public LinkedBoundedQueue(final Integer capacity) {
         this.capacity = capacity;

@@ -154,7 +154,7 @@ public class JobsMonitorServlet extends HttpServlet {
         // ignore the cases where there is not enough information about the last quartz job
         // which was excecuted or perhaps the last job had job data map filled, which is not
         // supported yet
-        if (jobTypeStatusBean.getLastQuartzJobInfoBean() == null) {
+        if (jobTypeStatusBean.getQuartzJobInfoBean() == null) {
             writer.print("<td>not implemented yet</td>");
         } else if (jobTypeStatusBean.isDisabled() || OperationMode.MAINTENANCE.equals(actualOperationMode)) {
             writer.print("<td>disabled</td>");
@@ -320,7 +320,7 @@ public class JobsMonitorServlet extends HttpServlet {
             writer.print("/");
             writer.print(worker.getTotalNumberOfItemsToBeProcessed());
             writer.println(")</td>");
-            printCell(writer, worker.getJobHistoryId(), 1);
+            printCell(writer, worker.getFlowId(), 1);
         } else {
             writer.println("<td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>");
         }
@@ -349,7 +349,7 @@ public class JobsMonitorServlet extends HttpServlet {
             printCell(writer,
                 "(" + finishedWorkerBean.getActualProcessedItemNumber() + "/"
                     + finishedWorkerBean.getTotalNumberOfItemsToBeProcessed() + ")", 1);
-            printCell(writer, finishedWorkerBean.getJobHistoryId(), 1);
+            printCell(writer, finishedWorkerBean.getFlowId(), 1);
         } else {
 
             // print 6 emtpy cells:

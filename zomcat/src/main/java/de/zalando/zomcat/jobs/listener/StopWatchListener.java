@@ -1,5 +1,6 @@
 package de.zalando.zomcat.jobs.listener;
 
+import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
 import org.joda.time.DateTime;
@@ -19,16 +20,17 @@ public class StopWatchListener implements JobListener {
     private long timeStart = -1;
     private long threadStopNanoSeconds = -1;
     private long timeStop = -1;
-    final ThreadMXBean tmxb = null; // TODO: to be tested if there is enough time: ManagementFactory.getThreadMXBean();
+    final ThreadMXBean tmxb = ManagementFactory.getThreadMXBean();
 
     @Override
     public void startRunning(final RunningWorker runningWorker, final JobExecutionContext context,
             final String appInstanceKey) {
+        threadStopNanoSeconds = -1;
+
         if (tmxb != null && tmxb.isCurrentThreadCpuTimeSupported() && tmxb.isThreadCpuTimeEnabled()) {
             threadStartNanoSeconds = tmxb.getCurrentThreadCpuTime();
         }
 
-        threadStopNanoSeconds = -1;
         timeStop = -1;
         timeStart = System.currentTimeMillis();
     }

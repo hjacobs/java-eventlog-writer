@@ -57,7 +57,7 @@ public class TriggerJobServlet extends HttpServlet {
                     return;
                 }
 
-                final QuartzJobInfoBean lastQuartzJobInfoBean = jobTypeStatusBean.getLastQuartzJobInfoBean();
+                final QuartzJobInfoBean lastQuartzJobInfoBean = jobTypeStatusBean.getQuartzJobInfoBean();
 
                 if (lastQuartzJobInfoBean == null) {
                     LOG.info("lastQuartzJobInfoBean not found for job " + job + ", job can not be triggered");

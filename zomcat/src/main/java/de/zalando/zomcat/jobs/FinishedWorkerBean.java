@@ -1,6 +1,7 @@
 package de.zalando.zomcat.jobs;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 /**
  * bean holding information about a finished worker for history purposes. Endtime of this bean is automatically set when
@@ -9,36 +10,40 @@ import org.joda.time.DateTime;
  * @author  fbrick
  */
 public class FinishedWorkerBean extends RunningWorkerBean {
+    private static final long serialVersionUID = -840533955559658403L;
 
     private final DateTime endTime = new DateTime();
 
     public FinishedWorkerBean(final RunningWorker runningWorker) {
-        this(runningWorker.getJobConfig(), runningWorker.getJobHistoryId(), runningWorker.getId(),
+        super(runningWorker.getJobConfig(), runningWorker.getFlowId(), runningWorker.getId(),
             runningWorker.getStartTime(), runningWorker.getActualProcessedItemNumber(),
-            runningWorker.getTotalNumberOfItemsToBeProcessed(), runningWorker.getInternalStartTime());
+            runningWorker.getTotalNumberOfItemsToBeProcessed(), runningWorker.getInternalStartTime(),
+            runningWorker.getDescription(), runningWorker.getThreadCPUNanoSeconds());
     }
 
-    public FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime) {
         this(jobConfig, jobHistoryId, id, startTime, null, null);
     }
 
-    public FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime, final Integer totalNumberOfItemsToBeProcessed) {
         this(jobConfig, jobHistoryId, id, startTime, null, totalNumberOfItemsToBeProcessed);
     }
 
-    public FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime, final Integer actualProcessedItemNumber,
             final Integer totalNumberOfItemsToBeProcessed) {
-        this(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed, null);
+        this(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed, null,
+            null, null);
     }
 
-    public FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime, final Integer actualProcessedItemNumber,
-            final Integer totalNumberOfItemsToBeProcessed, final DateTime internalStartTime) {
+            final Integer totalNumberOfItemsToBeProcessed, final DateTime internalStartTime, final String description,
+            final Long threadCPUNanoSeconds) {
         super(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed,
-            internalStartTime);
+            internalStartTime, description, threadCPUNanoSeconds);
     }
 
     /**
@@ -46,6 +51,14 @@ public class FinishedWorkerBean extends RunningWorkerBean {
      */
     public DateTime getEndTime() {
         return endTime;
+    }
+
+    public String getEndTimeFormatted() {
+        return DTF.print(endTime);
+    }
+
+    public String getDuration() {
+        return String.valueOf(new Duration(getStartTime(), endTime).getStandardSeconds());
     }
 
     /**
@@ -61,4 +74,5 @@ public class FinishedWorkerBean extends RunningWorkerBean {
         builder.append("]");
         return builder.toString();
     }
+
 }

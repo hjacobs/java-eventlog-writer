@@ -1,20 +1,33 @@
 package de.zalando.zomcat.jobs;
 
-import java.io.Serializable;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
 
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+
+import org.quartz.impl.SchedulerRepository;
+
+import org.reflections.Reflections;
+
+import org.reflections.scanners.SubTypesScanner;
+
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,20 +51,111 @@ import de.zalando.zomcat.OperationMode;
  */
 @ManagedResource(objectName = "Zalando:name=Jobs Status Bean")
 @Component("jobsStatusBean")
-public class JobsStatusBean implements JobsStatusMBean, Serializable {
+public class JobsStatusBean implements JobsStatusMBean {
 
     private static final Logger LOG = Logger.getLogger(JobsStatusBean.class);
-
-    private static final long serialVersionUID = 4508534808396173005L;
 
     public static final String BEAN_NAME = "jobsStatusBean";
 
     private OperationMode operationMode = OperationMode.NORMAL;
 
     private final SortedMap<String, JobTypeStatusBean> jobs = new TreeMap<String, JobTypeStatusBean>();
+    private final SortedMap<String, JobGroupTypeStatusBean> groups = new TreeMap<String, JobGroupTypeStatusBean>();
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private JobConfigSource jobConfigSource;
+
+    public SortedMap<String, JobTypeStatusBean> getJobs() {
+        if (jobs.isEmpty()) {
+            synchronized (this) {
+                if (jobs.isEmpty()) {
+                    final Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
+                                new FilterBuilder.Include(FilterBuilder.prefix("de.zalando"))).setUrls(
+                                ClasspathHelper.forPackage("de.zalando")).setScanners(new SubTypesScanner()));
+
+                    final Set<Class<? extends RunningWorker>> runningWorkerImplementations = reflections.getSubTypesOf(
+                            RunningWorker.class);
+                    for (final Class<? extends RunningWorker> runningWorkerClass : runningWorkerImplementations) {
+                        try {
+                            final RunningWorker runningWorker = runningWorkerClass.newInstance();
+
+                            if (runningWorker instanceof AbstractJob) {
+                                final AbstractJob abstractJob = (AbstractJob) runningWorker;
+
+                                // make sure we can use the spring context in the abstract job
+                                abstractJob.setApplicationContext(applicationContext);
+                            }
+
+                            final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(runningWorker.getClass(),
+                                    runningWorker.getDescription(), runningWorker.getJobConfig(),
+                                    getQuartzJobStatusBean(runningWorker.getClass()));
+                            jobs.put(runningWorkerClass.getName(), jobTypeStatusBean);
+                        } catch (final Exception e) {
+                            // ignore
+                        }
+                    }
+                }
+            }
+        }
+
+        return jobs;
+    }
+
+    private QuartzJobInfoBean getQuartzJobStatusBean(final Class<?> jobClazz) {
+        @SuppressWarnings("unchecked")
+        final Collection<Scheduler> lookupAll = SchedulerRepository.getInstance().lookupAll();
+        for (final Scheduler s : lookupAll) {
+
+            String[] jobGroupNames = null;
+            try {
+                jobGroupNames = s.getJobGroupNames();
+            } catch (final SchedulerException e1) { }
+
+            for (final String jobGroupName : jobGroupNames) {
+                try {
+                    final String[] jobNames = s.getJobNames(jobGroupName);
+                    for (final String jobName : jobNames) {
+                        final JobDetail jobDetail = s.getJobDetail(jobName, jobGroupName);
+                        if (jobDetail.getJobClass().equals(jobClazz)) {
+
+                            // job found.
+                            final String schedulerName = s.getSchedulerName();
+                            final JobDataMap jobDataMap = jobDetail.getJobDataMap();
+                            return new QuartzJobInfoBean(schedulerName, jobName, jobGroupName, jobDataMap);
+                        }
+                    }
+                } catch (final SchedulerException e) {
+                    LOG.error("Could not extraxr jobDetais: " + e.getMessage(), e);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Map<String, JobGroupTypeStatusBean> getJobGroups() {
+        if (groups.isEmpty()) {
+            synchronized (this) {
+                if (groups.isEmpty()) {
+                    if (jobs.isEmpty()) {
+                        getJobs();
+                    }
+
+                    // now get all job group configs and create JobGroupTypeStatusBeans:
+                    for (final JobGroupConfig jobGroupConfig : getJobGroupConfigs()) {
+                        groups.put(jobGroupConfig == null ? JobGroupConfig.DEFAULT_GROUP_NAME
+                                                          : jobGroupConfig.getJobGroupName(),
+                            new JobGroupTypeStatusBean(jobGroupConfig));
+                    }
+                }
+            }
+        }
+
+        return groups;
+    }
 
     /**
      * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#toggleOperationMode()
@@ -118,17 +222,25 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
     }
 
     private synchronized JobTypeStatusBean getJobTypeStatusBean(final RunningWorker runningWorker) {
-        JobTypeStatusBean jobTypeStatusBean = jobs.get(runningWorker.getClass().getName());
+        final JobTypeStatusBean jobTypeStatusBean = getJobs().get(runningWorker.getClass().getName());
 
         // check if we already know this job type
         if (jobTypeStatusBean == null) {
-            jobTypeStatusBean = new JobTypeStatusBean(runningWorker.getClass(), runningWorker.getDescription(),
-                    runningWorker.getJobConfig());
-
-            jobs.put(runningWorker.getClass().getName(), jobTypeStatusBean);
+            throw new RuntimeException("job must be well known at this time: " + runningWorker.getClass().getName());
         }
 
         return jobTypeStatusBean;
+    }
+
+    public synchronized JobGroupTypeStatusBean getJobGroupTypeStatusBean(final JobConfig jobConfig) {
+        final JobGroupTypeStatusBean jobGroupTypeStatusBean = getJobGroups().get(jobConfig.getJobGroupName());
+
+        // check if we already know this job type
+        if (jobGroupTypeStatusBean == null) {
+            throw new RuntimeException("job group must be well known at this time: " + jobConfig);
+        }
+
+        return jobGroupTypeStatusBean;
     }
 
     /**
@@ -147,11 +259,33 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
      */
     @Override
     public List<JobTypeStatusBean> getJobTypeStatusBeans() {
-        return new ArrayList<JobTypeStatusBean>(jobs.values());
+        return Lists.newArrayList(getJobs().values());
+    }
+
+    /**
+     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#getJobTypeStatusBeans()
+     */
+    public List<JobTypeStatusBean> getJobTypeStatusBeans(final boolean filterByAppInstanceKey) {
+        if (filterByAppInstanceKey == false) {
+            return getJobTypeStatusBeans();
+        }
+
+        final String localAppinstanceKey = jobConfigSource.getAppInstanceKey();
+        return Lists.newArrayList(Iterables.filter(getJobs().values(), new Predicate<JobTypeStatusBean>() {
+                        @Override
+                        public boolean apply(final JobTypeStatusBean input) {
+                            return input.getJobConfig().isAllowedAppInstanceKey(localAppinstanceKey);
+                        }
+                    }));
+    }
+
+    @Override
+    public List<JobGroupTypeStatusBean> getJobGroupTypeStatusBeans() {
+        return Lists.newArrayList(getJobGroups().values());
     }
 
     public JobTypeStatusBean getJobTypeStatusBean(final Class<?> jobClass) {
-        return jobs.get(jobClass.getName());
+        return getJobs().get(jobClass.getName());
     }
 
     /**
@@ -160,7 +294,7 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
      * @return  the {@link JobTypeStatusBean JobTypeStatusBean} of the job or <code>null</code> if not found
      */
     public JobTypeStatusBean getJobTypeStatusBean(final String jobName) {
-        return jobs.get(jobName);
+        return getJobs().get(jobName);
     }
 
     /**
@@ -189,13 +323,39 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
     }
 
     /**
+     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#toggleJob(java.lang.String, boolean)
+     */
+    @ManagedOperation(
+        description = "toggles job group running mode and returns flag if successful or not, "
+                + "if <code>null</code> is returned then an error occured, "
+                + "then please look into logfile for details"
+    )
+    @Override
+    public Boolean toggleJobGroup(final String groupName) {
+        final JobGroupTypeStatusBean jobGroupTypeStatusBean = groups.get(groupName);
+
+        if (jobGroupTypeStatusBean == null) {
+            LOG.info("job group not found, status can not be toggled " + groupName);
+
+            return null;
+        } else {
+            jobGroupTypeStatusBean.toggleMode();
+
+            LOG.info("set enabled/disabled mode of job group + " + groupName + ", now it is: "
+                    + !jobGroupTypeStatusBean.isDisabled());
+        }
+
+        return !jobGroupTypeStatusBean.isDisabled();
+    }
+
+    /**
      * @param   jobName  the fully qualified job class name
      *
      * @return  flag if successful or not, if <code>null</code> then an error occured, please look into logfile for
      *          details
      */
     public Boolean toggleJob(final String jobName) {
-        final JobTypeStatusBean statusBean = jobs.get(jobName);
+        final JobTypeStatusBean statusBean = getJobs().get(jobName);
 
         if (statusBean == null) {
             LOG.info("no job found with name jobName = " + jobName + ", so nothing is toggled!");
@@ -217,7 +377,7 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
     @Override
     public List<Map<String, String>> getListOfJobTypeStatusBeans() {
 
-        final Collection<JobTypeStatusBean> values = jobs.values();
+        final Collection<JobTypeStatusBean> values = getJobs().values();
 
         final ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
@@ -238,7 +398,7 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
     @ManagedOperation(description = "Returns the size of different job types")
     @Override
     public int getNumberOfDifferentJobTypes() {
-        return jobs.size();
+        return getJobs().size();
     }
 
     /**
@@ -249,7 +409,7 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
     public int getTotalNumberOfRunningWorkers() {
         int total = 0;
 
-        for (final JobTypeStatusBean jobTypeStatusBean : jobs.values()) {
+        for (final JobTypeStatusBean jobTypeStatusBean : getJobs().values()) {
             total += jobTypeStatusBean.getRunningWorker();
         }
 
@@ -279,7 +439,7 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
             return false;
         }
 
-        final QuartzJobInfoBean lastQuartzJobInfoBean = jobTypeStatusBean.getLastQuartzJobInfoBean();
+        final QuartzJobInfoBean lastQuartzJobInfoBean = jobTypeStatusBean.getQuartzJobInfoBean();
 
         if (lastQuartzJobInfoBean == null) {
             LOG.info("lastQuartzJobInfoBean not found for job " + jobName + ", job can not be triggered");
@@ -319,28 +479,55 @@ public class JobsStatusBean implements JobsStatusMBean, Serializable {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append("JobsStatusBean [jobs=");
-        builder.append(jobs);
+        builder.append(getJobs());
         builder.append(", operationMode=");
         builder.append(operationMode);
         builder.append("]");
         return builder.toString();
     }
 
-    public List<JobGroupConfig> getJobGroups() {
-        return Lists.newArrayList();
-// return Lists.newArrayList(new JobGroupConfig("docDataJobs", true, Sets.newHashSet("123")),
+    private Set<JobGroupConfig> getJobGroupConfigs() {
+        final Set<JobGroupConfig> set = new TreeSet<JobGroupConfig>(new Comparator<JobGroupConfig>() {
+                    @Override
+                    public int compare(final JobGroupConfig o1, final JobGroupConfig o2) {
+                        if (o1 == null && o2 == null) {
+                            return 0;
+                        }
 
-// new JobGroupConfig("partnerJobs", true, Sets.newHashSet("345")));
+                        if (o1 == null && o2 != null) {
+                            return 1;
+                        }
+
+                        if (o1 != null && o2 == null) {
+                            return -1;
+                        }
+
+                        return o1.getJobGroupName().compareTo(o2.getJobGroupName());
+                    }
+                });
+
+        for (final JobTypeStatusBean jobTypeStatusBean : getJobs().values()) {
+            final JobGroupConfig jobGroupConfig = jobTypeStatusBean.getJobConfig().getJobGroupConfig();
+            set.add(jobGroupConfig);
+        }
+
+        return set;
     }
 
-    public List<JobTypeStatusBean> getJobTypeStatusBeansForGroup(final String jobGroupName) {
-        return Lists.newArrayList(Iterables.filter(getJobTypeStatusBeans(), new Predicate<JobTypeStatusBean>() {
+    public boolean isJobGroupDisabled(final String groupName) {
+        return groups.get(groupName).isDisabled();
+    }
+
+    public List<JobTypeStatusBean> getJobTypeStatusBeansForGroup(final String jobGroupName,
+            final boolean filterByAppInstanceKey) {
+        return Lists.newArrayList(Iterables.filter(getJobTypeStatusBeans(filterByAppInstanceKey),
+                    new Predicate<JobTypeStatusBean>() {
                         @Override
                         public boolean apply(final JobTypeStatusBean input) {
                             if (StringUtils.isEmpty(jobGroupName)) {
 
                                 // filter this one if getJobGroupConfig() != null
-                                return input.getJobConfig().getJobGroupConfig() != null;
+                                return input.getJobConfig().getJobGroupName().equals(JobGroupConfig.DEFAULT_GROUP_NAME);
                             }
 
                             if (input.getJobConfig().getJobGroupConfig() == null) {

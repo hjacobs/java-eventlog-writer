@@ -1,13 +1,18 @@
 package de.zalando.zomcat.jobs;
 
+import java.io.Serializable;
+
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  * static view implementation of {@link RunningWorker RunningWorker}.
  *
  * @author  fbrick
  */
-public class RunningWorkerBean implements RunningWorker {
+public class RunningWorkerBean implements RunningWorker, Serializable {
+    private static final long serialVersionUID = -769687955271659257L;
 
     private final int id;
     private final DateTime startTime;
@@ -16,40 +21,43 @@ public class RunningWorkerBean implements RunningWorker {
     private final Integer totalNumberOfItemsToBeProcessed;
     private final String description;
     private final JobConfig jobConfig;
-    private String jobHistoryId = null;
+    private String flowId = null;
+    protected Long threadCPUNanoSeconds;
 
     public RunningWorkerBean(final RunningWorker runningWorker) {
-        this(runningWorker.getJobConfig(), runningWorker.getJobHistoryId(), runningWorker.getId(),
+        this(runningWorker.getJobConfig(), runningWorker.getFlowId(), runningWorker.getId(),
             runningWorker.getStartTime(), runningWorker.getActualProcessedItemNumber(),
-            runningWorker.getTotalNumberOfItemsToBeProcessed(), runningWorker.getInternalStartTime());
+            runningWorker.getTotalNumberOfItemsToBeProcessed(), runningWorker.getInternalStartTime(),
+            runningWorker.getDescription(), runningWorker.getThreadCPUNanoSeconds());
     }
 
-    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime) {
         this(jobConfig, jobHistoryId, id, startTime, null, null);
     }
 
-    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime, final Integer totalNumberOfItemsToBeProcessed) {
         this(jobConfig, jobHistoryId, id, startTime, null, totalNumberOfItemsToBeProcessed);
     }
 
-    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime, final Integer actualProcessedItemNumber,
             final Integer totalNumberOfItemsToBeProcessed) {
         this(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed, null);
     }
 
-    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime, final Integer actualProcessedItemNumber,
             final Integer totalNumberOfItemsToBeProcessed, final DateTime internalStartTime) {
         this(jobConfig, jobHistoryId, id, startTime, actualProcessedItemNumber, totalNumberOfItemsToBeProcessed,
-            internalStartTime, null);
+            internalStartTime, null, null);
     }
 
-    public RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
+    protected RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime, final Integer actualProcessedItemNumber,
-            final Integer totalNumberOfItemsToBeProcessed, final DateTime internalStartTime, final String description) {
+            final Integer totalNumberOfItemsToBeProcessed, final DateTime internalStartTime, final String description,
+            final Long threadCPUNanoSeconds) {
         super();
 
         this.id = id;
@@ -58,8 +66,9 @@ public class RunningWorkerBean implements RunningWorker {
         this.totalNumberOfItemsToBeProcessed = totalNumberOfItemsToBeProcessed;
         this.internalStartTime = internalStartTime;
         this.description = description;
-        this.jobHistoryId = jobHistoryId;
+        this.flowId = jobHistoryId;
         this.jobConfig = jobConfig;
+        this.threadCPUNanoSeconds = threadCPUNanoSeconds;
     }
 
     /**
@@ -76,6 +85,15 @@ public class RunningWorkerBean implements RunningWorker {
     @Override
     public DateTime getStartTime() {
         return startTime;
+    }
+
+    protected static final DateTimeFormatter DTF = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS");
+
+    /**
+     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getStartTime()
+     */
+    public String getStartTimeFormatted() {
+        return DTF.print(startTime);
     }
 
     /**
@@ -114,25 +132,32 @@ public class RunningWorkerBean implements RunningWorker {
      * {@inheritDoc}
      */
     @Override
-    public String getJobHistoryId() {
-        if (jobHistoryId == null) {
+    public String getFlowId() {
+        if (flowId == null) {
             return String.valueOf(id);
         }
 
-        return jobHistoryId;
+        return flowId;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setJobHistoryId(final String jobHistoryId) {
-        this.jobHistoryId = jobHistoryId;
+    public void setFlowId(final String flowId) {
+        this.flowId = flowId;
     }
 
-    /**
-     * @see  java.lang.Object#toString()
-     */
+    @Override
+    public Long getThreadCPUNanoSeconds() {
+        return threadCPUNanoSeconds;
+    }
+
+    @Override
+    public JobConfig getJobConfig() {
+        return jobConfig;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -148,14 +173,13 @@ public class RunningWorkerBean implements RunningWorker {
         builder.append(totalNumberOfItemsToBeProcessed);
         builder.append(", description=");
         builder.append(description);
+        builder.append(", jobConfig=");
+        builder.append(jobConfig);
         builder.append(", jobHistoryId=");
-        builder.append(jobHistoryId);
+        builder.append(flowId);
+        builder.append(", threadCPUNanoSeconds=");
+        builder.append(threadCPUNanoSeconds);
         builder.append("]");
         return builder.toString();
-    }
-
-    @Override
-    public JobConfig getJobConfig() {
-        return jobConfig;
     }
 }

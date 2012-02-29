@@ -64,4 +64,20 @@ public interface JobsStatusMBean {
      * @return  if successful or not
      */
     boolean triggerJob(String jobName);
+
+    /**
+     * get the group type status beans.
+     *
+     * @return
+     */
+    List<JobGroupTypeStatusBean> getJobGroupTypeStatusBeans();
+
+    /**
+     * Toggle a job group.
+     *
+     * @param   groupName  The group name to toggle
+     *
+     * @return  if successful or not
+     */
+    Boolean toggleJobGroup(String groupName);
 }

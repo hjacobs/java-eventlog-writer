@@ -57,7 +57,7 @@ public class JobHistoryListener implements JobListener, ComponentBean {
                         + flowId);
             }
 
-            runningWorker.setJobHistoryId(flowId);
+            runningWorker.setFlowId(flowId);
             DB_LOG.trace("0," + flowId + "," + jobName + "," + appInstanceKey + "," + startTime + ",");
         } catch (final Throwable e) {
 
@@ -73,12 +73,12 @@ public class JobHistoryListener implements JobListener, ComponentBean {
 
         // store the stop time for the job and/or any exceptions
         try {
-            DB_LOG.trace("1," + runningWorker.getJobHistoryId() + ",,,," + new DateTime(), t);
+            DB_LOG.trace("1," + runningWorker.getFlowId() + ",,,," + new DateTime(), t);
         } catch (final Throwable e) {
 
             // make sure to catch everything so that the jobs are not
             // interrupted:
-            LOG.fatal("Could not update a job history entry: " + runningWorker.getJobHistoryId() + ", runningWorkerId: "
+            LOG.fatal("Could not update a job history entry: " + runningWorker.getFlowId() + ", runningWorkerId: "
                     + runningWorker.getId(), e);
         }
     }

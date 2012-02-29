@@ -1,5 +1,7 @@
 package de.zalando.zomcat.jobs;
 
+import java.io.Serializable;
+
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -10,7 +12,8 @@ import com.google.common.collect.ImmutableSet;
  *
  * @author  bod
  */
-public class JobConfig {
+public class JobConfig implements Serializable {
+    private static final long serialVersionUID = 1379125313822695827L;
 
     /**
      * Asterisk * indicating that all AppInstanceKeys are allowed to execute the respectively current job.
@@ -126,6 +129,19 @@ public class JobConfig {
      */
     public JobGroupConfig getJobGroupConfig() {
         return jobGroupConfig;
+    }
+
+    /**
+     * Getter for JobGroupConfig associated with Instance of this class.
+     *
+     * @return  The {@link JobGroupConfig} instance if there is any otherwise return null
+     */
+    public String getJobGroupName() {
+        if (jobGroupConfig != null) {
+            return jobGroupConfig.getJobGroupName();
+        }
+
+        return JobGroupConfig.DEFAULT_GROUP_NAME;
     }
 
     @Override

@@ -49,7 +49,7 @@ public interface RunningWorker {
      *
      * @return  the JobHistoryId assigned to this running job
      */
-    String getJobHistoryId();
+    String getFlowId();
 
     /**
      * Retrieve the jobHistoryId assigned to this running job.
@@ -63,5 +63,12 @@ public interface RunningWorker {
      *
      * @param  historyId  the jobHistoryId assigned to this running job
      */
-    void setJobHistoryId(String historyId);
+    void setFlowId(String historyId);
+
+    /**
+     * Get the CPU nano seconds when the job has finished.
+     *
+     * @return
+     */
+    Long getThreadCPUNanoSeconds();
 }

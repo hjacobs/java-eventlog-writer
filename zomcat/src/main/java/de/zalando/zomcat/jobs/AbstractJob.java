@@ -80,15 +80,15 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     @Override
     protected final void executeInternal(final JobExecutionContext context) {
 
+        // register all listeners (if not already done)
+        registerListener();
+
         // no job should be allowed without description
         Preconditions.checkArgument(!isNullOrEmpty(getDescription()),
             "Aborting Job: no description for job defined: " + getBeanName());
 
         final JobConfig config = getJobConfig();
         if (shouldRun(config)) {
-
-            // register all listeners (if not already done)
-            doRegisterListener();
 
             // notify about start running this job
             notifyStartRunning(context);
@@ -163,7 +163,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      * {@inheritDoc}
      */
     @Override
-    public String getJobHistoryId() {
+    public String getFlowId() {
         if (jobHistoryId == null) {
             return String.valueOf(id);
         }
@@ -175,7 +175,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      * {@inheritDoc}
      */
     @Override
-    public void setJobHistoryId(final String jobHistoryId) {
+    public void setFlowId(final String jobHistoryId) {
         this.jobHistoryId = jobHistoryId;
     }
 
@@ -242,6 +242,15 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         }
     }
 
+    protected boolean isJobGroupDisabled() {
+        final JobGroupTypeStatusBean statusBean = getJobsStatusBean().getJobGroupTypeStatusBean(getJobConfig());
+        if (statusBean == null) {
+            return false;
+        } else {
+            return statusBean.isDisabled();
+        }
+    }
+
     /**
      * This method decides, whether the job should run or not. The default implementation only checks that the current
      * appInstanceKey is in the list of allowed appInstanceKeys.
@@ -267,6 +276,14 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
             // get the correct logger and debug
             log(Level.INFO, "job is disabled and will not start", null);
+            return false;
+        }
+
+        // check for disabled job group by mbean
+        if (isJobGroupDisabled()) {
+
+            // get the correct logger and debug
+            log(Level.INFO, "job group is disabled and will not start", null);
             return false;
         }
 
@@ -326,17 +343,6 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         return jobsStatusBean;
     }
 
-    /**
-     * call the registerListener operation (once).
-     */
-    private void doRegisterListener() {
-
-        // if there are already listeners registered, ignore the call
-        if (jobListeners.isEmpty()) {
-            registerListener();
-        }
-    }
-
     private void log(final Priority priority, final String message, final Throwable throwable) {
         Logger.getLogger(getClass()).log(priority, message, throwable);
     }
@@ -362,6 +368,11 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         return className.substring(0, 1).toLowerCase() + className.substring(1);
     }
 
+    @Override
+    public Long getThreadCPUNanoSeconds() {
+        return stopWatchListener.getThreadCPUNanoSeconds();
+    }
+
     /**
      * Inner {@link JobListener} implementation for notifying the JobsStatusBean about the start/stop of the current
      * {@link RunningWorker}.
@@ -373,7 +384,9 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         @Override
         public void startRunning(final RunningWorker runningWorker, final JobExecutionContext context,
                 final String host) {
-            QuartzJobInfoBean quartzJobInfoBean = null;
+            final JobsStatusBean jobsStatusBean = getJobsStatusBean();
+            QuartzJobInfoBean quartzJobInfoBean = jobsStatusBean.getJobTypeStatusBean(runningWorker.getClass())
+                                                                .getQuartzJobInfoBean();
 
             try {
                 final JobDataMap mergedJobDataMap = context.getMergedJobDataMap();
@@ -382,9 +395,11 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
                 // supported yet
                 // => don't fill quartzJobInfoBean so it can not be triggered
                 // instantly later
-                if ((mergedJobDataMap == null) || mergedJobDataMap.isEmpty()) {
+                if (quartzJobInfoBean == null) {
                     quartzJobInfoBean = new QuartzJobInfoBean(context.getScheduler().getSchedulerName(),
-                            context.getJobDetail().getName(), context.getJobDetail().getGroup());
+                            context.getJobDetail().getName(), context.getJobDetail().getGroup(), mergedJobDataMap);
+                } else {
+                    quartzJobInfoBean.setJobDataMap(mergedJobDataMap);
                 }
             } catch (final Exception e) {
                 LOG.error("failed to create quartz job info, perhaps it can not be triggered again manually", e);

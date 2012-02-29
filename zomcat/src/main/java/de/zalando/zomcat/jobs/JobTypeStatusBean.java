@@ -1,7 +1,5 @@
 package de.zalando.zomcat.jobs;
 
-import java.io.Serializable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,11 +23,9 @@ import de.zalando.zomcat.util.LinkedBoundedQueue;
  *
  * @author  fbrick
  */
-public class JobTypeStatusBean implements Serializable {
+public class JobTypeStatusBean {
 
     private static final int MAX_HISTORY_ENTRIES = 50;
-
-    private static final long serialVersionUID = 8213388654864057328L;
 
     private static final Logger LOG = Logger.getLogger(JobTypeStatusBean.class);
 
@@ -51,10 +47,12 @@ public class JobTypeStatusBean implements Serializable {
     // the last QuartzJobInfoBean, to trigger it again
     private QuartzJobInfoBean lastQuartzJobInfoBean = null;
 
-    public JobTypeStatusBean(final Class<?> jobClass, final String description, final JobConfig jobConfig) {
+    public JobTypeStatusBean(final Class<?> jobClass, final String description, final JobConfig jobConfig,
+            final QuartzJobInfoBean lastQuartzJobInfoBean) {
         this.jobClass = jobClass;
         this.description = description;
         this.jobConfig = jobConfig;
+        this.lastQuartzJobInfoBean = lastQuartzJobInfoBean;
     }
 
     /**
@@ -85,7 +83,8 @@ public class JobTypeStatusBean implements Serializable {
             final QuartzJobInfoBean lastQuartzJobInfoBean) {
         final RunningWorker existingRunningWorker = id2RunningWorker.get(runningWorker.getId());
 
-        // check if found, otherwise there would be something very strange in system. This should not happen!
+        // check if found, otherwise there would be something very strange in
+        // system. This should not happen!
         if (existingRunningWorker != null) {
             final String message = "failed to add running worker with id = " + runningWorker.getId() + ", class = "
                     + runningWorker.getClass() + ", hashCode = " + runningWorker.hashCode()
@@ -147,6 +146,10 @@ public class JobTypeStatusBean implements Serializable {
         return list;
     }
 
+    public void addFinishedWorkerBean(final FinishedWorkerBean finishedWorkerBean) {
+        history.add(finishedWorkerBean);
+    }
+
     /**
      * @return  the lastModified
      */
@@ -205,6 +208,10 @@ public class JobTypeStatusBean implements Serializable {
         this.disabled = disabled;
     }
 
+    public void toggleMode() {
+        disabled = !disabled;
+    }
+
     /**
      * @return  the runningWorkers as a copy of {@link RunningWorkerBean RunningWorkerBean}'s
      */
@@ -227,7 +234,7 @@ public class JobTypeStatusBean implements Serializable {
     /**
      * @return  the lastQuartzJobInfoBean the {@link QuartzJobInfoBean QuartzJobInfoBean} to trigger job again
      */
-    public QuartzJobInfoBean getLastQuartzJobInfoBean() {
+    public QuartzJobInfoBean getQuartzJobInfoBean() {
         return lastQuartzJobInfoBean;
     }
 }
