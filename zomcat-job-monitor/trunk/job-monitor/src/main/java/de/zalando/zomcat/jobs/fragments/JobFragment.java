@@ -1,5 +1,7 @@
 package de.zalando.zomcat.jobs.fragments;
 
+import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 
 import org.apache.wicket.MarkupContainer;
@@ -11,6 +13,7 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.PropertyModel;
 
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -19,19 +22,35 @@ import org.springframework.web.context.ContextLoader;
 
 import com.google.common.collect.Lists;
 
+import de.zalando.zomcat.OperationMode;
 import de.zalando.zomcat.jobs.FinishedWorkerBean;
 import de.zalando.zomcat.jobs.JobMonitorPage;
 import de.zalando.zomcat.jobs.JobTypeStatusBean;
+import de.zalando.zomcat.jobs.JobsStatusBean;
 import de.zalando.zomcat.jobs.QuartzJobInfoBean;
 import de.zalando.zomcat.jobs.RunningWorker;
 import de.zalando.zomcat.jobs.model.JobMonitorForm;
 import de.zalando.zomcat.jobs.model.JobRow;
 
 public class JobFragment extends BaseFragment {
+
     private static final Logger LOG = Logger.getLogger(JobFragment.class);
 
-    private static final String FLOWID_BASE_URL = "http://flowid.zalando.net/search/";
+    private static final String FLOWID_BASE_URL = "http://flowid.zalando.net/zfg/flowid/";
     private static final long serialVersionUID = 1L;
+
+    protected class TriggerBean implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private final boolean enabled;
+
+        public TriggerBean(final boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getTriggerLabel() {
+            return enabled == true ? "Trigger" : "Disabled";
+        }
+    }
 
     public JobFragment(final MarkupContainer markupProvider, final Item<JobRow> item, final JobMonitorForm formModel) {
         super("placeholderForJob", item.getModelObject().isHistory() ? "jobHistory" : "simpleJob", markupProvider);
@@ -51,7 +70,14 @@ public class JobFragment extends BaseFragment {
             flowIdLink.add(new Label("flowId", finishedWorkerBean.getFlowId()));
             add(flowIdLink);
         } else {
+            final JobMonitorPage jobMonitorPage = (JobMonitorPage) markupProvider.getPage();
+            final JobsStatusBean jobStatusBean = jobMonitorPage.getJobsStatusBean();
+            final JobTypeStatusBean jobTypeStatusBean = jobStatusBean.getJobTypeStatusBean(jobRow.getJobClass());
+            final boolean enabled = jobStatusBean.getOperationModeAsEnum() == OperationMode.NORMAL;
+
             add(new Check<JobRow>("checkbox", item.getModel()));
+
+            final TriggerBean triggerBean = new TriggerBean(enabled);
             add(new AjaxLink<JobMonitorPage>("trigger") {
                     private static final long serialVersionUID = 1L;
 
@@ -78,16 +104,15 @@ public class JobFragment extends BaseFragment {
 
                     @Override
                     public boolean isEnabled() {
-                        return super.isEnabled()
-                                && getJobMonitorPage().getJobTypeStatusBean(jobRow.getJobClass()).getQuartzJobInfoBean() != null;
+                        final JobsStatusBean jobsStatusBean = getJobMonitorPage().getJobsStatusBean();
+
+                        return super.isEnabled() && jobsStatusBean.getOperationModeAsEnum() == OperationMode.NORMAL
+                                && jobsStatusBean.getJobTypeStatusBean(jobRow.getJobClass()).getQuartzJobInfoBean() != null;
                     }
 
-                });
+                }.add(new Label("triggerLabel", new PropertyModel<String>(triggerBean, "triggerLabel"))));
 
-            final JobMonitorPage jobMonitorPage = (JobMonitorPage) markupProvider.getPage();
-
-            final JobTypeStatusBean jobTypeStatusBean = jobMonitorPage.getJobTypeStatusBean(jobRow.getJobClass());
-            add(new JobModeFragment(this, jobTypeStatusBean));
+            add(new JobModeFragment(this, jobTypeStatusBean, enabled));
 
             add(new Label("name", jobTypeStatusBean.getJobClass().getSimpleName()));
             add(new Label("description", jobTypeStatusBean.getDescription()));

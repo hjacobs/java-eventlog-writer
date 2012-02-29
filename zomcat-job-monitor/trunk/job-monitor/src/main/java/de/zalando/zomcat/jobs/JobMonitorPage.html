@@ -14,9 +14,16 @@
         <wicket:fragment wicket:id="operationModeNormal"><strong class="normal">Normal</strong>/<a class="maintenance" href="#" wicket:id="operationModeToggle">Maintenance</a></wicket:fragment>
         <wicket:fragment wicket:id="operationModeMaintenance"><a class="normal" href="#" wicket:id="operationModeToggle">Normal</a>/<strong class="maintenance">Maintenance</strong></wicket:fragment>
 
+        <p class="hint">In <i>NORMAL</i> mode the jobs are running normally. In <i>MAINTENANCE</i> the jobs are running OUT and will NOT START AGAIN! After restart/redeploy of tomcat they are back to <i>NORMAL</i> mode. If you do not restart/redeploy tomcat, then DO NOT FORGET TO SWITCH BACK!</p>
+
         <div class="hearbeatMode">Hearbeat mode: <span wicket:id="placeholderForHeartbeatMode">[content will go here]</span></div>
         <wicket:fragment wicket:id="hearbeatModeOk"><strong class="ok">OK</strong>/<a class="deploy" href="#" wicket:id="hearbeatModeToggle">DEPLOY</a></wicket:fragment>
         <wicket:fragment wicket:id="hearbeatModeDeploy"><a class="ok" href="#" wicket:id="hearbeatModeToggle">OK</a>/<strong class="deploy">DEPLOY</strong></wicket:fragment>
+
+        <p class="hint">In <i>OK</i> mode the /heartbeat.jsp the loadbalancer needs for checks sends back <i>OK: Zalando JVM is running</i>. In <i>DEPLOY</i> the /heartbeat.jsp sends back <i>Deploy: Zalando JVM is in Updateprocess</i>.
+            Then the loadbalancer removes the tomcat after latest 20 seconds!
+            After restart/redeploy of tomcat they are back to <i>OK</i> mode. If you do not restart/redeploy tomcat, then DO NOT FORGET TO SWITCH BACK!
+        </p>
 
         <form wicket:id="form">
             <div wicket:id="group">
@@ -56,7 +63,7 @@
                                         <wicket:container wicket:id="placeholderForJob">[content will go here]</wicket:container>
                                         <wicket:fragment wicket:id="simpleJob">
                                             <td class="checkbox"><input type="checkbox" wicket:id="checkbox"/></td>
-                                            <td class="trigger"><a href="#" wicket:id="trigger">Trigger</a></td>
+                                            <td class="trigger"><a href="#" wicket:id="trigger"><wicket:container wicket:id="triggerLabel" /></a></td>
                                             <td class="jobEnabled" wicket:id="placeholderForJobEnabled">[content will go here]</td>
                                             <td class="name" wicket:id="name">ProcessIncomingDocdataFile</td>
                                             <td class="description" wicket:id="description">Full update</td>
@@ -72,6 +79,8 @@
                                             </td>
                                             <wicket:fragment wicket:id="jobEnabled"><strong class="enabled">Running</strong>/<a class="disabled" href="#" wicket:id="jobToggle">Paused</a></wicket:fragment>
                                             <wicket:fragment wicket:id="jobDisabled"><a class="enabled" href="#" wicket:id="jobToggle">Running</a>/<strong class="disabled">Paused</strong></wicket:fragment>
+                                            <wicket:fragment wicket:id="jobEnabledRowDisabled"><em class="enabled">Running</em>/<em class="disabled2">Paused</em></wicket:fragment>
+                                            <wicket:fragment wicket:id="jobDisabledRowDisabled"><em class="enabled2">Running</em>/<em class="disabled">Paused</em></wicket:fragment>
                                             <wicket:fragment wicket:id="historyEnabled"><a href="#" wicket:id="historyToggle">-</a></wicket:fragment>
                                             <wicket:fragment wicket:id="historyDisabled"><a href="#" wicket:id="historyToggle">+</a></wicket:fragment>
                                          </wicket:fragment>
@@ -92,5 +101,19 @@
                 </div>
             </div>
         </form>
+        <h3>Legend:</h3>
+        <ul>
+            <li id="info_class">name: name of Job</li>
+            <li id="info_running_workers">worker: Anzahl der momentan laufenden Jobs</li>
+            <li id="info_last_modified">last modified:  Zeitpunkt der letzten Änderung. Bei noch laufenden Jobs ist das entweder der letzte Start- oder Finish-Zeit eines Jobs.</li>
+            <li id="info_worker_id">worker id: Die global eindeutige von Zalando vergebene workerId</li>
+            <li id="info_start_time">startTime: Der Zeitpunkt wo der Job erzeugt wurde.  Es kann sein, dass er noch längere Zeit auf die Ausführung warten muss,  wenn die Ausführung synchronisiert ist. Die genaue Start-Zeit ist die internalStartTime.</li>
+            <li id="info_internal_start_time">internalStartTime: Die interne Start-Zeit des Jobs.  Hier wird er wirklich ausgeführt im Gegensatz zur startTime, wo der Jobs nur erzeugt wurde.</li>
+            <li id="info_activate_status">running/paused:  Flag ob dieser spezielle Job aktiv läuft oder nicht. Selbst wenn der Job per Hand getriggert wird, wird er nicht aktiv ausgeführt.</li>
+            <li id="info_trigger">trigger: Hier kann man den Job aktiv per Hand triggern.</li>
+            <li id="info_plus">+: Hier kann man die letzten 50 Jobläufe einsehen.</li>
+            <li id="info_hosts">hosts: Die liste der Hosts auf denen der Job ausgeführt wird. Ist der Job nicht für die aktuelle Instanz konfiguriert, erscheint er nicht in der Liste.</li>
+            <li id="info_hosts">BS: 'Bulk Size' - hier steht die in der Konfiguration hinterlegte Prozessgröße für jeden Aufruf.</li>
+        </ul>
     </body>
 </html>

@@ -19,6 +19,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import de.zalando.zomcat.HeartbeatMode;
+import de.zalando.zomcat.OperationMode;
 import de.zalando.zomcat.jobs.fragments.HeartbeatModeFragment;
 import de.zalando.zomcat.jobs.fragments.JobFragment;
 import de.zalando.zomcat.jobs.fragments.JobGroupModeFragment;
@@ -41,8 +43,11 @@ public class JobMonitorPage extends WebPage {
     private HeartbeatStatusBean heartbeatStatusBean;
 
     public JobMonitorPage() {
-        add(new OperationModeFragment(this, getJobsStatusBean()));
-        add(new HeartbeatModeFragment(this, getHeartbeatStatusBean()));
+        final boolean enabled = getJobsStatusBean().getOperationModeAsEnum() == OperationMode.NORMAL;
+        add(new OperationModeFragment(this, enabled));
+
+        final boolean ok = heartbeatStatusBean.getHeartbeatModeAsEnum() == HeartbeatMode.OK;
+        add(new HeartbeatModeFragment(this, ok));
 
         final Form<JobMonitorForm> form = new Form<JobMonitorForm>("form",
                 new CompoundPropertyModel<JobMonitorForm>(new JobMonitorForm())) {

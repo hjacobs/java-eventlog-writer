@@ -12,28 +12,33 @@ public class JobModeFragment extends BaseFragment {
 
     private final Class<?> jobClass;
 
-    public JobModeFragment(final MarkupContainer markupProvider, final JobTypeStatusBean jobTypeStatusBean) {
-        super("placeholderForJobEnabled", jobTypeStatusBean.isDisabled() ? "jobDisabled" : "jobEnabled",
+    public JobModeFragment(final MarkupContainer markupProvider, final JobTypeStatusBean jobTypeStatusBean,
+            final boolean enabled) {
+        super("placeholderForJobEnabled",
+            enabled ? (jobTypeStatusBean.isDisabled() ? "jobDisabled" : "jobEnabled")
+                    : (jobTypeStatusBean.isDisabled() ? "jobDisabledRowDisabled" : "jobEnabledRowDisabled"),
             markupProvider);
 
         jobClass = jobTypeStatusBean.getJobClass();
 
         setOutputMarkupPlaceholderTag(true);
+        if (enabled) {
+            final AjaxLink<JobMonitorPage> jobGroupModeToggleLink = new AjaxLink<JobMonitorPage>("jobToggle") {
+                private static final long serialVersionUID = 1L;
 
-        final AjaxLink<JobMonitorPage> jobGroupModeToggleLink = new AjaxLink<JobMonitorPage>("jobToggle") {
-            private static final long serialVersionUID = 1L;
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    final JobTypeStatusBean jobTypeStatusBean = getJobMonitorPage().getJobTypeStatusBean(jobClass);
+                    jobTypeStatusBean.toggleMode();
 
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                final JobTypeStatusBean jobTypeStatusBean = getJobMonitorPage().getJobTypeStatusBean(jobClass);
-                jobTypeStatusBean.toggleMode();
+                    final JobModeFragment toggledFragment = new JobModeFragment(markupProvider, jobTypeStatusBean,
+                            enabled);
+                    JobModeFragment.this.replaceWith(toggledFragment);
+                    target.add(toggledFragment);
+                }
+            };
 
-                final JobModeFragment toggledFragment = new JobModeFragment(markupProvider, jobTypeStatusBean);
-                JobModeFragment.this.replaceWith(toggledFragment);
-                target.add(toggledFragment);
-            }
-        };
-
-        add(jobGroupModeToggleLink);
+            add(jobGroupModeToggleLink);
+        }
     }
 }

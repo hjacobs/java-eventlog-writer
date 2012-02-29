@@ -20,7 +20,8 @@ public class HistoryModeFragment extends BaseFragment {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 formModel.toggleShowHistory(jobRow.getJobClass());
-                target.add(markupProvider.getParent().getParent().getParent().getParent().getParent());
+// target.add(markupProvider.getParent().getParent().getParent().getParent().getParent());
+                target.add(getPage().get("form:group:listContainer"));
             }
         };
 

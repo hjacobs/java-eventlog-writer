@@ -11,10 +11,8 @@ import de.zalando.zomcat.jobs.JobsStatusBean;
 public class OperationModeFragment extends BaseFragment {
     private static final long serialVersionUID = 1L;
 
-    public OperationModeFragment(final MarkupContainer markupProvider, final JobsStatusBean jobsStatusBean) {
-        super("placeholderForOperationMode",
-            jobsStatusBean.getOperationModeAsEnum() == OperationMode.NORMAL ? "operationModeNormal"
-                                                                            : "operationModeMaintenance",
+    public OperationModeFragment(final MarkupContainer markupProvider, final boolean enabled) {
+        super("placeholderForOperationMode", enabled ? "operationModeNormal" : "operationModeMaintenance",
             markupProvider);
 
         setOutputMarkupPlaceholderTag(true);
@@ -27,9 +25,12 @@ public class OperationModeFragment extends BaseFragment {
                 final JobsStatusBean jobsStatusBean = getJobMonitorPage().getJobsStatusBean();
                 jobsStatusBean.toggleOperationMode();
 
-                final OperationModeFragment toggledFragment = new OperationModeFragment(getPage(), jobsStatusBean);
+                final boolean enabled = jobsStatusBean.getOperationModeAsEnum() == OperationMode.NORMAL;
+
+                final OperationModeFragment toggledFragment = new OperationModeFragment(markupProvider, enabled);
                 OperationModeFragment.this.replaceWith(toggledFragment);
                 target.add(toggledFragment);
+                target.add(markupProvider.getPage().get("form:group:listContainer"));
             }
         };
 

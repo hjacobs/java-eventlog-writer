@@ -11,10 +11,8 @@ import de.zalando.zomcat.monitoring.HeartbeatStatusBean;
 public class HeartbeatModeFragment extends BaseFragment {
     private static final long serialVersionUID = 1L;
 
-    public HeartbeatModeFragment(final MarkupContainer markupProvider, final HeartbeatStatusBean heartbeatStatusBean) {
-        super("placeholderForHeartbeatMode",
-            heartbeatStatusBean.getHeartbeatModeAsEnum() == HeartbeatMode.OK ? "hearbeatModeOk" : "hearbeatModeDeploy",
-            markupProvider);
+    public HeartbeatModeFragment(final MarkupContainer markupProvider, final boolean ok) {
+        super("placeholderForHeartbeatMode", ok ? "hearbeatModeOk" : "hearbeatModeDeploy", markupProvider);
 
         setOutputMarkupPlaceholderTag(true);
 
@@ -26,7 +24,9 @@ public class HeartbeatModeFragment extends BaseFragment {
                 final HeartbeatStatusBean heartbeatStatusBean = getJobMonitorPage().getHeartbeatStatusBean();
                 heartbeatStatusBean.toggleHeartbeatMode();
 
-                final HeartbeatModeFragment toggledFragment = new HeartbeatModeFragment(getPage(), heartbeatStatusBean);
+                final boolean ok = heartbeatStatusBean.getHeartbeatModeAsEnum() == HeartbeatMode.OK;
+
+                final HeartbeatModeFragment toggledFragment = new HeartbeatModeFragment(markupProvider, ok);
                 HeartbeatModeFragment.this.replaceWith(toggledFragment);
                 target.add(toggledFragment);
             }

@@ -36,24 +36,26 @@ a:hover {
     text-decoration: underline;
 }
 
-strong.normal, strong.ok, strong.enabled {
+strong.normal, strong.ok, strong.enabled, em.enabled {
     background-color: #99FF99;
     padding: 2px 8px;
 }
 
-strong.maintenance, strong.deploy, strong.disabled {
+strong.maintenance, strong.deploy, strong.disabled, em.disabled {
     background-color: #FF9999;
     padding: 2px 8px;
 }
 
+em.enabled2, em.disabled2 {
+    padding: 2px 8px;
+}
+
 a.normal, a.ok, a.enabled {
-#    background-color: #EEEEEE;
     color: #000000;
     padding: 2px 8px;
 }
 
 a.maintenance, a.deploy, a.disabled {
-#    background-color: #EEEEEE;
     color: #000000;
     padding: 2px 8px;
 }
