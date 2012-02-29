@@ -158,8 +158,8 @@ public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
             } catch (final Throwable e) {
                 LOG.error("Failed to process item [{}]", item.getItem(), e);
 
-                final String message = String.format("[%s] exception occured on processing item [%d]: %s",
-                        e.getClass().getName(), item.getItem(), Throwables.getStackTraceAsString(e));
+                final String message = e.getClass().getSimpleName() + " exception occured on processing item "
+                        + item.getItem() + ": " + Throwables.getStackTraceAsString(e);
 
                 item.addErrorMessage(message);
                 failedItems.add(item);
@@ -225,7 +225,7 @@ public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
                 final List<String> messages = getMessageList(violations);
                 response.addErrorMessages(messages);
                 failedItems.add(response);
-                LOG.warn(String.format("item [%d] failed validation [%s]", item, messages));
+                LOG.warn("item {} failed validation {}", item, messages);
             }
         }
 
