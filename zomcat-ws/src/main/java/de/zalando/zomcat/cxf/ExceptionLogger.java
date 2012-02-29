@@ -43,7 +43,7 @@ public class ExceptionLogger implements FaultListener {
         service = NAMESPACE_PATTERN.matcher(service).replaceAll("");
 
         LOG.error("Exception in " + service + " processing " + length + " bytes from " + from + ": "
-                + exception.getMessage(), exception);
+                + exception.getMessage(), exception.getCause() != null ? exception.getCause() : exception);
 
         // return false: do not log it somewhere else.
         return false;
