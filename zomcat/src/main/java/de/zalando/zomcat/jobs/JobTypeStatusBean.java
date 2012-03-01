@@ -100,11 +100,6 @@ public class JobTypeStatusBean {
 
         this.lastQuartzJobInfoBean = lastQuartzJobInfoBean;
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("added worker with id = " + runningWorker.getId() + ", lastQuartzJobInfoBean = "
-                    + lastQuartzJobInfoBean);
-        }
-
         lastModified = new DateTime();
     }
 
