@@ -27,6 +27,8 @@ public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBulkProcessingJob.class);
 
+    private static final String JOB_DATA_LIMIT_PARAMETER = "limit";
+
     private ItemFetcher<Item> fetcher;
     private ItemWriter<Item> writer;
     private ItemProcessor<Item> processor;
@@ -184,6 +186,10 @@ public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
         setUp();
         try {
             limit = getLimit(config);
+            if (limit == 0 && executionContext.getMergedJobDataMap().containsKey(JOB_DATA_LIMIT_PARAMETER)) {
+                limit = executionContext.getMergedJobDataMap().getIntValue(JOB_DATA_LIMIT_PARAMETER);
+            }
+
             process(limit);
         } catch (final Exception e) {
             LOG.error("Exception occured while processing with limit {}", limit, e);
