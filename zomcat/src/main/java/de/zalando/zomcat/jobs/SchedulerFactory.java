@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.SmartLifecycle;
 
+import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerBean;
 
@@ -73,43 +75,28 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
         return Long.valueOf(s);
     }
 
-    private Map<String, String> getJobData(final String[] cols) {
+    private Map<String, String> getJobData(final String[] cols, final int startCol) {
         Map<String, String> map = Maps.newHashMap();
-        for (int i = 5; i < cols.length; i++) {
+        for (int i = startCol; i < cols.length; i++) {
             String[] keyValue = cols[i].split("=");
+            Preconditions.checkElementIndex(1, keyValue.length, "invalid key=value pair in job data");
             map.put(keyValue[0], keyValue[1]);
         }
 
         return map;
     }
 
-    private void createSimpleScheduler(final String[] cols) throws Exception {
-        Preconditions.checkArgument(cols.length >= 5, "too few columns");
-        Preconditions.checkArgument("after".equals(cols[2]), "3rd column must contain the word 'after'");
+    private String lowerCaseFirst(final String s) {
+        return s.substring(0, 1).toLowerCase() + s.substring(1);
+    }
 
-        AutowireCapableBeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
-
-        final String className = cols[4];
-        final Class clazz = Class.forName(className);
-        final String name = clazz.getSimpleName().substring(0, 1).toLowerCase() + clazz.getSimpleName().substring(1);
-        final String repeatInterval = cols[1];
-        final String startDelay = cols[3];
-
-        Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
-
+    private SchedulerFactoryBean createSchedulerFactoryBean(final AutowireCapableBeanFactory beanFactory,
+            final String name, final Trigger trigger) {
         final DiscardingThreadPoolTaskExecutor taskExecutor = new DiscardingThreadPoolTaskExecutor();
         taskExecutor.setCorePoolSize(1);
         taskExecutor.setMaxPoolSize(1);
         taskExecutor.setQueueCapacity(0);
         beanFactory.initializeBean(taskExecutor, name + "Executor");
-
-        final SimpleTriggerBean trigger = new SimpleTriggerBean();
-        trigger.setRepeatInterval(getMillis(repeatInterval));
-        trigger.setStartDelay(getMillis(startDelay));
-        trigger.setJobDetail(new JobDetail(name, clazz));
-        trigger.setJobDataAsMap(getJobData(cols));
-        trigger.setName(name + "Trigger");
-        beanFactory.initializeBean(trigger, name + "Trigger");
 
         final SchedulerFactoryBean factory = new SchedulerFactoryBean();
         factory.setTaskExecutor(taskExecutor);
@@ -117,15 +104,82 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
         factory.setApplicationContext(applicationContext);
         factory.setApplicationContextSchedulerContextKey("applicationContext");
         beanFactory.initializeBean(factory, name + "Factory");
+        return factory;
+    }
+
+    /**
+     * format: every INTERVAL after DELAY CLASS JOB_DATA
+     *
+     * @param   cols
+     *
+     * @throws  Exception
+     */
+    private void createSimpleScheduler(final String[] cols) throws Exception {
+        Preconditions.checkArgument(cols.length >= 5, "too few columns");
+        Preconditions.checkArgument("after".equals(cols[2]), "3rd column must contain the word 'after'");
+
+        final AutowireCapableBeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
+
+        final String className = cols[4];
+        final Class clazz = Class.forName(className);
+        final String name = lowerCaseFirst(clazz.getSimpleName());
+        final String repeatInterval = cols[1];
+        final String startDelay = cols[3];
+
+        Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
+
+        final SimpleTriggerBean trigger = new SimpleTriggerBean();
+        trigger.setRepeatInterval(getMillis(repeatInterval));
+        trigger.setStartDelay(getMillis(startDelay));
+        trigger.setJobDetail(new JobDetail(name, clazz));
+        trigger.setJobDataAsMap(getJobData(cols, 5));
+        trigger.setName(name + "Trigger");
+        beanFactory.initializeBean(trigger, name + "Trigger");
+
+        final SchedulerFactoryBean factory = createSchedulerFactoryBean(beanFactory, name, trigger);
         schedulers.add(factory);
 
         LOG.info("Configured {} to run every {} with start delay {}", new Object[] {name, repeatInterval, startDelay});
 
     }
 
+    /**
+     * format: cron SEC MIN HOUR DOM MON DOW CLASS JOB_DATA
+     *
+     * @param   cols
+     *
+     * @throws  Exception
+     */
+    private void createCronScheduler(final String[] cols) throws Exception {
+        Preconditions.checkArgument(cols.length >= 9, "too few columns");
+
+        final AutowireCapableBeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
+
+        final String className = cols[7];
+        final Class clazz = Class.forName(className);
+        final String name = lowerCaseFirst(clazz.getSimpleName());
+        final String cronExpression = StringUtils.join(Arrays.copyOfRange(cols, 1, 7), " ");
+
+        Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
+
+        final CronTriggerBean trigger = new CronTriggerBean();
+        trigger.setCronExpression(cronExpression);
+        trigger.setJobDetail(new JobDetail(name, clazz));
+        trigger.setJobDataAsMap(getJobData(cols, 8));
+        trigger.setName(name + "Trigger");
+        beanFactory.initializeBean(trigger, name + "Trigger");
+
+        final SchedulerFactoryBean factory = createSchedulerFactoryBean(beanFactory, name, trigger);
+        schedulers.add(factory);
+
+        LOG.info("Configured {} to run at {}", new Object[] {name, cronExpression});
+    }
+
     private void createScheduler(final String[] cols) throws Exception {
         if ("every".equals(cols[0])) {
             createSimpleScheduler(cols);
+        } else if ("cron".equals(cols[0])) {
+            createCronScheduler(cols);
         } else {
             throw new IllegalArgumentException("Unsupported scheduler type: " + cols[0]);
         }
