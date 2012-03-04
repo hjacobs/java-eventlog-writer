@@ -15,7 +15,6 @@ import org.quartz.JobDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -173,16 +172,17 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
     }
 
     @Override
-    public void postProcessBeanDefinitionRegistry(final BeanDefinitionRegistry bdr) throws BeansException {
+    public void postProcessBeanDefinitionRegistry(final BeanDefinitionRegistry bdr) {
         this.beanDefinitionRegistry = bdr;
 
         InputStream stream = getClass().getResourceAsStream("/" + CONFIGURATION_FILE_NAME);
 
         Preconditions.checkNotNull(stream, "Scheduler configuration missing: " + CONFIGURATION_FILE_NAME);
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         String line;
         String[] cols;
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         try {
             int i = 1;
             while ((line = br.readLine()) != null) {
@@ -202,10 +202,14 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
             }
         } catch (IOException ex) {
             throw new RuntimeException("Could not read scheduler configuration " + CONFIGURATION_FILE_NAME, ex);
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ex) { }
         }
     }
 
     @Override
-    public void postProcessBeanFactory(final ConfigurableListableBeanFactory clbf) throws BeansException { }
+    public void postProcessBeanFactory(final ConfigurableListableBeanFactory clbf) { }
 
 }
