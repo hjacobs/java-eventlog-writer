@@ -4,6 +4,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
        >
 
-    <bean id="de.zalando.zomcat.jobs.SchedulerFactory" class="de.zalando.zomcat.jobs.SchedulerFactory" destroy-method="destroy"/>
+    <bean class="de.zalando.zomcat.jobs.SchedulerFactory"/>
 
 </beans>

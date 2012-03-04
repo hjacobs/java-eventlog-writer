@@ -6,31 +6,27 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
 import org.quartz.JobDetail;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.SmartLifecycle;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerBean;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import de.zalando.zomcat.util.DiscardingThreadPoolTaskExecutor;
@@ -45,15 +41,13 @@ import de.zalando.zomcat.util.DiscardingThreadPoolTaskExecutor;
  *
  * @author  henning
  */
-public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle {
+public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerFactory.class);
 
     private static final String CONFIGURATION_FILE_NAME = "scheduler.conf";
 
-    private ApplicationContext applicationContext;
-
-    private final List<SchedulerFactoryBean> schedulers = Lists.newArrayList();
+    private BeanDefinitionRegistry beanDefinitionRegistry;
 
     private static long getMillis(final String s) {
         int len = s.length();
@@ -90,21 +84,21 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
         return s.substring(0, 1).toLowerCase() + s.substring(1);
     }
 
-    private SchedulerFactoryBean createSchedulerFactoryBean(final AutowireCapableBeanFactory beanFactory,
-            final String name, final Trigger trigger) {
-        final DiscardingThreadPoolTaskExecutor taskExecutor = new DiscardingThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(1);
-        taskExecutor.setMaxPoolSize(1);
-        taskExecutor.setQueueCapacity(0);
-        beanFactory.initializeBean(taskExecutor, name + "Executor");
+    private void createSchedulerFactoryBean(final String name) {
+        GenericBeanDefinition def = new GenericBeanDefinition();
+        def.setBeanClass(DiscardingThreadPoolTaskExecutor.class);
+        def.getPropertyValues().add("corePoolSize", 1);
+        def.getPropertyValues().add("maxPoolSize", 1);
+        def.getPropertyValues().add("queueCapacity", 0);
+        beanDefinitionRegistry.registerBeanDefinition(name + "Executor", def);
 
-        final SchedulerFactoryBean factory = new SchedulerFactoryBean();
-        factory.setTaskExecutor(taskExecutor);
-        factory.setTriggers(new Trigger[] {trigger});
-        factory.setApplicationContext(applicationContext);
-        factory.setApplicationContextSchedulerContextKey("applicationContext");
-        beanFactory.initializeBean(factory, name + "Factory");
-        return factory;
+        def = new GenericBeanDefinition();
+        def.setBeanClass(SchedulerFactoryBean.class);
+        def.getPropertyValues().add("taskExecutor", new RuntimeBeanReference(name + "Executor"));
+        def.getPropertyValues().add("triggers", new RuntimeBeanReference(name + "Trigger"));
+        def.getPropertyValues().add("applicationContextSchedulerContextKey", "applicationContext");
+
+        beanDefinitionRegistry.registerBeanDefinition(name + "Scheduler", def);
     }
 
     /**
@@ -118,8 +112,6 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
         Preconditions.checkArgument(cols.length >= 5, "too few columns");
         Preconditions.checkArgument("after".equals(cols[2]), "3rd column must contain the word 'after'");
 
-        final AutowireCapableBeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
-
         final String className = cols[4];
         final Class clazz = Class.forName(className);
         final String name = lowerCaseFirst(clazz.getSimpleName());
@@ -128,19 +120,17 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
 
         Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
 
-        final SimpleTriggerBean trigger = new SimpleTriggerBean();
-        trigger.setRepeatInterval(getMillis(repeatInterval));
-        trigger.setStartDelay(getMillis(startDelay));
-        trigger.setJobDetail(new JobDetail(name, clazz));
-        trigger.setJobDataAsMap(getJobData(cols, 5));
-        trigger.setName(name + "Trigger");
-        beanFactory.initializeBean(trigger, name + "Trigger");
+        GenericBeanDefinition def = new GenericBeanDefinition();
+        def.setBeanClass(SimpleTriggerBean.class);
+        def.getPropertyValues().add("repeatInterval", getMillis(repeatInterval));
+        def.getPropertyValues().add("startDelay", getMillis(startDelay));
+        def.getPropertyValues().add("jobDetail", new JobDetail(name, clazz));
+        def.getPropertyValues().add("jobDataAsMap", getJobData(cols, 5));
+        beanDefinitionRegistry.registerBeanDefinition(name + "Trigger", def);
 
-        final SchedulerFactoryBean factory = createSchedulerFactoryBean(beanFactory, name, trigger);
-        schedulers.add(factory);
+        createSchedulerFactoryBean(name);
 
         LOG.info("Configured {} to run every {} with start delay {}", new Object[] {name, repeatInterval, startDelay});
-
     }
 
     /**
@@ -151,9 +141,7 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
      * @throws  Exception
      */
     private void createCronScheduler(final String[] cols) throws Exception {
-        Preconditions.checkArgument(cols.length >= 9, "too few columns");
-
-        final AutowireCapableBeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
+        Preconditions.checkArgument(cols.length >= 8, "too few columns");
 
         final String className = cols[7];
         final Class clazz = Class.forName(className);
@@ -162,15 +150,14 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
 
         Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
 
-        final CronTriggerBean trigger = new CronTriggerBean();
-        trigger.setCronExpression(cronExpression);
-        trigger.setJobDetail(new JobDetail(name, clazz));
-        trigger.setJobDataAsMap(getJobData(cols, 8));
-        trigger.setName(name + "Trigger");
-        beanFactory.initializeBean(trigger, name + "Trigger");
+        GenericBeanDefinition def = new GenericBeanDefinition();
+        def.setBeanClass(CronTriggerBean.class);
+        def.getPropertyValues().add("cronExpression", cronExpression);
+        def.getPropertyValues().add("jobDetail", new JobDetail(name, clazz));
+        def.getPropertyValues().add("jobDataAsMap", getJobData(cols, 8));
+        beanDefinitionRegistry.registerBeanDefinition(name + "Trigger", def);
 
-        final SchedulerFactoryBean factory = createSchedulerFactoryBean(beanFactory, name, trigger);
-        schedulers.add(factory);
+        createSchedulerFactoryBean(name);
 
         LOG.info("Configured {} to run at {}", new Object[] {name, cronExpression});
     }
@@ -186,8 +173,8 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
     }
 
     @Override
-    public void setApplicationContext(final ApplicationContext ac) throws BeansException {
-        applicationContext = ac;
+    public void postProcessBeanDefinitionRegistry(final BeanDefinitionRegistry bdr) throws BeansException {
+        this.beanDefinitionRegistry = bdr;
 
         InputStream stream = getClass().getResourceAsStream("/" + CONFIGURATION_FILE_NAME);
 
@@ -216,54 +203,9 @@ public class SchedulerFactory implements ApplicationContextAware, SmartLifecycle
         } catch (IOException ex) {
             throw new RuntimeException("Could not read scheduler configuration " + CONFIGURATION_FILE_NAME, ex);
         }
-
     }
 
     @Override
-    public boolean isRunning() {
-        for (SchedulerFactoryBean scheduler : schedulers) {
-            if (scheduler.isRunning()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void start() {
-        for (SchedulerFactoryBean scheduler : schedulers) {
-            scheduler.start();
-        }
-    }
-
-    @Override
-    public void stop() {
-        for (SchedulerFactoryBean scheduler : schedulers) {
-            scheduler.stop();
-        }
-    }
-
-    @Override
-    public void stop(final Runnable r) {
-        stop();
-        r.run();
-    }
-
-    @Override
-    public boolean isAutoStartup() {
-        return true;
-    }
-
-    @Override
-    public int getPhase() {
-        return 2147483646;
-    }
-
-    public void destroy() throws SchedulerException {
-        for (SchedulerFactoryBean scheduler : schedulers) {
-            scheduler.destroy();
-        }
-    }
+    public void postProcessBeanFactory(final ConfigurableListableBeanFactory clbf) throws BeansException { }
 
 }
