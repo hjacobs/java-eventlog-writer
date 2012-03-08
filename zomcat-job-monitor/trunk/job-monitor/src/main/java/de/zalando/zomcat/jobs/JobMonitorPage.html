@@ -52,10 +52,10 @@
                                   <th class="description">Description</th>
                                   <th class="worker">Worker</th>
                                   <th class="timestamp">Last modified</th>
-                                  <th class="history"></th>
                                   <th class="hosts">Hosts</th>
                                   <th class="batchsize" >BS</th>
                                   <th class="flowIds">FlowIds</th>
+                                  <th class="history"></th>
                                 </tr>
                               </thead>
                                 <tbody>
@@ -69,7 +69,6 @@
                                             <td class="description" wicket:id="description">Full update</td>
                                             <td class="worker" wicket:id="workers">1</td>
                                             <td class="timestamp" wicket:id="timestamp">2011-12-12 12:32</td>
-                                            <td class="history" wicket:id="placeholderForHistory">[content will go here]</td>
                                             <td class="hosts" wicket:id="instances">bm01_p9820</td>
                                             <td class="batchsize" wicket:id="batchSize">500</td>
                                             <td class="flowIds">
@@ -77,12 +76,13 @@
                                                         <a href="#" wicket:id="flowIdLink" target="_blank"><span wicket:id="flowId">12345678</span></a>
                                                     </span>
                                             </td>
+                                            <td class="history" wicket:id="placeholderForHistory">[content will go here]</td>
                                             <wicket:fragment wicket:id="jobEnabled"><strong class="enabled">Running</strong>/<a class="disabled" href="#" wicket:id="jobToggle">Paused</a></wicket:fragment>
                                             <wicket:fragment wicket:id="jobDisabled"><a class="enabled" href="#" wicket:id="jobToggle">Running</a>/<strong class="disabled">Paused</strong></wicket:fragment>
                                             <wicket:fragment wicket:id="jobEnabledRowDisabled"><em class="enabled">Running</em>/<em class="disabled2">Paused</em></wicket:fragment>
                                             <wicket:fragment wicket:id="jobDisabledRowDisabled"><em class="enabled2">Running</em>/<em class="disabled">Paused</em></wicket:fragment>
-                                            <wicket:fragment wicket:id="historyEnabled"><a href="#" wicket:id="historyToggle">-</a></wicket:fragment>
-                                            <wicket:fragment wicket:id="historyDisabled"><a href="#" wicket:id="historyToggle">+</a></wicket:fragment>
+                                            <wicket:fragment wicket:id="historyEnabled"><a href="#" wicket:id="historyToggle">- history</a></wicket:fragment>
+                                            <wicket:fragment wicket:id="historyDisabled"><a href="#" wicket:id="historyToggle">+ history</a></wicket:fragment>
                                          </wicket:fragment>
                                         <wicket:fragment wicket:id="jobHistory">
                                             <td colspan="4"></td>
