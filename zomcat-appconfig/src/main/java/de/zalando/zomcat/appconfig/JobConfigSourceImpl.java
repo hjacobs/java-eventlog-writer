@@ -3,6 +3,7 @@ package de.zalando.zomcat.appconfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 import de.zalando.appconfig.Configuration;
@@ -28,6 +29,9 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
     @Override
     public final JobConfig getJobConfig(final Job job) {
 
+        final Configuration configuration = Preconditions.checkNotNull(getConfig(),
+                "configuration cannot be null. Please provide a complete implementation of Configuration.");
+
         // By Default the JobGroup the Job belongs to (even if the Job has no JobGroup) is active
         boolean groupActive = true;
 
@@ -45,7 +49,7 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         if (job.getJobGroup() != null) {
             jobGroupName = job.getJobGroup().groupName();
         } else {
-            jobGroupName = getConfig().getStringConfig(String.format("jobConfig.%s.jobGroup", jobName), null, null);
+            jobGroupName = configuration.getStringConfig(String.format("jobConfig.%s.jobGroup", jobName), null, null);
         }
 
         // If there is a Job Group defined on Job Config, fetch the JobGroup Active Status
@@ -54,10 +58,10 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
             LOG.trace("Attempting to fetch create JobGroupConfig for JobGroup {}", jobGroupName);
 
             // Load Job Group Config Properties
-            groupActive = getConfig().getBooleanConfig(String.format("jobGroupConfig.%s.active", jobGroupName), null,
+            groupActive = configuration.getBooleanConfig(String.format("jobGroupConfig.%s.active", jobGroupName), null,
                     true);
 
-            final String[] groupAppInstanceKeys = getConfig().getStringArrayConfig(String.format(
+            final String[] groupAppInstanceKeys = configuration.getStringArrayConfig(String.format(
                         "jobGroupConfig.%s.appInstanceKey", jobGroupName), null, true);
 
             // Create JobGroupConfig from JobGroupName as set in JobConfig and ActiveState from JobConfig
@@ -67,12 +71,12 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         }
 
         // Load Job Config Properties
-        final String[] appInstanceKeys = getConfig().getStringArrayConfig(String.format("jobConfig.%s.appInstanceKey",
+        final String[] appInstanceKeys = configuration.getStringArrayConfig(String.format("jobConfig.%s.appInstanceKey",
                     jobName), null, true);
-        final int limit = getConfig().getIntegerConfig(String.format("jobConfig.%s.limit", jobName), null, 0);
-        final int startupLimit = getConfig().getIntegerConfig(String.format("jobConfig.%s.startupLimit", jobName), null,
-                limit);
-        jobActive = getConfig().getBooleanConfig(String.format("jobConfig.%s.active", jobName), null, true);
+        final int limit = configuration.getIntegerConfig(String.format("jobConfig.%s.limit", jobName), null, 0);
+        final int startupLimit = configuration.getIntegerConfig(String.format("jobConfig.%s.startupLimit", jobName),
+                null, limit);
+        jobActive = configuration.getBooleanConfig(String.format("jobConfig.%s.active", jobName), null, true);
 
         // Create Job Config from loaded Props
         final JobConfig retVal = new JobConfig(Sets.newHashSet(appInstanceKeys), limit, startupLimit, jobActive,
