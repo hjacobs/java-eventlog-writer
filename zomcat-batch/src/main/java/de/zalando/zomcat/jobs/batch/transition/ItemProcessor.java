@@ -1,7 +1,6 @@
 package de.zalando.zomcat.jobs.batch.transition;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import de.zalando.utils.Pair;
 
@@ -13,14 +12,21 @@ import de.zalando.utils.Pair;
  *
  * @author  teppel
  */
-public abstract class ItemProcessor<Item> {
+public interface ItemProcessor<Item> {
 
-    public abstract void process(JobResponse<Item> item) throws ItemProcessorException;
+    /**
+     * Defines the processing of an item.
+     *
+     * @param   item
+     *
+     * @throws  ItemProcessorException
+     */
+    void process(Item item) throws Exception;
 
-    public Pair<Collection<JobResponse<Item>>, Collection<JobResponse<Item>>> validate(
-            final Collection<JobResponse<Item>> items) {
-        Collection<JobResponse<Item>> empty = Collections.emptyList();
-        return Pair.of(items, empty);
-    }
-
+    /**
+     * @param   items
+     *
+     * @return
+     */
+    Pair<Collection<Item>, Collection<JobResponse<Item>>> validate(final Collection<Item> items);
 }

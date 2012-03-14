@@ -12,7 +12,6 @@ import java.util.Collection;
  */
 public interface ItemWriter<Item> {
 
-    void writeItems(Collection<JobResponse<Item>> successfulItems, Collection<JobResponse<Item>> failedItems)
-        throws ItemWriterException;
+    void writeItems(Collection<Item> successfulItems, Collection<JobResponse<Item>> failedItems) throws Exception;
 
 }

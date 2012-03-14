@@ -2,7 +2,6 @@ package de.zalando.zomcat.jobs.batch.transition;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -14,7 +13,7 @@ import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -29,13 +28,13 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBulkProcessingJob.class);
 
     private ItemFetcher<ITEM_TYPE> fetcher;
-    private ItemPartitioningStrategy<ITEM_TYPE> partitioningStrategy;
+    private BatchExecutionStrategy<ITEM_TYPE> executionStrategy;
     private ItemProcessor<ITEM_TYPE> processor;
     private ItemWriter<ITEM_TYPE> writer;
 
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
+    private WriteTime writeTime;
 
-    private int processedCount;
+    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
     private int limit;
 
@@ -43,7 +42,6 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
     protected AbstractBulkProcessingJob() {
         super();
-
     }
 
     private void assertComponentsArePresent() {
@@ -52,8 +50,8 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
             missingComponents.add("fetcher");
         }
 
-        if (partitioningStrategy == null) {
-            missingComponents.add("partitioningStrategy");
+        if (executionStrategy == null) {
+            missingComponents.add("executionStrategy");
         }
 
         if (processor == null) {
@@ -80,7 +78,9 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
     protected abstract ItemWriter<ITEM_TYPE> getWriter();
 
-    protected abstract ItemPartitioningStrategy<ITEM_TYPE> getPartitioningStrategy();
+    protected abstract WriteTime getWriteTime();
+
+    protected abstract BatchExecutionStrategy<ITEM_TYPE> getExecutionStrategy();
 
     /**
      * Method fetches and enriches the items. If an error occures an exception is thrown.
@@ -91,7 +91,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
      *
      * @throws  de.zalando.commons.backend.jobs.ItemFetcherException
      */
-    private List<JobResponse<ITEM_TYPE>> fetchItems(final int limit) throws ItemFetcherException {
+    private List<ITEM_TYPE> fetchItems(final int limit) throws Exception {
         try {
             return fetcher.fetchItems(limit);
         } catch (final ItemFetcherException e) {
@@ -112,8 +112,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
      *
      * @throws  ItemFetcherException  if an error occurs enriching Items
      */
-    private List<JobResponse<ITEM_TYPE>> enrichtItems(final List<JobResponse<ITEM_TYPE>> items)
-        throws ItemFetcherException {
+    private List<ITEM_TYPE> enrichtItems(final List<ITEM_TYPE> items) throws Exception {
         try {
             return fetcher.enrichItems(items);
         } catch (final ItemFetcherException e) {
@@ -127,36 +126,29 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
     @Override
     public Integer getActualProcessedItemNumber() {
-        return processedCount;
+        return executionStrategy.getProcessedCount();
     }
 
-    /* public ItemFetcher<ITEM_TYPE> getFetcher() {
-     *   return fetcher;
-     * }
-     *
-     * public ItemProcessor<ITEM_TYPE> getProcessor() {
-     *   return processor;
-     * }
-     */
     @Override
     public Integer getTotalNumberOfItemsToBeProcessed() {
         return limit;
     }
-/*
- *  public ItemWriter<ITEM_TYPE> getWriter() {
- *      return writer;
- *  }
- */
+
     private static void logFailedNumber(final boolean external, final int size) {
         if ((size > 0)) {
             LOG.debug("{}validation failed, count {}", external ? "external " : "", size);
         }
     }
 
-    private void process(final int limit) {
-        final List<JobResponse<ITEM_TYPE>> successfulItems = Lists.newArrayList();
+    private void process(final int limit) throws Exception {
+
+        final List<ITEM_TYPE> successfulItems = Lists.newArrayList();
         final List<JobResponse<ITEM_TYPE>> failedItems = Lists.newArrayList();
-        List<JobResponse<ITEM_TYPE>> itemsToProcess = null;
+
+        executionStrategy = getExecutionStrategy();
+        executionStrategy.bind(processor, writer, writeTime, successfulItems, failedItems);
+
+        List<ITEM_TYPE> itemsToProcess = null;
         try {
             LOG.info("starting job [{}]", this.getBeanName());
 
@@ -169,10 +161,9 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
             LOG.info("enriched [{}] number of items", itemsToProcess.size());
 
             // internal validation
-            Pair<Collection<JobResponse<ITEM_TYPE>>, Collection<JobResponse<ITEM_TYPE>>> validatedItems = validate(
-                    itemsToProcess);
+            Pair<Collection<ITEM_TYPE>, Collection<JobResponse<ITEM_TYPE>>> validatedItems = validate(itemsToProcess);
 
-            Collection<JobResponse<ITEM_TYPE>> validItems = validatedItems.getFirst();
+            Collection<ITEM_TYPE> validItems = validatedItems.getFirst();
             failedItems.addAll(validatedItems.getSecond());
 
             logFailedNumber(false, validatedItems.getSecond().size());
@@ -191,19 +182,22 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
             } catch (final Throwable t) {
                 LOG.error("Critical error during validation of batch. Will mark ALL as ERROR.", t);
+
                 validItems.clear();
                 failedItems.clear();
-                failedItems.addAll(itemsToProcess);
+                failedItems.addAll(Lists.transform(itemsToProcess,
+                        new Function<ITEM_TYPE, JobResponse<ITEM_TYPE>>() {
+                            @Override
+                            public JobResponse<ITEM_TYPE> apply(final ITEM_TYPE item) {
+                                return new JobResponse<ITEM_TYPE>(item);
+                            }
+                            ;
+                        }));
             }
 
-            Map<String, Collection<JobResponse<ITEM_TYPE>>> workPartitions = partitioningStrategy.makeChunks(
-                    validItems);
+            // from here on we should have no possibility of ItemFetcherException
 
-            for (final JobResponse<ITEM_TYPE> item : validItems) {
-                processedCount++;
-
-                processSingleItem(successfulItems, failedItems, item);
-            }
+            executionStrategy.execute(validItems);
 
         } catch (final ItemFetcherException e) {
 
@@ -214,24 +208,31 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
             if (itemsToProcess != null) {
 
                 // Add current Error to all retrieved Items
-                for (final JobResponse<ITEM_TYPE> curItem : itemsToProcess) {
-                    curItem.addErrorMessage(e.getMessage());
-                }
+// for (final ITEM_TYPE curItem : itemsToProcess) {
+// curItem.addErrorMessage(e.getMessage());
+// }
 
                 // Assume that processing of ALL Items failed - could not reach processing stage when Enrich/Fetch
                 // failed
-                failedItems.addAll(itemsToProcess);
+                failedItems.addAll(Lists.transform(itemsToProcess,
+                        new Function<ITEM_TYPE, JobResponse<ITEM_TYPE>>() {
+                            @Override
+                            public JobResponse<ITEM_TYPE> apply(final ITEM_TYPE item) {
+                                JobResponse<ITEM_TYPE> jobResponse = new JobResponse<ITEM_TYPE>(item);
+                                jobResponse.addErrorMessage(e.getMessage());
+                                return jobResponse;
+                            }
+                            ;
+                        }));
             }
 
-            throw e;
-        } finally {
-
-            // Do the actual Writeback of Processing Results according to SuccessfuleItems and FailedItems Lists
-            LOG.debug("writing [{}] successful [{}] failed items", successfulItems.size(), failedItems.size());
+            // if we write here we are probably not executing anything.
+            LOG.debug("Writing [{}] successful [{}] failed items", successfulItems.size(), failedItems.size());
             writer.writeItems(successfulItems, failedItems);
+
         }
 
-        LOG.info("finished job [{}] successful processed items [{}] failed items [{}]",
+        LOG.info("Finished dispatching/execution job [{}] successful processed items [{}] failed items [{}]",
             new Object[] {this.getBeanName(), successfulItems.size(), failedItems.size()});
     }
 
@@ -240,31 +241,33 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
      * @param  failedItems
      * @param  item
      */
-    public void processSingleItem(final List<JobResponse<ITEM_TYPE>> successfulItems,
-            final List<JobResponse<ITEM_TYPE>> failedItems, final JobResponse<ITEM_TYPE> item) {
-        try {
-
-            processor.process(item);
-            successfulItems.add(item);
-
-        } catch (final Throwable e) {
-            LOG.error("Failed to process item [{}]", item, e);
-
-            final String message = e.getClass().getSimpleName() + " exception occured on processing item " + item + ": "
-                    + Throwables.getStackTraceAsString(e);
-
-            item.addErrorMessage(message);
-            failedItems.add(item);
-        }
-    }
+    /*
+     * public void processSingleItem(final List<JobResponse<ITEM_TYPE>> successfulItems,
+     *      final List<JobResponse<ITEM_TYPE>> failedItems, final JobResponse<ITEM_TYPE> item) {
+     *  try {
+     *
+     *      processor.process(item);
+     *      successfulItems.add(item);
+     *
+     *  } catch (final Throwable e) {
+     *      LOG.error("Failed to process item [{}]", item, e);
+     *
+     *      final String message = e.getClass().getSimpleName() + " exception occured on processing item " + item + ": "
+     *              + Throwables.getStackTraceAsString(e);
+     *
+     *      item.addErrorMessage(message);
+     *      failedItems.add(item);
+     *  }
+     *}*/
 
     @Override
     public final void doRun(final JobExecutionContext executionContext, final JobConfig config) {
 
         fetcher = getFetcher();
-        partitioningStrategy = getPartitioningStrategy();
         processor = getProcessor();
         writer = getWriter();
+        writeTime = getWriteTime();
+        executionStrategy = getExecutionStrategy();
 
         assertComponentsArePresent();
 
@@ -285,19 +288,19 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
      *
      * @return  a Pair of lists: first is the successful, second is the failed list
      */
-    private Pair<Collection<JobResponse<ITEM_TYPE>>, Collection<JobResponse<ITEM_TYPE>>> validate(
-            final List<JobResponse<ITEM_TYPE>> items) {
-        final Collection<JobResponse<ITEM_TYPE>> successfulItems = Lists.newArrayList();
+    private Pair<Collection<ITEM_TYPE>, Collection<JobResponse<ITEM_TYPE>>> validate(final List<ITEM_TYPE> items) {
+        final Collection<ITEM_TYPE> successfulItems = Lists.newArrayList();
         final Collection<JobResponse<ITEM_TYPE>> failedItems = Lists.newArrayList();
 
-        for (final JobResponse<ITEM_TYPE> item : items) {
-            final Set<ConstraintViolation<ITEM_TYPE>> violations = VALIDATOR.validate(item.getJobItem());
+        for (final ITEM_TYPE item : items) {
+            final Set<ConstraintViolation<ITEM_TYPE>> violations = VALIDATOR.validate(item);
             if (violations.isEmpty()) {
                 successfulItems.add(item);
             } else {
                 final List<String> messages = getMessageList(violations);
-                item.addErrorMessages(messages);
-                failedItems.add(item);
+                JobResponse<ITEM_TYPE> response = new JobResponse<ITEM_TYPE>(item);
+                response.addErrorMessages(messages);
+                failedItems.add(response);
                 LOG.warn("item [{}] failed validation [{}]", item, messages);
             }
         }

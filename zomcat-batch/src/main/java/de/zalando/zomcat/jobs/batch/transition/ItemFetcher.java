@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author  teppel
  */
-public abstract class ItemFetcher<Item> {
+public interface ItemFetcher<Item> {
 
     /**
      * Fetches items.
@@ -20,11 +20,11 @@ public abstract class ItemFetcher<Item> {
      *
      * @throws  ItemFetcherException
      */
-    public abstract List<JobResponse<Item>> fetchItems(int limit) throws ItemFetcherException;
+    List<Item> fetchItems(int limit) throws Exception;
 
     /**
      * Possibly adds additional information, which comes from different sources. These requests should be handled in
-     * bulk.
+     * bulk. A trivial implementation should simply return the parameter.
      *
      * @param   items
      *
@@ -32,8 +32,6 @@ public abstract class ItemFetcher<Item> {
      *
      * @throws  ItemFetcherException
      */
-    public List<JobResponse<Item>> enrichItems(final List<JobResponse<Item>> items) throws ItemFetcherException {
-        return items;
-    }
+    List<Item> enrichItems(final List<Item> items) throws Exception;
 
 }
