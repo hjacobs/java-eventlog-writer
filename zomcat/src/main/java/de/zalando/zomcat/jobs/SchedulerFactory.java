@@ -46,6 +46,8 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
     private static final String CONFIGURATION_FILE_NAME = "scheduler.conf";
 
+    private static final String POOL_SIZE_JOB_DATA_KEY = "pool";
+
     private BeanDefinitionRegistry beanDefinitionRegistry;
 
     private static long getMillis(final String s) {
@@ -83,11 +85,23 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         return s.substring(0, 1).toLowerCase() + s.substring(1);
     }
 
-    private void createSchedulerFactoryBean(final String name) {
+    private void createSchedulerFactoryBean(final String name, final Map<String, String> jobData) {
+        int poolSize = 1;
+
+        if (jobData != null && jobData.containsKey(POOL_SIZE_JOB_DATA_KEY)) {
+            try {
+                poolSize = Integer.valueOf(jobData.get(POOL_SIZE_JOB_DATA_KEY));
+            } catch (NumberFormatException nfe) {
+                throw new IllegalArgumentException("invalid thread pool size (not an integer)", nfe);
+            }
+        }
+
+        Preconditions.checkArgument(poolSize >= 1, "thread pool size must be at least 1");
+
         GenericBeanDefinition def = new GenericBeanDefinition();
         def.setBeanClass(DiscardingThreadPoolTaskExecutor.class);
-        def.getPropertyValues().add("corePoolSize", 1);
-        def.getPropertyValues().add("maxPoolSize", 1);
+        def.getPropertyValues().add("corePoolSize", poolSize);
+        def.getPropertyValues().add("maxPoolSize", poolSize);
         def.getPropertyValues().add("queueCapacity", 0);
         beanDefinitionRegistry.registerBeanDefinition(name + "Executor", def);
 
@@ -116,6 +130,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         final String name = lowerCaseFirst(clazz.getSimpleName());
         final String repeatInterval = cols[1];
         final String startDelay = cols[3];
+        final Map<String, String> jobData = getJobData(cols, 5);
 
         Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
 
@@ -124,10 +139,10 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         def.getPropertyValues().add("repeatInterval", getMillis(repeatInterval));
         def.getPropertyValues().add("startDelay", getMillis(startDelay));
         def.getPropertyValues().add("jobDetail", new JobDetail(name, clazz));
-        def.getPropertyValues().add("jobDataAsMap", getJobData(cols, 5));
+        def.getPropertyValues().add("jobDataAsMap", jobData);
         beanDefinitionRegistry.registerBeanDefinition(name + "Trigger", def);
 
-        createSchedulerFactoryBean(name);
+        createSchedulerFactoryBean(name, jobData);
 
         LOG.info("Configured {} to run every {} with start delay {}", new Object[] {name, repeatInterval, startDelay});
     }
@@ -146,6 +161,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         final Class clazz = Class.forName(className);
         final String name = lowerCaseFirst(clazz.getSimpleName());
         final String cronExpression = StringUtils.join(Arrays.copyOfRange(cols, 1, 7), " ");
+        final Map<String, String> jobData = getJobData(cols, 8);
 
         Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
 
@@ -153,10 +169,10 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         def.setBeanClass(CronTriggerBean.class);
         def.getPropertyValues().add("cronExpression", cronExpression);
         def.getPropertyValues().add("jobDetail", new JobDetail(name, clazz));
-        def.getPropertyValues().add("jobDataAsMap", getJobData(cols, 8));
+        def.getPropertyValues().add("jobDataAsMap", jobData);
         beanDefinitionRegistry.registerBeanDefinition(name + "Trigger", def);
 
-        createSchedulerFactoryBean(name);
+        createSchedulerFactoryBean(name, jobData);
 
         LOG.info("Configured {} to run at {}", new Object[] {name, cronExpression});
     }
