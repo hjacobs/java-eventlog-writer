@@ -51,7 +51,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
     private BeanDefinitionRegistry beanDefinitionRegistry;
 
     private static long getMillis(final String s) {
-        int len = s.length();
+        final int len = s.length();
         if (s.endsWith("h")) {
 
             // hours
@@ -71,9 +71,9 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
     }
 
     private Map<String, String> getJobData(final String[] cols, final int startCol) {
-        Map<String, String> map = Maps.newHashMap();
+        final Map<String, String> map = Maps.newHashMap();
         for (int i = startCol; i < cols.length; i++) {
-            String[] keyValue = cols[i].split("=");
+            final String[] keyValue = cols[i].split("=");
             Preconditions.checkElementIndex(1, keyValue.length, "invalid key=value pair in job data");
             map.put(keyValue[0], keyValue[1]);
         }
@@ -91,7 +91,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         if (jobData != null && jobData.containsKey(POOL_SIZE_JOB_DATA_KEY)) {
             try {
                 poolSize = Integer.valueOf(jobData.get(POOL_SIZE_JOB_DATA_KEY));
-            } catch (NumberFormatException nfe) {
+            } catch (final NumberFormatException nfe) {
                 throw new IllegalArgumentException("invalid thread pool size (not an integer)", nfe);
             }
         }
@@ -110,6 +110,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         def.getPropertyValues().add("taskExecutor", new RuntimeBeanReference(name + "Executor"));
         def.getPropertyValues().add("triggers", new RuntimeBeanReference(name + "Trigger"));
         def.getPropertyValues().add("applicationContextSchedulerContextKey", "applicationContext");
+        def.getPropertyValues().add("exposeSchedulerInRepository", true);
 
         beanDefinitionRegistry.registerBeanDefinition(name + "Scheduler", def);
     }
@@ -134,7 +135,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
         Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
 
-        GenericBeanDefinition def = new GenericBeanDefinition();
+        final GenericBeanDefinition def = new GenericBeanDefinition();
         def.setBeanClass(SimpleTriggerBean.class);
         def.getPropertyValues().add("repeatInterval", getMillis(repeatInterval));
         def.getPropertyValues().add("startDelay", getMillis(startDelay));
@@ -165,7 +166,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
         Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
 
-        GenericBeanDefinition def = new GenericBeanDefinition();
+        final GenericBeanDefinition def = new GenericBeanDefinition();
         def.setBeanClass(CronTriggerBean.class);
         def.getPropertyValues().add("cronExpression", cronExpression);
         def.getPropertyValues().add("jobDetail", new JobDetail(name, clazz));
@@ -191,14 +192,14 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
     public void postProcessBeanDefinitionRegistry(final BeanDefinitionRegistry bdr) {
         this.beanDefinitionRegistry = bdr;
 
-        InputStream stream = getClass().getResourceAsStream("/" + CONFIGURATION_FILE_NAME);
+        final InputStream stream = getClass().getResourceAsStream("/" + CONFIGURATION_FILE_NAME);
 
         Preconditions.checkNotNull(stream, "Scheduler configuration missing: " + CONFIGURATION_FILE_NAME);
 
         String line;
         String[] cols;
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+        final BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         try {
             int i = 1;
             while ((line = br.readLine()) != null) {
@@ -207,7 +208,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
                     cols = line.split("\\s+");
                     try {
                         createScheduler(cols);
-                    } catch (Exception ex) {
+                    } catch (final Exception ex) {
                         throw new RuntimeException("Configuration error: Could not create scheduler from '"
                                 + StringUtils.join(cols, " ") + "' (line " + i + " in " + CONFIGURATION_FILE_NAME + ")",
                             ex);
@@ -216,12 +217,12 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
                 i++;
             }
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new RuntimeException("Could not read scheduler configuration " + CONFIGURATION_FILE_NAME, ex);
         } finally {
             try {
                 br.close();
-            } catch (IOException ex) { }
+            } catch (final IOException ex) { }
         }
     }
 
