@@ -45,7 +45,7 @@ import com.google.common.collect.Lists;
 import de.zalando.zomcat.OperationMode;
 
 /**
- * bean holding all informations about quartz jobs.
+ * Bean holding all informations about quartz jobs.
  *
  * @author  fbrick
  */
@@ -65,7 +65,12 @@ public class JobsStatusBean implements JobsStatusMBean {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @Autowired
+    /**
+     * required = false covers the cases where a component does not have any jobs and thus does not define any
+     * "jobConfigSource" bean. Otherwise, if the component has jobs, this will later properly fail (probably with a
+     * NPE), meaning still that IF JOBS ARE IN USE THE COMPONENT MUST DEFINE A "jobConfigSource" bean.
+     */
+    @Autowired(required = false)
     private JobConfigSource jobConfigSource;
 
     public SortedMap<String, JobTypeStatusBean> getJobs() {
