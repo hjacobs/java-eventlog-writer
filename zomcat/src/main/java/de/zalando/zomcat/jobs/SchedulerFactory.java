@@ -50,6 +50,8 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
     private BeanDefinitionRegistry beanDefinitionRegistry;
 
+    private Map<Class, Integer> jobNameSequence = Maps.newHashMap();
+
     private static long getMillis(final String s) {
         final int len = s.length();
         if (s.endsWith("h")) {
@@ -116,6 +118,33 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
     }
 
     /**
+     * get job bean name from job class e.g. de.zalando.example.ExampleJob -> exampleJob if multiple instances of the
+     * same job class are used we add an incrementing suffix, e.g. exampleJob, exampleJob1, exampleJob2, ..
+     *
+     * @param   clazz
+     *
+     * @return
+     */
+    private String getJobName(final Class clazz) {
+        String name = lowerCaseFirst(clazz.getSimpleName());
+
+        Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
+
+        Integer seq = jobNameSequence.get(clazz);
+
+        if (seq == null) {
+            seq = 1;
+        } else {
+            name += seq;
+            seq++;
+        }
+
+        jobNameSequence.put(clazz, seq);
+
+        return name;
+    }
+
+    /**
      * format: every INTERVAL after DELAY CLASS JOB_DATA
      *
      * @param   cols
@@ -128,12 +157,10 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
         final String className = cols[4];
         final Class clazz = Class.forName(className);
-        final String name = lowerCaseFirst(clazz.getSimpleName());
+        final String name = getJobName(clazz);
         final String repeatInterval = cols[1];
         final String startDelay = cols[3];
         final Map<String, String> jobData = getJobData(cols, 5);
-
-        Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
 
         final GenericBeanDefinition def = new GenericBeanDefinition();
         def.setBeanClass(SimpleTriggerBean.class);
@@ -160,11 +187,9 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
         final String className = cols[7];
         final Class clazz = Class.forName(className);
-        final String name = lowerCaseFirst(clazz.getSimpleName());
+        final String name = getJobName(clazz);
         final String cronExpression = StringUtils.join(Arrays.copyOfRange(cols, 1, 7), " ");
         final Map<String, String> jobData = getJobData(cols, 8);
-
-        Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
 
         final GenericBeanDefinition def = new GenericBeanDefinition();
         def.setBeanClass(CronTriggerBean.class);
