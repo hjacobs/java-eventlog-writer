@@ -42,7 +42,17 @@ public class ExceptionLogger implements FaultListener {
         String service = description.trim().replace("'", "");
         service = NAMESPACE_PATTERN.matcher(service).replaceAll("");
 
-        LOG.error("Exception in " + service + " processing " + length + " bytes from " + from + ": "
+        // find a nice log name
+        Logger log = LOG;
+        for (final StackTraceElement stackTraceElement : exception.getStackTrace()) {
+
+            // get the first matching de.zalando class:
+            if (stackTraceElement.getClass().getCanonicalName().startsWith("de.zalando")) {
+                log = LoggerFactory.getLogger(stackTraceElement.getClass());
+            }
+        }
+
+        log.error("Exception in " + service + " processing " + length + " bytes from " + from + ": "
                 + exception.getMessage(), exception.getCause() != null ? exception.getCause() : exception);
 
         // return false: do not log it somewhere else.
