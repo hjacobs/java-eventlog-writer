@@ -22,6 +22,18 @@ public class ExceptionLogger implements FaultListener {
      */
     @Override
     public boolean faultOccurred(final Exception exception, final String description, final Message message) {
+        boolean loggingEnabled = true;
+
+        if (exception instanceof Loggable) {
+            loggingEnabled = ((Loggable) exception).isLoggingEnabled();
+        }
+
+        if (!loggingEnabled) {
+
+            // return false: do not log it somewhere else.
+            return false;
+        }
+
         final HttpServletRequest httpServletRequest = (HttpServletRequest) message.get(
                 AbstractHTTPDestination.HTTP_REQUEST);
         String length = null;
