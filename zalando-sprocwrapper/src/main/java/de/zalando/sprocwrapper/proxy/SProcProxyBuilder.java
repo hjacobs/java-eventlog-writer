@@ -111,8 +111,8 @@ public class SProcProxyBuilder {
             }
 
             final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
-                    scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper);
-
+                    scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper, scA.timeoutInMilliSeconds(),
+                    scA.adivsoryLockType());
             if (!"".equals(scA.sql())) {
                 p.setQuery(scA.sql());
             }

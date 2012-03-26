@@ -25,8 +25,10 @@ import org.springframework.jdbc.core.RowMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import de.zalando.sprocwrapper.SProcCall.AdvisoryLock;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.proxy.executors.Executor;
+import de.zalando.sprocwrapper.proxy.executors.ExecutorWrapper;
 import de.zalando.sprocwrapper.proxy.executors.MultiRowSimpleTypeExecutor;
 import de.zalando.sprocwrapper.proxy.executors.MultiRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowCustomMapperExecutor;
@@ -71,14 +73,21 @@ class StoredProcedure {
     private static final Executor SINGLE_ROW_SIMPLE_TYPE_EXECUTOR = new SingleRowSimpleTypeExecutor();
     private static final Executor SINGLE_ROW_TYPE_MAPPER_EXECUTOR = new SingleRowTypeMapperExecutor();
 
+    private final long timeout;
+    private final AdvisoryLock adivsoryLock;
+
     public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
             final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final boolean searchShards,
-            final boolean parallel, final RowMapper<?> resultMapper) {
+            final boolean parallel, final RowMapper<?> resultMapper, final long timeout,
+            final AdvisoryLock advisoryLock) {
         this.name = name;
         this.runOnAllShards = runOnAllShards;
         this.searchShards = searchShards;
         this.parallel = parallel;
         this.resultMapper = resultMapper;
+
+        this.adivsoryLock = advisoryLock;
+        this.timeout = timeout;
 
         shardStrategy = sStrategy;
 
@@ -112,6 +121,12 @@ class StoredProcedure {
                     executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
                 }
             }
+        }
+
+        if (this.timeout > 0 || this.adivsoryLock != AdvisoryLock.NO_LOCK) {
+
+            // Wrapper provides locking and changing of session settings functionality
+            this.executor = new ExecutorWrapper(executor, this.timeout, this.adivsoryLock);
         }
     }
 

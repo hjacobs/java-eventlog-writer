@@ -13,6 +13,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Inherited
 public @interface SProcCall {
+
+    public static enum AdvisoryLock {
+        NO_LOCK
+    }
+
     String name() default "";
 
     String sql() default "";
@@ -49,4 +54,8 @@ public @interface SProcCall {
     boolean readOnly() default false;
 
     Class resultMapper() default Void.class;
+
+    long timeoutInMilliSeconds() default 0;
+
+    AdvisoryLock adivsoryLockType() default AdvisoryLock.NO_LOCK;
 }
