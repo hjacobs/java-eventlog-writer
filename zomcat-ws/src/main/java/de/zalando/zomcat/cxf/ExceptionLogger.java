@@ -62,6 +62,7 @@ public class ExceptionLogger implements FaultListener {
             if (stackTraceElement.getClass().getCanonicalName().startsWith("de.zalando")) {
                 log = LoggerFactory.getLogger(stackTraceElement.getClass());
             }
+            break;
         }
 
         log.error("Exception in " + service + " processing " + length + " bytes from " + from + ": "
