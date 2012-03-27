@@ -445,6 +445,10 @@ class StoredProcedure {
                     }
 
                     if (searchShards && sprocResult != null) {
+                        if (collectionResult) {
+                            results.addAll((Collection) sprocResult);
+                        }
+
                         break;
                     }
 
@@ -464,6 +468,10 @@ class StoredProcedure {
                     sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(),
                             returnType);
                     if (searchShards && sprocResult != null) {
+                        if (collectionResult) {
+                            results.addAll((Collection) sprocResult);
+                        }
+
                         break;
                     }
 

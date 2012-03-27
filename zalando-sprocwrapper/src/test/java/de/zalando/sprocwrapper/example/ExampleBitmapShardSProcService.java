@@ -24,6 +24,9 @@ public interface ExampleBitmapShardSProcService {
     @SProcCall(searchShards = true)
     Integer searchSomethingOnShards(@SProcParam String someParameter);
 
+    @SProcCall(searchShards = true)
+    List<Integer> searchSomethingElseOnShards(@SProcParam String someParameter);
+
     @SProcCall(shardStrategy = VirtualShardIdentityStrategy.class, sql = "SELECT shard_name FROM shard_name")
     String getShardName(@ShardKey int shard);
 

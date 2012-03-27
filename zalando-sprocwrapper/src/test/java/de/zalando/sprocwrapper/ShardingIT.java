@@ -74,6 +74,9 @@ public class ShardingIT {
 
         result = exampleBitmapShardSProcService.searchSomethingOnShards("B");
         assertEquals(2, (int) result);
+
+        List<Integer> result2 = exampleBitmapShardSProcService.searchSomethingElseOnShards("UNUSED");
+        assertEquals(1, result2.size());
     }
 
     @Test

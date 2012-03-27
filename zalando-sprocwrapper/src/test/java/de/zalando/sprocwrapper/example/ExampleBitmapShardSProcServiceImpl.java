@@ -36,6 +36,11 @@ public class ExampleBitmapShardSProcServiceImpl
     }
 
     @Override
+    public List<Integer> searchSomethingElseOnShards(final String someParameter) {
+        return sproc.searchSomethingElseOnShards(someParameter);
+    }
+
+    @Override
     public String getShardName(final int shard) {
         return sproc.getShardName(shard);
     }
