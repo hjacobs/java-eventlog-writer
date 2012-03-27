@@ -15,9 +15,11 @@ public class JobModeFragment extends BaseFragment {
     public JobModeFragment(final MarkupContainer markupProvider, final JobTypeStatusBean jobTypeStatusBean,
             final boolean enabled) {
         super("placeholderForJobEnabled",
-            enabled ? (jobTypeStatusBean.isDisabled() ? "jobDisabled" : "jobEnabled")
-                    : (jobTypeStatusBean.isDisabled() ? "jobDisabledRowDisabled" : "jobEnabledRowDisabled"),
-            markupProvider);
+            enabled
+                ? (jobTypeStatusBean.isDisabled() ? "jobDisabled" : "jobEnabled")
+                : (jobTypeStatusBean.getJobConfig().isActive()
+                    ? (jobTypeStatusBean.isDisabled() ? "jobDisabledRowDisabled" : "jobEnabledRowDisabled")
+                    : "jobRowDisabled"), markupProvider);
 
         jobClass = jobTypeStatusBean.getJobClass();
 

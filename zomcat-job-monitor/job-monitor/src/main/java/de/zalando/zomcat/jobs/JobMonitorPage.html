@@ -72,15 +72,16 @@
                                             <td class="hosts" wicket:id="instances">bm01_p9820</td>
                                             <td class="batchsize" wicket:id="batchSize">500</td>
                                             <td class="flowIds">
-                                                    <span wicket:id="jobFlowIds">
-                                                        <a href="#" wicket:id="flowIdLink" target="_blank"><span wicket:id="flowId">12345678</span></a>
-                                                    </span>
+                                                <span wicket:id="jobFlowIds">
+                                                    <a href="#" wicket:id="flowIdLink" target="_blank"><span wicket:id="flowId">12345678</span></a>
+                                                </span>
                                             </td>
                                             <td class="history" wicket:id="placeholderForHistory">[content will go here]</td>
                                             <wicket:fragment wicket:id="jobEnabled"><strong class="enabled">Running</strong>/<a class="disabled" href="#" wicket:id="jobToggle">Paused</a></wicket:fragment>
                                             <wicket:fragment wicket:id="jobDisabled"><a class="enabled" href="#" wicket:id="jobToggle">Running</a>/<strong class="disabled">Paused</strong></wicket:fragment>
                                             <wicket:fragment wicket:id="jobEnabledRowDisabled"><em class="enabled">Running</em>/<em class="disabled2">Paused</em></wicket:fragment>
                                             <wicket:fragment wicket:id="jobDisabledRowDisabled"><em class="enabled2">Running</em>/<em class="disabled">Paused</em></wicket:fragment>
+                                            <wicket:fragment wicket:id="jobRowDisabled"><em class="disabled">Running</em>/<em class="disabled">Paused</em></wicket:fragment>
                                             <wicket:fragment wicket:id="historyEnabled"><a href="#" wicket:id="historyToggle">- history</a></wicket:fragment>
                                             <wicket:fragment wicket:id="historyDisabled"><a href="#" wicket:id="historyToggle">+ history</a></wicket:fragment>
                                          </wicket:fragment>

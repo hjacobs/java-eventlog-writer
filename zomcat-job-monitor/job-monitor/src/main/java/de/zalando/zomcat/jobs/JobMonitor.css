@@ -204,6 +204,10 @@ tr.selected th {
     background: none repeat scroll 0 0 #FFEE00;
 }
 
+tr.disabled td {
+    background: none repeat scroll 0 0 #FF9999;
+}
+
 td {
     overflow: hidden;
 }

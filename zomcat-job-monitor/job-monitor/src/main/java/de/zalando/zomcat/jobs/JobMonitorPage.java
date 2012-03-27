@@ -82,12 +82,10 @@ public class JobMonitorPage extends WebPage {
 
                         @Override
                         protected Item<JobRow> newItem(final String id, final int index, final IModel<JobRow> model) {
-                            return new HoverOddEvenElement<JobRow>(id, index, model);
+                            return new HoverOddEvenElement(id, index, model);
                         }
                     });
-
             }
-
         };
 
         // encapsulate the ListView in a WebMarkupContainer in order for it to update

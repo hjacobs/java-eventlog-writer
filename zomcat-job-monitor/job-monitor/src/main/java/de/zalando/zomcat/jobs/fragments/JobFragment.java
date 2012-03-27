@@ -73,9 +73,13 @@ public class JobFragment extends BaseFragment {
             final JobMonitorPage jobMonitorPage = (JobMonitorPage) markupProvider.getPage();
             final JobsStatusBean jobStatusBean = jobMonitorPage.getJobsStatusBean();
             final JobTypeStatusBean jobTypeStatusBean = jobStatusBean.getJobTypeStatusBean(jobRow.getJobClass());
-            final boolean enabled = jobStatusBean.getOperationModeAsEnum() == OperationMode.NORMAL;
 
-            add(new Check<JobRow>("checkbox", item.getModel()));
+            final boolean enabled = jobTypeStatusBean.getJobConfig().isActive()
+                    && jobStatusBean.getOperationModeAsEnum() == OperationMode.NORMAL;
+
+            final Check<JobRow> check = new Check<JobRow>("checkbox", item.getModel());
+            check.setEnabled(enabled);
+            add(check);
 
             final TriggerBean triggerBean = new TriggerBean(enabled);
             add(new AjaxLink<JobMonitorPage>("trigger") {
@@ -105,9 +109,12 @@ public class JobFragment extends BaseFragment {
                     @Override
                     public boolean isEnabled() {
                         final JobsStatusBean jobsStatusBean = getJobMonitorPage().getJobsStatusBean();
+                        final JobTypeStatusBean jobTypeStatusBean = jobsStatusBean.getJobTypeStatusBean(
+                                jobRow.getJobClass());
 
-                        return super.isEnabled() && jobsStatusBean.getOperationModeAsEnum() == OperationMode.NORMAL
-                                && jobsStatusBean.getJobTypeStatusBean(jobRow.getJobClass()).getQuartzJobInfoBean() != null;
+                        return super.isEnabled() && jobTypeStatusBean.getJobConfig().isActive()
+                                && jobsStatusBean.getOperationModeAsEnum() == OperationMode.NORMAL
+                                && jobTypeStatusBean.getQuartzJobInfoBean() != null;
                     }
 
                 }.add(new Label("triggerLabel", new PropertyModel<String>(triggerBean, "triggerLabel"))));

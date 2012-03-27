@@ -32,6 +32,12 @@ public class JobConfigSourceImpl implements JobConfigSource {
             return new JobConfig(Sets.newHashSet("host1"), 10, 5, true, jobGroupConfig);
         }
 
+        if (job instanceof TestJob4) {
+            final JobGroupConfig jobGroupConfig = new JobGroupConfig(job.getJobGroup().groupName(), true,
+                    Sets.newHashSet("host1"));
+            return new JobConfig(Sets.newHashSet("host1"), 10, 5, false, jobGroupConfig);
+        }
+
         return null;
     }
 
