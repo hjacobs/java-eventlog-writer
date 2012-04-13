@@ -226,4 +226,9 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public AddressPojo getAddressSql(final AddressPojo a) {
         return sproc.getAddressSql(a);
     }
+
+    @Override
+    public Date getFixedTestDate() {
+        return sproc.getFixedTestDate();
+    }
 }

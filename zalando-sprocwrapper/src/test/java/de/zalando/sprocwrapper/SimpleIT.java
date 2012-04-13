@@ -226,6 +226,17 @@ public class SimpleIT {
     }
 
     @Test
+    public void testReturnDate() {
+        Date d = exampleSProcService.getFixedTestDate();
+        System.out.println("Date d:" + d);
+        System.out.println("Date now:" + (new Date(System.currentTimeMillis())));
+
+        System.out.println(d.getClass().getName());
+
+        assertEquals(1328266821000L, d.getTime()); // extract(epoch from '2012-02-03 12:00:21'::timestamp)*1000
+    }
+
+    @Test
     public void testIntegerListParam() {
         exampleSProcService.useIntegerListParam(Lists.newArrayList(1, 2));
     }

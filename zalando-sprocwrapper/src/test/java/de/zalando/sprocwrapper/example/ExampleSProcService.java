@@ -76,6 +76,9 @@ public interface ExampleSProcService {
     @SProcCall(sql = "SELECT 5555")
     Integer getBla();
 
+    @SProcCall(sql = "SELECT '2012-02-03 12:00:21'::timestamp")
+    Date getFixedTestDate();
+
     @SProcCall(shardStrategy = VirtualShardIdentityStrategy.class)
     int getShardIndex(@ShardKey int shard);
 

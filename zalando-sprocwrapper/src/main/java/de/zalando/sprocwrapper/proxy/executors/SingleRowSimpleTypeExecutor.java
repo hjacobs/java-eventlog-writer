@@ -1,5 +1,6 @@
 package de.zalando.sprocwrapper.proxy.executors;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,8 @@ public class SingleRowSimpleTypeExecutor implements Executor {
         SIMPLE_TYPES.put(float.class, Float.class);
         SIMPLE_TYPES.put(double.class, Double.class);
         SIMPLE_TYPES.put(boolean.class, Boolean.class);
+        SIMPLE_TYPES.put(Date.class, Date.class);
+
     }
 
     public static Class mapReturnType(final Class returnType) {
