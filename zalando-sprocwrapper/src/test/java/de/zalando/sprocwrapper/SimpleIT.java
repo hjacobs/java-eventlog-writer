@@ -436,4 +436,31 @@ public class SimpleIT {
         System.out.println("Time used for SprocWrapper: " + (endTimeW - startTimeW));
         System.out.println("Time used for Native: " + (endTimeN - startTimeN));
     }
+
+    @Test
+    public void testTimeout() {
+        String timeout = exampleSProcService.showTimeout();
+
+        exampleSProcService.testTimeoutSetTo10s(9);
+
+        try {
+            exampleSProcService.testTimeoutSetTo10s(12);
+            assertEquals(true, false);
+        } catch (Exception e) {
+            assertEquals(true, true);
+        }
+
+        String timeout2 = exampleSProcService.showTimeout();
+        assertEquals(timeout, timeout2);
+
+        try {
+            exampleSProcService.testTimeoutSetTo20s(22);
+            assertEquals(true, false);
+        } catch (Exception e) {
+            assertEquals(true, true);
+        }
+
+        String timeout3 = exampleSProcService.showTimeout();
+        assertEquals(timeout, timeout3);
+    }
 }

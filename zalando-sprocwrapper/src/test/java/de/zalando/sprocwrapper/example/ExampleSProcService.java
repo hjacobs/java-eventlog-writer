@@ -145,4 +145,13 @@ public interface ExampleSProcService {
 
     @SProcCall(name = "get_address_sql")
     AddressPojo getAddressSql(@SProcParam AddressPojo a);
+
+    @SProcCall(sql = "SELECT pg_sleep( ? )", timeoutInMilliSeconds = 10 * 1000)
+    void testTimeoutSetTo10s(@SProcParam int sleep);
+
+    @SProcCall(sql = "SELECT pg_sleep( ? )", timeoutInMilliSeconds = 20 * 1000)
+    void testTimeoutSetTo20s(@SProcParam int sleep);
+
+    @SProcCall(sql = "SHOW statement_timeout")
+    String showTimeout();
 }

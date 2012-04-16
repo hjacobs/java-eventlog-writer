@@ -37,7 +37,10 @@ public class ExecutorWrapper implements Executor {
             return;
         }
 
+        LOG.debug("Setting statement timeout " + timeoutInMilliSeconds);
+
         Statement st = conn.createStatement();
+        st.execute("SET application_name TO 'timeout:" + timeoutInMilliSeconds + "'");
         st.execute("SET statement_timeout TO " + timeoutInMilliSeconds);
         st.close();
     }
@@ -47,8 +50,11 @@ public class ExecutorWrapper implements Executor {
             return;
         }
 
+        LOG.debug("Resetting statement timeout");
+
         Statement st = conn.createStatement();
         st.execute("RESET statement_timeout");
+        st.execute("RESET application_name");
         st.close();
     }
 
@@ -102,7 +108,7 @@ public class ExecutorWrapper implements Executor {
                 throw new RuntimeException("Could not acquire AdvisoryLock " + lock.name());
             }
 
-            return executor.executeSProc(ds, sql, args, types, returnType);
+            return executor.executeSProc(sameConnDs, sql, args, types, returnType);
 
         } catch (SQLException e) {
 

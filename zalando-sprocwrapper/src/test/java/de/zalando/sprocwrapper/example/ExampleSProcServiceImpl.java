@@ -231,4 +231,19 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public Date getFixedTestDate() {
         return sproc.getFixedTestDate();
     }
+
+    @Override
+    public void testTimeoutSetTo10s(final int sleep) {
+        sproc.testTimeoutSetTo10s(sleep);
+    }
+
+    @Override
+    public void testTimeoutSetTo20s(final int sleep) {
+        sproc.testTimeoutSetTo20s(sleep);
+    }
+
+    @Override
+    public String showTimeout() {
+        return sproc.showTimeout();
+    }
 }
