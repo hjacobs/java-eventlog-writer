@@ -1,5 +1,7 @@
 package de.zalando.zomcat.appconfig;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,9 +70,7 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
     public Environment getEnvironment() {
 
         final String environment = config.getStringConfig(BaseApplicationConfigImpl.APPLICATION_ENVIRONMENT);
-        if (environment == null) {
-            throw new IllegalStateException();
-        }
+        checkState(environment != null, "no application.environment found");
 
         return Environment.valueOf(environment);
 
