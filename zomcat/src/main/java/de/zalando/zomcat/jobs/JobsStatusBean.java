@@ -30,6 +30,7 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.context.ApplicationContext;
 
@@ -71,6 +72,7 @@ public class JobsStatusBean implements JobsStatusMBean {
      * NPE), meaning still that IF JOBS ARE IN USE THE COMPONENT MUST DEFINE A "jobConfigSource" bean.
      */
     @Autowired(required = false)
+    @Qualifier("applicationConfig")
     private JobConfigSource jobConfigSource;
 
     public SortedMap<String, JobTypeStatusBean> getJobs() {
