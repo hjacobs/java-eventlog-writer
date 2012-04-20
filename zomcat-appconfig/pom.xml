@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.4.3</version>
+        <version>1.4.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando</groupId>
@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Zomcat Application Config Abstract Classes</description>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
@@ -22,6 +22,16 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>appconfig</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

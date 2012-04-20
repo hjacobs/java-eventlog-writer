@@ -17,6 +17,7 @@ import de.zalando.zomcat.SystemConstants;
 public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements BaseApplicationConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseApplicationConfigImpl.class);
+    protected static final String APPLICATION_ENVIRONMENT = "application.environment";
 
     protected transient Configuration config;
 
@@ -31,44 +32,70 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
 
     @Override
     public String getAppInstanceKey() {
-        String appInstanceKey = System.getProperty(SystemConstants.SYSTEM_PROPERTY_APP_INSTANCE_KEY);
+
+        final String key = SystemConstants.SYSTEM_PROPERTY_APP_INSTANCE_KEY;
+
+        String appInstanceKey = System.getProperty(key);
+
         if (appInstanceKey == null) {
+
+            final String defaultValue = SystemConstants.SYSTEM_NAME_FOR_LOCAL_INSTANCE;
+
             final String exclamation = Strings.repeat("!", 120);
             final StringBuilder builder = new StringBuilder(300);
             builder.append('\n').append(exclamation);
-            builder.append("\nNo App Instance Key found, setting " + SystemConstants.SYSTEM_PROPERTY_APP_INSTANCE_KEY
-                    + " = " + SystemConstants.SYSTEM_NAME_FOR_LOCAL_INSTANCE);
+            builder.append("\nNo App Instance Key found, setting " + key + " = " + defaultValue);
             builder.append('\n').append(exclamation);
             LOG.error(builder.toString());
 
-            System.setProperty(SystemConstants.SYSTEM_PROPERTY_APP_INSTANCE_KEY,
-                SystemConstants.SYSTEM_NAME_FOR_LOCAL_INSTANCE);
+            System.setProperty(key, defaultValue);
 
-            // set the appInstanceKey to default:
-            appInstanceKey = SystemConstants.SYSTEM_NAME_FOR_LOCAL_INSTANCE;
+            appInstanceKey = defaultValue;
+
         }
 
         return appInstanceKey;
+
     }
 
-    @Override
-    public boolean isTesting() {
-        return config.getBooleanConfig("application.testing");
-    }
-
+    /**
+     * @return  never null
+     *
+     * @throws  IllegalArgumentException  the configured environment is invalid
+     * @throws  IllegalStateException     no environment configured
+     */
     @Override
     public Environment getEnvironment() {
-        String environment = config.getStringConfig("application.environment");
+
+        final String environment = config.getStringConfig(BaseApplicationConfigImpl.APPLICATION_ENVIRONMENT);
         if (environment == null) {
-            return null;
+            throw new IllegalStateException();
         }
 
         return Environment.valueOf(environment);
+
     }
 
+    /**
+     * @return  true if configured as test machine, false otherwise
+     *
+     * @throws  IllegalArgumentException  the configured environment is invalid
+     * @throws  IllegalStateException     no environment configured
+     */
+    @Override
+    public boolean isTesting() {
+        return !getEnvironment().isLive();
+    }
+
+    /**
+     * @return  true if configured as local machine, false otherwise
+     *
+     * @throws  IllegalArgumentException  the configured environment is invalid
+     * @throws  IllegalStateException     no environment configured
+     */
     @Override
     public boolean isLocalMachine() {
-        return getAppInstanceKey().startsWith("local");
+        return Environment.LOCAL == getEnvironment();
     }
 
 }
