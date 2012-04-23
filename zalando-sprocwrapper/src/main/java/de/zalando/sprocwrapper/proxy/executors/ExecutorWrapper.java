@@ -20,11 +20,11 @@ import de.zalando.sprocwrapper.dsprovider.SameConnectionDatasource;
  */
 public class ExecutorWrapper implements Executor {
 
-    private Executor executor;
-    private long timeoutInMilliSeconds;
-    private AdvisoryLock lock;
+    private final Executor executor;
+    private final long timeoutInMilliSeconds;
+    private final AdvisoryLock lock;
 
-    private static Logger LOG = LoggerFactory.getLogger(ExecutorWrapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExecutorWrapper.class);
 
     public ExecutorWrapper(final Executor e, final long t, final AdvisoryLock a) {
         executor = e;
@@ -39,7 +39,7 @@ public class ExecutorWrapper implements Executor {
 
         LOG.debug("Setting statement timeout " + timeoutInMilliSeconds);
 
-        Statement st = conn.createStatement();
+        final Statement st = conn.createStatement();
         st.execute("SET application_name TO 'timeout:" + timeoutInMilliSeconds + "'");
         st.execute("SET statement_timeout TO " + timeoutInMilliSeconds);
         st.close();
@@ -52,7 +52,7 @@ public class ExecutorWrapper implements Executor {
 
         LOG.debug("Resetting statement timeout");
 
-        Statement st = conn.createStatement();
+        final Statement st = conn.createStatement();
         st.execute("RESET statement_timeout");
         st.execute("RESET application_name");
         st.close();
@@ -63,12 +63,13 @@ public class ExecutorWrapper implements Executor {
             return true;
         }
 
-        Statement st = conn.createStatement();
-        ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.ordinal() + ") AS \"" + lock.name() + "\";");
+        final Statement st = conn.createStatement();
+        final ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.ordinal() + ") AS \"" + lock.name()
+                    + "\";");
 
         boolean b = false;
         if (rs.next()) {
-            b = rs.getBoolean(1);
+            b = true;
         }
 
         rs.close();
@@ -81,8 +82,8 @@ public class ExecutorWrapper implements Executor {
             return true;
         }
 
-        Statement st = conn.createStatement();
-        ResultSet rs = st.executeQuery("SELECT pg_advisory_unlock(" + lock.ordinal() + ")");
+        final Statement st = conn.createStatement();
+        final ResultSet rs = st.executeQuery("SELECT pg_advisory_unlock(" + lock.ordinal() + ")");
         boolean b = false;
         if (rs.next()) {
             b = rs.getBoolean(1);
@@ -110,7 +111,7 @@ public class ExecutorWrapper implements Executor {
 
             return executor.executeSProc(sameConnDs, sql, args, types, returnType);
 
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
 
             throw new RuntimeException("SQL Exception in execute sproc: " + sql, e);
 
@@ -121,7 +122,7 @@ public class ExecutorWrapper implements Executor {
                     if (timeoutInMilliSeconds > 0) {
                         try {
                             resetTimeout(sameConnDs.getConnection());
-                        } catch (SQLException ex) {
+                        } catch (final SQLException ex) {
                             LOG.error("Exception in reseting statement timeout!", ex);
                         }
                     }
@@ -130,14 +131,14 @@ public class ExecutorWrapper implements Executor {
                     if (lock != AdvisoryLock.NO_LOCK) {
                         try {
                             unlockAdvisoryLock(sameConnDs.getConnection());
-                        } catch (SQLException ex) {
+                        } catch (final SQLException ex) {
                             LOG.error("Exception in reseting advisory lock!", ex);
                         }
                     }
                 } finally {
                     try {
                         sameConnDs.close();
-                    } catch (SQLException ex) {
+                    } catch (final SQLException ex) {
                         LOG.error("Exception in closing underlying connection!", ex);
                     }
                 }
