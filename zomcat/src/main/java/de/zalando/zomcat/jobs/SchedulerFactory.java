@@ -47,10 +47,11 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
     private static final String CONFIGURATION_FILE_NAME = "scheduler.conf";
 
     private static final String POOL_SIZE_JOB_DATA_KEY = "pool";
+    private static final String QUEUE_CAPACITY_KEY = "queue";
 
     private BeanDefinitionRegistry beanDefinitionRegistry;
 
-    private Map<Class, Integer> jobNameSequence = Maps.newHashMap();
+    private final Map<Class<?>, Integer> jobNameSequence = Maps.newHashMap();
 
     private static long getMillis(final String s) {
         final int len = s.length();
@@ -89,12 +90,23 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
 
     private void createSchedulerFactoryBean(final String name, final Map<String, String> jobData) {
         int poolSize = 1;
+        int queueCapacity = 0;
 
-        if (jobData != null && jobData.containsKey(POOL_SIZE_JOB_DATA_KEY)) {
-            try {
-                poolSize = Integer.valueOf(jobData.get(POOL_SIZE_JOB_DATA_KEY));
-            } catch (final NumberFormatException nfe) {
-                throw new IllegalArgumentException("invalid thread pool size (not an integer)", nfe);
+        if (jobData != null) {
+            if (jobData.containsKey(POOL_SIZE_JOB_DATA_KEY)) {
+                try {
+                    poolSize = Integer.valueOf(jobData.get(POOL_SIZE_JOB_DATA_KEY));
+                } catch (final NumberFormatException nfe) {
+                    throw new IllegalArgumentException("invalid thread pool size (not an integer)", nfe);
+                }
+            }
+
+            if (jobData.containsKey(QUEUE_CAPACITY_KEY)) {
+                try {
+                    queueCapacity = Integer.valueOf(jobData.get(QUEUE_CAPACITY_KEY));
+                } catch (final NumberFormatException nfe) {
+                    throw new IllegalArgumentException("invalid thread pool size (not an integer)", nfe);
+                }
             }
         }
 
@@ -104,7 +116,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         def.setBeanClass(DiscardingThreadPoolTaskExecutor.class);
         def.getPropertyValues().add("corePoolSize", poolSize);
         def.getPropertyValues().add("maxPoolSize", poolSize);
-        def.getPropertyValues().add("queueCapacity", 0);
+        def.getPropertyValues().add("queueCapacity", queueCapacity);
         beanDefinitionRegistry.registerBeanDefinition(name + "Executor", def);
 
         def = new GenericBeanDefinition();
@@ -125,7 +137,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
      *
      * @return
      */
-    private String getJobName(final Class clazz) {
+    private String getJobName(final Class<?> clazz) {
         String name = lowerCaseFirst(clazz.getSimpleName());
 
         Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
@@ -156,7 +168,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         Preconditions.checkArgument("after".equals(cols[2]), "3rd column must contain the word 'after'");
 
         final String className = cols[4];
-        final Class clazz = Class.forName(className);
+        final Class<?> clazz = Class.forName(className);
         final String name = getJobName(clazz);
         final String repeatInterval = cols[1];
         final String startDelay = cols[3];
@@ -186,7 +198,7 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
         Preconditions.checkArgument(cols.length >= 8, "too few columns");
 
         final String className = cols[7];
-        final Class clazz = Class.forName(className);
+        final Class<?> clazz = Class.forName(className);
         final String name = getJobName(clazz);
         final String cronExpression = StringUtils.join(Arrays.copyOfRange(cols, 1, 7), " ");
         final Map<String, String> jobData = getJobData(cols, 8);
