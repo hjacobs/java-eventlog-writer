@@ -8,7 +8,7 @@
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>0.1.24</version>
+    <version>0.1.25</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
     <dependencies>

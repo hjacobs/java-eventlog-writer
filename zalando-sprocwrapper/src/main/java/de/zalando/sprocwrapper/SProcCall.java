@@ -15,7 +15,8 @@ import java.lang.annotation.Target;
 public @interface SProcCall {
 
     public static enum AdvisoryLock {
-        NO_LOCK
+        NO_LOCK,
+        EMAIL_SELECT_UNPROCESSED_LOCK
     }
 
     String name() default "";
