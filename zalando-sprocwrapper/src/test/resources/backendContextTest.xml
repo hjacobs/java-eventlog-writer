@@ -54,6 +54,15 @@
         </constructor-arg>
     </bean>
 
+    <bean id="testShardDataSourceFromMap" class="de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider">
+        <constructor-arg>
+            <map>
+                <entry key="0" value-ref="testDataSource1" />
+                <entry key="1" value-ref="testDataSource2" />
+            </map>
+        </constructor-arg>
+    </bean>
+
     <bean id="testBitmapShardDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider">
         <constructor-arg>
             <value>com.jolbox.bonecp.BoneCPDataSource</value>

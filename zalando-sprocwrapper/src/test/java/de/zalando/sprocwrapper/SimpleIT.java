@@ -441,10 +441,10 @@ public class SimpleIT {
     public void testTimeout() {
         String timeout = exampleSProcService.showTimeout();
 
-        exampleSProcService.testTimeoutSetTo10s(9);
+        exampleSProcService.testTimeoutSetTo3s(2);
 
         try {
-            exampleSProcService.testTimeoutSetTo10s(12);
+            exampleSProcService.testTimeoutSetTo3s(4);
             assertEquals(true, false);
         } catch (Exception e) {
             assertEquals(true, true);
@@ -454,7 +454,7 @@ public class SimpleIT {
         assertEquals(timeout, timeout2);
 
         try {
-            exampleSProcService.testTimeoutSetTo20s(22);
+            exampleSProcService.testTimeoutSetTo5s(6);
             assertEquals(true, false);
         } catch (Exception e) {
             assertEquals(true, true);

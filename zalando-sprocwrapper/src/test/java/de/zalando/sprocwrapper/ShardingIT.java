@@ -10,12 +10,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
+import de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider;
 import de.zalando.sprocwrapper.example.ExampleBitmapShardSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleShardedObject;
@@ -32,6 +34,10 @@ public class ShardingIT {
 
     @Autowired
     private ExampleBitmapShardSProcService exampleBitmapShardSProcService;
+
+    @Autowired
+    @Qualifier("testShardDataSourceFromMap")
+    private BitmapShardDataSourceProvider initializedByMapSource;
 
     @Test
     public void testSharding() {
@@ -134,5 +140,12 @@ public class ShardingIT {
         assertEquals("shard1row1ef3", results.get(0));
         assertEquals("shard2row1ab3", results.get(1));
 
+    }
+
+    @Test
+    public void testInitializedByMap() {
+        assertEquals(2, initializedByMapSource.getDistinctShardIds().size());
+
+        assertEquals(true, initializedByMapSource.getDataSource(0) != initializedByMapSource.getDataSource(1));
     }
 }

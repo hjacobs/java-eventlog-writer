@@ -233,13 +233,13 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
-    public void testTimeoutSetTo10s(final int sleep) {
-        sproc.testTimeoutSetTo10s(sleep);
+    public void testTimeoutSetTo3s(final int sleep) {
+        sproc.testTimeoutSetTo3s(sleep);
     }
 
     @Override
-    public void testTimeoutSetTo20s(final int sleep) {
-        sproc.testTimeoutSetTo20s(sleep);
+    public void testTimeoutSetTo5s(final int sleep) {
+        sproc.testTimeoutSetTo5s(sleep);
     }
 
     @Override

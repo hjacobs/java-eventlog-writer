@@ -4,6 +4,7 @@ package de.zalando.sprocwrapper.example;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +17,8 @@ public class ExampleBitmapShardSProcServiceImpl
     implements ExampleBitmapShardSProcService {
 
     @Autowired
-    public ExampleBitmapShardSProcServiceImpl(final BitmapShardDataSourceProvider p) {
+    public ExampleBitmapShardSProcServiceImpl(
+            @Qualifier("testBitmapShardDataSourceProvider") final BitmapShardDataSourceProvider p) {
         super(p, ExampleBitmapShardSProcService.class);
     }
 

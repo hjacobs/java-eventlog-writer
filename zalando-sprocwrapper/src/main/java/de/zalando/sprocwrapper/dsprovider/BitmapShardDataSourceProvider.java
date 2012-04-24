@@ -27,6 +27,55 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
     private final List<Integer> distinctShardIds;
 
+    public BitmapShardDataSourceProvider(final Map<String, DataSource> connectionDataSources) {
+
+        int maskLength = 0;
+        for (Entry<String, DataSource> entry : connectionDataSources.entrySet()) {
+            if (entry.getKey().length() > maskLength) {
+                maskLength = entry.getKey().length();
+            }
+        }
+
+        mask = (1 << maskLength) - 1;
+
+        dataSources = new DataSource[1 << maskLength];
+
+        for (Entry<String, DataSource> entry : connectionDataSources.entrySet()) {
+            DataSource ds = entry.getValue();
+
+            for (int i = 0; i < dataSources.length; i++) {
+                String binaryString = StringUtils.repeat("0", maskLength) + Integer.toBinaryString(i);
+                if (binaryString.endsWith(entry.getKey())) {
+                    LOG.debug("Configured " + entry.getValue() + " at index " + i);
+                    if (dataSources[i] != null) {
+                        throw new IllegalArgumentException(
+                            "Bitmask misconfigured for shards: two connections configured for index " + i);
+                    }
+
+                    dataSources[i] = ds;
+                }
+            }
+        }
+
+        for (int i = 0; i < dataSources.length; i++) {
+            if (dataSources[i] == null) {
+                throw new IllegalArgumentException("Not enough connection URLs configured for mask length " + maskLength
+                        + ": datasource at index " + i + " is missing");
+            }
+        }
+
+        distinctShardIds = Lists.newArrayList();
+
+        Set<DataSource> seenDataSources = Sets.newHashSet();
+
+        for (int i = 0; i < dataSources.length; i++) {
+            if (!seenDataSources.contains(dataSources[i])) {
+                distinctShardIds.add(i);
+                seenDataSources.add(dataSources[i]);
+            }
+        }
+    }
+
     public BitmapShardDataSourceProvider(final Class<? extends DataSource> dataSourceClass,
             final Map<String, String> commonDataSourceProperties, final Map<String, String> connectionUrls)
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
