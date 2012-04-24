@@ -105,12 +105,13 @@ public class SchedulerFactory implements BeanDefinitionRegistryPostProcessor {
                 try {
                     queueCapacity = Integer.valueOf(jobData.get(QUEUE_CAPACITY_KEY));
                 } catch (final NumberFormatException nfe) {
-                    throw new IllegalArgumentException("invalid thread pool size (not an integer)", nfe);
+                    throw new IllegalArgumentException("invalid queue capacity size (not an integer)", nfe);
                 }
             }
         }
 
         Preconditions.checkArgument(poolSize >= 1, "thread pool size must be at least 1");
+        Preconditions.checkArgument(queueCapacity >= 0, "queue capacity size cannot be negative");
 
         GenericBeanDefinition def = new GenericBeanDefinition();
         def.setBeanClass(DiscardingThreadPoolTaskExecutor.class);
