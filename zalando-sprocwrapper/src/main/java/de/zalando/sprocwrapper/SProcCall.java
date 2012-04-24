@@ -15,8 +15,60 @@ import java.lang.annotation.Target;
 public @interface SProcCall {
 
     public static enum AdvisoryLock {
-        NO_LOCK,
-        EMAIL_SELECT_UNPROCESSED_LOCK
+        NO_LOCK(0L),
+
+        // values 1 to 34 have been copied from de.zalando.dbutils.sproc.LockingSproc
+        GET_CAPTURE_QUEUE_ITEM(1L),
+        GET_PENDING_MAILS(2L),
+        GET_UNSENT_GIFT_VOUCHERS(3L),
+        GET_DOCDATA_STOCK_MUTATIONS(4L),
+        GET_DOCDATA_RETURN_ORDERS(5L),
+        GET_PRICE_COMPARISON_SERVICE_AND_SET_TO_PROCESSING(6L),
+        EXPORT_UPDATED_ARTICLES_TO_ZALOS(7L),
+        PROCESS_PURCHASE_ORDERS_FOR_DOCDATA(8L),
+        EXPORT_PURCHASE_ORDERS_TO_ZALOS(9L),
+        PROCESS_SUPPLIERS_FOR_DOCDATA(10L),
+        EXPORT_SUPPLIERS_TO_ZALOS(11L),
+        IMPORT_ZALOS_STOCK_MUTATIONS(12L),
+        GET_UPDATED_ARTICLE_STOCKS_SHOP(13L),
+        GET_UPDATER_EVENTS_AND_SET_TO_PROCESSING(14L),
+        EXPORT_SALES_ORDERS_TO_ZALOS(15L),
+        SET_ARTICLE_EXPORTED_TO_ZALOS_STATI(16L),
+        GET_SHIPPING_CONFIRMATIONS(17L),
+        GET_UPDATED_ARTICLE_STOCKS_EXPORTER(18L),
+        GET_UPDATED_ARTICLE_STOCKS_LOUNGE(19L),
+        IMPORT_ZALOS_SHIPPING_CONFIRMATIONS(20L),
+        IMPORT_ZALOS_SHIPPING_STATS_CHANGE(21L),
+        IMPORT_ZALOS_SUPPLIER_STOCK_MUTATIONS(22L),
+        GET_AND_UPDATE_FIA_REQUEST(23L),
+        IMPORT_ZALOS_RETURN_ORDERS(24L),
+        IMPORT_ZALOS_OUTBOUND_SCANS(25L),
+        EXPORT_SALES_ORDERS_TO_PARTNER_SERVICE(26L),
+        IMPORT_PARTNER_SHIPPING_STATS_CHANGES(27L),
+        IMPORT_PARTNER_SHIPPING_CONFIRMATIONS(28L),
+        IMPORT_PRICES_FROM_PARTNER_SERVICE(29L),
+        IMPORT_STOCKS_FROM_PARTNER_SERVICE(30L),
+        GET_PARTNER_ARTICLES(31L),
+        GET_ORDERS_BY_STATUS_AND_SET_NEW_STATUS(32L),
+        GET_ERP_CALLS_AND_SET_TO_PROCESSING(33L),
+        GET_STOCK_SERVICE_CALLS(34L),
+
+        /*
+         * The values following now don't exist in LockingSproc. To allow adding new values to
+         * de.zalando.dbutils.sproc.LockingSproc though we continue counting with a considerably higher value
+         */
+        GET_PENDING_BATCH_MAILS(1001L),;
+
+        private AdvisoryLock(final long sprocId) {
+            this.sprocId = sprocId;
+        }
+
+        private final long sprocId;
+
+        public long getSprocId() {
+            return sprocId;
+        }
+
     }
 
     String name() default "";

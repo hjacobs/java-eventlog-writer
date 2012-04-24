@@ -64,7 +64,7 @@ public class ExecutorWrapper implements Executor {
         }
 
         final Statement st = conn.createStatement();
-        final ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.ordinal() + ") AS \"" + lock.name()
+        final ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.getSprocId() + ") AS \"" + lock.name()
                     + "\";");
 
         boolean b = false;
