@@ -83,7 +83,7 @@ public class ExecutorWrapper implements Executor {
         }
 
         final Statement st = conn.createStatement();
-        final ResultSet rs = st.executeQuery("SELECT pg_advisory_unlock(" + lock.ordinal() + ")");
+        final ResultSet rs = st.executeQuery("SELECT pg_advisory_unlock(" + lock.getSprocId() + ")");
         boolean b = false;
         if (rs.next()) {
             b = rs.getBoolean(1);

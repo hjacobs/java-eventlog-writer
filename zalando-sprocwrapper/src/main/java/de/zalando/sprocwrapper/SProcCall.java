@@ -57,7 +57,7 @@ public @interface SProcCall {
          * The values following now don't exist in LockingSproc. To allow adding new values to
          * de.zalando.dbutils.sproc.LockingSproc though we continue counting with a considerably higher value
          */
-        GET_PENDING_BATCH_MAILS(1001L),;
+        GET_PENDING_BATCH_MAILS(1001L);
 
         private AdvisoryLock(final long sprocId) {
             this.sprocId = sprocId;
