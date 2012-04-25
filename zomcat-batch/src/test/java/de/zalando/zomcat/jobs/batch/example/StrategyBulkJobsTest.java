@@ -59,7 +59,7 @@ class ExpectationSet {
     @Override
     public String toString() {
         return String.format(
-                "Exepectation: \n\tqtyChunks: \t%s\n\tqtyCommited: \t%s\n\tsumSuccess: \t%s\n\tsumFail: \t%s\n\tchunkSize: \t%s",
+                "Expectation: \n\tqtyChunks: \t%s\n\tqtyCommited: \t%s\n\tsumSuccess: \t%s\n\tsumFail: \t%s\n\tchunkSize: \t%s",
                 qtyChunks, qtyCommited, sumSuccess, sumFail, chunkSize);
     }
 }

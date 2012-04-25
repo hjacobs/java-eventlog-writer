@@ -1,5 +1,8 @@
 package de.zalando.zomcat.jobs.batch.transition;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -62,11 +65,8 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
             missingComponents.add("writer");
         }
 
-        if (missingComponents.size() > 0) {
-            throw new IllegalStateException(String.format("Setup of Job [%s] incomplete. Missing fields are: %s.",
-                    getBeanName(), missingComponents));
-        }
-
+        checkState(missingComponents.isEmpty(), "Setup of %s incomplete. Missing fields are: %s.", getBeanName(),
+            missingComponents);
     }
 
     /*
@@ -112,13 +112,13 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
      *
      * @throws  ItemFetcherException  if an error occurs enriching Items
      */
-    private List<ITEM_TYPE> enrichtItems(final List<ITEM_TYPE> items) throws Exception {
+    private List<ITEM_TYPE> enrichItems(final List<ITEM_TYPE> items) throws Exception {
         try {
             return fetcher.enrichItems(items);
         } catch (final ItemFetcherException e) {
             throw e;
         } catch (final Exception e) {
-            final String message = "Could not fetch items";
+            final String message = "Could not enrich items";
             LOG.error(message, e);
             throw new ItemFetcherException(message, e);
         }
@@ -141,6 +141,12 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     }
 
     private void process(final int limit) throws Exception {
+        checkArgument(limit >= 0, "limit must be >= 0");
+        if (limit == 0) {
+
+            // probably a configuration error, but we continue anyway
+            LOG.warn("running {} with limit zero", getBeanName());
+        }
 
         final List<ITEM_TYPE> successfulItems = Lists.newArrayList();
         final List<JobResponse<ITEM_TYPE>> failedItems = Lists.newArrayList();
@@ -150,15 +156,17 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
         List<ITEM_TYPE> itemsToProcess = null;
         try {
-            LOG.info("starting job [{}]", this.getBeanName());
+
+            // NOTE: the bean name already ends with "Job" so we do not need to repeat it in log messages
+            LOG.info("starting {} with limit {}", getBeanName(), limit);
 
             itemsToProcess = fetchItems(limit);
 
-            LOG.info("fetched [{}] number of items", itemsToProcess.size());
+            LOG.info("processing {} items", itemsToProcess.size());
 
-            itemsToProcess = enrichtItems(itemsToProcess);
+            itemsToProcess = enrichItems(itemsToProcess);
 
-            LOG.info("enriched [{}] number of items", itemsToProcess.size());
+            LOG.info("enriched {} items", itemsToProcess.size());
 
             // internal validation
             Pair<Collection<ITEM_TYPE>, Collection<JobResponse<ITEM_TYPE>>> validatedItems = validate(itemsToProcess);
@@ -227,13 +235,13 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
             }
 
             // if we write here we are probably not executing anything.
-            LOG.debug("Writing [{}] successful [{}] failed items", successfulItems.size(), failedItems.size());
+            LOG.debug(ItemWriter.WRITE_LOG_FORMAT, successfulItems.size(), failedItems.size());
             writer.writeItems(successfulItems, failedItems);
 
         }
 
-        LOG.info("Finished dispatching/execution job [{}] successful processed items [{}] failed items [{}]",
-            new Object[] {this.getBeanName(), successfulItems.size(), failedItems.size()});
+        LOG.info("finished {} with {} successfull items and {} failed items",
+            new Object[] {getBeanName(), successfulItems.size(), failedItems.size()});
     }
 
     /**

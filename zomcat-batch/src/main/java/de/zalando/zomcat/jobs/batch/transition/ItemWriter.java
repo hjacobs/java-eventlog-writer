@@ -12,6 +12,8 @@ import java.util.Collection;
  */
 public interface ItemWriter<Item> {
 
+    String WRITE_LOG_FORMAT = "writing {} successful and {} failed items";
+
     void writeItems(Collection<Item> successfulItems, Collection<JobResponse<Item>> failedItems) throws Exception;
 
 }

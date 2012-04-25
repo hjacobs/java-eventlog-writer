@@ -177,7 +177,7 @@ public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
                 new Object[] {successfulItems.size(), failedItems.size(), e});
         }
 
-        LOG.info("finished {} job with {} successfull items and {} failed items",
+        LOG.info("finished {} with {} successfull items and {} failed items",
             new Object[] {getBeanName(), successfulItems.size(), failedItems.size()});
     }
 

@@ -114,7 +114,7 @@ public abstract class BatchExecutionStrategy<Item> {
      */
     protected void write(final Collection<Item> successfulItems, final Collection<JobResponse<Item>> failedItems)
         throws Exception {
-        LOG.debug("writing [{}] successful [{}] failed items", successfulItems.size(), failedItems.size());
+        LOG.debug(ItemWriter.WRITE_LOG_FORMAT, successfulItems.size(), failedItems.size());
         writer.writeItems(successfulItems, failedItems);
     }
 
