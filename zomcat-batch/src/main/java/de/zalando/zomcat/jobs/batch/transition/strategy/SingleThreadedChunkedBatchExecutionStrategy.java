@@ -1,4 +1,4 @@
-package de.zalando.zomcat.jobs.batch.transition;
+package de.zalando.zomcat.jobs.batch.transition.strategy;
 
 import java.util.Collection;
 import java.util.List;
@@ -7,8 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
-import de.zalando.utils.Pair;
+import de.zalando.zomcat.jobs.batch.transition.BatchExecutionStrategy;
+import de.zalando.zomcat.jobs.batch.transition.JobResponse;
+import de.zalando.zomcat.jobs.batch.transition.WriteTime;
 
 /**
  * Single thread execution strategy. Executes each item in a chunk after the other. Concrete implementations must define
@@ -24,26 +27,32 @@ public abstract class SingleThreadedChunkedBatchExecutionStrategy<ITEM_TYPE> ext
 
     private int processedCount = 0;
 
+    protected final List<ITEM_TYPE> successfulItems = Lists.newArrayList();
+    protected final List<JobResponse<ITEM_TYPE>> failedItems = Lists.newArrayList();
+
     @Override
     public void processChunk(final String chunkId, final Collection<ITEM_TYPE> items) throws Exception {
 
-        Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>> statuses = getStatuses();
-        List<ITEM_TYPE> successfulItems = statuses.getFirst();
-        List<JobResponse<ITEM_TYPE>> failedItems = statuses.getSecond();
-
         LOG.trace("Starting execution of chunk {}.", chunkId);
+
+        int total = items.size();
 
         for (ITEM_TYPE item : items) {
 
-            LOG.trace("Dispatching item {} to processor.", item);
+            LOG.trace("Dispatching item {} to processor. (%s of %s)",
+                new Object[] {item, (processedCount + 1), items.size()});
 
             try {
                 processedCount++;
+                processor.validate(item);
                 processor.process(item);
+
                 successfulItems.add(item);
+
             } catch (Throwable t) {
                 JobResponse<ITEM_TYPE> response = new JobResponse<ITEM_TYPE>(item);
                 response.addErrorMessage(Throwables.getStackTraceAsString(t));
+
                 failedItems.add(response);
             }
 

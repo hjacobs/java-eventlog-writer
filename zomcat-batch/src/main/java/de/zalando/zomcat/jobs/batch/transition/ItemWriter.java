@@ -12,8 +12,14 @@ import java.util.Collection;
  */
 public interface ItemWriter<Item> {
 
+    /**
+     * Implementations must be thread safe for any usage under concurrency.
+     *
+     * @param  successfulItems
+     * @param  failedItems
+     */
     String WRITE_LOG_FORMAT = "writing {} successful and {} failed items";
 
-    void writeItems(Collection<Item> successfulItems, Collection<JobResponse<Item>> failedItems) throws Exception;
+    void writeItems(Collection<Item> successfulItems, Collection<JobResponse<Item>> failedItems);
 
 }

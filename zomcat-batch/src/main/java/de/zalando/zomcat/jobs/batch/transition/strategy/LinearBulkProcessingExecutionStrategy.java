@@ -1,9 +1,15 @@
-package de.zalando.zomcat.jobs.batch.transition;
+package de.zalando.zomcat.jobs.batch.transition.strategy;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+
+import de.zalando.utils.Pair;
+
+import de.zalando.zomcat.jobs.batch.transition.JobResponse;
+import de.zalando.zomcat.jobs.batch.transition.WriteTime;
 
 /**
  * Simple linear partitioning strategy and execution. Build and returns one single chunk with all the given work items.
@@ -12,7 +18,8 @@ import com.google.common.collect.Maps;
  *
  * @author  john
  */
-public class LinearBulkProcessingExecutionStrategy<ITEM_TYPE> extends SingleThreadedChunkedBatchExecutionStrategy<ITEM_TYPE> {
+public class LinearBulkProcessingExecutionStrategy<ITEM_TYPE>
+    extends SingleThreadedChunkedBatchExecutionStrategy<ITEM_TYPE> {
 
     @Override
     public Map<String, Collection<ITEM_TYPE>> makeChunks(final Collection<ITEM_TYPE> items) {
@@ -25,6 +32,11 @@ public class LinearBulkProcessingExecutionStrategy<ITEM_TYPE> extends SingleThre
 
     public WriteTime getWriteTime() {
         return WriteTime.AT_END_OF_BATCH;
+    }
+
+    @Override
+    protected Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>> joinResults() {
+        return Pair.of(successfulItems, failedItems);
     }
 
 }
