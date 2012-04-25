@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,8 +24,8 @@ import de.zalando.zomcat.jobs.batch.transition.ItemFetcher;
 import de.zalando.zomcat.jobs.batch.transition.ItemProcessor;
 import de.zalando.zomcat.jobs.batch.transition.ItemWriter;
 import de.zalando.zomcat.jobs.batch.transition.JobResponse;
-import de.zalando.zomcat.jobs.batch.transition.SingleThreadedChunkedBatchExecutionStrategy;
 import de.zalando.zomcat.jobs.batch.transition.WriteTime;
+import de.zalando.zomcat.jobs.batch.transition.strategy.SingleThreadedChunkedBatchExecutionStrategy;
 
 /**
  * Sample implementation of a linear job. Reads a simple file and processes its content. Processing rule is that if
@@ -63,6 +64,11 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     @Override
     protected BatchExecutionStrategy<FakeItem> getExecutionStrategy() {
         return new SingleThreadedChunkedBatchExecutionStrategy<FakeItem>() {
+
+            @Override
+            protected Pair<List<FakeItem>, List<JobResponse<FakeItem>>> joinResults() {
+                return Pair.of(successfulItems, failedItems);
+            }
 
             @Override
             public Map<String, Collection<FakeItem>> makeChunks(final Collection<FakeItem> items) {
@@ -140,7 +146,7 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
 
     @Override
     public void writeItems(final Collection<FakeItem> successfulItems,
-            final Collection<JobResponse<FakeItem>> failedItems) throws Exception {
+            final Collection<JobResponse<FakeItem>> failedItems) {
 
         if (logFile == null) {
             throw new IllegalStateException("For testing logFile must be set.");
@@ -148,10 +154,15 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
 
         LOG.debug("using output file: " + logFile);
 
-        FileWriter fileWriter = new FileWriter(logFile, true);
+        FileWriter fileWriter = null;
+        try {
 
-        fileWriter.append(String.format("%s %s\n", successfulItems.size(), failedItems.size()));
-        fileWriter.close();
+            fileWriter = new FileWriter(logFile, true);
+            fileWriter.append(String.format("%s %s\n", successfulItems.size(), failedItems.size()));
+            fileWriter.close();
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed to write file", ex);
+        }
 
     }
 
@@ -166,13 +177,8 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
 
     }
 
-    // so far this is still required.
     @Override
-    public Pair<Collection<FakeItem>, Collection<JobResponse<FakeItem>>> validate(final Collection<FakeItem> items) {
-
-        Collection<JobResponse<FakeItem>> noInvalid = Lists.newArrayList();
-        return Pair.of(items, noInvalid);
-    }
+    public void validate(final FakeItem item) { }
 
     /*
      * These fields are used only to test since this is a fake job. "Real" jobs won't require any of this.

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-
-import de.zalando.utils.Pair;
 
 import de.zalando.zomcat.jobs.batch.transition.AbstractLinearBulkProcessingJob;
 import de.zalando.zomcat.jobs.batch.transition.ItemFetcher;
@@ -102,18 +101,20 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
 
     @Override
     public void writeItems(final Collection<FakeItem> successfulItems,
-            final Collection<JobResponse<FakeItem>> failedItems) throws Exception {
+            final Collection<JobResponse<FakeItem>> failedItems) {
 
         if (logFile == null) {
             throw new IllegalStateException("For testing logFile must be set.");
         }
 
         LOG.debug("using output file: " + logFile);
-
-        FileWriter fileWriter = new FileWriter(logFile, true);
-        fileWriter.append(String.format("%s %s\n", successfulItems.size(), failedItems.size()));
-        fileWriter.close();
-
+        try {
+            FileWriter fileWriter = new FileWriter(logFile, true);
+            fileWriter.append(String.format("%s %s\n", successfulItems.size(), failedItems.size()));
+            fileWriter.close();
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed to write file", ex);
+        }
     }
 
     @Override
@@ -126,13 +127,8 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
 
     }
 
-    // so far this is still required.
     @Override
-    public Pair<Collection<FakeItem>, Collection<JobResponse<FakeItem>>> validate(final Collection<FakeItem> items) {
-
-        Collection<JobResponse<FakeItem>> noInvalid = Lists.newArrayList();
-        return Pair.of(items, noInvalid);
-    }
+    public void validate(final FakeItem item) { }
 
     /*
      * These fields are used only to test since this is a fake job. "Real" jobs won't require any of this.
