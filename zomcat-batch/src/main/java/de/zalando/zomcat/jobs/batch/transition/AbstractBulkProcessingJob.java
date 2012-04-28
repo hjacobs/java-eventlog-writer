@@ -3,7 +3,6 @@ package de.zalando.zomcat.jobs.batch.transition;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -151,6 +150,13 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
             itemsToProcess = fetchItems(limit);
 
+            if (itemsToProcess.isEmpty()) {
+
+                // shortcut exit to avoid cluttering log files with unnecessary "0" items statements
+                LOG.info("finished {} with 0 items", getBeanName());
+                return;
+            }
+
             LOG.info("processing {} items", itemsToProcess.size());
 
             itemsToProcess = enrichItems(itemsToProcess);
@@ -192,7 +198,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
         }
 
-        LOG.info("finished {} with {} successfull items and {} failed items",
+        LOG.info("finished {} with {} successfull and {} failed items",
             new Object[] {getBeanName(), successfulItems.size(), failedItems.size()});
     }
 

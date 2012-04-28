@@ -110,6 +110,13 @@ public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
 
         final List<Item> items = fetchItems(limit);
 
+        if (items.isEmpty()) {
+
+            // shortcut exit to avoid cluttering log files with unnecessary "0" items statements
+            LOG.info("finished {} with 0 items", getBeanName());
+            return;
+        }
+
         LOG.info("processing {} items", items.size());
 
         // internal validation
@@ -177,7 +184,7 @@ public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
                 new Object[] {successfulItems.size(), failedItems.size(), e});
         }
 
-        LOG.info("finished {} with {} successfull items and {} failed items",
+        LOG.info("finished {} with {} successfull and {} failed items",
             new Object[] {getBeanName(), successfulItems.size(), failedItems.size()});
     }
 
