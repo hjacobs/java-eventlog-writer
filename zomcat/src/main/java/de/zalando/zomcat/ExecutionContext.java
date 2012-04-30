@@ -97,7 +97,7 @@ public final class ExecutionContext {
      */
     public static void addSerialized(final String serializedExecutionContexts) {
         if (serializedExecutionContexts != null) {
-            final Iterable<String> splitted = Splitter.on(",").trimResults().omitEmptyStrings().split(
+            final Iterable<String> splitted = Splitter.on("&").trimResults().omitEmptyStrings().split(
                     serializedExecutionContexts);
             for (final String split : splitted) {
                 final String[] keyValues = split.split("=");
@@ -112,7 +112,7 @@ public final class ExecutionContext {
      * @return  the serialized context or null if the map is empty.
      */
     public static String serialize() {
-        final String serialized = Joiner.on(",").useForNull(null).withKeyValueSeparator("=").join(
+        final String serialized = Joiner.on("&").useForNull("").withKeyValueSeparator("=").join(
                 getExecutionContext().executionContextMap.get());
         return serialized;
     }
