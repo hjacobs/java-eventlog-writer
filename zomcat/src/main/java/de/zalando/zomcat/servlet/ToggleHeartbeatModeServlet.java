@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import org.springframework.web.context.ContextLoader;
 
+import de.zalando.zomcat.ExecutionContext;
 import de.zalando.zomcat.HeartbeatMode;
 import de.zalando.zomcat.flowid.FlowId;
 import de.zalando.zomcat.monitoring.HeartbeatStatusBean;
@@ -40,6 +41,7 @@ public class ToggleHeartbeatModeServlet extends HttpServlet {
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,
         IOException {
         try {
+            ExecutionContext.clear();
             FlowId.clear();
             FlowId.generateAndPushFlowId();
 
@@ -85,6 +87,7 @@ public class ToggleHeartbeatModeServlet extends HttpServlet {
             }
         } finally {
             FlowId.clear();
+            ExecutionContext.clear();
         }
     }
 

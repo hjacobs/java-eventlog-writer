@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import de.zalando.domain.ComponentBean;
 
+import de.zalando.zomcat.ExecutionContext;
 import de.zalando.zomcat.flowid.FlowId;
 import de.zalando.zomcat.jobs.JobListener;
 import de.zalando.zomcat.jobs.RunningWorker;
@@ -34,6 +35,7 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
     public void startRunning(final RunningWorker runningWorker, final JobExecutionContext context, final String host) {
 
         // clear this thread: there can be no other context in there...
+        ExecutionContext.clear();
         FlowId.clear();
         FlowId.generateAndPushFlowId();
         LOG.trace("start running job with flowId {}", FlowId.peekFlowId());

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.context.ContextLoader;
 
+import de.zalando.zomcat.ExecutionContext;
 import de.zalando.zomcat.flowid.FlowId;
 import de.zalando.zomcat.jobs.JobsStatusBean;
 
@@ -33,6 +34,7 @@ public class ToggleJobModeServlet extends HttpServlet {
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,
         IOException {
         try {
+            ExecutionContext.clear();
             FlowId.clear();
             FlowId.generateAndPushFlowId();
 
@@ -57,6 +59,7 @@ public class ToggleJobModeServlet extends HttpServlet {
             }
         } finally {
             FlowId.clear();
+            ExecutionContext.clear();
         }
     }
 

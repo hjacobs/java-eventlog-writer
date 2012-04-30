@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.zalando</groupId>
         <artifactId>zalando-parent</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.16</version>
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
@@ -62,6 +62,10 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zalando-dbutils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.zalando</groupId>
+            <artifactId>zomcat</artifactId>
         </dependency>
     </dependencies>
     <profiles>
