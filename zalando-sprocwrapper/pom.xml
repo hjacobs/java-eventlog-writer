@@ -4,11 +4,11 @@
     <parent>
         <groupId>de.zalando</groupId>
         <artifactId>zalando-parent</artifactId>
-        <version>1.4.16</version>
+        <version>1.4.17</version>
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>0.1.27</version>
+    <version>0.1.28</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
     <dependencies>
