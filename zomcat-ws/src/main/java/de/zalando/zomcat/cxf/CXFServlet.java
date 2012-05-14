@@ -162,7 +162,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
                     pos = 0;
                     for (final Annotation[] as : method.getParameterAnnotations()) {
                         for (final Annotation a : as) {
-                            if (a instanceof WebParam) {
+                            if (a instanceof WebParam && params.size() > pos) {
                                 params.get(pos).name = ((WebParam) a).name();
                             }
                         }

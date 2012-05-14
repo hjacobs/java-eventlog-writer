@@ -1,8 +1,11 @@
 package de.zalando.eventlog;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.io.IOException;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.DailyRollingFileAppender;
@@ -21,6 +24,9 @@ public class EventLogger {
     private static final Logger EVENT_LOG = Logger.getLogger("eventlog");
     private static final Logger EVENT_LOG_LAYOUT = Logger.getLogger("eventlog-layout");
     private static final Logger LOG = Logger.getLogger(EventLogger.class);
+
+    // enforce naming convention: for example do not allow underscores in field names!
+    private static Pattern VALID_FIELD_NAME_PATTERN = Pattern.compile("^[a-z][a-zA-Z0-9]*$");
 
     private static EventLogger instance;
 
@@ -81,6 +87,9 @@ public class EventLogger {
         sb.append('\t');
         sb.append(getValue(type.getName()));
         for (String name : type.getFieldNames()) {
+
+            // enforce naming conventions!
+            checkArgument(VALID_FIELD_NAME_PATTERN.matcher(name).matches(), "invalid event field name: '%s'", name);
             sb.append('\t');
             sb.append(getValue(name));
         }
@@ -89,6 +98,11 @@ public class EventLogger {
     }
 
     public void log(final EventType type, final Object... values) {
+
+        // we can log less values than fields, but not more
+        checkArgument(values.length <= type.getFieldNames().size(),
+            "too many event values for %s (number of values: %s, number of fields: %s)", type.getName(), values.length,
+            type.getFieldNames().size());
 
         int id = type.getId();
         if (!eventTypes.containsKey(id)) {
