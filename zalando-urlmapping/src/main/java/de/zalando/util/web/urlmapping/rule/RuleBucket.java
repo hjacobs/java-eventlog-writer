@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
@@ -29,6 +30,11 @@ public class RuleBucket {
         new Function<RuleBucket.Builder, RuleBucket>() {
 
             @Override
+            public String toString() {
+                return "RuleBucket.Builder -> RuleBucket";
+            }
+
+            @Override
             public RuleBucket apply(final Builder input) {
                 return input.build();
             }
@@ -43,6 +49,10 @@ public class RuleBucket {
     private static class Node {
 
         private static final Comparator<MappingRule> COMPARATOR = new Ordering<MappingRule>() {
+            @Override
+            public String toString() {
+                return "RuleBucket.Node.COMPARATOR";
+            }
 
             @Override
             public int compare(final MappingRule left, final MappingRule right) {
@@ -64,14 +74,42 @@ public class RuleBucket {
             this.rules = ImmutableSortedSet.copyOf(COMPARATOR, rules);
         }
 
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj instanceof RuleBucket.Node) {
+                final RuleBucket.Node other = (RuleBucket.Node) obj;
+                return Objects.equal(children, other.children) && Objects.equal(rules, other.rules);
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(children, rules);
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).add("children", children).add("rules", rules).toString();
+        }
+
         private final Map<String, Node> children;
         private final Set<MappingRule> rules;
     }
 
+    /**
+     * Return a Builder object for constructing a {@link RuleBucket}.
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * A mutable builder object for the immutable {@link RuleBucket} class.
+     *
+     * @author  Sean Patrick Floyd (sean.floyd@zalando.de)
+     */
     public static class Builder {
         private static final Function<MutableNode, Node> TO_IMMUTABLE;
 
@@ -82,6 +120,14 @@ public class RuleBucket {
                 public Node apply(final MutableNode mutableNode) {
                     return new Node(ImmutableMap.copyOf(Maps.transformValues(mutableNode.children, TO_IMMUTABLE)),
                             mutableNode.rules);
+                }
+
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public String toString() {
+                    return "RuleBucket.Builder.MutableNode -> RuleBucket.Node";
                 }
             };
         }
@@ -96,14 +142,23 @@ public class RuleBucket {
 
         private Builder() { }
 
+        /**
+         * Build the RuleBucket.
+         */
         public RuleBucket build() {
             return new RuleBucket(TO_IMMUTABLE.apply(rootNode));
         }
 
+        /**
+         * Add a rule to the specified path.
+         */
         public Builder addRule(final MappingRule rule, final String firstPathItem, final String... morePathItems) {
             return addRule(rule, asList(firstPathItem, morePathItems));
         }
 
+        /**
+         * Add a rule to the specified path.
+         */
         public Builder addRule(final MappingRule rule, final Iterable<String> path) {
             MutableNode node = rootNode;
             for (final String pathItem : path) {
@@ -121,16 +176,20 @@ public class RuleBucket {
             return this;
         }
 
-        public String wildCard() {
-            return MappingConstants.WILDCARD;
-        }
-
+        /**
+         * Add a rule to the context root.
+         */
         public Builder addRootRule(final MappingRule rule) {
             return addRule(rule, Collections.<String>emptySet());
         }
 
     }
 
+    /**
+     * Find the first rule in this bucket that matches the path and applies to the supplied context.
+     *
+     * @return  a rule, or null
+     */
     public MappingRule findRule(final MappingContext mappingContext) {
         Node node = rootNode;
         while (mappingContext.hasMorePathSegments()) {

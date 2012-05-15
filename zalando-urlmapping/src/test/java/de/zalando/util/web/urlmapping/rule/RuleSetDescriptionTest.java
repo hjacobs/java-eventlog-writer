@@ -31,6 +31,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Splitter.MapSplitter;
 import com.google.common.io.OutputSupplier;
 
 import de.zalando.util.web.urlmapping.RuleContext;
@@ -38,6 +39,8 @@ import de.zalando.util.web.urlmapping.RuleContext.Builder;
 import de.zalando.util.web.urlmapping.UrlMappingException;
 
 public class RuleSetDescriptionTest {
+
+    private static final MapSplitter MAP_SPLITTER = Splitter.on('&').withKeyValueSeparator(Splitter.on('='));
 
     @Test
     public void testSerialization() {
@@ -151,8 +154,7 @@ public class RuleSetDescriptionTest {
             final String queryString = url.substring(queryOffset + 1);
             request.setQueryString(queryString);
 
-            final Map<String, String> parameters = Splitter.on('&').withKeyValueSeparator(Splitter.on('=')).split(
-                    queryString);
+            final Map<String, String> parameters = MAP_SPLITTER.split(queryString);
             for (final Entry<String, String> paramEntry : parameters.entrySet()) {
                 request.addParameter(paramEntry.getKey(), paramEntry.getValue());
             }

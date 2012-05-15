@@ -10,8 +10,8 @@ import java.util.Queue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import de.zalando.util.web.urlmapping.util.Delimiter;
@@ -28,11 +28,21 @@ public class MappingContext {
         return new MappingContext(request, response);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("path", Delimiter.SLASH.joiner().join(originalPathItems))
+                      .add("depth", numberOfSegments).add("requestUri", request.getRequestURI()).toString();
+    }
+
     private final int numberOfSegments;
     private final Iterable<String> originalPathItems;
     private final Queue<String> pathItems;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
+    private final String trimmedPath;
 
     private MappingContext(final HttpServletRequest request, final HttpServletResponse response) {
         this.request = request;
@@ -41,7 +51,7 @@ public class MappingContext {
         // cut off all slashes at both ends, preserve all slashes between segments (including multiple ones)
         // by doing this, we lose empty trailing segments, which is why we must store rules with optional trailing
         // variables in multiple buckets
-        final String trimmedPath = Delimiter.SLASH.matcher().trimFrom(pathFor(request));
+        trimmedPath = Delimiter.SLASH.matcher().trimFrom(pathFor(request));
         if (trimmedPath.isEmpty()) {
             originalPathItems = emptySet();
             pathItems = NoOpQueue.get();
@@ -53,16 +63,32 @@ public class MappingContext {
         this.numberOfSegments = pathItems.size();
     }
 
-    private String pathFor(final HttpServletRequest request) {
-        final String contextPath = request.getContextPath();
-
-        final String requestUri = request.getRequestURI();
-        if ((contextPath == null) || (contextPath.length() < 2) || Strings.isNullOrEmpty(requestUri)
-                || !requestUri.startsWith(contextPath)) {
-            return Strings.nullToEmpty(requestUri);
+    private static String pathFor(final HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        if (requestUri == null) {
+            requestUri = "";
         }
 
-        return requestUri.substring(contextPath.length());
+        final String contextPath = request.getContextPath();
+        String path;
+        if (requestUri.startsWith(contextPath)) {
+
+            // Normal case: URI contains context path.
+            path = requestUri.substring(contextPath.length());
+        } else {
+            path = requestUri;
+        }
+
+        if ((path == null) || path.equals("")) {
+            return "/";
+        }
+
+        final int queryOffset = path.indexOf('?');
+        if (queryOffset > -1) {
+            path = path.substring(0, queryOffset);
+        }
+
+        return path;
     }
 
     /**
@@ -122,6 +148,10 @@ public class MappingContext {
 
     public HttpServletResponse getResponse() {
         return response;
+    }
+
+    public String getTrimmedPath() {
+        return trimmedPath;
     }
 
 }

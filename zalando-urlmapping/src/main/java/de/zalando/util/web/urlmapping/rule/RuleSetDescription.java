@@ -219,6 +219,9 @@ public class RuleSetDescription {
     private final Set<String> paths = Sets.newTreeSet();
     private String targetUrl;
 
+    /**
+     * Add a base path to the rule.
+     */
     public RuleSetDescription addPath(final String path) {
         paths.add(path);
         return this;
@@ -232,6 +235,9 @@ public class RuleSetDescription {
         return parameters;
     }
 
+    /**
+     * Add a parameter mapping from an incoming request parameter to an outgoing one.
+     */
     public RuleSetDescription addRequestParameter(final String incoming, final String outgoing) {
         final Parameter param = new Parameter();
         param.name = outgoing;
@@ -240,18 +246,46 @@ public class RuleSetDescription {
         return this;
     }
 
+    /**
+     * Add a path parameter mapping with a suffix.
+     *
+     * @param  name    the name of the outgoing parameter
+     * @param  suffix  the suffix (must be present on the incoming path, will be removed from the outgoing parameter)
+     */
     public RuleSetDescription addPathParameterWithSuffix(final String name, final String suffix) {
         return addPathParameter(name, null, suffix, false);
     }
 
+    /**
+     * Add a path parameter mapping with a prefix.
+     *
+     * @param  name    the name of the outgoing parameter
+     * @param  prefix  the prefix (must be present on the incoming path, will be removed from the outgoing parameter)
+     */
     public RuleSetDescription addPathParameterWithPrefix(final String name, final String prefix) {
         return addPathParameter(name, prefix, null, false);
     }
 
+    /**
+     * Add an optional path parameter.
+     *
+     * @param  name  the name of the outgoing parameter
+     */
     public RuleSetDescription addOptionalPathParameter(final String name) {
         return addPathParameter(name, null, null, true);
     }
 
+    /**
+     * Add a path parameter with the specified outgoing name.
+     *
+     * <ul>
+     *   <li>If prefix is not null, the prefix will be required in the incoming path and stripped from the outgoing
+     *     parameter.</li>
+     *   <li>If suffix is not null, the suffix will be required in the incoming path and stripped from the outgoing
+     *     parameter.</li>
+     *   <li>If optional is true, the path parameter is optional (a match will occur even if it isn't present)</li>
+     * </ul>
+     */
     public RuleSetDescription addPathParameter(final String name, @Nullable final String prefix,
             @Nullable final String suffix, final boolean optional) {
         final Parameter param = new Parameter();
@@ -263,6 +297,10 @@ public class RuleSetDescription {
         return this;
     }
 
+    /**
+     * Add a request parameter aggregation: multiple incoming parameters will be mapped into one outgoing parameter
+     * using the specified delimiter.
+     */
     public RuleSetDescription addAggregationParameter(final String outgoingName, final char delimiter,
             final List<String> incomingParameters) {
         checkArgument(incomingParameters.size() > 1,
@@ -277,6 +315,9 @@ public class RuleSetDescription {
         return this;
     }
 
+    /**
+     * Register this Rule Description with a RuleContext Builder.
+     */
     public void register(final RuleContext.Builder contextBuilder) {
         checkIntegrity();
 
@@ -340,7 +381,7 @@ public class RuleSetDescription {
             }
         }
 
-        public static Parameter deserialize(final String line) {
+        static Parameter deserialize(final String line) {
             final Set<Entry<String, String>> entrySet = Helper.splitMap(line, '=', ';').entrySet();
             final Parameter parameter = new Parameter();
 
@@ -410,7 +451,9 @@ public class RuleSetDescription {
         }
 
         private void checkIntegrity() {
-            checkState(!Strings.isNullOrEmpty(name), "Parameter name missing");
+            if (!isFixedParam() && !isSeoParameter()) {
+                checkState(!Strings.isNullOrEmpty(name), "Parameter name missing");
+            }
 
             if (isSeoParameter()) {
                 checkState(value == null, "Value not allowed for SEO parameters");
@@ -452,7 +495,7 @@ public class RuleSetDescription {
                           .add("optional", optional).toString();
         }
 
-        protected Handler toHandler() {
+        Handler toHandler() {
             if (isSeoParameter()) {
                 return PathParamHandlers.addSeoParameter(optional);
             } else if (isFixedParam()) {
@@ -488,11 +531,13 @@ public class RuleSetDescription {
             }
         }
 
-        public void serialize(final Appendable appendable) throws IOException {
+        void serialize(final Appendable appendable) throws IOException {
             appendable.append(INDENT).append(PARAM_PREFIX);
 
             final Map<ParamKey, String> paramTokens = Maps.newEnumMap(ParamKey.class);
-            paramTokens.put(ParamKey.NAME, name);
+            if (!isSeoParameter() && !isVariablePathParam()) {
+                paramTokens.put(ParamKey.NAME, name);
+            }
 
             if (isSeoParameter()) {
                 paramTokens.put(ParamKey.SEO, TRUE);
@@ -559,6 +604,9 @@ public class RuleSetDescription {
     private static final String FROM_INPUT = "**from input**";
     private static final String SEO = "**seo**";
 
+    /**
+     * Deserialize a list of rule descriptions from a character stream.
+     */
     public static List<RuleSetDescription> deserialize(final InputStream data) {
         try {
             return CharStreams.readLines(new InputSupplier<Reader>() {
@@ -572,6 +620,9 @@ public class RuleSetDescription {
         }
     }
 
+    /**
+     * Serialize this rule description.
+     */
     public void serialize(final Appendable appendable) throws IOException {
         appendable.append(RULE_PREFIX).append(id).append(NEWLINE);
         appendable.append(INDENT).append(TARGET_PREFIX).append(getTargetUrl()).append(NEWLINE);
@@ -584,6 +635,9 @@ public class RuleSetDescription {
         }
     }
 
+    /**
+     * Serialize an iterable of Rule Descriptions.
+     */
     public static void serialize(final Iterable<RuleSetDescription> rules,
             final OutputSupplier<? extends Writer> writer) {
         try {
@@ -601,6 +655,11 @@ public class RuleSetDescription {
         }
     }
 
+    /**
+     * Add a path parameter.
+     *
+     * @param  name  the name of the outgoing parameter
+     */
     public RuleSetDescription addPathParameter(final String name) {
         return addPathParameter(name, null, null, false);
     }
@@ -613,6 +672,9 @@ public class RuleSetDescription {
         this.targetUrl = targetUrl;
     }
 
+    /**
+     * Add a fixed key / value mapping.
+     */
     public RuleSetDescription addFixedParameter(final String name, final String value) {
         final Parameter param = new Parameter();
         param.name = name;
@@ -621,6 +683,10 @@ public class RuleSetDescription {
         return this;
     }
 
+    /**
+     * Add a parameter mapping where the incoming path segment will be the key and the supplied parameter will be the
+     * value.
+     */
     public RuleSetDescription addPathKey(final String value) {
         final Parameter parameter = new Parameter();
         parameter.name = FROM_INPUT;
@@ -629,6 +695,11 @@ public class RuleSetDescription {
         return this;
     }
 
+    /**
+     * Add a path parameter that will be used for rule resolution, but won't change the outgoing mapping.
+     *
+     * @param  optional  if true, the parameter is optional
+     */
     public RuleSetDescription addSeoParameter(final boolean optional) {
         final Parameter parameter = new Parameter();
         parameter.name = SEO;
@@ -637,6 +708,9 @@ public class RuleSetDescription {
         return this;
     }
 
+    /**
+     * Add a fixed key / value pair that will always be used as the first parameter.
+     */
     public RuleSetDescription addFirstParameter(final String name, final String value) {
         final Parameter param = new Parameter();
         param.name = name;

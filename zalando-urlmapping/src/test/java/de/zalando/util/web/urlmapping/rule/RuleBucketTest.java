@@ -17,6 +17,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import com.google.common.collect.ImmutableMap;
 
 import de.zalando.util.web.urlmapping.MappingContext;
+import de.zalando.util.web.urlmapping.domain.MappingConstants;
 import de.zalando.util.web.urlmapping.rule.RuleBucket.Builder;
 
 public class RuleBucketTest {
@@ -88,7 +89,7 @@ public class RuleBucketTest {
             }
         };
 
-        final String wc = builder.wildCard();
+        final String wc = MappingConstants.WILDCARD;
         builder.addRule(rule, "foo", "bar", "phleem", "brr");
         builder.addRule(rule, "foo", "bar", "baz", wc);
         builder.addRule(rule, "foo", wc, wc, "bing");
