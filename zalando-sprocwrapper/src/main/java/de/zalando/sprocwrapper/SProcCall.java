@@ -52,6 +52,7 @@ public @interface SProcCall {
         GET_ORDERS_BY_STATUS_AND_SET_NEW_STATUS(32L),
         GET_ERP_CALLS_AND_SET_TO_PROCESSING(33L),
         GET_STOCK_SERVICE_CALLS(34L),
+        ARTICLE_SIMPLE_WATCHER_FETCH_QUEUES_AND_MARK_PROCESSING(35L),
 
         /*
          * The values following now don't exist in LockingSproc. To allow adding new values to
