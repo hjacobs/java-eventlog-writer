@@ -68,6 +68,7 @@ public class RuleSetDescriptionTest {
         original.add(orderCancelled());
         original.add(adminLogin());
         original.add(recoImage());
+        original.add(updater());
         return original;
     }
 
@@ -90,6 +91,8 @@ public class RuleSetDescriptionTest {
         assertThat(ruleContext,
             maps("katalog/recoimage.jpg?sku=abcd-1234&pos=TOP",
                 "/reco/DynaReco.action?image=&sku=abcd-1234&position=TOP"));
+        assertThat(ruleContext, maps("updater", "/Updater.action"));
+        assertThat(ruleContext, maps("updater/foo", "/Updater.action?foo="));
 
     }
 
@@ -162,6 +165,14 @@ public class RuleSetDescriptionTest {
         }
 
         return request;
+    }
+
+    private RuleSetDescription updater() {
+        final RuleSetDescription updater = new RuleSetDescription("link.test.updater");
+        updater.setTargetUrl("/Updater.action");
+        updater.addPath("updater");
+        updater.addPathKey("", true);
+        return updater;
     }
 
     private RuleSetDescription recoImage() {

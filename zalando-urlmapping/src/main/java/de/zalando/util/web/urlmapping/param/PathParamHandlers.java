@@ -8,6 +8,34 @@ import com.google.common.base.Strings;
 import de.zalando.util.web.urlmapping.builder.UrlBuilder;
 
 public final class PathParamHandlers {
+
+    private static final class PathVariableHandler implements PathParamHandler {
+
+        private final String value;
+        private static final long serialVersionUID = 3991003230790751810L;
+
+        private PathVariableHandler(final String value) {
+            this.value = value;
+        }
+
+        @Override
+        public void apply(final String segment, final UrlBuilder urlBuilder,
+                final Map<String, String> parameterRegistrationMap) {
+            urlBuilder.addParam(segment, value);
+            // don't register in parameter map, as this is not a known parameter
+        }
+
+        @Override
+        public boolean appliesTo(final String segment) {
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "[Handler mapping incoming path segment to '" + value + "']";
+        }
+    }
+
     private static final class ParameterMapper implements PathParamHandler {
 
         private static final long serialVersionUID = -4093294580018349926L;
@@ -234,6 +262,10 @@ public final class PathParamHandlers {
         } else {
             return SeoParameter.REQUIRED;
         }
+    }
+
+    public static Handler addPathKey(final String value) {
+        return new PathVariableHandler(value);
     }
 
 }

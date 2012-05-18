@@ -151,12 +151,15 @@ public class RuleSetDescription {
     }
 
     private static final Ordering<Parameter> PARAMETER_ORDERING = new Ordering<Parameter>() {
-
+//J-
         @Override
         public int compare(final Parameter left, final Parameter right) {
-            return ComparisonChain.start().compare(right.isPathParam(), left.isPathParam())
-                                  .compare(left.optional, right.optional).result();
+            return ComparisonChain.start()
+                                  .compareTrueFirst(right.isAnyTypeOfPathParam(), left.isAnyTypeOfPathParam())
+                                  .compareFalseFirst(left.optional, right.optional)
+                                  .result();
         }
+//J+
     };
 
     public void sortParams() {
@@ -334,7 +337,7 @@ public class RuleSetDescription {
             }
 
             for (final Parameter parameter : parameters) {
-                if (parameter.isPathParam()) {
+                if (parameter.isPathParam() || parameter.isVariablePathParam() || parameter.isSeoParameter()) {
                     if (parameter.optional) {
                         builder.addOptionalWildCard();
                     } else {
@@ -375,7 +378,8 @@ public class RuleSetDescription {
                 final RuleSetDescription.Parameter other = (RuleSetDescription.Parameter) obj;
                 return Objects.equal(name, other.name) && Objects.equal(incomingName, other.incomingName)
                         && Objects.equal(prefix, other.prefix) && Objects.equal(suffix, other.suffix)
-                        && Objects.equal(delimiter, other.delimiter) && Objects.equal(optional, other.optional);
+                        && Objects.equal(delimiter, other.delimiter) && Objects.equal(optional, other.optional)
+                        && Objects.equal(first, other.first);
             } else {
                 return false;
             }
@@ -485,7 +489,7 @@ public class RuleSetDescription {
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(name, incomingName, prefix, suffix, delimiter, optional);
+            return Objects.hashCode(name, incomingName, prefix, suffix, delimiter, optional, first);
         }
 
         @Override
@@ -498,6 +502,8 @@ public class RuleSetDescription {
         Handler toHandler() {
             if (isSeoParameter()) {
                 return PathParamHandlers.addSeoParameter(optional);
+            } else if (isVariablePathParam()) {
+                return PathParamHandlers.addPathKey(value);
             } else if (isFixedParam()) {
                 if (first) {
                     return PostProcessors.addFirstParameterValue(name, value);
@@ -546,6 +552,9 @@ public class RuleSetDescription {
                 }
             } else if (isVariablePathParam()) {
                 paramTokens.put(ParamKey.PATHVARIABLE, value);
+                if (optional) {
+                    paramTokens.put(ParamKey.OPTIONAL, TRUE);
+                }
             } else if (isFixedParam()) {
                 paramTokens.put(ParamKey.FIXEDVALUE, value);
                 if (first) {
@@ -593,6 +602,10 @@ public class RuleSetDescription {
 
         private boolean hasSuffix() {
             return suffix != null;
+        }
+
+        private boolean isAnyTypeOfPathParam() {
+            return isPathParam() || isSeoParameter() || isVariablePathParam();
         }
 
         private boolean isPathParam() {
@@ -688,8 +701,17 @@ public class RuleSetDescription {
      * value.
      */
     public RuleSetDescription addPathKey(final String value) {
+        return addPathKey(value, false);
+    }
+
+    /**
+     * Add a parameter mapping where the incoming path segment will be the key and the supplied parameter will be the
+     * value. if the boolean flag is set to true, the path key will be optional
+     */
+    public RuleSetDescription addPathKey(final String value, final boolean optional) {
         final Parameter parameter = new Parameter();
         parameter.name = FROM_INPUT;
+        parameter.optional = optional;
         parameter.value = value;
         prepareParams().add(parameter);
         return this;
