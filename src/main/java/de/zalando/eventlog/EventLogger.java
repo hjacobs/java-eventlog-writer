@@ -77,8 +77,8 @@ public class EventLogger {
             return "null";
         }
 
-        // escape TAB characters with backslash:
-        return o.toString().replace("\t", "\\t");
+        // escape TAB and NEWLINE characters with backslash:
+        return o.toString().replace("\t", "\\t").replace("\n", "\\n");
     }
 
     private void logLayout(final EventType type) {
