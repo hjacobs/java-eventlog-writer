@@ -1,6 +1,8 @@
 package de.zalando.util.web.urlmapping.rule;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Iterables.limit;
 import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
@@ -32,6 +34,7 @@ import de.zalando.util.web.urlmapping.util.Helper;
 
 public class ForwardMappingRule implements MappingRule {
 
+    private static final ImmutableList<String> EMPTY_STRING_LIST = ImmutableList.of("");
     private static final long serialVersionUID = -6311688030427393665L;
     private final String baseUrl;
     private final List<PathParamHandler> paramHandlers;
@@ -92,7 +95,8 @@ public class ForwardMappingRule implements MappingRule {
         }
 
         if (!requestParamHandlers.isEmpty()) {
-            @SuppressWarnings("unchecked") // this is documented
+            @SuppressWarnings("unchecked")
+            // this is documented
             final Map<String, String[]> parameterMap = mappingContext.getRequest().getParameterMap();
             for (final RequestParamHandler handler : requestParamHandlers) {
                 if (!handler.appliesTo(parameterMap)) {
@@ -111,7 +115,7 @@ public class ForwardMappingRule implements MappingRule {
         final String basePath;
         final Iterable<String> originalPathItems = context.getOriginalPathItems();
         if (cardinality > 0) {
-            basePath = Delimiter.SLASH.joiner().join(Iterables.limit(originalPathItems, cardinality));
+            basePath = Delimiter.SLASH.joiner().join(concat(EMPTY_STRING_LIST, limit(originalPathItems, cardinality)));
         } else {
             basePath = "/";
         }
