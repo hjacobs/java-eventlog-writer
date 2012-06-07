@@ -9,8 +9,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static com.google.common.collect.Maps.filterKeys;
 
-import static de.zalando.util.web.urlmapping.util.Helper.urlEncodeSegment;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +31,9 @@ public class UrlBuilder {
         final char delim;
         if (hasQuery) { delim = '&'; } else { delim = '?'; }
         sb.append(delim)
-          .append(urlEncodeSegment(key))
+          .append(key)
           .append('=')
-          .append(urlEncodeSegment(value));
+          .append(value);
 //J+
     }
 
@@ -44,7 +42,7 @@ public class UrlBuilder {
     private Multimap<String, String> params = ImmutableMultimap.of();
     private List<String> pathSegments = ImmutableList.of();
     private List<String> paramsToRemove = ImmutableList.of();
-    private Map<String, String[]> remainingParams = emptyMap();
+    private Map<String, Collection<String>> remainingParams = emptyMap();
 
     public UrlBuilder(final String baseUrl) {
         String myBaseUrl = Delimiter.SLASH.matcher().trimTrailingFrom(baseUrl);
@@ -84,7 +82,7 @@ public class UrlBuilder {
         final StringBuilder sb = new StringBuilder(DEFAULT_CAPACITY).append(baseUrl);
 
         for (final String segment : pathSegments) {
-            sb.append('/').append(urlEncodeSegment(segment));
+            sb.append('/').append(segment);
         }
 
         boolean hasQuery = Delimiter.QUESTION.matcher().matchesAnyOf(sb);
@@ -104,7 +102,7 @@ public class UrlBuilder {
         }
 
         if (!remainingParams.isEmpty()) {
-            for (final Entry<String, String[]> entry : remainingParams.entrySet()) {
+            for (final Entry<String, Collection<String>> entry : remainingParams.entrySet()) {
                 final String key = entry.getKey();
                 for (final String value : entry.getValue()) {
                     addEntry(sb, hasQuery, key, value);
@@ -119,9 +117,9 @@ public class UrlBuilder {
     /**
      * Store original request parameters in a map, but without the parameters we already used or have explicitly vetoed.
      */
-    public UrlBuilder takeRemainingParametersFromOriginalMapping(final Map<String, String[]> parameterMap) {
-        if (!parameterMap.isEmpty()) {
-            Map<String, String[]> incoming = parameterMap;
+    public UrlBuilder takeRemainingParametersFromOriginalMapping(final Multimap<String, String> multimap) {
+        if (!multimap.isEmpty()) {
+            Map<String, Collection<String>> incoming = multimap.asMap();
             if (!firstParameter.isEmpty()) {
                 incoming = filterKeys(incoming, not(in(firstParameter.keySet())));
             }

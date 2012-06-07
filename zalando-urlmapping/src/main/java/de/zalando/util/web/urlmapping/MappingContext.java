@@ -4,7 +4,6 @@ import static java.util.Collections.emptySet;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.Map;
 import java.util.Queue;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,9 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 
 import de.zalando.util.web.urlmapping.util.Delimiter;
+import de.zalando.util.web.urlmapping.util.Helper;
 
 public class MappingContext {
 
@@ -43,6 +44,7 @@ public class MappingContext {
     private final HttpServletRequest request;
     private final HttpServletResponse response;
     private final String trimmedPath;
+    private final ListMultimap<String, String> parameterMap;
 
     private MappingContext(final HttpServletRequest request, final HttpServletResponse response) {
         this.request = request;
@@ -59,6 +61,8 @@ public class MappingContext {
             originalPathItems = SLASH_SPLITTER.split(trimmedPath);
             this.pathItems = Lists.newLinkedList(getOriginalPathItems());
         }
+
+        this.parameterMap = Helper.getParameterMultimap(request.getQueryString());
 
         this.numberOfSegments = pathItems.size();
     }
@@ -133,13 +137,11 @@ public class MappingContext {
     }
 
     /**
-     * A generics-safe wrapper around the request parameter map. This map is usually immutable!
-     *
-     * @see  HttpServletRequest#getParameterMap()
+     * A map of all request parameters from the query String, neither keys nor values are decoded. If you need the
+     * decoded versions use {@link HttpServletRequest#getParameterMap()} (but that contains POST parameter as well).
      */
-    @SuppressWarnings("unchecked") // the generic type of this map is documented in the servlet api
-    public Map<String, String[]> getParameterMap() {
-        return request.getParameterMap();
+    public ListMultimap<String, String> getParameterMap() {
+        return parameterMap;
     }
 
     public Iterable<String> getOriginalPathItems() {

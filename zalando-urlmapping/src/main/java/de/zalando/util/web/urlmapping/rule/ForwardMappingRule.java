@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 
 import de.zalando.util.web.urlmapping.MappingContext;
 import de.zalando.util.web.urlmapping.UrlMappingException;
@@ -131,7 +132,7 @@ public class ForwardMappingRule implements MappingRule {
         }
 
         if (!requestParamHandlers.isEmpty()) {
-            final Map<String, String[]> parameterMap = context.getParameterMap();
+            final ListMultimap<String, String> parameterMap = context.getParameterMap();
             for (final RequestParamHandler requestParamHandler : requestParamHandlers) {
                 requestParamHandler.apply(parameterMap, urlBuilder, mappedParameters);
             }

@@ -6,12 +6,13 @@ import static com.google.common.collect.Lists.asList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 
 import de.zalando.util.web.urlmapping.builder.UrlBuilder;
+import de.zalando.util.web.urlmapping.util.Helper;
 
 /**
  * Factory methods for acquiring RequestParamHandler objects.
@@ -38,20 +39,14 @@ public final class RequestParamHandlers {
             return parameterMap.keySet().containsAll(incoming);
         }
 
-        private static <K, V> Function<K, V> firstValueOf(final Map<K, V[]> map) {
-            return new Function<K, V>() {
-
-                @Override
-                public V apply(final K input) {
-                    return map.get(input)[0];
-                }
-            };
-        }
-
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public void apply(final Map<String, String[]> parameterMap, final UrlBuilder urlBuilder,
+        public void apply(final ListMultimap<String, String> parameterMap, final UrlBuilder urlBuilder,
                 final Map<String, String> outgoingMap) {
-            final String outgoingValue = Joiner.on(delimiter).join(transform(incoming, firstValueOf(parameterMap)));
+            final String outgoingValue = Joiner.on(delimiter).join(transform(incoming,
+                        Helper.firstValueOfFunction(parameterMap)));
             outgoingMap.put(paramName, outgoingValue);
             urlBuilder.addParam(paramName, outgoingValue);
             urlBuilder.removeParams(incoming);
@@ -74,8 +69,9 @@ public final class RequestParamHandlers {
         }
 
         @Override
-        public void apply(final Map<String, String[]> parameterMap, final UrlBuilder urlBuilder,
-                final Map<String, String> outgoingMap) { /* noop */
+        public void apply(final ListMultimap<String, String> parameterMap, final UrlBuilder urlBuilder,
+                final Map<String, String> outgoingMap) {
+            /* noop */
         }
 
         @Override
@@ -113,10 +109,13 @@ public final class RequestParamHandlers {
             return parameterMap.containsKey(paramName);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public void apply(final Map<String, String[]> parameterMap, final UrlBuilder urlBuilder,
+        public void apply(final ListMultimap<String, String> parameterMap, final UrlBuilder urlBuilder,
                 final Map<String, String> outgoingMap) {
-            final String outValue = getFirstValue(parameterMap, paramName);
+            final String outValue = Helper.getFirstValueForKey(parameterMap, paramName);
             urlBuilder.addParam(outParamName, outValue);
             urlBuilder.removeParam(paramName);
             outgoingMap.put(outParamName, outValue);

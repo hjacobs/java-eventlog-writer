@@ -6,9 +6,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ListMultimap;
 
 public final class Helper {
 
@@ -51,7 +55,11 @@ public final class Helper {
      * Escape URL segments. Note: this method will rigorously escape anything except ASCII letters, digits, - and _. Do
      * not pass full URLs to this method!
      */
-    public static String urlEncodeSegment(final String segment) {
+    public static String bla(final String segment) {
+        if (1 < 2) {
+            return segment;
+        }
+
         final int firstOccurrence = FORBIDDEN_CHARS.indexIn(segment);
         if (firstOccurrence < 0) {
             return segment;
@@ -103,6 +111,45 @@ public final class Helper {
         }
 
         return builder.build();
+    }
+
+    public static ListMultimap<String, String> getParameterMultimap(final String queryString) {
+        if (Strings.isNullOrEmpty(queryString)) {
+            return ImmutableListMultimap.of();
+        }
+
+        final ImmutableListMultimap.Builder<String, String> builder = ImmutableListMultimap.builder();
+        final CharMatcher eq = Delimiter.EQUALS.matcher();
+        final Splitter eqs = Delimiter.EQUALS.splitter();
+        for (final String keyValue : Delimiter.AMP.splitter().split(queryString)) {
+            final int eqOffset = eq.indexIn(keyValue);
+            if (eqOffset < 0) {
+                builder.put(keyValue, "");
+            } else if (eqOffset > 0) {
+                final Iterator<String> items = eqs.split(keyValue).iterator();
+                builder.put(items.next(), items.next());
+            }
+        }
+
+        return builder.build();
+    }
+
+    public static <K, V> V getFirstValueForKey(final ListMultimap<K, V> multimap, final K input) {
+        if (!multimap.containsKey(input)) {
+            return null;
+        }
+
+        return multimap.get(input).get(0);
+    }
+
+    public static <K, V> Function<K, V> firstValueOfFunction(final ListMultimap<K, V> multimap) {
+        return new Function<K, V>() {
+
+            @Override
+            public V apply(final K input) {
+                return getFirstValueForKey(multimap, input);
+            }
+        };
     }
 
 }
