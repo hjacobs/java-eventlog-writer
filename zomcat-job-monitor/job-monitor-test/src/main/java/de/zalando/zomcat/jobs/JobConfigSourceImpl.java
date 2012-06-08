@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-@Component
+@Component("applicationConfig")
 public class JobConfigSourceImpl implements JobConfigSource {
 
     @Override

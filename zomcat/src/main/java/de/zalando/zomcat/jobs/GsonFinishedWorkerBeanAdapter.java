@@ -34,28 +34,20 @@ public class GsonFinishedWorkerBeanAdapter implements InstanceCreator<FinishedWo
 
         map.put("id", src.getId());
 
-        final DateTime startTime = src.getStartTime();
-
-        if (startTime == null) {
-            map.put("startTime", null);
-        } else {
-            map.put("startTime", startTime.getMillis());
-        }
-
         final DateTime internalStartTime = src.getInternalStartTime();
 
         if (internalStartTime == null) {
-            map.put("internalStartTime", null);
+            map.put("jobStartTime", null);
         } else {
-            map.put("internalStartTime", internalStartTime.getMillis());
+            map.put("jobStartTime", internalStartTime.getMillis());
         }
 
         final DateTime endTime = src.getEndTime();
 
         if (endTime == null) {
-            map.put("endTime", null);
+            map.put("jobEndTime", null);
         } else {
-            map.put("endTime", endTime.getMillis());
+            map.put("jobEndTime", endTime.getMillis());
         }
 
         map.put("actualProcessedItemNumber", src.getActualProcessedItemNumber());

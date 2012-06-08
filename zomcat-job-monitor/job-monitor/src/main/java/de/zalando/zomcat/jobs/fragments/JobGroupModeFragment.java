@@ -30,7 +30,9 @@ public class JobGroupModeFragment extends BaseFragment {
                 final JobGroupModeFragment toggledFragment = new JobGroupModeFragment(markupProvider, jobGroupRow,
                         jobsStatusBean);
                 JobGroupModeFragment.this.replaceWith(toggledFragment);
-                target.add(toggledFragment);
+// target.add(toggledFragment);
+                target.add(markupProvider.getParent());
+// target.add(markupProvider.getPage().get("form:group:listContainer"));
             }
         };
 

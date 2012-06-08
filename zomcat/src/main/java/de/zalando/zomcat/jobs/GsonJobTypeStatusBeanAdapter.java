@@ -37,6 +37,9 @@ public class GsonJobTypeStatusBeanAdapter implements InstanceCreator<JobTypeStat
 
         final DateTime lastModified = src.getLastModified();
 
+        map.put("manuallyPaused", src.isDisabled());
+        map.put("activatedInConfig", src.getJobConfig().isActive());
+
         if (lastModified == null) {
             map.put("lastModified", null);
         } else {

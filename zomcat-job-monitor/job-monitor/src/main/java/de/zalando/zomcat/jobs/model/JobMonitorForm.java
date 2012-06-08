@@ -83,7 +83,7 @@ public class JobMonitorForm implements Serializable {
 
     public List<JobGroupRow> getJobGroupRows(final JobsStatusBean jobsStatusBean) {
         if (jobGroupRows == null) {
-            jobGroupRows = Lists.newArrayList(Iterables.transform(jobsStatusBean.getJobGroupTypeStatusBeans(),
+            jobGroupRows = Lists.newArrayList(Iterables.transform(jobsStatusBean.getJobGroupTypeStatusBeans(true),
                         new Function<JobGroupTypeStatusBean, JobGroupRow>() {
                             @Override
                             public JobGroupRow apply(final JobGroupTypeStatusBean input) {

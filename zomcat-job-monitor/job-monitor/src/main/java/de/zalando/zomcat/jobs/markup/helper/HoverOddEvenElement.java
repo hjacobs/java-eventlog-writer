@@ -30,10 +30,11 @@ public class HoverOddEvenElement extends OddEvenItem<JobRow> {
                     .getObject().getJobClass());
         if (jobTypeStatusBean.getJobConfig().isActive()) {
             tag.put("class", (getIndex() % 2 == 0) ? CLASS_EVEN : CLASS_ODD);
-            tag.put("onmouseover", ON_MOUSE_OVER);
-            tag.put("onmouseout", (getIndex() % 2 == 0) ? ON_MOUSE_OUT_EVEN : ON_MOUSE_OUT_ODD);
         } else {
             tag.put("class", JOB_DISABLED);
         }
+
+        tag.put("onmouseover", ON_MOUSE_OVER);
+        tag.put("onmouseout", (getIndex() % 2 == 0) ? ON_MOUSE_OUT_EVEN : ON_MOUSE_OUT_ODD);
     }
 }

@@ -34,20 +34,12 @@ public class GsonRunningWorkerBeanAdapter implements InstanceCreator<RunningWork
 
         map.put("id", src.getId());
 
-        final DateTime startTime = src.getStartTime();
-
-        if (startTime == null) {
-            map.put("startTime", null);
-        } else {
-            map.put("startTime", startTime.getMillis());
-        }
-
         final DateTime internalStartTime = src.getInternalStartTime();
 
         if (internalStartTime == null) {
-            map.put("internalStartTime", null);
+            map.put("jobStartTime", null);
         } else {
-            map.put("internalStartTime", internalStartTime.getMillis());
+            map.put("jobStartTime", internalStartTime.getMillis());
         }
 
         map.put("actualProcessedItemNumber", src.getActualProcessedItemNumber());

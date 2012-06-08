@@ -61,9 +61,8 @@ public class JobFragment extends BaseFragment {
             final FinishedWorkerBean finishedWorkerBean = jobRow.getFinishedWorkerBean();
             add(new Label("startTime", finishedWorkerBean.getStartTimeFormatted()));
             add(new Label("endTime", finishedWorkerBean.getEndTimeFormatted()));
-            add(new Label("workerId", String.valueOf(finishedWorkerBean.getId())));
-            add(new Label("threadCPUNanoSeconds", String.valueOf(finishedWorkerBean.getThreadCPUNanoSeconds())));
             add(new Label("duration", finishedWorkerBean.getDuration()));
+            add(new Label("workerId", String.valueOf(finishedWorkerBean.getId())));
 
             final String href = FLOWID_BASE_URL + finishedWorkerBean.getFlowId();
             final ExternalLink flowIdLink = new ExternalLink("flowIdLink", href);
@@ -99,6 +98,8 @@ public class JobFragment extends BaseFragment {
                                 try {
                                     scheduler.triggerJob(quartzJobInfoBean.getJobName(),
                                         quartzJobInfoBean.getJobGroup(), quartzJobInfoBean.getJobDataMap());
+
+                                    // todo refresh the row.
                                 } catch (final SchedulerException e) {
                                     LOG.error("Could not trigger job: " + e.getMessage(), e);
                                 }

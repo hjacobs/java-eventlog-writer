@@ -17,7 +17,15 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.string.StringValue;
+
+import com.google.common.collect.Lists;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import de.zalando.zomcat.HeartbeatMode;
 import de.zalando.zomcat.OperationMode;
@@ -42,95 +50,140 @@ public class JobMonitorPage extends WebPage {
     @SpringBean
     private HeartbeatStatusBean heartbeatStatusBean;
 
-    public JobMonitorPage() {
-        final boolean enabled = getJobsStatusBean().getOperationModeAsEnum() == OperationMode.NORMAL;
-        add(new OperationModeFragment(this, enabled));
+    private transient Gson gson;
 
-        final boolean ok = heartbeatStatusBean.getHeartbeatModeAsEnum() == HeartbeatMode.OK;
-        add(new HeartbeatModeFragment(this, ok));
+    public JobMonitorPage(final PageParameters parameters) {
+        super(parameters);
 
-        final Form<JobMonitorForm> form = new Form<JobMonitorForm>("form",
-                new CompoundPropertyModel<JobMonitorForm>(new JobMonitorForm())) {
-            private static final long serialVersionUID = 1L;
-        };
+        boolean processed = false;
 
-        final CheckGroup<JobRow> group = new CheckGroup<JobRow>("group", form.getModelObject().getJobSelections());
+        if ((parameters != null) && (parameters.getNamedKeys() != null) && parameters.getNamedKeys().contains("view")
+                && parameters.getValues("view") != null) {
+            for (final StringValue value : parameters.getValues("view")) {
+                if ("json".equals(value.toString())) {
+                    processed = true;
+                    RequestCycle.get().getOriginalResponse().write(getJson());
+                    break;
+                }
+            }
+        }
 
-        group.add(new CheckGroupSelector("groupselector"));
-        form.add(group);
+        if (!processed) {
 
-        final List<JobGroupRow> groupRows = form.getModelObject().getJobGroupRows(jobsStatusBean);
-        final ListView<JobGroupRow> listview = new ListView<JobGroupRow>("jobGroupRow", groupRows) {
-            private static final long serialVersionUID = 1L;
+            final boolean enabled = getJobsStatusBean().getOperationModeAsEnum() == OperationMode.NORMAL;
+            add(new OperationModeFragment(this, enabled));
 
-            @Override
-            protected void populateItem(final ListItem<JobGroupRow> item) {
-                final JobGroupRow jobGroupRow = item.getModelObject();
-                item.add(new Label("jobGroupName", jobGroupRow.getGroupName()));
+            final boolean ok = heartbeatStatusBean.getHeartbeatModeAsEnum() == HeartbeatMode.OK;
+            add(new HeartbeatModeFragment(this, ok));
 
-                item.add(new JobGroupModeFragment(this, jobGroupRow, jobsStatusBean));
+            final Form<JobMonitorForm> form = new Form<JobMonitorForm>("form",
+                    new CompoundPropertyModel<JobMonitorForm>(new JobMonitorForm())) {
+                private static final long serialVersionUID = 1L;
+            };
 
-                final List<JobRow> jobs = form.getModelObject().getJobRows(jobGroupRow, jobsStatusBean);
+            final CheckGroup<JobRow> group = new CheckGroup<JobRow>("group", form.getModelObject().getJobSelections());
 
-                item.add(new DataView<JobRow>("jobDetailRow", new ListDataProvider<JobRow>(jobs)) {
+            group.add(new CheckGroupSelector("groupselector"));
+            form.add(group);
+
+            final List<JobGroupRow> groupRows = form.getModelObject().getJobGroupRows(jobsStatusBean);
+            final ListView<JobGroupRow> listview = new ListView<JobGroupRow>("jobGroupRow", groupRows) {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                protected void populateItem(final ListItem<JobGroupRow> item) {
+                    final JobGroupRow jobGroupRow = item.getModelObject();
+
+                    final AjaxSubmitLink groupLink = new AjaxSubmitLink("toggleGroup", form) {
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        public void populateItem(final Item<JobRow> item) {
-                            item.add(new JobFragment(this, item, form.getModelObject()));
+                        protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                            jobGroupRow.toggleVisible();
+                            target.add(form);
                         }
 
                         @Override
-                        protected Item<JobRow> newItem(final String id, final int index, final IModel<JobRow> model) {
-                            return new HoverOddEvenElement(id, index, model);
-                        }
-                    });
-            }
-        };
+                        protected void onError(final AjaxRequestTarget target, final Form<?> form) { }
+                    };
 
-        // encapsulate the ListView in a WebMarkupContainer in order for it to update
-        final WebMarkupContainer listContainer = new WebMarkupContainer("listContainer");
-        listContainer.setOutputMarkupId(true);
-        listContainer.add(listview);
+                    groupLink.add(new Label("jobGroupName", jobGroupRow.getGroupName()));
 
-        group.add(new AjaxSubmitLink("enableSelected", form) {
-                private static final long serialVersionUID = 1L;
+                    item.add(groupLink);
+                    item.add(new JobGroupModeFragment(this, jobGroupRow, jobsStatusBean));
 
-                @Override
-                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                    if (target != null) {
-                        for (final JobRow jobTypeStatusBean : group.getModelObject()) {
-                            jobsStatusBean.getJobTypeStatusBean(jobTypeStatusBean.getJobClass()).setDisabled(false);
-                        }
+                    item.add(new Label("show_table_enclosure").setVisible(jobGroupRow.isVisible()));
 
-                        target.add(listContainer);
+                    final List<JobRow> jobs;
+
+                    if (jobGroupRow.isVisible()) {
+                        jobs = form.getModelObject().getJobRows(jobGroupRow, jobsStatusBean);
+                    } else {
+                        jobs = Lists.newArrayList();
                     }
+
+                    item.add(new DataView<JobRow>("jobDetailRow", new ListDataProvider<JobRow>(jobs)) {
+                            private static final long serialVersionUID = 1L;
+
+                            @Override
+                            public void populateItem(final Item<JobRow> item) {
+                                item.add(new JobFragment(this, item, form.getModelObject()));
+                            }
+
+                            @Override
+                            protected Item<JobRow> newItem(final String id, final int index,
+                                    final IModel<JobRow> model) {
+                                return new HoverOddEvenElement(id, index, model);
+                            }
+                        });
                 }
+            };
 
-                @Override
-                protected void onError(final AjaxRequestTarget target, final Form<?> form) { }
-            });
+            // encapsulate the ListView in a WebMarkupContainer in order for it
+            // to update
+            final WebMarkupContainer listContainer = new WebMarkupContainer("listContainer");
+            listContainer.setOutputMarkupId(true);
+            listContainer.add(listview);
 
-        group.add(new AjaxSubmitLink("disableSelected", form) {
-                private static final long serialVersionUID = 1L;
+            group.add(new AjaxSubmitLink("enableSelected", form) {
+                    private static final long serialVersionUID = 1L;
 
-                @Override
-                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                    if (target != null) {
-                        for (final JobRow jobTypeStatusBean : group.getModelObject()) {
-                            jobsStatusBean.getJobTypeStatusBean(jobTypeStatusBean.getJobClass()).setDisabled(true);
+                    @Override
+                    protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        if (target != null) {
+                            for (final JobRow jobTypeStatusBean : group.getModelObject()) {
+                                jobsStatusBean.getJobTypeStatusBean(jobTypeStatusBean.getJobClass()).setDisabled(false);
+                            }
+
+                            target.add(listContainer);
                         }
-
-                        target.add(listContainer);
                     }
-                }
 
-                @Override
-                protected void onError(final AjaxRequestTarget target, final Form<?> form) { }
-            });
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) { }
+                });
 
-        group.add(listContainer);
-        add(form);
+            group.add(new AjaxSubmitLink("disableSelected", form) {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        if (target != null) {
+                            for (final JobRow jobTypeStatusBean : group.getModelObject()) {
+                                jobsStatusBean.getJobTypeStatusBean(jobTypeStatusBean.getJobClass()).setDisabled(true);
+                            }
+
+                            target.add(listContainer);
+                        }
+                    }
+
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) { }
+                });
+
+            group.add(listContainer);
+            add(form);
+        }
     }
 
     public JobTypeStatusBean getJobTypeStatusBean(final Class<?> jobClass) {
@@ -143,5 +196,22 @@ public class JobMonitorPage extends WebPage {
 
     public JobsStatusBean getJobsStatusBean() {
         return jobsStatusBean;
+    }
+
+    protected Gson getGson() {
+        if (gson == null) {
+            gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+                                    .registerTypeAdapter(JobsStatusBean.class, new GsonJobsStatusBeanAdapter())
+                                    .registerTypeAdapter(JobTypeStatusBean.class, new GsonJobTypeStatusBeanAdapter())
+                                    .registerTypeAdapter(RunningWorkerBean.class, new GsonRunningWorkerBeanAdapter())
+                                    .registerTypeAdapter(FinishedWorkerBean.class, new GsonFinishedWorkerBeanAdapter())
+                                    .create();
+        }
+
+        return gson;
+    }
+
+    private String getJson() {
+        return getGson().toJson(jobsStatusBean, JobsStatusBean.class);
     }
 }

@@ -14,11 +14,14 @@ public class FinishedWorkerBean extends RunningWorkerBean {
 
     private final DateTime endTime = new DateTime();
 
+    private Class<?> jobClass;
+
     public FinishedWorkerBean(final RunningWorker runningWorker) {
         super(runningWorker.getJobConfig(), runningWorker.getFlowId(), runningWorker.getId(),
             runningWorker.getStartTime(), runningWorker.getActualProcessedItemNumber(),
             runningWorker.getTotalNumberOfItemsToBeProcessed(), runningWorker.getInternalStartTime(),
             runningWorker.getDescription(), runningWorker.getThreadCPUNanoSeconds());
+        this.jobClass = runningWorker.getClass();
     }
 
     protected FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
@@ -58,7 +61,11 @@ public class FinishedWorkerBean extends RunningWorkerBean {
     }
 
     public String getDuration() {
-        return String.valueOf(new Duration(getStartTime(), endTime).getStandardSeconds());
+        return String.valueOf(new Duration(getStartTime(), endTime).getMillis());
+    }
+
+    public Class<?> getJobClass() {
+        return jobClass;
     }
 
     /**

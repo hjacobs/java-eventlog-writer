@@ -143,21 +143,17 @@ public class JobsStatusBean implements JobsStatusMBean {
         return null;
     }
 
-    private Map<String, JobGroupTypeStatusBean> getJobGroups() {
+    private synchronized Map<String, JobGroupTypeStatusBean> getJobGroups() {
         if (groups.isEmpty()) {
-            synchronized (this) {
-                if (groups.isEmpty()) {
-                    if (jobs.isEmpty()) {
-                        getJobs();
-                    }
+            if (jobs.isEmpty()) {
+                getJobs();
+            }
 
-                    // now get all job group configs and create JobGroupTypeStatusBeans:
-                    for (final JobGroupConfig jobGroupConfig : getJobGroupConfigs()) {
-                        groups.put(jobGroupConfig == null ? JobGroupConfig.DEFAULT_GROUP_NAME
-                                                          : jobGroupConfig.getJobGroupName(),
-                            new JobGroupTypeStatusBean(jobGroupConfig));
-                    }
-                }
+            // now get all job group configs and create JobGroupTypeStatusBeans:
+            for (final JobGroupConfig jobGroupConfig : getJobGroupConfigs()) {
+                groups.put(jobGroupConfig == null ? JobGroupConfig.DEFAULT_GROUP_NAME
+                                                  : jobGroupConfig.getJobGroupName(),
+                    new JobGroupTypeStatusBean(jobGroupConfig));
             }
         }
 
@@ -291,6 +287,24 @@ public class JobsStatusBean implements JobsStatusMBean {
         return Lists.newArrayList(getJobGroups().values());
     }
 
+    public List<JobGroupTypeStatusBean> getJobGroupTypeStatusBeans(final boolean filterByAppInstanceKey) {
+        final Map<String, JobGroupTypeStatusBean> jobGroups = getJobGroups();
+        // iterate through the groups and filter all jobs that are not visibible on this app instance:
+
+        final List<JobGroupTypeStatusBean> ret = Lists.newArrayList();
+        for (final JobGroupTypeStatusBean jobGroupTypeStatusBean : jobGroups.values()) {
+
+            // get all jobs for this group:
+            final List<JobTypeStatusBean> jobTypeStatusBeansForGroup = getJobTypeStatusBeansForGroup(
+                    jobGroupTypeStatusBean.getJobGroupName(), true);
+            if (jobTypeStatusBeansForGroup.size() > 0) {
+                ret.add(jobGroupTypeStatusBean);
+            }
+        }
+
+        return ret;
+    }
+
     public JobTypeStatusBean getJobTypeStatusBean(final Class<?> jobClass) {
         return getJobs().get(jobClass.getName());
     }
@@ -350,6 +364,12 @@ public class JobsStatusBean implements JobsStatusMBean {
 
             LOG.info("set enabled/disabled mode of job group + " + groupName + ", now it is: "
                     + !jobGroupTypeStatusBean.isDisabled());
+
+            // we need to enable/disable each job in the group:
+            for (final JobTypeStatusBean jobTypeStatusBeans : getJobTypeStatusBeansForGroup(groupName, true)) {
+                jobTypeStatusBeans.setDisabled(jobGroupTypeStatusBean.isDisabled());
+            }
+
         }
 
         return !jobGroupTypeStatusBean.isDisabled();
@@ -540,7 +560,7 @@ public class JobsStatusBean implements JobsStatusMBean {
                             if (input.getJobConfig().getJobGroupConfig() == null) {
 
                                 // filter this one
-                                return true;
+                                return JobGroupConfig.DEFAULT_GROUP_NAME.equals(jobGroupName);
                             }
 
                             return jobGroupName.equals(input.getJobConfig().getJobGroupConfig().getJobGroupName());

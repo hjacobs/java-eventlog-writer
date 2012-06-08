@@ -20,7 +20,7 @@ public class JobRow implements Serializable {
 
     public JobRow(final FinishedWorkerBean finishedWorkerBean) {
         this.finishedWorkerBean = finishedWorkerBean;
-        this.jobClass = null;
+        this.jobClass = finishedWorkerBean.getJobClass();
         this.isHistoryEnabled = true;
     }
 

@@ -6,9 +6,25 @@ public class JobGroupRow implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String groupName;
+    private boolean visible;
 
-    JobGroupRow(final String groupName) {
+    public JobGroupRow() { }
+
+    public JobGroupRow(final String groupName) {
         this.groupName = groupName;
+        this.visible = true;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(final boolean visible) {
+        this.visible = visible;
+    }
+
+    public void toggleVisible() {
+        this.visible = !this.visible;
     }
 
     public String getGroupName() {
@@ -24,6 +40,7 @@ public class JobGroupRow implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((groupName == null) ? 0 : groupName.hashCode());
+        result = prime * result + (visible ? 1231 : 1237);
         return result;
     }
 
@@ -47,6 +64,10 @@ public class JobGroupRow implements Serializable {
                 return false;
             }
         } else if (!groupName.equals(other.groupName)) {
+            return false;
+        }
+
+        if (visible != other.visible) {
             return false;
         }
 
