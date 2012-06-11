@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Batch Processing Support Classes (bulk processing jobs)</description>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

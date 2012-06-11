@@ -52,6 +52,11 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     }
 
     @Override
+    protected void cleanup(final Map<String, Collection<ITEM_TYPE>> chunks) {
+        threadPool.shutdown();
+    }
+
+    @Override
     public void processChunk(final String chunkId, final Collection<ITEM_TYPE> items) throws Exception {
 
         Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> f = threadPool.submit(
@@ -135,18 +140,24 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
             Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> future = resultMap.get(k);
 
+            int failedFutures = 0;
+
             try {
 
                 // processedCount += (future.get().getFirst().size() + future.get().getSecond().size());
                 Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>> futureResult = future.get();
                 successes.addAll(futureResult.getFirst());
                 failures.addAll(futureResult.getSecond());
-            } catch (Exception e) {
-                throw new RuntimeException("exception.", e);
+            } catch (Exception ex) {
+                LOG.debug("Failed to get execution result", ex);
+                failedFutures++;
+            }
+
+            if (failedFutures > 0) {
+                LOG.warn("Failed to gather execution results from {} tasks.", failedFutures);
             }
         }
 
-        Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>> r = Pair.of(successes, failures);
-        return r;
+        return Pair.of(successes, failures);
     }
 }

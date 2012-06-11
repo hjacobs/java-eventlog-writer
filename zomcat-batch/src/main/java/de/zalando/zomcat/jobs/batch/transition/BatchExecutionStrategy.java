@@ -87,26 +87,29 @@ public abstract class BatchExecutionStrategy<Item> {
 
         setupExecution(chunks);
 
-        Set<String> keySet = chunks.keySet();
+        try {
+            Set<String> keySet = chunks.keySet();
 
-        int i = 0;
+            int i = 0;
 
-        for (String k : keySet) {
-            i++;
-            LOG.trace("Dispatching chunk {} of {} ({}).", new Object[] {i, chunks.size(), k});
-            executeChunk(k, chunks.get(k));
+            for (String k : keySet) {
+                i++;
+                LOG.trace("Dispatching chunk {} of {} ({}).", new Object[] {i, chunks.size(), k});
+                executeChunk(k, chunks.get(k));
+            }
+
+            if (writeTime == WriteTime.AT_END_OF_BATCH) {
+
+                Pair<List<Item>, List<JobResponse<Item>>> r = joinResults();
+
+                Collection<Item> successfulItems = r.getFirst();
+                Collection<JobResponse<Item>> failedItems = r.getSecond();
+
+                write(successfulItems, failedItems);
+            }
+        } finally {
+            cleanup(chunks);
         }
-
-        if (writeTime == WriteTime.AT_END_OF_BATCH) {
-
-            Pair<List<Item>, List<JobResponse<Item>>> r = joinResults();
-
-            Collection<Item> successfulItems = r.getFirst();
-            Collection<JobResponse<Item>> failedItems = r.getSecond();
-
-            write(successfulItems, failedItems);
-        }
-
     }
 
     private void executeChunk(final String chunkId, final Collection<Item> items) throws Exception {
@@ -140,6 +143,12 @@ public abstract class BatchExecutionStrategy<Item> {
      * pool, for example). Default implementation is noop.
      */
     protected void setupExecution(final Map<String, Collection<Item>> chunks) { }
+
+    /**
+     * Called when processing of chunks is done and results have been collected. May be used to cleanup resources used
+     * during execution, e.g. closing database connection, shutting down thread pool.
+     */
+    protected void cleanup(final Map<String, Collection<Item>> chunks) { }
 
     /**
      * @param   successfulItems
