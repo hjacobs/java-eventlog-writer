@@ -12,7 +12,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -28,6 +28,9 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +57,9 @@ import de.zalando.zomcat.OperationMode;
 @Component("jobsStatusBean")
 public class JobsStatusBean implements JobsStatusMBean {
 
-    private static final Logger LOG = Logger.getLogger(JobsStatusBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobsStatusBean.class);
+
+    private static final int JOB_CONFIG_REFRESH_INTERVAL_IN_MINUTES = 5;
 
     public static final String BEAN_NAME = "jobsStatusBean";
 
@@ -62,6 +67,9 @@ public class JobsStatusBean implements JobsStatusMBean {
 
     private final SortedMap<String, JobTypeStatusBean> jobs = new TreeMap<String, JobTypeStatusBean>();
     private final SortedMap<String, JobGroupTypeStatusBean> groups = new TreeMap<String, JobGroupTypeStatusBean>();
+
+    private Set<Class<? extends RunningWorker>> runningWorkerImplementations;
+    private DateTime lastJobConfigRefesh;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -75,40 +83,73 @@ public class JobsStatusBean implements JobsStatusMBean {
     @Qualifier("applicationConfig")
     private JobConfigSource jobConfigSource;
 
-    public SortedMap<String, JobTypeStatusBean> getJobs() {
+    public synchronized SortedMap<String, JobTypeStatusBean> getJobs() {
         if (jobs.isEmpty()) {
-            synchronized (this) {
-                if (jobs.isEmpty()) {
-                    final Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
-                                new FilterBuilder.Include(FilterBuilder.prefix("de.zalando"))).setUrls(
-                                ClasspathHelper.forPackage("de.zalando")).setScanners(new SubTypesScanner()));
+            for (final Class<? extends RunningWorker> runningWorkerClass : getRunningWorkerImplementations()) {
+                try {
+                    final RunningWorker runningWorker = runningWorkerClass.newInstance();
 
-                    final Set<Class<? extends RunningWorker>> runningWorkerImplementations = reflections.getSubTypesOf(
-                            RunningWorker.class);
-                    for (final Class<? extends RunningWorker> runningWorkerClass : runningWorkerImplementations) {
-                        try {
-                            final RunningWorker runningWorker = runningWorkerClass.newInstance();
+                    if (runningWorker instanceof AbstractJob) {
+                        final AbstractJob abstractJob = (AbstractJob) runningWorker;
 
-                            if (runningWorker instanceof AbstractJob) {
-                                final AbstractJob abstractJob = (AbstractJob) runningWorker;
-
-                                // make sure we can use the spring context in the abstract job
-                                abstractJob.setApplicationContext(applicationContext);
-                            }
-
-                            final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(runningWorker.getClass(),
-                                    runningWorker.getDescription(), runningWorker.getJobConfig(),
-                                    getQuartzJobStatusBean(runningWorker.getClass()));
-                            jobs.put(runningWorkerClass.getName(), jobTypeStatusBean);
-                        } catch (final Exception e) {
-                            // ignore
-                        }
+                        // make sure we can use the spring context in the abstract job
+                        abstractJob.setApplicationContext(applicationContext);
                     }
+
+                    final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(runningWorker.getClass(),
+                            runningWorker.getDescription(), runningWorker.getJobConfig(),
+                            getQuartzJobStatusBean(runningWorker.getClass()));
+                    jobs.put(runningWorkerClass.getName(), jobTypeStatusBean);
+                } catch (final Exception e) {
+                    LOG.error("Got exception while getting job infos: [{}]", e.getMessage(), e);
                 }
             }
+
+            lastJobConfigRefesh = DateTime.now();
+        }
+
+        try {
+            refreshJobConfig();
+        } catch (final Exception e) {
+            LOG.error("Got exception while check expired jobs: [{}]", e.getMessage(), e);
         }
 
         return jobs;
+    }
+
+    private Set<Class<? extends RunningWorker>> getRunningWorkerImplementations() {
+        if (runningWorkerImplementations == null) {
+            final Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
+                        new FilterBuilder.Include(FilterBuilder.prefix("de.zalando"))).setUrls(
+                        ClasspathHelper.forPackage("de.zalando")).setScanners(new SubTypesScanner()));
+
+            runningWorkerImplementations = reflections.getSubTypesOf(RunningWorker.class);
+        }
+
+        return runningWorkerImplementations;
+    }
+
+    private void refreshJobConfig() throws InstantiationException, IllegalAccessException {
+        if (lastJobConfigRefesh == null
+                || lastJobConfigRefesh.plusMinutes(JOB_CONFIG_REFRESH_INTERVAL_IN_MINUTES).isBeforeNow()) {
+
+            // we need to refresh the job config for all known jobs:
+            for (final JobTypeStatusBean jobTypeStatusBean : jobs.values()) {
+                final RunningWorker runningWorker = (RunningWorker) jobTypeStatusBean.getJobClass().newInstance();
+
+                if (runningWorker instanceof AbstractJob) {
+                    final AbstractJob abstractJob = (AbstractJob) runningWorker;
+
+                    // make sure we can use the spring context in the abstract job
+                    abstractJob.setApplicationContext(applicationContext);
+                }
+
+                // get a fresh instance of the job config and replace it with the outdated:
+                jobTypeStatusBean.setJobConfig(runningWorker.getJobConfig());
+            }
+
+            lastJobConfigRefesh = DateTime.now();
+        }
     }
 
     private QuartzJobInfoBean getQuartzJobStatusBean(final Class<?> jobClazz) {
@@ -135,7 +176,7 @@ public class JobsStatusBean implements JobsStatusMBean {
                         }
                     }
                 } catch (final SchedulerException e) {
-                    LOG.error("Could not extraxr jobDetais: " + e.getMessage(), e);
+                    LOG.error("Could not extract jobDetais: [{}]", e.getMessage(), e);
                 }
             }
         }
@@ -229,7 +270,8 @@ public class JobsStatusBean implements JobsStatusMBean {
 
         // check if we already know this job type
         if (jobTypeStatusBean == null) {
-            throw new RuntimeException("job must be well known at this time: " + runningWorker.getClass().getName());
+            throw new RuntimeException("job must be well known at this time: [{}]"
+                    + runningWorker.getClass().getName());
         }
 
         return jobTypeStatusBean;
@@ -331,13 +373,13 @@ public class JobsStatusBean implements JobsStatusMBean {
         final JobTypeStatusBean jobTypeStatusBean = getJobTypeStatusBean(jobName);
 
         if (jobTypeStatusBean == null) {
-            LOG.info("job not found, status can not be toggled " + jobName);
+            LOG.info("job not found, status can not be toggled [{}]", jobName);
 
             return null;
         } else {
             jobTypeStatusBean.setDisabled(!running);
 
-            LOG.info("set enabled/disabled mode of job + " + jobName + ", now it is: " + !running);
+            LOG.info("set enabled/disabled mode of job + [{}], now it is: [{}]", jobName, !running);
         }
 
         return !jobTypeStatusBean.isDisabled();
@@ -362,8 +404,8 @@ public class JobsStatusBean implements JobsStatusMBean {
         } else {
             jobGroupTypeStatusBean.toggleMode();
 
-            LOG.info("set enabled/disabled mode of job group + " + groupName + ", now it is: "
-                    + !jobGroupTypeStatusBean.isDisabled());
+            LOG.info("set enabled/disabled mode of job group [{}], now it is: [{}]", groupName,
+                !jobGroupTypeStatusBean.isDisabled());
 
             // we need to enable/disable each job in the group:
             for (final JobTypeStatusBean jobTypeStatusBeans : getJobTypeStatusBeansForGroup(groupName, true)) {
@@ -385,14 +427,14 @@ public class JobsStatusBean implements JobsStatusMBean {
         final JobTypeStatusBean statusBean = getJobs().get(jobName);
 
         if (statusBean == null) {
-            LOG.info("no job found with name jobName = " + jobName + ", so nothing is toggled!");
+            LOG.info("no job found with name jobName = [{}], so nothing is toggled!", jobName);
 
             return null;
         }
 
         statusBean.setDisabled(!statusBean.isDisabled());
 
-        LOG.info("toggled job " + jobName + ", now it is: " + statusBean);
+        LOG.info("toggled job [{}], now it is: [{}]", jobName, statusBean);
 
         return !statusBean.isDisabled();
     }
@@ -469,7 +511,7 @@ public class JobsStatusBean implements JobsStatusMBean {
         final QuartzJobInfoBean lastQuartzJobInfoBean = jobTypeStatusBean.getQuartzJobInfoBean();
 
         if (lastQuartzJobInfoBean == null) {
-            LOG.info("lastQuartzJobInfoBean not found for job " + jobName + ", job can not be triggered");
+            LOG.info("lastQuartzJobInfoBean not found for job [{}], job can not be triggered", jobName);
 
             return false;
         }
@@ -477,24 +519,24 @@ public class JobsStatusBean implements JobsStatusMBean {
         final Scheduler scheduler = (Scheduler) applicationContext.getBean(lastQuartzJobInfoBean.getSchedulerName());
 
         if (scheduler == null) {
-            LOG.info("scheduler " + lastQuartzJobInfoBean.getSchedulerName() + " not found for job " + jobName
-                    + ", lastQuartzJobInfoBean = " + lastQuartzJobInfoBean + ", job can not be triggered");
+            LOG.info("scheduler [{}] not found for job [{}], lastQuartzJobInfoBean = [{}], job can not be triggered",
+                new Object[] {lastQuartzJobInfoBean.getSchedulerName(), jobName, lastQuartzJobInfoBean});
 
             return false;
         }
 
-        LOG.info("starting triggering job " + jobName + " with lastQuartzJobInfoBean = " + lastQuartzJobInfoBean
-                + " ...");
+        LOG.info("starting triggering job [{}] with lastQuartzJobInfoBean = [{}] ...", jobName, lastQuartzJobInfoBean);
 
         try {
             scheduler.triggerJob(lastQuartzJobInfoBean.getJobName(), lastQuartzJobInfoBean.getJobGroup());
         } catch (final SchedulerException e) {
-            LOG.error("failed to trigger job " + jobName + " with lastQuartzJobInfoBean = " + lastQuartzJobInfoBean, e);
+            LOG.error("failed to trigger job [{}] with lastQuartzJobInfoBean = [{}]",
+                new Object[] {jobName, lastQuartzJobInfoBean, e});
 
             return false;
         }
 
-        LOG.info("... finished triggering job " + jobName + " with lastQuartzJobInfoBean = " + lastQuartzJobInfoBean);
+        LOG.info("... finished triggering job [{}] with lastQuartzJobInfoBean = [{}]", jobName, lastQuartzJobInfoBean);
 
         return true;
     }

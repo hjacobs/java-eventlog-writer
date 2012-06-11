@@ -34,7 +34,7 @@ public class JobTypeStatusBean {
     private static final String KEY_LAST_MODIFIED = "LAST_MODIFIED";
 
     private final Class<?> jobClass;
-    private final JobConfig jobConfig;
+    private JobConfig jobConfig;
 
     private final String description;
     private DateTime lastModified = null;
@@ -231,5 +231,9 @@ public class JobTypeStatusBean {
      */
     public QuartzJobInfoBean getQuartzJobInfoBean() {
         return lastQuartzJobInfoBean;
+    }
+
+    public void setJobConfig(final JobConfig jobConfig) {
+        this.jobConfig = jobConfig;
     }
 }

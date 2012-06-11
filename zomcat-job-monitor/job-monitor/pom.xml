@@ -3,13 +3,13 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.4.40</version>
+        <version>1.4.42</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-job-monitor-backend</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <!-- TODO project name  -->
     <name>${project.artifactId}</name>
     <description></description>
