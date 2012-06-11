@@ -68,7 +68,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     private final SortedMap<String, JobTypeStatusBean> jobs = new TreeMap<String, JobTypeStatusBean>();
     private final SortedMap<String, JobGroupTypeStatusBean> groups = new TreeMap<String, JobGroupTypeStatusBean>();
 
-    private Set<Class<? extends RunningWorker>> runningWorkerImplementations;
+    private Set<Class<? extends AbstractJob>> runningWorkerImplementations;
     private DateTime lastJobConfigRefesh;
 
     @Autowired
@@ -117,13 +117,13 @@ public class JobsStatusBean implements JobsStatusMBean {
         return jobs;
     }
 
-    private Set<Class<? extends RunningWorker>> getRunningWorkerImplementations() {
+    private Set<Class<? extends AbstractJob>> getRunningWorkerImplementations() {
         if (runningWorkerImplementations == null) {
             final Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
                         new FilterBuilder.Include(FilterBuilder.prefix("de.zalando"))).setUrls(
                         ClasspathHelper.forPackage("de.zalando")).setScanners(new SubTypesScanner()));
 
-            runningWorkerImplementations = reflections.getSubTypesOf(RunningWorker.class);
+            runningWorkerImplementations = reflections.getSubTypesOf(AbstractJob.class);
         }
 
         return runningWorkerImplementations;
