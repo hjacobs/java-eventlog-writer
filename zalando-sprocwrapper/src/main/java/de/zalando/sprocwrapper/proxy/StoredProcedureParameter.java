@@ -48,12 +48,17 @@ class StoredProcedureParameter {
     protected final Class clazz;
     protected final boolean sensitive;
 
-    public static StoredProcedureParameter CreateParameter(final Class clazz, final Method m, final String typeName,
+    public static StoredProcedureParameter createParameter(final Class clazz, final Method m, final String typeName,
             final int sqlType, final int javaPosition, final boolean sensitive) {
 
         Integer typeId = sqlType;
         if (typeId == null || typeId == -1) {
             typeId = SQL_MAPPING.get(clazz);
+        }
+
+        // explicitly mapping Map to a hstore, since PgTypeHelper does not fall back to it
+        if (typeId == null && Map.class.isAssignableFrom(clazz)) {
+            return new MapStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
         }
 
         if (typeId == null) {

@@ -130,12 +130,10 @@ public class SProcProxyBuilder {
                     if (a instanceof SProcParam) {
                         SProcParam sParam = (SProcParam) a;
 
-                        int javaPos = pos;
+                        final String dbTypeName = sParam.type();
 
-                        String dbTypeName = sParam.type();
-
-                        p.addParam(StoredProcedureParameter.CreateParameter(clazz, method, dbTypeName, sParam.sqlType(),
-                                javaPos, sParam.sensitive()));
+                        p.addParam(StoredProcedureParameter.createParameter(clazz, method, dbTypeName, sParam.sqlType(),
+                                pos, sParam.sensitive()));
                     }
                 }
 
