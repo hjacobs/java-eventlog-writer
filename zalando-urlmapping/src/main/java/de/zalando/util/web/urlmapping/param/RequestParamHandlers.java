@@ -35,7 +35,7 @@ public final class RequestParamHandlers {
         }
 
         @Override
-        public boolean appliesTo(final Map<String, String[]> parameterMap) {
+        public boolean appliesTo(final ListMultimap<String, String> parameterMap) {
             return parameterMap.keySet().containsAll(incoming);
         }
 
@@ -64,7 +64,7 @@ public final class RequestParamHandlers {
         }
 
         @Override
-        public boolean appliesTo(final Map<String, String[]> parameterMap) {
+        public boolean appliesTo(final ListMultimap<String, String> parameterMap) {
             return parameterMap.containsKey(paramName);
         }
 
@@ -105,7 +105,7 @@ public final class RequestParamHandlers {
         }
 
         @Override
-        public boolean appliesTo(final Map<String, String[]> parameterMap) {
+        public boolean appliesTo(final ListMultimap<String, String> parameterMap) {
             return parameterMap.containsKey(paramName);
         }
 

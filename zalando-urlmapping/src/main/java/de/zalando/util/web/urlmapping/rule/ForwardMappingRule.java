@@ -96,9 +96,7 @@ public class ForwardMappingRule implements MappingRule {
         }
 
         if (!requestParamHandlers.isEmpty()) {
-            @SuppressWarnings("unchecked")
-            // this is documented
-            final Map<String, String[]> parameterMap = mappingContext.getRequest().getParameterMap();
+            final ListMultimap<String, String> parameterMap = mappingContext.getParameterMap();
             for (final RequestParamHandler handler : requestParamHandlers) {
                 if (!handler.appliesTo(parameterMap)) {
                     return false;

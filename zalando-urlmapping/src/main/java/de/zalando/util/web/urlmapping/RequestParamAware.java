@@ -1,7 +1,7 @@
 package de.zalando.util.web.urlmapping;
 
-import java.util.Map;
+import com.google.common.collect.ListMultimap;
 
 public interface RequestParamAware {
-    boolean appliesTo(Map<String, String[]> parameterMap);
+    boolean appliesTo(ListMultimap<String, String> parameterMap);
 }
