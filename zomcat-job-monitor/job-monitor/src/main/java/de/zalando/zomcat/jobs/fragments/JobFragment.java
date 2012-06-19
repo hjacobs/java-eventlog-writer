@@ -2,6 +2,8 @@ package de.zalando.zomcat.jobs.fragments;
 
 import java.io.Serializable;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import org.apache.wicket.MarkupContainer;
@@ -124,14 +126,29 @@ public class JobFragment extends BaseFragment {
 
             add(new Label("name", jobTypeStatusBean.getJobClass().getSimpleName()));
             add(new Label("description", jobTypeStatusBean.getDescription()));
-            add(new Label("workers", "" + jobTypeStatusBean.getRunningWorker()));
+            add(new Label("workers", String.valueOf(jobTypeStatusBean.getRunningWorker())));
             add(new Label("timestamp", jobTypeStatusBean.getLastModifiedFormatted()));
             add(new HistoryModeFragment(this, jobRow, formModel));
             add(new Label("instances", jobTypeStatusBean.getJobConfig().getAllowedAppInstanceKeys().toString()));
-            add(new Label("batchSize", "" + jobTypeStatusBean.getJobConfig().getLimit()));
+            add(new Label("batchSize", String.valueOf(jobTypeStatusBean.getJobConfig().getLimit())));
 
             // TODO: add a serializable model for RunningWorker
-            add(new ListView<RunningWorker>("jobFlowIds", Lists.newArrayList(jobTypeStatusBean.getRunningWorkers())) {
+            final List<RunningWorker> currentRunningWorker = Lists.newArrayList(jobTypeStatusBean.getRunningWorkers());
+            add(new ListView<RunningWorker>("progress", currentRunningWorker) {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    protected void populateItem(final ListItem<RunningWorker> item) {
+                        final RunningWorker modelObject = item.getModelObject();
+                        item.add(
+                            new Label("jobProgress",
+                                String.valueOf(modelObject.getActualProcessedItemNumber()) + "/"
+                                    + String.valueOf(modelObject.getTotalNumberOfItemsToBeProcessed())));
+                    }
+                });
+
+            // TODO: add a serializable model for RunningWorker
+            add(new ListView<RunningWorker>("jobFlowIds", currentRunningWorker) {
                     private static final long serialVersionUID = 1L;
 
                     @Override

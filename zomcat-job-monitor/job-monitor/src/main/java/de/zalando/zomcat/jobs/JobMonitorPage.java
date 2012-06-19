@@ -43,6 +43,7 @@ public class JobMonitorPage extends WebPage {
     private static final long serialVersionUID = 2366951197279846029L;
 
     protected int total;
+    private boolean shouldRender = true;
 
     @SpringBean
     private JobsStatusBean jobsStatusBean;
@@ -51,6 +52,13 @@ public class JobMonitorPage extends WebPage {
     private HeartbeatStatusBean heartbeatStatusBean;
 
     private transient Gson gson;
+
+    @Override
+    protected void onRender() {
+        if (shouldRender) {
+            super.onRender();
+        }
+    }
 
     public JobMonitorPage(final PageParameters parameters) {
         super(parameters);
@@ -62,6 +70,7 @@ public class JobMonitorPage extends WebPage {
             for (final StringValue value : parameters.getValues("view")) {
                 if ("json".equals(value.toString())) {
                     processed = true;
+                    shouldRender = false;
                     RequestCycle.get().getOriginalResponse().write(getJson());
                     break;
                 }

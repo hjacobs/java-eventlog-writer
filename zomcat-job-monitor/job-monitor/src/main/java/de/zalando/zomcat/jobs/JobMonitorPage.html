@@ -55,6 +55,7 @@
                                       <th class="timestamp">Last modified</th>
                                       <th class="hosts">Hosts</th>
                                       <th class="batchsize" >BS</th>
+                                      <th class="progress" >Progress</th>
                                       <th class="flowIds">FlowIds</th>
                                       <th class="history"></th>
                                     </tr>
@@ -72,6 +73,9 @@
                                                 <td class="timestamp" wicket:id="timestamp">2011-12-12 12:32</td>
                                                 <td class="hosts" wicket:id="instances">bm01_p9820</td>
                                                 <td class="batchsize" wicket:id="batchSize">500</td>
+                                                <td class="progress">
+                                                    <span wicket:id="progress"><span wicket:id="jobProgress">1/10</span></span>
+                                                </td>
                                                 <td class="flowIds">
                                                     <span wicket:id="jobFlowIds">
                                                         <a href="#" wicket:id="flowIdLink" target="_blank"><span wicket:id="flowId">12345678</span></a>
@@ -93,7 +97,7 @@
                                                 <td class="history duration" wicket:id="duration">100</td>
                                                 <td class="history workerId" wicket:id="workerId">123</td>
                                                 <td class="history flowId"><a class="history" href="#" wicket:id="flowIdLink" target="_blank"><span class="history" wicket:id="flowId">12345678</span></a></td>
-                                                <td></td>
+                                                <td colspan="2" />
                                              </wicket:fragment>
                                         </tr>
                                     </tbody>
