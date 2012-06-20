@@ -1,5 +1,7 @@
 package de.zalando.zomcat.jobs;
 
+import java.lang.reflect.Modifier;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -45,6 +47,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import de.zalando.zomcat.OperationMode;
 
@@ -101,7 +104,8 @@ public class JobsStatusBean implements JobsStatusMBean {
                             getQuartzJobStatusBean(runningWorker.getClass()));
                     jobs.put(runningWorkerClass.getName(), jobTypeStatusBean);
                 } catch (final Exception e) {
-                    LOG.error("Got exception while getting job infos: [{}]", e.getMessage(), e);
+                    LOG.debug("Got exception while getting job infos for runningWorker: [{}], [{}]",
+                        new Object[] {runningWorkerClass.getName(), e.getMessage(), e});
                 }
             }
 
@@ -123,29 +127,40 @@ public class JobsStatusBean implements JobsStatusMBean {
                         new FilterBuilder.Include(FilterBuilder.prefix("de.zalando"))).setUrls(
                         ClasspathHelper.forPackage("de.zalando")).setScanners(new SubTypesScanner()));
 
-            runningWorkerImplementations = reflections.getSubTypesOf(AbstractJob.class);
+            runningWorkerImplementations = Sets.filter(reflections.getSubTypesOf(AbstractJob.class),
+                    new Predicate<Class<? extends AbstractJob>>() {
+                        @Override
+                        public boolean apply(final Class<? extends AbstractJob> input) {
+                            return !Modifier.isAbstract(input.getModifiers());
+                        }
+                    });
         }
 
         return runningWorkerImplementations;
     }
 
-    private void refreshJobConfig() throws InstantiationException, IllegalAccessException {
+    private void refreshJobConfig() {
         if (lastJobConfigRefesh == null
                 || lastJobConfigRefesh.plusMinutes(JOB_CONFIG_REFRESH_INTERVAL_IN_MINUTES).isBeforeNow()) {
 
             // we need to refresh the job config for all known jobs:
             for (final JobTypeStatusBean jobTypeStatusBean : jobs.values()) {
-                final RunningWorker runningWorker = (RunningWorker) jobTypeStatusBean.getJobClass().newInstance();
+                try {
+                    final RunningWorker runningWorker = (RunningWorker) jobTypeStatusBean.getJobClass().newInstance();
 
-                if (runningWorker instanceof AbstractJob) {
-                    final AbstractJob abstractJob = (AbstractJob) runningWorker;
+                    if (runningWorker instanceof AbstractJob) {
+                        final AbstractJob abstractJob = (AbstractJob) runningWorker;
 
-                    // make sure we can use the spring context in the abstract job
-                    abstractJob.setApplicationContext(applicationContext);
+                        // make sure we can use the spring context in the abstract job
+                        abstractJob.setApplicationContext(applicationContext);
+                    }
+
+                    // get a fresh instance of the job config and replace it with the outdated:
+                    jobTypeStatusBean.setJobConfig(runningWorker.getJobConfig());
+                } catch (final Exception e) {
+                    LOG.debug("Got exception while refreshing job infos for runningWorker: [{}], [{}]",
+                        new Object[] {jobTypeStatusBean.getJobClass().getName(), e.getMessage(), e});
                 }
-
-                // get a fresh instance of the job config and replace it with the outdated:
-                jobTypeStatusBean.setJobConfig(runningWorker.getJobConfig());
             }
 
             lastJobConfigRefesh = DateTime.now();
