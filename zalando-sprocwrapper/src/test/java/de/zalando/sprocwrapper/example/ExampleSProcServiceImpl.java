@@ -246,4 +246,9 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public String showTimeout() {
         return sproc.showTimeout();
     }
+
+    @Override
+    public ExampleDomainObjectWithInnerObject getObjectWithNull() {
+        return sproc.getObjectWithNull();
+    }
 }

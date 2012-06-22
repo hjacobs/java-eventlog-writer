@@ -154,4 +154,7 @@ public interface ExampleSProcService {
 
     @SProcCall(sql = "SHOW statement_timeout")
     String showTimeout();
+
+    @SProcCall(sql = "SELECT 'a','b',null")
+    ExampleDomainObjectWithInnerObject getObjectWithNull();
 }

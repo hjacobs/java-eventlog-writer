@@ -463,4 +463,11 @@ public class SimpleIT {
         String timeout3 = exampleSProcService.showTimeout();
         assertEquals(timeout, timeout3);
     }
+
+    @Test
+    public void testNullObject() {
+        ExampleDomainObjectWithInnerObject obj = exampleSProcService.getObjectWithNull();
+
+        assertEquals(null, obj.getC());
+    }
 }
