@@ -76,7 +76,7 @@ public @interface SProcCall {
 
     String sql() default "";
 
-    Class shardStrategy() default Void.class;
+    Class<?> shardStrategy() default Void.class;
 
     /**
      * whether the stored procedure should be called on all shards --- results are concatenated together.
@@ -107,7 +107,7 @@ public @interface SProcCall {
      */
     boolean readOnly() default false;
 
-    Class resultMapper() default Void.class;
+    Class<?> resultMapper() default Void.class;
 
     long timeoutInMilliSeconds() default 0;
 

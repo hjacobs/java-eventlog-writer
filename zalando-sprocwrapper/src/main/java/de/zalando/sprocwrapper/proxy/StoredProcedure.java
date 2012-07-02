@@ -49,22 +49,22 @@ class StoredProcedure {
 
     private final List<StoredProcedureParameter> params = new ArrayList<StoredProcedureParameter>();
 
-    private String name;
+    private final String name;
     private String query = null;
-    private Class returnType = null;
+    private Class<?> returnType = null;
 
     // whether the result type is a collection (List)
     private boolean collectionResult = false;
-    private boolean runOnAllShards;
-    private boolean searchShards;
+    private final boolean runOnAllShards;
+    private final boolean searchShards;
     private boolean autoPartition;
-    private boolean parallel;
+    private final boolean parallel;
 
     private Executor executor = null;
 
     private VirtualShardKeyStrategy shardStrategy;
     private List<ShardKeyParameter> shardKeyParameters = null;
-    private RowMapper<?> resultMapper;
+    private final RowMapper<?> resultMapper;
 
     private int[] types = null;
 
@@ -92,11 +92,11 @@ class StoredProcedure {
         shardStrategy = sStrategy;
 
         if (genericType instanceof ParameterizedType) {
-            ParameterizedType pType = (ParameterizedType) genericType;
+            final ParameterizedType pType = (ParameterizedType) genericType;
 
-            if (java.util.List.class.isAssignableFrom((Class) pType.getRawType())
+            if (java.util.List.class.isAssignableFrom((Class<?>) pType.getRawType())
                     && pType.getActualTypeArguments().length > 0) {
-                returnType = (Class) pType.getActualTypeArguments()[0];
+                returnType = (Class<?>) pType.getActualTypeArguments()[0];
                 if (SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
                     executor = MULTI_ROW_SIMPLE_TYPE_EXECUTOR;
                 } else {
@@ -106,11 +106,11 @@ class StoredProcedure {
                 collectionResult = true;
             } else {
                 executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
-                returnType = (Class) pType.getRawType();
+                returnType = (Class<?>) pType.getRawType();
             }
 
         } else {
-            returnType = (Class) genericType;
+            returnType = (Class<?>) genericType;
 
             if (SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
                 executor = SINGLE_ROW_SIMPLE_TYPE_EXECUTOR;
@@ -138,7 +138,7 @@ class StoredProcedure {
         shardStrategy = s;
     }
 
-    public void addShardKeyParameter(final int jp, final Class clazz) {
+    public void addShardKeyParameter(final int jp, final Class<?> clazz) {
         if (shardKeyParameters == null) {
             shardKeyParameters = new ArrayList<ShardKeyParameter>(1);
         }
@@ -155,13 +155,13 @@ class StoredProcedure {
     }
 
     public Object[] getParams(final Object[] origParams, final Connection connection) {
-        Object[] ps = new Object[params.size()];
+        final Object[] ps = new Object[params.size()];
 
         int i = 0;
-        for (StoredProcedureParameter p : params) {
+        for (final StoredProcedureParameter p : params) {
             try {
                 ps[i] = p.mapParam(origParams[p.getJavaPos()], connection);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 final String errorMessage = "Could not map input parameter for stored procedure " + name + " of type "
                         + p.getType() + " at position " + p.getJavaPos() + ": "
                         + (p.isSensitive() ? "<SENSITIVE>" : origParams[p.getJavaPos()]);
@@ -180,7 +180,7 @@ class StoredProcedure {
             types = new int[params.size()];
 
             int i = 0;
-            for (StoredProcedureParameter p : params) {
+            for (final StoredProcedureParameter p : params) {
                 types[i++] = p.getType();
             }
         }
@@ -193,10 +193,10 @@ class StoredProcedure {
             return shardStrategy.getShardId(null);
         }
 
-        Object[] keys = new Object[shardKeyParameters.size()];
+        final Object[] keys = new Object[shardKeyParameters.size()];
         int i = 0;
         Object obj;
-        for (ShardKeyParameter p : shardKeyParameters) {
+        for (final ShardKeyParameter p : shardKeyParameters) {
             obj = objs[p.javaPos];
             if (obj instanceof ShardedObject) {
                 obj = ((ShardedObject) obj).getShardKey();
@@ -249,7 +249,7 @@ class StoredProcedure {
         sb.append('(');
 
         int i = 0;
-        for (Object param : args) {
+        for (final Object param : args) {
             if (i > 0) {
                 sb.append(',');
             }
@@ -286,6 +286,7 @@ class StoredProcedure {
      *
      * @return  map of virtual shard ID to argument list (TreeMap with ordered keys: sorted by shard ID)
      */
+    @SuppressWarnings("unchecked")
     private Map<Integer, Object[]> partitionArguments(final DataSourceProvider dataSourceProvider,
             final Object[] args) {
 
@@ -297,13 +298,13 @@ class StoredProcedure {
         final Map<DataSource, Integer> shardIdByDataSource = Maps.newHashMap();
 
         // TODO: currently only implemented for single shardKey argument as first argument!
-        final List<Object> originalArgument = (List) args[0];
+        final List<Object> originalArgument = (List<Object>) args[0];
         List<Object> partitionedArgument = null;
         Object[] partitionedArguments = null;
         int shardId;
         Integer existingShardId;
         DataSource dataSource;
-        for (Object key : originalArgument) {
+        for (final Object key : originalArgument) {
             shardId = getShardId(new Object[] {key});
             dataSource = dataSourceProvider.getDataSource(shardId);
             existingShardId = shardIdByDataSource.get(dataSource);
@@ -339,9 +340,9 @@ class StoredProcedure {
     }
 
     private static class Call implements Callable<Object> {
-        private StoredProcedure sproc;
-        private DataSource shardDs;
-        private Object[] params;
+        private final StoredProcedure sproc;
+        private final DataSource shardDs;
+        private final Object[] params;
 
         public Call(final StoredProcedure sproc, final DataSource shardDs, final Object[] params) {
             this.sproc = sproc;
@@ -358,6 +359,7 @@ class StoredProcedure {
 
     private static ExecutorService parallelThreadPool = Executors.newCachedThreadPool();
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object execute(final DataSourceProvider dp, final Object[] args) {
 
         List<Integer> shardIds = null;
@@ -375,7 +377,7 @@ class StoredProcedure {
 
         if (partitionedArguments == null) {
             partitionedArguments = Maps.newHashMap();
-            for (int shardId : shardIds) {
+            for (final int shardId : shardIds) {
                 partitionedArguments.put(shardId, args);
             }
         }
@@ -385,14 +387,14 @@ class StoredProcedure {
         try {
             connection = firstDs.getConnection();
 
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new IllegalStateException("Failed to acquire connection for virtual shard " + shardIds.get(0)
                     + " for " + name, e);
         }
 
         final List<Object[]> paramValues = Lists.newArrayList();
         try {
-            for (int shardId : shardIds) {
+            for (final int shardId : shardIds) {
                 paramValues.add(getParams(partitionedArguments.get(shardId), connection));
             }
 
@@ -400,7 +402,7 @@ class StoredProcedure {
             if (connection != null) {
                 try {
                     connection.close();
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     LOG.warn("Could not release connection", t);
                 }
             }
@@ -417,12 +419,12 @@ class StoredProcedure {
             final List<?> results = Lists.newArrayList();
             Object sprocResult = null;
             DataSource shardDs;
-            long start = System.currentTimeMillis();
+            final long start = System.currentTimeMillis();
             if (parallel) {
                 final List<FutureTask<Object>> taskList = Lists.newArrayList();
                 FutureTask<Object> task;
                 int i = 0;
-                for (int shardId : shardIds) {
+                for (final int shardId : shardIds) {
                     shardDs = dp.getDataSource(shardId);
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(getDebugLog(paramValues.get(i)));
@@ -434,12 +436,12 @@ class StoredProcedure {
                     i++;
                 }
 
-                for (FutureTask<Object> taskToFinish : taskList) {
+                for (final FutureTask<Object> taskToFinish : taskList) {
                     try {
                         sprocResult = taskToFinish.get();
-                    } catch (InterruptedException ex) {
+                    } catch (final InterruptedException ex) {
                         throw new IllegalStateException("Thread was interrupted while executing " + name, ex);
-                    } catch (ExecutionException ex) {
+                    } catch (final ExecutionException ex) {
                         throw new IllegalStateException("Execution of " + name + " threw exception: "
                                 + ex.getCause().getMessage(), ex);
                     }
@@ -459,7 +461,7 @@ class StoredProcedure {
 
             } else {
                 int i = 0;
-                for (int shardId : shardIds) {
+                for (final int shardId : shardIds) {
                     shardDs = dp.getDataSource(shardId);
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(getDebugLog(paramValues.get(i)));
@@ -506,11 +508,11 @@ class StoredProcedure {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(name);
+        final StringBuilder sb = new StringBuilder(name);
         sb.append('(');
 
         boolean f = true;
-        for (StoredProcedureParameter p : params) {
+        for (final StoredProcedureParameter p : params) {
             if (!f) {
                 sb.append(',');
             }

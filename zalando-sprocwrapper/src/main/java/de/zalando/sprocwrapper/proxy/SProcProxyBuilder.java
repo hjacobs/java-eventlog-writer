@@ -32,7 +32,7 @@ public class SProcProxyBuilder {
     }
 
     public static String camelCaseToUnderscore(final String camelCase) {
-        String[] camelCaseParts = StringUtils.splitByCharacterTypeCamelCase(camelCase);
+        final String[] camelCaseParts = StringUtils.splitByCharacterTypeCamelCase(camelCase);
         for (int i = 0; i < camelCaseParts.length; i++) {
             camelCaseParts[i] = camelCaseParts[i].toLowerCase(Locale.ENGLISH);
         }
@@ -44,21 +44,22 @@ public class SProcProxyBuilder {
         return camelCaseToUnderscore(methodName);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T build(final DataSourceProvider d, final Class<T> c) {
-        Method[] methods = c.getMethods();
+        final Method[] methods = c.getMethods();
 
-        SProcProxy proxy = new SProcProxy(d);
+        final SProcProxy proxy = new SProcProxy(d);
 
-        SProcService serviceAnnotation = c.getAnnotation(SProcService.class);
+        final SProcService serviceAnnotation = c.getAnnotation(SProcService.class);
         VirtualShardKeyStrategy keyStrategy = VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT;
         String prefix = "";
         if (serviceAnnotation != null) {
             try {
                 keyStrategy = (VirtualShardKeyStrategy) serviceAnnotation.shardStrategy().newInstance();
-            } catch (InstantiationException ex) {
+            } catch (final InstantiationException ex) {
                 LOG.fatal("ShardKey strategy for service can not be instantiated", ex);
                 return null;
-            } catch (IllegalAccessException ex) {
+            } catch (final IllegalAccessException ex) {
                 LOG.fatal("ShardKey strategy for service can not be instantiated", ex);
                 return null;
             }
@@ -69,7 +70,7 @@ public class SProcProxyBuilder {
         }
 
         for (final Method method : methods) {
-            SProcCall scA = method.getAnnotation(SProcCall.class);
+            final SProcCall scA = method.getAnnotation(SProcCall.class);
 
             if (scA == null) {
                 continue;
@@ -86,10 +87,10 @@ public class SProcProxyBuilder {
             if (scA.shardStrategy() != Void.class) {
                 try {
                     sprocStrategy = (VirtualShardKeyStrategy) scA.shardStrategy().newInstance();
-                } catch (InstantiationException ex) {
+                } catch (final InstantiationException ex) {
                     LOG.fatal("Shard strategy for sproc can not be instantiated", ex);
                     return null;
-                } catch (IllegalAccessException ex) {
+                } catch (final IllegalAccessException ex) {
                     LOG.fatal("Shard strategy for sproc can not be instantiated", ex);
                     return null;
                 }
@@ -100,10 +101,10 @@ public class SProcProxyBuilder {
             if (scA.resultMapper() != Void.class) {
                 try {
                     resultMapper = (RowMapper<?>) scA.resultMapper().newInstance();
-                } catch (InstantiationException ex) {
+                } catch (final InstantiationException ex) {
                     LOG.fatal("Result mapper for sproc can not be instantiated", ex);
                     return null;
-                } catch (IllegalAccessException ex) {
+                } catch (final IllegalAccessException ex) {
                     LOG.fatal("Result mapper for sproc can not be instantiated", ex);
                     return null;
                 }
@@ -121,14 +122,14 @@ public class SProcProxyBuilder {
             for (final Annotation[] as : method.getParameterAnnotations()) {
 
                 for (final Annotation a : as) {
-                    final Class clazz = method.getParameterTypes()[pos];
+                    final Class<?> clazz = method.getParameterTypes()[pos];
 
                     if (a instanceof ShardKey) {
                         p.addShardKeyParameter(pos, clazz);
                     }
 
                     if (a instanceof SProcParam) {
-                        SProcParam sParam = (SProcParam) a;
+                        final SProcParam sParam = (SProcParam) a;
 
                         final String dbTypeName = sParam.type();
 

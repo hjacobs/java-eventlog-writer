@@ -251,4 +251,10 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public ExampleDomainObjectWithInnerObject getObjectWithNull() {
         return sproc.getObjectWithNull();
     }
+
+    @Override
+    public ExampleDomainObjectWithSimpleTransformer testSimpleTransformer(
+            final ExampleDomainObjectWithSimpleTransformer exampleDomainObjectWithSimpleTransformer) {
+        return sproc.testSimpleTransformer(exampleDomainObjectWithSimpleTransformer);
+    }
 }

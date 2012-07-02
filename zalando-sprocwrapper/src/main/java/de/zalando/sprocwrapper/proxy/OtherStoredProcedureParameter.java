@@ -14,7 +14,7 @@ import com.typemapper.postgres.PgTypeHelper;
  */
 class OtherStoredProcedureParameter extends StoredProcedureParameter {
 
-    public OtherStoredProcedureParameter(final Class clazz, final Method m, final String typeName, final int sqlType,
+    public OtherStoredProcedureParameter(final Class<?> clazz, final Method m, final String typeName, final int sqlType,
             final int javaPosition, final boolean sensitive) {
         super(clazz, m, typeName, sqlType, javaPosition, sensitive);
     }
@@ -29,10 +29,10 @@ class OtherStoredProcedureParameter extends StoredProcedureParameter {
         if (clazz.isEnum()) {
 
             // HACK: should be implemented in PgTypeHelper
-            PGobject pgobj = new PGobject();
+            final PGobject pgobj = new PGobject();
             pgobj.setType(typeName);
             try {
-                pgobj.setValue(((Enum) value).name());
+                pgobj.setValue(((Enum<?>) value).name());
             } catch (final SQLException ex) {
                 if (sensitive) {
                     LOG.error("Failed to set PG object value (sensitive parameter, stacktrace hidden)");

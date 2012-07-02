@@ -157,4 +157,8 @@ public interface ExampleSProcService {
 
     @SProcCall(sql = "SELECT 'a','b',null")
     ExampleDomainObjectWithInnerObject getObjectWithNull();
+
+    @SProcCall
+    ExampleDomainObjectWithSimpleTransformer testSimpleTransformer(
+            @SProcParam ExampleDomainObjectWithSimpleTransformer exampleDomainObjectWithSimpleTransformer);
 }

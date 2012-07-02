@@ -10,7 +10,7 @@ import com.typemapper.postgres.HStore;
 
 public class MapStoredProcedureParameter extends StoredProcedureParameter {
 
-    public MapStoredProcedureParameter(final Class clazz, final Method m, final String typeName, final int sqlType,
+    public MapStoredProcedureParameter(final Class<?> clazz, final Method m, final String typeName, final int sqlType,
             final int javaPosition, final boolean sensitive) {
         super(clazz, m, typeName, sqlType, javaPosition, sensitive);
     }
@@ -21,7 +21,7 @@ public class MapStoredProcedureParameter extends StoredProcedureParameter {
             return null;
         }
 
-        return new HStore((Map) value);
+        return new HStore((Map<?, ?>) value);
     }
 
 }

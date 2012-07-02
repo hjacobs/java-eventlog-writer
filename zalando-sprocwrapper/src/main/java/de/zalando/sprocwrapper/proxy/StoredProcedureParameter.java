@@ -19,7 +19,7 @@ class StoredProcedureParameter {
 
     protected static final Logger LOG = Logger.getLogger(StoredProcedureParameter.class);
 
-    protected static final Map<Class, Integer> SQL_MAPPING = new HashMap<Class, Integer>();
+    protected static final Map<Class<?>, Integer> SQL_MAPPING = new HashMap<Class<?>, Integer>();
 
     static {
         SQL_MAPPING.put(int.class, java.sql.Types.INTEGER);
@@ -45,10 +45,10 @@ class StoredProcedureParameter {
     protected final String typeName;
     protected final int type;
     protected final int javaPos;
-    protected final Class clazz;
+    protected final Class<?> clazz;
     protected final boolean sensitive;
 
-    public static StoredProcedureParameter createParameter(final Class clazz, final Method m, final String typeName,
+    public static StoredProcedureParameter createParameter(final Class<?> clazz, final Method m, final String typeName,
             final int sqlType, final int javaPosition, final boolean sensitive) {
 
         Integer typeId = sqlType;
@@ -74,7 +74,7 @@ class StoredProcedureParameter {
         return new StoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
     }
 
-    public StoredProcedureParameter(final Class clazz, final Method m, final String typeName, final int sqlType,
+    public StoredProcedureParameter(final Class<?> clazz, final Method m, final String typeName, final int sqlType,
             final int javaPosition, final boolean sensitive) {
 
         this.clazz = clazz;

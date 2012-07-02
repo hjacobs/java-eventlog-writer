@@ -41,6 +41,7 @@ import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFields;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsInner;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsOverride;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithSimpleTransformer;
 import de.zalando.sprocwrapper.example.ExampleEnum;
 import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
@@ -75,9 +76,20 @@ public class SimpleIT {
     }
 
     @Test
+    public void testSimpleTransformer() throws SQLException {
+
+        // test void result
+        final ExampleDomainObjectWithSimpleTransformer transformed = exampleSProcService.testSimpleTransformer(
+                new ExampleDomainObjectWithSimpleTransformer("123", "hallo"));
+
+        assertEquals("123", transformed.getA());
+        assertEquals("hallo", transformed.getB());
+    }
+
+    @Test
     public void testSimpleListParam() throws SQLException {
 
-        List<String> skus = new ArrayList<String>();
+        final List<String> skus = new ArrayList<String>();
         skus.add("ABC123");
         skus.add("ABC456");
 
@@ -88,7 +100,7 @@ public class SimpleIT {
     public void testMultiRowTypeMappedResult() {
 
         // Query for a Multi Row Resultset of TestResult Objects
-        List<ExampleDomainObject> rows = exampleSProcService.getResult();
+        final List<ExampleDomainObject> rows = exampleSProcService.getResult();
         assertEquals("a", rows.get(0).getA());
         assertEquals("b", rows.get(0).getB());
         assertEquals("c", rows.get(1).getA());
@@ -107,7 +119,7 @@ public class SimpleIT {
         String result = exampleSProcService.createOrUpdateObject(null);
         assertEquals(null, result);
 
-        ExampleDomainObject obj = new ExampleDomainObject("a", "b");
+        final ExampleDomainObject obj = new ExampleDomainObject("a", "b");
         result = exampleSProcService.createOrUpdateObject(obj);
         assertEquals("a b", result);
     }
@@ -121,8 +133,8 @@ public class SimpleIT {
         result = exampleSProcService.createOrUpdateMultipleObjects(new ArrayList<ExampleDomainObject>());
         assertEquals("", result);
 
-        ExampleDomainObject obj = new ExampleDomainObject("a", "b");
-        List<ExampleDomainObject> list = new ArrayList<ExampleDomainObject>();
+        final ExampleDomainObject obj = new ExampleDomainObject("a", "b");
+        final List<ExampleDomainObject> list = new ArrayList<ExampleDomainObject>();
         list.add(obj);
         list.add(new ExampleDomainObject("c", "d"));
 
@@ -139,8 +151,8 @@ public class SimpleIT {
         result = exampleSProcService.createOrUpdateMultipleObjectsWithMap(new ArrayList<ExampleDomainObjectWithMap>());
         assertNull(result);
 
-        ExampleDomainObjectWithMap obj = new ExampleDomainObjectWithMap("a", null);
-        List<ExampleDomainObjectWithMap> list = new ArrayList<ExampleDomainObjectWithMap>();
+        final ExampleDomainObjectWithMap obj = new ExampleDomainObjectWithMap("a", null);
+        final List<ExampleDomainObjectWithMap> list = new ArrayList<ExampleDomainObjectWithMap>();
         list.add(obj);
         list.add(new ExampleDomainObjectWithMap("c", new HashMap<String, String>()));
         list.get(1).b.put("key", "val");
@@ -167,8 +179,8 @@ public class SimpleIT {
                 new ArrayList<ExampleDomainObjectWithInnerObject>());
         assertNull(result);
 
-        ExampleDomainObjectWithInnerObject obj = new ExampleDomainObjectWithInnerObject("a", null);
-        List<ExampleDomainObjectWithInnerObject> list = new ArrayList<ExampleDomainObjectWithInnerObject>();
+        final ExampleDomainObjectWithInnerObject obj = new ExampleDomainObjectWithInnerObject("a", null);
+        final List<ExampleDomainObjectWithInnerObject> list = new ArrayList<ExampleDomainObjectWithInnerObject>();
         list.add(obj);
         list.add(new ExampleDomainObjectWithInnerObject("c", new ExampleDomainObject("d", "e")));
 
@@ -187,11 +199,11 @@ public class SimpleIT {
 
         // exampleSProcService.createOrUpdateObjectWithEnum(null);
 
-        ExampleDomainObjectWithEnum obj = new ExampleDomainObjectWithEnum();
+        final ExampleDomainObjectWithEnum obj = new ExampleDomainObjectWithEnum();
         obj.setX("X");
         obj.setMyEnum(ExampleEnum.ENUM_CONST_1);
 
-        String result = exampleSProcService.createOrUpdateObjectWithEnum(obj);
+        final String result = exampleSProcService.createOrUpdateObjectWithEnum(obj);
         assertEquals("XENUM_CONST_1", result);
     }
 
@@ -203,13 +215,13 @@ public class SimpleIT {
         // commented out, because date input parameters are not working at the moment
         // exampleSProcService.useDateParam2(new Date(System.currentTimeMillis()));
 
-        ExampleDomainObjectWithDate obj = new ExampleDomainObjectWithDate();
+        final ExampleDomainObjectWithDate obj = new ExampleDomainObjectWithDate();
         obj.setX("X");
 
         String result = exampleSProcService.createOrUpdateObjectWithDate(obj);
         assertNull(result);
 
-        Date d = new Date(System.currentTimeMillis());
+        final Date d = new Date(System.currentTimeMillis());
         obj.setMyDate(d);
         result = exampleSProcService.createOrUpdateObjectWithDate(obj);
         assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d)), result);
@@ -227,7 +239,7 @@ public class SimpleIT {
 
     @Test
     public void testReturnDate() {
-        Date d = exampleSProcService.getFixedTestDate();
+        final Date d = exampleSProcService.getFixedTestDate();
         System.out.println("Date d:" + d);
         System.out.println("Date now:" + (new Date(System.currentTimeMillis())));
 
@@ -243,26 +255,26 @@ public class SimpleIT {
 
     @Test
     public void testCreateAddress() {
-        AddressPojo a = getNewTestAddress();
+        final AddressPojo a = getNewTestAddress();
 
-        AddressPojo b = exampleSProcService.createAddress(a);
+        final AddressPojo b = exampleSProcService.createAddress(a);
         assertEquals((int) b.id, (int) 1);
 
-        AddressPojo c = exampleSProcService.createAddress(a);
+        final AddressPojo c = exampleSProcService.createAddress(a);
 
         assertEquals((int) c.id, (int) 2);
     }
 
     @Test
     public void testGetAddress() {
-        AddressPojo a = getNewTestAddress();
+        final AddressPojo a = getNewTestAddress();
 
-        AddressPojo b = exampleSProcService.createAddress(a);
+        final AddressPojo b = exampleSProcService.createAddress(a);
 
-        AddressPojo c = new AddressPojo();
+        final AddressPojo c = new AddressPojo();
         c.id = b.getId();
 
-        AddressPojo l = exampleSProcService.getAddress(c);
+        final AddressPojo l = exampleSProcService.getAddress(c);
         System.out.println(l);
 
         assertEquals(l.customerId, a.customerId);
@@ -275,7 +287,7 @@ public class SimpleIT {
     private static int addresscount = 1;
 
     private AddressPojo getNewTestAddress() {
-        AddressPojo a = new AddressPojo();
+        final AddressPojo a = new AddressPojo();
         a.customerId = addresscount++;
         a.street = "Auf Beverau";
         a.number = "11";
@@ -285,14 +297,14 @@ public class SimpleIT {
     @Test
     public void testGetAddressSql() {
 
-        AddressPojo a = getNewTestAddress();
+        final AddressPojo a = getNewTestAddress();
 
-        AddressPojo b = exampleSProcService.createAddress(a);
+        final AddressPojo b = exampleSProcService.createAddress(a);
 
-        AddressPojo c = new AddressPojo();
+        final AddressPojo c = new AddressPojo();
         c.id = b.getId();
 
-        AddressPojo l = exampleSProcService.getAddress(c);
+        final AddressPojo l = exampleSProcService.getAddress(c);
         System.out.println(l);
 
         assertEquals(l.customerId, a.customerId);
@@ -316,12 +328,12 @@ public class SimpleIT {
 
     @Test
     public void testPrimitiveListResults() {
-        List<Integer> ints = exampleSProcService.getInts();
+        final List<Integer> ints = exampleSProcService.getInts();
         assertEquals(2, ints.size());
         assertEquals(1, (int) ints.get(0));
         assertEquals(2, (int) ints.get(1));
 
-        List<Long> longs = exampleSProcService.getLongs();
+        final List<Long> longs = exampleSProcService.getLongs();
         assertEquals(2, longs.size());
         assertEquals(1000, (long) longs.get(0));
         assertEquals(2002, (long) longs.get(1));
@@ -336,7 +348,7 @@ public class SimpleIT {
         String result = exampleSProcService.createOrUpdateObjectWithRandomFields(null);
         assertNull(result);
 
-        ExampleDomainObjectWithRandomFields obj = new ExampleDomainObjectWithRandomFields();
+        final ExampleDomainObjectWithRandomFields obj = new ExampleDomainObjectWithRandomFields();
         obj.setX("X");
         obj.setY("Y");
         obj.setZ(3);
@@ -383,54 +395,54 @@ public class SimpleIT {
     public void testRuntime() {
         assertEquals(1, 1);
 
-        int loops = 10000;
+        final int loops = 10000;
 
-        String sql = "SELECT ";
+        final String sql = "SELECT ";
 
-        int xx = (new JdbcTemplate(dataSource1)).queryForInt(sql + 11111);
+        final int xx = (new JdbcTemplate(dataSource1)).queryForInt(sql + 11111);
 
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
         for (int i = 0; i < loops; i++) {
-            int j = (new JdbcTemplate(dataSource1)).queryForInt(sql + i);
+            final int j = (new JdbcTemplate(dataSource1)).queryForInt(sql + i);
         }
 
-        long endTime = System.currentTimeMillis();
+        final long endTime = System.currentTimeMillis();
 
-        long startTimeW = System.currentTimeMillis();
+        final long startTimeW = System.currentTimeMillis();
         for (int i = 0; i < loops; i++) {
-            int j = exampleSProcService.getSimpleInt(i);
+            final int j = exampleSProcService.getSimpleInt(i);
         }
 
-        long endTimeW = System.currentTimeMillis();
+        final long endTimeW = System.currentTimeMillis();
 
-        long startTimeN = System.currentTimeMillis();
+        final long startTimeN = System.currentTimeMillis();
 
         for (int i = 0; i < loops; i++) {
             Connection conn = null;
             try {
                 conn = dataSource1.getConnection();
 
-                Statement st = conn.createStatement();
+                final Statement st = conn.createStatement();
 
                 int j = 0;
 
-                ResultSet rs = st.executeQuery("SELECT " + i);
+                final ResultSet rs = st.executeQuery("SELECT " + i);
 
                 if (rs.next()) {
                     j = rs.getInt(1);
                 }
 
-            } catch (SQLException e) { }
+            } catch (final SQLException e) { }
             finally {
                 if (conn != null) {
                     try {
                         conn.close();
-                    } catch (SQLException e) { }
+                    } catch (final SQLException e) { }
                 }
             }
         }
 
-        long endTimeN = System.currentTimeMillis();
+        final long endTimeN = System.currentTimeMillis();
 
         System.out.println("Time used for native JdbcTemplate: " + (endTime - startTime));
         System.out.println("Time used for SprocWrapper: " + (endTimeW - startTimeW));
@@ -439,34 +451,34 @@ public class SimpleIT {
 
     @Test
     public void testTimeout() {
-        String timeout = exampleSProcService.showTimeout();
+        final String timeout = exampleSProcService.showTimeout();
 
         exampleSProcService.testTimeoutSetTo3s(2);
 
         try {
             exampleSProcService.testTimeoutSetTo3s(4);
             assertEquals(true, false);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertEquals(true, true);
         }
 
-        String timeout2 = exampleSProcService.showTimeout();
+        final String timeout2 = exampleSProcService.showTimeout();
         assertEquals(timeout, timeout2);
 
         try {
             exampleSProcService.testTimeoutSetTo5s(6);
             assertEquals(true, false);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertEquals(true, true);
         }
 
-        String timeout3 = exampleSProcService.showTimeout();
+        final String timeout3 = exampleSProcService.showTimeout();
         assertEquals(timeout, timeout3);
     }
 
     @Test
     public void testNullObject() {
-        ExampleDomainObjectWithInnerObject obj = exampleSProcService.getObjectWithNull();
+        final ExampleDomainObjectWithInnerObject obj = exampleSProcService.getObjectWithNull();
 
         assertEquals(null, obj.getC());
     }
