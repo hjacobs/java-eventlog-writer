@@ -78,8 +78,8 @@ public abstract class FlowId {
         pushFlowId(generateFlowId());
     }
 
-    public static String generateAndPushFlowIdWithPayload(final FlowIdType jobType) {
-        return generateFlowIdWithPayload(jobType, null, null, null);
+    public static void generateAndPushFlowIdWithPayload(final FlowIdType jobType) {
+        generateAndPushFlowIdWithPayload(jobType, null, null, null);
     }
 
     public static void generateAndPushFlowIdWithPayload(final FlowIdType type, final String sessionId,
