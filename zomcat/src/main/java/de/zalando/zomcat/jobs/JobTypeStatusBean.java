@@ -1,7 +1,6 @@
 package de.zalando.zomcat.jobs;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -39,8 +39,7 @@ public class JobTypeStatusBean {
     private final String description;
     private DateTime lastModified = null;
     private boolean disabled = false;
-    private final Map<Integer, RunningWorker> id2RunningWorker = Collections.synchronizedMap(
-            new HashMap<Integer, RunningWorker>());
+    private final Map<Integer, RunningWorker> id2RunningWorker = new ConcurrentHashMap<Integer, RunningWorker>();
     private final LinkedBoundedQueue<FinishedWorkerBean> history = new LinkedBoundedQueue<FinishedWorkerBean>(
             MAX_HISTORY_ENTRIES);
 

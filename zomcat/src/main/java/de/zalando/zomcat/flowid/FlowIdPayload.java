@@ -7,7 +7,8 @@ package de.zalando.zomcat.flowid;
  */
 public class FlowIdPayload {
 
-    // session ID prefix: first 5 bytes of session ID in hex format (complete session ID is 16 Bytes, i.e. UUID)
+    // session ID prefix: first 5 bytes of session ID in hex format (complete
+    // session ID is 16 Bytes, i.e. UUID)
     private String sessionPrefix;
 
     // remote IP address in dotted decimal format, e.g. 127.0.0.1

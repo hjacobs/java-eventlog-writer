@@ -11,6 +11,7 @@ import de.zalando.domain.ComponentBean;
 
 import de.zalando.zomcat.ExecutionContext;
 import de.zalando.zomcat.flowid.FlowId;
+import de.zalando.zomcat.flowid.FlowIdType;
 import de.zalando.zomcat.jobs.JobListener;
 import de.zalando.zomcat.jobs.RunningWorker;
 
@@ -37,7 +38,8 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
         // clear this thread: there can be no other context in there...
         ExecutionContext.clear();
         FlowId.clear();
-        FlowId.generateAndPushFlowId();
+
+        FlowId.generateAndPushFlowIdWithPayload(FlowIdType.JOB);
         LOG.trace("start running job with flowId {}", FlowId.peekFlowId());
     }
 
