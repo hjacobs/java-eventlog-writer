@@ -55,6 +55,7 @@ public @interface SProcCall {
         ARTICLE_SIMPLE_WATCHER_FETCH_QUEUES_AND_MARK_PROCESSING(35L),
         IMPORT_COMMISSIONS(36L),
         IMPORT_INBOUND_TOURS(37L),
+        GET_ZALOS_DEVICE(38L),
 
         /*
          * The values following now don't exist in LockingSproc. To allow adding new values to
