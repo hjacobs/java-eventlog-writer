@@ -26,6 +26,7 @@ import de.zalando.zomcat.OperationMode;
 import de.zalando.zomcat.jobs.listener.JobFlowIdListener;
 import de.zalando.zomcat.jobs.listener.JobHistoryListener;
 import de.zalando.zomcat.jobs.listener.StopWatchListener;
+import de.zalando.zomcat.jobs.lock.LockResourceManager;
 
 /**
  * Abstract Job.
@@ -287,6 +288,11 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
             return false;
         }
 
+        if (isJobResourceLocked(getLockResource())) {
+            log(Level.INFO, "job's resource is locked and job will not start", null);
+            return false;
+        }
+
         if (config == null) {
             LOG.fatal(String.format(
                     "JobConfig for ComponentBean (Job): %s could not be retrieved from Application Config.",
@@ -309,6 +315,30 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         }
 
         return shouldRun;
+    }
+
+    private boolean isJobResourceLocked(final String resource) {
+        if (resource == null) {
+            return false;
+        }
+
+        LockResourceManager lockResourceManager = applicationContext.getBean(LockResourceManager.class);
+        if (lockResourceManager == null) {
+            throw new IllegalStateException(String.format("LockResourceManager not defined! Can't acquire lock for %s",
+                    resource));
+        }
+
+        return lockResourceManager.acquireLock(resource);
+
+    }
+
+    /**
+     * Identifies what resource (if any) is to be locked.
+     *
+     * @return
+     */
+    private String getLockResource() {
+        return null;
     }
 
     @Override
