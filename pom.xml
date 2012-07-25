@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>Event Log</name>
     <description>Event Log Library: API to log business events</description>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
