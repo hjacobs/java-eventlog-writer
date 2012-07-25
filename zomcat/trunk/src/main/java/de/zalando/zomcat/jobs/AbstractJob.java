@@ -337,7 +337,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      *
      * @return
      */
-    private String getLockResource() {
+    protected String getLockResource() {
         return null;
     }
 
