@@ -25,6 +25,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import de.zalando.zomcat.OperationMode;
+import de.zalando.zomcat.flowid.FlowId;
 import de.zalando.zomcat.jobs.listener.JobFlowIdListener;
 import de.zalando.zomcat.jobs.listener.JobHistoryListener;
 import de.zalando.zomcat.jobs.listener.StopWatchListener;
@@ -57,6 +58,8 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
     private final StopWatchListener stopWatchListener = new StopWatchListener();
 
+    private final LockResourceManager lockResourceManager;
+
     /**
      * Default Constructor.
      */
@@ -64,6 +67,16 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         super();
         startTime = new DateTime();
         id = globalId.incrementAndGet();
+
+        LockResourceManager bean = null;
+        try {
+            bean = (LockResourceManager) applicationContext.getBean("LockResourceManager");
+        } catch (NoSuchBeanDefinitionException e) {
+            LOG.info("Starting instance without resource locking support.", e);
+        }
+
+        lockResourceManager = bean;
+
     }
 
     /**
@@ -102,6 +115,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
             Throwable throwable = null;
             try {
+                lockResourceManager.acquireLock(getBeanName(), getLockResource(), FlowId.peekFlowId());
                 doRun(context, config);
             } catch (final Throwable e) {
                 log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
@@ -109,6 +123,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
             } finally {
 
                 // notify about stop running this job
+                lockResourceManager.releaseLock(getLockResource());
                 notifyStopRunning(throwable);
             }
         }
@@ -324,18 +339,15 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
             return false;
         }
 
-        LockResourceManager lockResourceManager = null;
-        try {
-            lockResourceManager = (LockResourceManager) applicationContext.getBean("LockResourceManager");
-        } catch (NoSuchBeanDefinitionException e) {
+        if (lockResourceManager == null) {
             LOG.error(String.format(
                     "No bean lockResourceManager bean is defined but job [{}] is trying to lock resource [{}]!!! Check the component context.",
                     resource));
             throw new IllegalStateException(String.format("LockResourceManager not defined! Can't acquire lock for %s.",
-                    resource), e);
+                    resource));
         }
 
-        return lockResourceManager.acquireLock(resource);
+        return lockResourceManager.peekLock(resource);
 
     }
 

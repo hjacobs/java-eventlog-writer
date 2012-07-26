@@ -7,9 +7,12 @@ public interface LockResourceManager {
      *
      * @return  true if the resource could be acquired by this job; false otherwise.
      */
-    boolean acquireLock(String resource);
+    boolean acquireLock(String lockingComponent, String resource, String flowId);
 
-    boolean acquireLock(String resource, long expectedMaximumDuration);
+    boolean acquireLock(final String lockingComponent, final String resource, final String flowId,
+            long expectedMaximumDuration);
 
     void releaseLock(String resource);
+
+    boolean peekLock(String resource);
 }
