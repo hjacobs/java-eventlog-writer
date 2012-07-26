@@ -58,7 +58,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
     private final StopWatchListener stopWatchListener = new StopWatchListener();
 
-    private final LockResourceManager lockResourceManager;
+    private LockResourceManager lockResourceManager;
 
     /**
      * Default Constructor.
@@ -67,20 +67,6 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         super();
         startTime = new DateTime();
         id = globalId.incrementAndGet();
-
-        LockResourceManager bean = null;
-        try {
-
-            // under tests and on some components spring may not be available.
-            if (applicationContext != null) {
-
-                bean = (LockResourceManager) applicationContext.getBean("LockResourceManager");
-            }
-        } catch (NoSuchBeanDefinitionException e) {
-            LOG.info("Starting instance without resource locking support.", e);
-        }
-
-        lockResourceManager = bean;
 
     }
 
@@ -95,6 +81,22 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         addJobListener(stopWatchListener);
     }
 
+    protected void setupLockResourceManager() {
+        LockResourceManager bean = null;
+        try {
+
+            // under tests and on some components spring may not be available.
+            if (applicationContext != null) {
+
+                bean = (LockResourceManager) applicationContext.getBean("LockResourceManager");
+            }
+        } catch (NoSuchBeanDefinitionException e) {
+            LOG.info("Starting instance without resource locking support.", e);
+        }
+
+        lockResourceManager = bean;
+    }
+
     /**
      * Entry point for Quartz.
      */
@@ -103,6 +105,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
         // register all listeners (if not already done)
         registerListener();
+        setupLockResourceManager();
 
         // no job should be allowed without description
         Preconditions.checkArgument(!isNullOrEmpty(getDescription()),
@@ -352,7 +355,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
         if (lockResourceManager == null) {
             LOG.error(String.format(
-                    "No bean lockResourceManager bean is defined but job [{}] is trying to lock resource [{}]!!! Check the component context.",
+                    "No bean lockResourceManager bean is defined but job [%s] is trying to lock resource [%s]!!! Check the component context.",
                     resource));
             throw new IllegalStateException(String.format("LockResourceManager not defined! Can't acquire lock for %s.",
                     resource));
