@@ -120,7 +120,10 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
             Throwable throwable = null;
             try {
-                lockResourceManager.acquireLock(getBeanName(), getLockResource(), FlowId.peekFlowId());
+                if (lockResourceManager != null) {
+                    lockResourceManager.acquireLock(getBeanName(), getLockResource(), FlowId.peekFlowId());
+                }
+
                 doRun(context, config);
             } catch (final Throwable e) {
                 log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
@@ -128,7 +131,10 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
             } finally {
 
                 // notify about stop running this job
-                lockResourceManager.releaseLock(getLockResource());
+                if (lockResourceManager != null) {
+                    lockResourceManager.releaseLock(getLockResource());
+                }
+
                 notifyStopRunning(throwable);
             }
         }
