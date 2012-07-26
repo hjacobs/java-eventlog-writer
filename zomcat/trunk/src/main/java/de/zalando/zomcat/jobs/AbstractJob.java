@@ -70,7 +70,12 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
         LockResourceManager bean = null;
         try {
-            bean = (LockResourceManager) applicationContext.getBean("LockResourceManager");
+
+            // under tests and on some components spring may not be available.
+            if (applicationContext != null) {
+
+                bean = (LockResourceManager) applicationContext.getBean("LockResourceManager");
+            }
         } catch (NoSuchBeanDefinitionException e) {
             LOG.info("Starting instance without resource locking support.", e);
         }
