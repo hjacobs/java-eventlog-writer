@@ -14,6 +14,8 @@ import org.joda.time.DateTime;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
 import org.springframework.context.ApplicationContext;
 
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -322,10 +324,15 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
             return false;
         }
 
-        LockResourceManager lockResourceManager = applicationContext.getBean(LockResourceManager.class);
-        if (lockResourceManager == null) {
-            throw new IllegalStateException(String.format("LockResourceManager not defined! Can't acquire lock for %s",
+        LockResourceManager lockResourceManager = null;
+        try {
+            lockResourceManager = (LockResourceManager) applicationContext.getBean("LockResourceManager");
+        } catch (NoSuchBeanDefinitionException e) {
+            LOG.error(String.format(
+                    "No bean lockResourceManager bean is defined but job [{}] is trying to lock resource [{}]!!! Check the component context.",
                     resource));
+            throw new IllegalStateException(String.format("LockResourceManager not defined! Can't acquire lock for %s.",
+                    resource), e);
         }
 
         return lockResourceManager.acquireLock(resource);
