@@ -1,9 +1,11 @@
 package de.zalando.zomcat.jobs;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -21,7 +23,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import de.zalando.zomcat.OperationMode;
@@ -43,6 +44,8 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      */
     private static final Logger LOG = Logger.getLogger(AbstractJob.class);
     private static volatile AtomicInteger globalId = new AtomicInteger(0);
+
+    private static final Pattern LOCK_RESOURCE_NAME_PATTERN = Pattern.compile("^[A-Z][A-Z_][A-Z]$");
 
     // the list of job listeners
     private final List<JobListener> jobListeners = Lists.newArrayList();
@@ -108,7 +111,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         setupLockResourceManager();
 
         // no job should be allowed without description
-        Preconditions.checkArgument(!isNullOrEmpty(getDescription()),
+        checkArgument(!isNullOrEmpty(getDescription()),
             "Aborting Job: no description for job defined: " + getBeanName());
 
         final JobConfig config = getJobConfig();
@@ -352,6 +355,9 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         if (resource == null) {
             return false;
         }
+
+        checkArgument(LOCK_RESOURCE_NAME_PATTERN.matcher(resource).matches(),
+            "lock resource name does not follow naming conventions: %s", resource);
 
         if (lockResourceManager == null) {
             LOG.error(String.format(
