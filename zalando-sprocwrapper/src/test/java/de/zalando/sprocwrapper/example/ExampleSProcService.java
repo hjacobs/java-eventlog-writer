@@ -161,4 +161,7 @@ public interface ExampleSProcService {
     @SProcCall
     ExampleDomainObjectWithSimpleTransformer testSimpleTransformer(
             @SProcParam ExampleDomainObjectWithSimpleTransformer exampleDomainObjectWithSimpleTransformer);
+
+    @SProcCall
+    ExampleDomainObjectWithEnum getEntityWithEnum(@SProcParam long id);
 }

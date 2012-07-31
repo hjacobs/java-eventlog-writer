@@ -17,6 +17,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -208,6 +209,14 @@ public class SimpleIT {
     }
 
     @Test
+    public void testReturnDomainObjectWithEnum() {
+        ExampleDomainObjectWithEnum obj = exampleSProcService.getEntityWithEnum(1L);
+        Assert.assertNotNull(obj);
+        Assert.assertEquals("sample x", obj.getX());
+        Assert.assertEquals(ExampleEnum.ENUM_CONST_1, obj.getMyEnum());
+    }
+
+    @Test
     public void testDate() {
         exampleSProcService.useDateParam(null);
         exampleSProcService.useDateParam(new Date(System.currentTimeMillis()));
@@ -258,11 +267,9 @@ public class SimpleIT {
         final AddressPojo a = getNewTestAddress();
 
         final AddressPojo b = exampleSProcService.createAddress(a);
-        assertEquals((int) b.id, (int) 1);
-
+        int id = b.getId();
         final AddressPojo c = exampleSProcService.createAddress(a);
-
-        assertEquals((int) c.id, (int) 2);
+        assertEquals(id + 1, (int) c.id);
     }
 
     @Test

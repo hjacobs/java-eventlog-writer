@@ -257,4 +257,10 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
             final ExampleDomainObjectWithSimpleTransformer exampleDomainObjectWithSimpleTransformer) {
         return sproc.testSimpleTransformer(exampleDomainObjectWithSimpleTransformer);
     }
+
+    @Override
+    public ExampleDomainObjectWithEnum getEntityWithEnum(final long id) {
+        return sproc.getEntityWithEnum(id);
+    }
+
 }
