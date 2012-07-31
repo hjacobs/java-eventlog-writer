@@ -85,6 +85,11 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     protected void setupLockResourceManager() {
+
+        if (getLockResource() == null) {
+            return;
+        }
+
         LockResourceManager bean = null;
         try {
 
