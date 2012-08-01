@@ -144,6 +144,70 @@ public class JobConfig implements Serializable {
         return JobGroupConfig.DEFAULT_GROUP_NAME;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (active ? 1231 : 1237);
+        result = prime * result + ((allowedAppInstanceKeys == null) ? 0 : allowedAppInstanceKeys.hashCode());
+        result = prime * result + ((jobGroupConfig == null) ? 0 : jobGroupConfig.hashCode());
+        result = prime * result + limit;
+        result = prime * result + startupLimit;
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final JobConfig other = (JobConfig) obj;
+        if (active != other.active) {
+            return false;
+        }
+
+        if (allowedAppInstanceKeys == null) {
+            if (other.allowedAppInstanceKeys != null) {
+                return false;
+            }
+        } else if (!allowedAppInstanceKeys.equals(other.allowedAppInstanceKeys)) {
+            return false;
+        }
+
+        if (jobGroupConfig == null) {
+            if (other.jobGroupConfig != null) {
+                return false;
+            }
+        } else if (!jobGroupConfig.equals(other.jobGroupConfig)) {
+            return false;
+        }
+
+        if (limit != other.limit) {
+            return false;
+        }
+
+        if (startupLimit != other.startupLimit) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();

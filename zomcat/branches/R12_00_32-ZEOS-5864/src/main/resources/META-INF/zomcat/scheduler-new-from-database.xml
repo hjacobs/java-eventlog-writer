@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean class="de.zalando.zomcat.jobs.management.impl.DefaultJobManager" init-method="startup" destroy-method="shutdown">
+        <property name="delegatingJobSchedulingConfigProvider" ref="databaseJobSchedulerConfigProvider"/>
+    </bean>
+
+    <bean id="databaseJobSchedulerConfigProvider" class="de.zalando.zomcat.jobs.management.impl.DatabaseJobSchedulerConfigProvider"/>
+
+    <bean id="defaultGetJobSchedulingConfigsProc" class="de.zalando.zomcat.jobs.management.persistence.DefaultGetJobSchedulingConfigsProc" >
+        <constructor-arg index="0" ref="appConfigDataSource" />
+    </bean>
+</beans>
