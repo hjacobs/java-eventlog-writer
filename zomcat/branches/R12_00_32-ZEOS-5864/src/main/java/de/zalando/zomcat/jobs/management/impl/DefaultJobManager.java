@@ -318,7 +318,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
             sfb.afterPropertiesSet();
 
             // Start the SchedulerFactoryBean
-            // sfb.start();
+            sfb.start();
 
             // Maybe we need the next run date for the Status Page
             final Date nextRunTime = quartzTrigger.getNextFireTime();
