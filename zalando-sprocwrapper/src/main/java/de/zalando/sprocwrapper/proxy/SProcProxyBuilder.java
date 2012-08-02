@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
 
 import de.zalando.sprocwrapper.SProcCall;
+import de.zalando.sprocwrapper.SProcCall.VALIDATE;
 import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
@@ -111,9 +112,19 @@ public class SProcProxyBuilder {
 
             }
 
+            // take validation settings from SProcService annotation:
+            boolean useValidation = serviceAnnotation.validate();
+
+            // overwrite if explicitly set in SprocCall:
+            if (scA.validate() == VALIDATE.YES) {
+                useValidation = true;
+            } else if (scA.validate() == VALIDATE.NO) {
+                useValidation = false;
+            }
+
             final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
                     scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper, scA.timeoutInMilliSeconds(),
-                    scA.adivsoryLockType());
+                    scA.adivsoryLockType(), useValidation);
             if (!"".equals(scA.sql())) {
                 p.setQuery(scA.sql());
             }

@@ -96,7 +96,7 @@ public class ExecutorWrapper implements Executor {
 
     @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
-            final Class returnType) {
+            final Object[] originalArgs, final Class returnType) {
 
         SameConnectionDatasource sameConnDs = null;
 
@@ -109,7 +109,7 @@ public class ExecutorWrapper implements Executor {
                 throw new RuntimeException("Could not acquire AdvisoryLock " + lock.name());
             }
 
-            return executor.executeSProc(sameConnDs, sql, args, types, returnType);
+            return executor.executeSProc(sameConnDs, sql, args, types, originalArgs, returnType);
 
         } catch (final SQLException e) {
 

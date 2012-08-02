@@ -263,4 +263,33 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         return sproc.getEntityWithEnum(id);
     }
 
+    @Override
+    public ExampleDomainObjectWithValidation testSprocCallWithoutValidation1(
+            final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation) {
+        return sproc.testSprocCallWithoutValidation1(exampleDomainObjectWithValidation);
+    }
+
+    @Override
+    public ExampleDomainObjectWithValidation testSprocCallWithoutValidation2(
+            final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation) {
+        return sproc.testSprocCallWithoutValidation2(exampleDomainObjectWithValidation);
+    }
+
+    @Override
+    public ExampleDomainObjectWithValidation testSprocCallWithValidation(
+            final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation) {
+        return sproc.testSprocCallWithValidation(exampleDomainObjectWithValidation);
+    }
+
+    @Override
+    public ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet1(
+            final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation) {
+        return sproc.testSprocCallWithValidationInvalidRet1(exampleDomainObjectWithValidation);
+    }
+
+    @Override
+    public ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet2(
+            final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation) {
+        return sproc.testSprocCallWithValidationInvalidRet2(exampleDomainObjectWithValidation);
+    }
 }

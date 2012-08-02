@@ -19,4 +19,6 @@ public @interface SProcService {
     Class<?> shardStrategy() default VirtualShardKeyStrategy.class;
 
     String namespace() default "";
+
+    boolean validate() default false;
 }

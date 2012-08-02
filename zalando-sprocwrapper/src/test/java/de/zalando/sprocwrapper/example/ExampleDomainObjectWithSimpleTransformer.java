@@ -3,7 +3,7 @@ package de.zalando.sprocwrapper.example;
 import com.typemapper.annotations.DatabaseField;
 import com.typemapper.annotations.DatabaseType;
 
-import com.typemapper.core.ValueTransformer;
+import de.zalando.sprocwrapper.example.transformer.StringTransformer;
 
 /**
  * @author  jmussler
@@ -38,17 +38,5 @@ public class ExampleDomainObjectWithSimpleTransformer {
     public ExampleDomainObjectWithSimpleTransformer(final String _a, final String _b) {
         a = _a;
         b = _b;
-    }
-
-    public static class StringTransformer extends ValueTransformer<String, String> {
-        @Override
-        public String unmarshalFromDb(final String value) {
-            return new StringBuffer(value).reverse().toString();
-        }
-
-        @Override
-        public String marshalToDb(final String bound) {
-            return new StringBuffer(bound).reverse().toString();
-        }
     }
 }

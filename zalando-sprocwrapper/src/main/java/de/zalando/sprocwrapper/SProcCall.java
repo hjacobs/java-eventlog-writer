@@ -75,6 +75,12 @@ public @interface SProcCall {
 
     }
 
+    public static enum VALIDATE {
+        AS_DEFINED_IN_SERVICE,
+        YES,
+        NO
+    }
+
     String name() default "";
 
     String sql() default "";
@@ -115,4 +121,6 @@ public @interface SProcCall {
     long timeoutInMilliSeconds() default 0;
 
     AdvisoryLock adivsoryLockType() default AdvisoryLock.NO_LOCK;
+
+    VALIDATE validate() default VALIDATE.AS_DEFINED_IN_SERVICE;
 }

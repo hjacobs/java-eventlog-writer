@@ -12,7 +12,7 @@ import com.typemapper.core.TypeMapperFactory;
 public class MultiRowTypeMapperExecutor implements Executor {
     @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
-            final Class returnType) {
+            final Object[] originalArgs, final Class returnType) {
         return (new JdbcTemplate(ds)).query(sql, args, types, TypeMapperFactory.createTypeMapper(returnType));
     }
 

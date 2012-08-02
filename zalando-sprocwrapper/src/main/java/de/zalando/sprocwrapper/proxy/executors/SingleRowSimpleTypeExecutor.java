@@ -40,7 +40,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
     }
 
     public static Class mapReturnType(final Class returnType) {
-        Class clazz = SIMPLE_TYPES.get(returnType);
+        final Class clazz = SIMPLE_TYPES.get(returnType);
         if (clazz != null) {
             return clazz;
         }
@@ -50,7 +50,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
 
     @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
-            final Class returnType) {
+            final Object[] originalArgs, final Class returnType) {
         return (new JdbcTemplate(ds)).queryForObject(sql, args, types, mapReturnType(returnType));
     }
 }

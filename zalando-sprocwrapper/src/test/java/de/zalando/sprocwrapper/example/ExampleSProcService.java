@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import de.zalando.sprocwrapper.SProcCall;
+import de.zalando.sprocwrapper.SProcCall.VALIDATE;
 import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
 import de.zalando.sprocwrapper.sharding.ShardKey;
@@ -164,4 +165,24 @@ public interface ExampleSProcService {
 
     @SProcCall
     ExampleDomainObjectWithEnum getEntityWithEnum(@SProcParam long id);
+
+    @SProcCall(validate = VALIDATE.AS_DEFINED_IN_SERVICE)
+    ExampleDomainObjectWithValidation testSprocCallWithoutValidation1(
+            @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
+
+    @SProcCall(validate = VALIDATE.NO)
+    ExampleDomainObjectWithValidation testSprocCallWithoutValidation2(
+            @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
+
+    @SProcCall(validate = VALIDATE.YES)
+    ExampleDomainObjectWithValidation testSprocCallWithValidation(
+            @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
+
+    @SProcCall(validate = VALIDATE.NO)
+    ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet1(
+            @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
+
+    @SProcCall(validate = VALIDATE.YES)
+    ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet2(
+            @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 }

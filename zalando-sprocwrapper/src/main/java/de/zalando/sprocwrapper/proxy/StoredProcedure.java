@@ -34,6 +34,7 @@ import de.zalando.sprocwrapper.proxy.executors.MultiRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowCustomMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowSimpleTypeExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
+import de.zalando.sprocwrapper.proxy.executors.ValidationExecutorWrapper;
 import de.zalando.sprocwrapper.sharding.ShardedObject;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 
@@ -79,7 +80,7 @@ class StoredProcedure {
     public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
             final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final boolean searchShards,
             final boolean parallel, final RowMapper<?> resultMapper, final long timeout,
-            final AdvisoryLock advisoryLock) {
+            final AdvisoryLock advisoryLock, final boolean useValidation) {
         this.name = name;
         this.runOnAllShards = runOnAllShards;
         this.searchShards = searchShards;
@@ -127,6 +128,10 @@ class StoredProcedure {
 
             // Wrapper provides locking and changing of session settings functionality
             this.executor = new ExecutorWrapper(executor, this.timeout, this.adivsoryLock);
+        }
+
+        if (useValidation) {
+            this.executor = new ValidationExecutorWrapper(this.executor);
         }
     }
 
@@ -343,16 +348,20 @@ class StoredProcedure {
         private final StoredProcedure sproc;
         private final DataSource shardDs;
         private final Object[] params;
+        private final Object[] originalArgs;
 
-        public Call(final StoredProcedure sproc, final DataSource shardDs, final Object[] params) {
+        public Call(final StoredProcedure sproc, final DataSource shardDs, final Object[] params,
+                final Object[] originalArgs) {
             this.sproc = sproc;
             this.shardDs = shardDs;
             this.params = params;
+            this.originalArgs = originalArgs;
         }
 
         @Override
         public Object call() throws Exception {
-            return sproc.executor.executeSProc(shardDs, sproc.getQuery(), params, sproc.getTypes(), sproc.returnType);
+            return sproc.executor.executeSProc(shardDs, sproc.getQuery(), params, sproc.getTypes(), originalArgs,
+                    sproc.returnType);
         }
 
     }
@@ -414,7 +423,7 @@ class StoredProcedure {
             }
 
             // most common case: only one shard and no argument partitioning
-            return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), returnType);
+            return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), args, returnType);
         } else {
             final List<?> results = Lists.newArrayList();
             Object sprocResult = null;
@@ -430,7 +439,7 @@ class StoredProcedure {
                         LOG.debug(getDebugLog(paramValues.get(i)));
                     }
 
-                    task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i)));
+                    task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i), args));
                     taskList.add(task);
                     parallelThreadPool.execute(task);
                     i++;
@@ -467,7 +476,7 @@ class StoredProcedure {
                         LOG.debug(getDebugLog(paramValues.get(i)));
                     }
 
-                    sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(),
+                    sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), args,
                             returnType);
                     if (searchShards && sprocResult != null) {
                         if (collectionResult) {

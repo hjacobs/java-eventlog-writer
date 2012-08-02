@@ -6,5 +6,5 @@ import javax.sql.DataSource;
  * @author  jmussler
  */
 public interface Executor {
-    Object executeSProc(DataSource ds, String sql, Object[] args, int[] types, Class returnType);
+    Object executeSProc(DataSource ds, String sql, Object[] args, int[] types, Object[] originalArgs, Class returnType);
 }

@@ -4,11 +4,11 @@
     <parent>
         <groupId>de.zalando</groupId>
         <artifactId>zalando-parent</artifactId>
-        <version>1.4.52</version>
+        <version>1.4.79</version>
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>0.1.37</version>
+    <version>0.1.38</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
     <dependencies>
@@ -66,6 +66,15 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <profiles>

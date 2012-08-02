@@ -17,6 +17,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import javax.validation.ConstraintViolationException;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,9 +45,11 @@ import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFields;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsInner;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsOverride;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithSimpleTransformer;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithValidation;
 import de.zalando.sprocwrapper.example.ExampleEnum;
 import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
+import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
@@ -53,6 +57,9 @@ public class SimpleIT {
 
     @Autowired
     private ExampleSProcService exampleSProcService;
+
+    @Autowired
+    private ExampleValidationSProcService exampleValidationSProcService;
 
     @Autowired
     private ExampleNamespacedSProcService exampleNamespacedSProcService;
@@ -210,7 +217,7 @@ public class SimpleIT {
 
     @Test
     public void testReturnDomainObjectWithEnum() {
-        ExampleDomainObjectWithEnum obj = exampleSProcService.getEntityWithEnum(1L);
+        final ExampleDomainObjectWithEnum obj = exampleSProcService.getEntityWithEnum(1L);
         Assert.assertNotNull(obj);
         Assert.assertEquals("sample x", obj.getX());
         Assert.assertEquals(ExampleEnum.ENUM_CONST_1, obj.getMyEnum());
@@ -267,9 +274,10 @@ public class SimpleIT {
         final AddressPojo a = getNewTestAddress();
 
         final AddressPojo b = exampleSProcService.createAddress(a);
-        int id = b.getId();
+        assertEquals((int) b.id, 1);
+
         final AddressPojo c = exampleSProcService.createAddress(a);
-        assertEquals(id + 1, (int) c.id);
+        assertEquals((int) c.id, 2);
     }
 
     @Test
@@ -488,5 +496,95 @@ public class SimpleIT {
         final ExampleDomainObjectWithInnerObject obj = exampleSProcService.getObjectWithNull();
 
         assertEquals(null, obj.getC());
+    }
+
+    @Test
+    public void testValidValidation1() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 4);
+
+        exampleSProcService.testSprocCallWithoutValidation1(obj);
+        exampleSProcService.testSprocCallWithoutValidation2(obj);
+        exampleSProcService.testSprocCallWithValidation(obj);
+
+        exampleValidationSProcService.testSprocCallWithoutValidation(obj);
+        exampleValidationSProcService.testSprocCallWithValidation1(obj);
+        exampleValidationSProcService.testSprocCallWithValidation2(obj);
+        exampleValidationSProcService.testSprocCallWithValidation3(obj);
+    }
+
+    @Test
+    public void testValidValidation2() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 1);
+        exampleSProcService.testSprocCallWithoutValidation1(obj);
+        exampleSProcService.testSprocCallWithoutValidation2(obj);
+        exampleValidationSProcService.testSprocCallWithoutValidation(obj);
+    }
+
+    @Test
+    public void testValidValidation3() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation(null, null);
+        exampleSProcService.testSprocCallWithoutValidation1(obj);
+        exampleSProcService.testSprocCallWithoutValidation2(obj);
+        exampleValidationSProcService.testSprocCallWithoutValidation(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidation4() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 1);
+        exampleSProcService.testSprocCallWithValidation(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidation5() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 1);
+        exampleValidationSProcService.testSprocCallWithValidation1(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidation6() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 1);
+        exampleValidationSProcService.testSprocCallWithValidation2(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidation7() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 1);
+        exampleValidationSProcService.testSprocCallWithValidation3(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidation8() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation(null, null);
+        exampleSProcService.testSprocCallWithValidation(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidation9() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation(null, null);
+        exampleValidationSProcService.testSprocCallWithValidation1(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidation10() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation(null, null);
+        exampleValidationSProcService.testSprocCallWithValidation2(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidation11() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation(null, null);
+        exampleValidationSProcService.testSprocCallWithValidation3(obj);
+    }
+
+    @Test
+    public void testValidValidationReturnValue1() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 4);
+        exampleSProcService.testSprocCallWithValidationInvalidRet1(obj);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testValidValidationReturnValue2() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 4);
+        exampleSProcService.testSprocCallWithValidationInvalidRet2(obj);
     }
 }
