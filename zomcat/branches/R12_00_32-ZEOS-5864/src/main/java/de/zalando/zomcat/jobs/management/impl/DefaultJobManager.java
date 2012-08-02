@@ -47,6 +47,7 @@ import de.zalando.zomcat.jobs.JobConfig;
 import de.zalando.zomcat.jobs.JobConfigSource;
 import de.zalando.zomcat.jobs.management.JobManager;
 import de.zalando.zomcat.jobs.management.JobManagerException;
+import de.zalando.zomcat.jobs.management.JobManagerManagedJob;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfiguration;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfigurationProvider;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfigurationProviderException;
@@ -95,7 +96,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
     /**
      * Map of simple Managed Jobs.
      */
-    private final Map<JobSchedulingConfiguration, DefaultJobManagerManagedJob> managedJobs;
+    private final Map<JobSchedulingConfiguration, JobManagerManagedJob> managedJobs;
 
     /**
      * Maintancene Mode activation.
@@ -171,29 +172,28 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
                     ((CronTriggerBean) quartzTrigger).setJobDetail(jobDetail);
                     ((CronTriggerBean) quartzTrigger).setCronExpression(jobSchedulingConfig.getCronExpression());
                     ((CronTriggerBean) quartzTrigger).setJobDataMap(jobDetail.getJobDataMap());
-                    ((CronTriggerBean) quartzTrigger).setJobName(jobDetail.getName());
                     ((CronTriggerBean) quartzTrigger).setBeanName(String.format("%s%s", jobDetail.getName(),
                             "Trigger"));
-                    quartzTrigger.setName(jobDetail.getName());
-                    quartzTrigger.setGroup(jobDetail.getName() + "Trigger");
+                    quartzTrigger.setName(String.format("%s%s", jobDetail.getName(), "Trigger"));
+                    quartzTrigger.setGroup(jobDetail.getGroup());
                     quartzTrigger.setJobName(jobDetail.getName());
-                    quartzTrigger.setJobGroup(Scheduler.DEFAULT_GROUP);
+                    quartzTrigger.setJobName(jobDetail.getGroup());
                     ((CronTriggerBean) quartzTrigger).afterPropertiesSet();
 
                     break;
 
                 case SIMPLE :
                     quartzTrigger = new SimpleTriggerBean();
+                    ((SimpleTriggerBean) quartzTrigger).setJobDetail(jobDetail);
                     ((SimpleTriggerBean) quartzTrigger).setRepeatInterval(jobSchedulingConfig.getIntervalMS());
                     ((SimpleTriggerBean) quartzTrigger).setStartDelay(jobSchedulingConfig.getStartDelayMS());
-                    ((SimpleTriggerBean) quartzTrigger).setJobDetail(jobDetail);
                     ((SimpleTriggerBean) quartzTrigger).setJobDataMap(jobDetail.getJobDataMap());
                     ((SimpleTriggerBean) quartzTrigger).setBeanName(String.format("%s%s", jobDetail.getName(),
                             "Trigger"));
-                    quartzTrigger.setName(jobDetail.getName());
-                    quartzTrigger.setGroup(jobDetail.getName() + "Trigger");
+                    quartzTrigger.setName(String.format("%s%s", jobDetail.getName(), "Trigger"));
+                    quartzTrigger.setGroup(jobDetail.getGroup());
                     quartzTrigger.setJobName(jobDetail.getName());
-                    quartzTrigger.setJobGroup(Scheduler.DEFAULT_GROUP);
+                    quartzTrigger.setJobName(jobDetail.getGroup());
                     ((SimpleTriggerBean) quartzTrigger).afterPropertiesSet();
                     break;
 
@@ -338,9 +338,15 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
     private JobDetail toQuartzJobDetailFromJobSchedulingConfig(final JobSchedulingConfiguration config)
         throws ClassNotFoundException {
         final JobDetail retVal = new JobDetail(getJobName(config), config.getJobJavaClass());
-        retVal.setDurability(false);
-        retVal.setJobClass(config.getJobJavaClass());
         retVal.setJobDataMap(new JobDataMap(config.getJobData()));
+        retVal.setDurability(false);
+
+        // Set JobGroup if there is one
+        if (config.getJobConfig() != null && config.getJobConfig().getJobGroupConfig() != null
+                && config.getJobConfig().getJobGroupConfig().getJobGroupName() != null) {
+            retVal.setGroup(config.getJobConfig().getJobGroupConfig().getJobGroupName());
+        }
+
         return retVal;
     }
 
@@ -355,7 +361,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
      * @throws  ClassNotFoundException
      */
     private String getJobName(final JobSchedulingConfiguration jobSchedulingConfig) throws ClassNotFoundException {
-        final Class<?> clazz = Class.forName(jobSchedulingConfig.getJobClass());
+        final Class<?> clazz = jobSchedulingConfig.getJobJavaClass();
         String name = jobSchedulingConfig.getJobName();
 
         Preconditions.checkArgument(name.endsWith("Job"), "job class name must end with 'Job': " + name);
@@ -382,11 +388,54 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
      *
      * @return  The matching {@link JobManagerManagedJob} or <code>null</code> if no match could be found
      */
-    private DefaultJobManagerManagedJob getManagedJobByJobDetail(final JobDetail jobDetail) {
-        DefaultJobManagerManagedJob retVal = null;
-        for (final DefaultJobManagerManagedJob curManagedJob : managedJobs.values()) {
+    private JobManagerManagedJob getManagedJobByJobDetail(final JobDetail jobDetail) {
+        JobManagerManagedJob retVal = null;
+        for (final JobManagerManagedJob curManagedJob : managedJobs.values()) {
             if (curManagedJob != null && curManagedJob.getQuartzJobDetail() != null
                     && jobDetail.equals(curManagedJob.getQuartzJobDetail())) {
+                retVal = curManagedJob;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Get {@link JobManagerManagedJob} for given JobDetail.
+     *
+     * @param   jobDetail  The Quartz {@link JobDetail} to find {@link JobManagerManagedJob} for
+     *
+     * @return  The matching {@link JobManagerManagedJob} or <code>null</code> if no match could be found
+     */
+    private JobManagerManagedJob getManagedJobByTrigger(final Trigger jobTrigger) {
+        JobManagerManagedJob retVal = null;
+        for (final JobManagerManagedJob curManagedJob : managedJobs.values()) {
+            if (curManagedJob != null && curManagedJob.getQuartzTrigger() != null
+                    && jobTrigger.equals(curManagedJob.getQuartzTrigger())) {
+                retVal = curManagedJob;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Get {@link JobManagerManagedJob} for given JobDetail Name and Group.
+     *
+     * @param   quartzJobDetailName
+     * @param   quartzJobDetailGroup
+     *
+     * @return
+     */
+    private JobManagerManagedJob getManagedJobByJobDetailNameAndJobDetailGroup(final String quartzJobDetailName,
+            final String quartzJobDetailGroup) {
+        JobManagerManagedJob retVal = null;
+        for (final JobManagerManagedJob curManagedJob : managedJobs.values()) {
+            if (curManagedJob != null && curManagedJob.getQuartzJobDetail() != null
+                    && curManagedJob.getQuartzJobDetail().getName().equals(quartzJobDetailName)
+                    && curManagedJob.getQuartzJobDetail().getGroup().equals(quartzJobDetailGroup)) {
                 retVal = curManagedJob;
                 break;
             }
@@ -432,7 +481,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
                 } else if (this.managedJobs.containsKey(curJobSchedulingConfig)) {
 
                     // Check if Configuration is altered
-                    final DefaultJobManagerManagedJob managedJob = this.managedJobs.get(curJobSchedulingConfig);
+                    final JobManagerManagedJob managedJob = this.managedJobs.get(curJobSchedulingConfig);
                     if (!curJobSchedulingConfig.isEqual(managedJob.getJobSchedulingConfig())) {
                         this.rescheduleJob(curJobSchedulingConfig);
                     }
@@ -468,8 +517,8 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
      * {@link JobManager} interface implementations.
      */
     @Override
-    public List<JobSchedulingConfiguration> getScheduledJobs() {
-        return new ArrayList<JobSchedulingConfiguration>(managedJobs.keySet());
+    public List<JobManagerManagedJob> getManagedJobs() {
+        return new ArrayList<JobManagerManagedJob>(managedJobs.values());
     }
 
     @Override
@@ -483,17 +532,76 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
     }
 
     @Override
-    public void cancelJob(final JobSchedulingConfiguration jobSchedulingConfig) throws JobManagerException {
-        final DefaultJobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);
+    public void triggerJob(final JobSchedulingConfiguration jobSchedulingConfiguration) throws JobManagerException {
         try {
+            Preconditions.checkArgument(jobSchedulingConfiguration != null,
+                "Cannot trigger Job for NULL JobSchedulingConfiguration");
+
+            final JobManagerManagedJob job = managedJobs.get(jobSchedulingConfiguration);
+            Preconditions.checkArgument(job != null, "Could not find Managed Job for JobSchedulingConfiguration: [{}]",
+                jobSchedulingConfiguration);
+            job.getQuartzSchedulerFactoryBean().getScheduler().triggerJob(job.getQuartzJobDetail().getName(),
+                job.getQuartzJobDetail().getGroup());
+        } catch (final SchedulerException e) {
+            throw new JobManagerException(e);
+        } catch (final IllegalArgumentException e) {
+            throw new JobManagerException(e);
+        }
+
+    }
+
+    @Override
+    public void triggerJob(final JobDetail quartzJobDetail) throws JobManagerException {
+        final JobManagerManagedJob job = getManagedJobByJobDetail(quartzJobDetail);
+        triggerJob(job.getJobSchedulingConfig());
+    }
+
+    @Override
+    public void triggerJob(final Trigger quartzTrigger) throws JobManagerException {
+        final JobManagerManagedJob job = getManagedJobByTrigger(quartzTrigger);
+        triggerJob(job.getJobSchedulingConfig());
+    }
+
+    @Override
+    public void triggerJob(final String quartzJobDetailName, final String quartzJobDetailGroup)
+        throws JobManagerException {
+        try {
+            Preconditions.checkArgument(quartzJobDetailName != null, "Parameter quartJobDetailName must not be NULL");
+
+            final JobManagerManagedJob job = getManagedJobByJobDetailNameAndJobDetailGroup(quartzJobDetailName,
+                    quartzJobDetailGroup == null || quartzJobDetailGroup.trim().isEmpty() ? Scheduler.DEFAULT_GROUP
+                                                                                          : quartzJobDetailGroup);
+            if (job == null) {
+                throw new JobManagerException(String.format(
+                        "Could not find ManagedJob for JobName: [%s] and JobGroup: [%s]", quartzJobDetailName,
+                        quartzJobDetailGroup));
+            }
+
+            triggerJob(job.getJobSchedulingConfig());
+        } catch (final IllegalArgumentException e) {
+            throw new JobManagerException(e);
+        }
+    }
+
+    @Override
+    public void cancelJob(final JobSchedulingConfiguration jobSchedulingConfig) throws JobManagerException {
+        try {
+            Preconditions.checkArgument(jobSchedulingConfig != null,
+                "Cancel Job for NULL JobSchedulingConfiguration is not possible");
+
+            final JobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);
+            Preconditions.checkArgument(managedJob != null,
+                "Could not find Managed Job for JobSchedulingConfiguration: [{}]", jobSchedulingConfig);
             LOG.info("Canceled Job: [{}]", managedJob);
-            managedJob.getSchedulerFactoryBean().getScheduler().shutdown();
+            managedJob.getQuartzSchedulerFactoryBean().getScheduler().shutdown();
             LOG.debug("Stopped Job Scheduler for Job: [{}]", managedJob);
-            managedJob.getSchedulerFactoryBean().stop();
+            managedJob.getQuartzSchedulerFactoryBean().stop();
             LOG.debug("Stopped Job SchedulerFactory for Job: [{}]", managedJob);
             managedJobs.remove(jobSchedulingConfig);
             LOG.debug("Removed Job from Map of managed jobs. Job: [{}]", managedJob);
         } catch (final SchedulerException e) {
+            throw new JobManagerException(e);
+        } catch (final IllegalArgumentException e) {
             throw new JobManagerException(e);
         }
 
@@ -562,15 +670,15 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
     @Override
     public void jobExecutionVetoed(final JobExecutionContext context) {
-        final DefaultJobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
+        final JobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
         LOG.error("Job Execution was vetoed. Job: [{}]", currentJob.getJobSchedulingConfig());
     }
 
     @Override
     public void jobToBeExecuted(final JobExecutionContext context) {
-        final DefaultJobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
+        final JobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
         if (currentJob != null) {
-            currentJob.jobStarted(new Date());
+// currentJob.jobStarted(new Date());
         } else {
             LOG.warn(
                 "Could find JobManagerManagedJob entry for: [jobToBeExecuted] callback. JobExecutionContext was: [{}]",
@@ -580,9 +688,9 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
     @Override
     public void jobWasExecuted(final JobExecutionContext context, final JobExecutionException jobException) {
-        final DefaultJobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
+        final JobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
         if (currentJob != null) {
-            currentJob.jobStopped(new Date(), jobException);
+// currentJob.jobStopped(new Date(), jobException);
         } else {
             LOG.warn(
                 "Could find JobManagerManagedJob entry for: [jobWasExecuted] callback. JobExecutionContext was: [{}]. JobExecutionException was: [{}]",

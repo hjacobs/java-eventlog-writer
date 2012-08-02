@@ -2,6 +2,8 @@ package de.zalando.zomcat.jobs.management;
 
 import java.util.Map;
 
+import org.quartz.Scheduler;
+
 import de.zalando.zomcat.jobs.JobConfig;
 
 /**
@@ -141,6 +143,16 @@ public class JobSchedulingConfiguration {
     public String getJobName() throws ClassNotFoundException {
         final String s = getJobJavaClass().getSimpleName();
         return s.substring(0, 1).toLowerCase() + s.substring(1);
+    }
+
+    public String getJobGroup() {
+        String retVal = Scheduler.DEFAULT_GROUP;
+        if (getJobConfig() != null && getJobConfig().getJobGroupConfig() != null
+                && getJobConfig().getJobGroupConfig().getJobGroupName() != null) {
+            retVal = getJobConfig().getJobGroupConfig().getJobGroupName();
+        }
+
+        return retVal;
     }
 
     /**

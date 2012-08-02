@@ -14,8 +14,13 @@ public interface JobManagerMBean {
      */
     void triggerJobSchedulingConfigurationUpdate();
 
-    int scheduledJobCount();
+    boolean isJobRunning(final String jobDetailName, final String jobDetailGroup);
 
-    int runningJobCount();
+    boolean isJobScheduled(final String jobDetailName, final String jobDetailGroup);
+
+    /**
+     * @param  jobSchedulingConfigName
+     */
+    void triggerJob(final String jobDetailName, final String jobDetailGroup);
 
 }

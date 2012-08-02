@@ -2,6 +2,9 @@ package de.zalando.zomcat.jobs.management;
 
 import java.util.List;
 
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
+
 /**
  * Manager Component for Jobs being run in zomcat based application. Configuration is provided by respective
  * {@link JobSchedulingConfigurationProvider} implementation associated with the manager implementation. Default
@@ -25,7 +28,7 @@ public interface JobManager {
      *
      * @return  List of all scheduled Jobs
      */
-    List<JobSchedulingConfiguration> getScheduledJobs();
+    List<JobManagerManagedJob> getManagedJobs();
 
     /**
      * Schedule a single Job.
@@ -44,6 +47,42 @@ public interface JobManager {
      * @throws  JobManagerException  if any error occurs during scheduling
      */
     void rescheduleJob(JobSchedulingConfiguration jobSchedulingConfig) throws JobManagerException;
+
+    /**
+     * Trigger a given Job.
+     *
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     *
+     * @throws  JobManagerException  if any error occurs
+     */
+    void triggerJob(JobSchedulingConfiguration jobSchedulingConfiguration) throws JobManagerException;
+
+    /**
+     * Trigger a given Job.
+     *
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     *
+     * @throws  JobManagerException  if any error occurs
+     */
+    void triggerJob(JobDetail quartzJobDetail) throws JobManagerException;
+
+    /**
+     * Trigger a given Job.
+     *
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     *
+     * @throws  JobManagerException  if any error occurs
+     */
+    void triggerJob(Trigger quartzTrigger) throws JobManagerException;
+
+    /**
+     * Trigger a given Job.
+     *
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     *
+     * @throws  JobManagerException  if any error occurs
+     */
+    void triggerJob(String quartzJobDetailName, String quartzJobDetailGroup) throws JobManagerException;
 
     /**
      * Cancel a given Job.
