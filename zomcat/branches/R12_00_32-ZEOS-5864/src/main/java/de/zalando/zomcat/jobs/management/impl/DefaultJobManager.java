@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -111,7 +112,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
     /**
      * Treadpool Executor for {@link JobSchedulingConfiguration} polling.
      */
-    private final ScheduledThreadPoolExecutor schedulingConfigPollingExecutor;
+    private ScheduledThreadPoolExecutor schedulingConfigPollingExecutor;
 
     /**
      * Spring {@link ApplicationContext} - this Bean is {@link ApplicationContextAware}.
@@ -132,17 +133,39 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
         try {
             managedJobs = Maps.newConcurrentMap();
             jobNameSequence = Maps.newConcurrentMap();
-
-            // quartzScheduler = new QuartzScheduler(resources, new
-            // SchedulingContext(), 0, 0);
-            schedulingConfigPollingExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
-            schedulingConfigPollingExecutor.setThreadFactory(new DefaultJobManagerPollerThreadFactory());
         } catch (final SecurityException e) {
             throw new JobManagerException(e);
         } catch (final IllegalArgumentException e) {
             throw new JobManagerException(e);
         }
 
+    }
+
+    /**
+     * Create a JobSchedulingConfigurationPoller {@link Executor} that polls the {@link JobSchedulingConfiguration}s
+     * periodically (every 5 minutes).
+     *
+     * @throws  JobManagerException  if any error occurs during creation of {@link Executor}
+     */
+    private void createJobSchedulingConfigurationPollerExecutor() throws JobManagerException {
+        if (schedulingConfigPollingExecutor != null) {
+            throw new JobManagerException(
+                "Cannot start JobSchedulingConfigurationPollerExecutor - another Executor already exists");
+        }
+
+        schedulingConfigPollingExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
+        schedulingConfigPollingExecutor.setThreadFactory(new DefaultJobManagerPollerThreadFactory());
+        schedulingConfigPollingExecutor.scheduleAtFixedRate(this, 0, 5, TimeUnit.MINUTES);
+    }
+
+    private void cancelJobSchedulingConfigurationPollerExecutor() throws JobManagerException {
+        if (schedulingConfigPollingExecutor == null) {
+            throw new JobManagerException(
+                "Cannot cancel JobSchedulingConfigurationPollerExecutor - no Executor exists");
+        }
+
+        schedulingConfigPollingExecutor.shutdown();
+        schedulingConfigPollingExecutor = null;
     }
 
     /**
@@ -283,6 +306,11 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
                     new Object[] {
                         jobSchedulingConfig, jobConfigSource.getAppInstanceKey(), jobConfig.getAllowedAppInstanceKeys()
                     });
+                return;
+            }
+
+            if (isMainanenceModeActive()) {
+                LOG.info("Skipping scheduling of Job: [{}]. Maintanence Mode is active", jobSchedulingConfig);
                 return;
             }
 
@@ -503,6 +531,13 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
         }
     }
 
+    private boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
+        return job != null && job.getQuartzSchedulerFactoryBean() != null
+                && job.getQuartzSchedulerFactoryBean().getScheduler() != null
+                && job.getQuartzSchedulerFactoryBean().getScheduler().isStarted()
+                && !job.getQuartzSchedulerFactoryBean().getScheduler().isInStandbyMode();
+    }
+
     /**
      * Setter for Delegating JobSchedulingConfigProvider.
      *
@@ -552,14 +587,38 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
     @Override
     public void triggerJob(final JobDetail quartzJobDetail) throws JobManagerException {
-        final JobManagerManagedJob job = getManagedJobByJobDetail(quartzJobDetail);
-        triggerJob(job.getJobSchedulingConfig());
+        try {
+            Preconditions.checkArgument(quartzJobDetail != null, "Parameter quartzJobDetail must not be NULL");
+
+            final JobManagerManagedJob job = getManagedJobByJobDetail(quartzJobDetail);
+
+            if (job == null) {
+                throw new JobManagerException(String.format("Could not find ManagedJob for JobDetail: [%s]",
+                        quartzJobDetail));
+            }
+
+            triggerJob(job.getJobSchedulingConfig());
+        } catch (final IllegalArgumentException e) {
+            throw new JobManagerException(e);
+        }
     }
 
     @Override
     public void triggerJob(final Trigger quartzTrigger) throws JobManagerException {
-        final JobManagerManagedJob job = getManagedJobByTrigger(quartzTrigger);
-        triggerJob(job.getJobSchedulingConfig());
+        try {
+            Preconditions.checkArgument(quartzTrigger != null, "Parameter quartzTrigger must not be NULL");
+
+            final JobManagerManagedJob job = getManagedJobByTrigger(quartzTrigger);
+
+            if (job == null) {
+                throw new JobManagerException(String.format("Could not find ManagedJob for Trigger: [%s]",
+                        quartzTrigger));
+            }
+
+            triggerJob(job.getJobSchedulingConfig());
+        } catch (final IllegalArgumentException e) {
+            throw new JobManagerException(e);
+        }
     }
 
     @Override
@@ -591,20 +650,79 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
             final JobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);
             Preconditions.checkArgument(managedJob != null,
-                "Could not find Managed Job for JobSchedulingConfiguration: [{}]", jobSchedulingConfig);
+                "Cancel Job failed. Could not find Managed Job for JobSchedulingConfiguration: [{}]",
+                jobSchedulingConfig);
             LOG.info("Canceled Job: [{}]", managedJob);
-            managedJob.getQuartzSchedulerFactoryBean().getScheduler().shutdown();
-            LOG.debug("Stopped Job Scheduler for Job: [{}]", managedJob);
-            managedJob.getQuartzSchedulerFactoryBean().stop();
-            LOG.debug("Stopped Job SchedulerFactory for Job: [{}]", managedJob);
-            managedJobs.remove(jobSchedulingConfig);
-            LOG.debug("Removed Job from Map of managed jobs. Job: [{}]", managedJob);
+            if (isJobScheduled(managedJob)) {
+                managedJob.getQuartzSchedulerFactoryBean().getScheduler().shutdown();
+                LOG.debug("Stopped Job Scheduler for Job: [{}]", managedJob);
+                managedJob.getQuartzSchedulerFactoryBean().stop();
+                LOG.debug("Stopped Job SchedulerFactory for Job: [{}]", managedJob);
+                managedJobs.remove(jobSchedulingConfig);
+                LOG.debug("Removed Job from Map of managed jobs. Job: [{}]", managedJob);
+            }
         } catch (final SchedulerException e) {
             throw new JobManagerException(e);
         } catch (final IllegalArgumentException e) {
             throw new JobManagerException(e);
         }
 
+    }
+
+    @Override
+    public void cancelJob(final JobDetail quartzJobDetail) throws JobManagerException {
+        try {
+            Preconditions.checkArgument(quartzJobDetail != null, "Parameter quartzTrigger must not be NULL");
+
+            final JobManagerManagedJob job = getManagedJobByJobDetail(quartzJobDetail);
+
+            if (job == null) {
+                throw new JobManagerException(String.format(
+                        "Cancel Job failed. Could not find ManagedJob for JobDetail: [%s]", quartzJobDetail));
+            }
+
+            cancelJob(job.getJobSchedulingConfig());
+        } catch (final IllegalArgumentException e) {
+            throw new JobManagerException(e);
+        }
+    }
+
+    @Override
+    public void cancelJob(final String quartzJobDetailName, final String quartzJobDetailGroup)
+        throws JobManagerException {
+        try {
+            Preconditions.checkArgument(quartzJobDetailName != null, "Parameter quartJobDetailName must not be NULL");
+
+            final JobManagerManagedJob job = getManagedJobByJobDetailNameAndJobDetailGroup(quartzJobDetailName,
+                    quartzJobDetailGroup == null || quartzJobDetailGroup.trim().isEmpty() ? Scheduler.DEFAULT_GROUP
+                                                                                          : quartzJobDetailGroup);
+            if (job == null) {
+                throw new JobManagerException(String.format(
+                        "Cancel Job failed. Could not find ManagedJob for JobName: [%s] and JobGroup: [%s]",
+                        quartzJobDetailName, quartzJobDetailGroup));
+            }
+
+            triggerJob(job.getJobSchedulingConfig());
+        } catch (final IllegalArgumentException e) {
+            throw new JobManagerException(e);
+        }
+    }
+
+    public void cancelJob(final Trigger quartzTrigger) throws JobManagerException {
+        try {
+            Preconditions.checkArgument(quartzTrigger != null, "Parameter quartzTrigger must not be NULL");
+
+            final JobManagerManagedJob job = getManagedJobByTrigger(quartzTrigger);
+
+            if (job == null) {
+                throw new JobManagerException(String.format(
+                        "Cancel Job failed. Could not find ManagedJob for Trigger: [%s]", quartzTrigger));
+            }
+
+            cancelJob(job.getJobSchedulingConfig());
+        } catch (final IllegalArgumentException e) {
+            throw new JobManagerException(e);
+        }
     }
 
     @Override
@@ -631,14 +749,14 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
         LOG.info("Starting Job Scheduling Configuration update Poller...");
 
         // Schedule the Rescheduling Thread
-        schedulingConfigPollingExecutor.scheduleAtFixedRate(this, 1, 1, TimeUnit.MINUTES);
+        createJobSchedulingConfigurationPollerExecutor();
         LOG.info("Finished starting up JobManager");
     }
 
     @Override
     public void shutdown() throws JobManagerException {
         LOG.info("Shutting down JobManager...");
-        schedulingConfigPollingExecutor.shutdown();
+        cancelJobSchedulingConfigurationPollerExecutor();
         LOG.info("Shut down DefaultJobManagers Configuration Poller/Job Rescheduler");
         cancelAllJobs();
         LOG.info("Shut down Quartz Schedulers");
@@ -655,8 +773,10 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
         this.maintanenceModeActive.set(isMaintanenceMode);
         if (!this.maintanenceModeActive.get()) {
             cancelAllJobs();
+            cancelJobSchedulingConfigurationPollerExecutor();
         } else {
             this.updateSchedulingConfigurationsAndRescheduleManagedJobs();
+            createJobSchedulingConfigurationPollerExecutor();
         }
     }
 

@@ -94,6 +94,33 @@ public interface JobManager {
     void cancelJob(JobSchedulingConfiguration jobSchedulingConfig) throws JobManagerException;
 
     /**
+     * Trigger a given Job.
+     *
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     *
+     * @throws  JobManagerException  if any error occurs
+     */
+    void cancelJob(JobDetail quartzJobDetail) throws JobManagerException;
+
+    /**
+     * Trigger a given Job.
+     *
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     *
+     * @throws  JobManagerException  if any error occurs
+     */
+    void cancelJob(Trigger quartzTrigger) throws JobManagerException;
+
+    /**
+     * Trigger a given Job.
+     *
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     *
+     * @throws  JobManagerException  if any error occurs
+     */
+    void cancelJob(String quartzJobDetailName, String quartzJobDetailGroup) throws JobManagerException;
+
+    /**
      * Cancel all Jobs.
      *
      * @throws  JobManagerException  if any unanticipated error occurs

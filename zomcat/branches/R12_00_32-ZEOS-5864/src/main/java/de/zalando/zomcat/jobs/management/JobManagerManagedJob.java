@@ -50,4 +50,5 @@ public interface JobManagerManagedJob {
      * @return  the executionCount
      */
     int getExecutionCount();
+
 }
