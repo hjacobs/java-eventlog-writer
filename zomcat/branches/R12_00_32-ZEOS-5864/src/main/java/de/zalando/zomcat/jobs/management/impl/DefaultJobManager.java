@@ -37,7 +37,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import org.springframework.scheduling.quartz.CronTriggerBean;
-import org.springframework.scheduling.quartz.LocalTaskExecutorThreadPool;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerBean;
 
@@ -53,6 +52,7 @@ import de.zalando.zomcat.jobs.management.JobSchedulingConfiguration;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfigurationProvider;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfigurationProviderException;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfigurationType;
+import de.zalando.zomcat.jobs.management.quartz.QuartzDiscardingThreadPoolTaskExecutor;
 import de.zalando.zomcat.util.DiscardingThreadPoolTaskExecutor;
 
 /**
@@ -265,7 +265,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
             // Executor
             final Properties quartzProperties = new Properties();
             quartzProperties.setProperty(StdSchedulerFactory.PROP_THREAD_POOL_CLASS,
-                LocalTaskExecutorThreadPool.class.getName());
+                QuartzDiscardingThreadPoolTaskExecutor.class.getName());
 
             final SchedulerFactoryBean sfb = new SchedulerFactoryBean();
             sfb.setTaskExecutor(threadPool);
@@ -318,7 +318,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
             sfb.afterPropertiesSet();
 
             // Start the SchedulerFactoryBean
-            sfb.start();
+            // sfb.start();
 
             // Maybe we need the next run date for the Status Page
             final Date nextRunTime = quartzTrigger.getNextFireTime();
