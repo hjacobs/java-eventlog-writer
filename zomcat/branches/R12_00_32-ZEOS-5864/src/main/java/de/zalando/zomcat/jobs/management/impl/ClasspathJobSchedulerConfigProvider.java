@@ -14,9 +14,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import de.zalando.zomcat.jobs.JobConfigSource;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfiguration;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfigurationProvider;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfigurationProviderException;
@@ -27,6 +30,9 @@ public class ClasspathJobSchedulerConfigProvider extends AbstractJobSchedulerCon
     private static final transient Logger LOG = LoggerFactory.getLogger(ClasspathJobSchedulerConfigProvider.class);
 
     private static final String CONFIGURATION_FILE_NAME = "scheduler.conf";
+
+    @Autowired
+    private JobConfigSource jobConfigSource;
 
     /**
      * format: every INTERVAL after DELAY CLASS JOB_DATA
@@ -44,10 +50,14 @@ public class ClasspathJobSchedulerConfigProvider extends AbstractJobSchedulerCon
         final String startDelay = cols[3];
         final Map<String, String> jobData = getJobData(cols, 5);
 
+        final JobSchedulingConfiguration retVal = new JobSchedulingConfiguration(getMillis(startDelay),
+                getMillis(repeatInterval), className, jobData);
+        retVal.setJobConfig(jobConfigSource.getJobConfig(retVal));
+
         /*LOG.info("Configured [{}] to run every [{}] with start delay [{}]",
          *  new Object[] {className, repeatInterval, startDelay});
          */
-        return new JobSchedulingConfiguration(getMillis(startDelay), getMillis(repeatInterval), className, jobData);
+        return retVal;
 
     }
 
@@ -64,6 +74,9 @@ public class ClasspathJobSchedulerConfigProvider extends AbstractJobSchedulerCon
         final String className = cols[7];
         final String cronExpression = StringUtils.join(Arrays.copyOfRange(cols, 1, 7), " ");
         final Map<String, String> jobData = getJobData(cols, 8);
+
+        final JobSchedulingConfiguration retVal = new JobSchedulingConfiguration(cronExpression, className, jobData);
+        retVal.setJobConfig(jobConfigSource.getJobConfig(retVal));
 
         /*
          * LOG.info("Configured [{}] to run at [{}]", new Object[] {className, cronExpression});

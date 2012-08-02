@@ -117,9 +117,6 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
      */
     private ApplicationContext applicationContext;
 
-    /**
-     * {@link JobConfigSource} for supplying runtime Information about Job(s).
-     */
     @Autowired
     private JobConfigSource jobConfigSource;
 
@@ -422,19 +419,6 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
                 delegatingJobSchedulingConfigProvider.provideSchedulerConfigs();
 
             LOG.info("Provider retrieved: [{}] SchedulingConfigs", currentProvidedConfigs.size());
-
-            // Enrich each JobSchedulingConfig WITHOUT a JobConfig with its JobConfig provided via JobConfigSource
-            for (final JobSchedulingConfiguration curJobSchedConf : currentProvidedConfigs) {
-
-                // If the JobSchedulingConfiguration contains the JobConfig use it
-                // otherwise load the JobConfig from JobConfigurationSource
-                if (curJobSchedConf.getJobConfig() == null) {
-                    LOG.warn("No JobConfig provided by JobSchedulingConfiguration for Job. "
-                            + "If you are using the Classpath Resource: [scheduler.conf] for Job Scheduling configuration this is ok. "
-                            + "If you are using the Applications database for Job Scheduling configuration this should not happen");
-                    curJobSchedConf.setJobConfig(jobConfigSource.getJobConfig(curJobSchedConf));
-                }
-            }
 
             // Loop through provided Configurations and check if it is either not scheduled at all or if a reschedule
             // is required
