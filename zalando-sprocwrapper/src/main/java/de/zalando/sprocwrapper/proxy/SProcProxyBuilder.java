@@ -112,8 +112,14 @@ public class SProcProxyBuilder {
 
             }
 
-            // take validation settings from SProcService annotation:
-            boolean useValidation = serviceAnnotation.validate();
+            boolean useValidation;
+            if (serviceAnnotation != null) {
+
+                // take validation settings from SProcService annotation:
+                useValidation = serviceAnnotation.validate();
+            } else {
+                useValidation = false;
+            }
 
             // overwrite if explicitly set in SprocCall:
             if (scA.validate() == VALIDATE.YES) {
