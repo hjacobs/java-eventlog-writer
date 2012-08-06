@@ -34,11 +34,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import de.zalando.sprocwrapper.example.AddressPojo;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEnum;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithGlobalTransformer;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFields;
@@ -50,6 +52,7 @@ import de.zalando.sprocwrapper.example.ExampleEnum;
 import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
+import de.zalando.sprocwrapper.example.GlobalTransformedObject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
@@ -86,12 +89,31 @@ public class SimpleIT {
     @Test
     public void testSimpleTransformer() throws SQLException {
 
-        // test void result
+        // test complex result
         final ExampleDomainObjectWithSimpleTransformer transformed = exampleSProcService.testSimpleTransformer(
                 new ExampleDomainObjectWithSimpleTransformer("123", "hallo"));
 
         assertEquals("123", transformed.getA());
         assertEquals("hallo", transformed.getB());
+    }
+
+    @Test
+    public void testGlobalTransformer() throws SQLException {
+
+        // test void result
+        final ExampleDomainObjectWithGlobalTransformer transformed = exampleSProcService.testGlobalTransformer(
+                new ExampleDomainObjectWithGlobalTransformer("123", new GlobalTransformedObject("hallo"),
+                    Lists.newArrayList(new GlobalTransformedObject("list element 1"),
+                        new GlobalTransformedObject("list element 2")),
+                    Sets.newHashSet(new GlobalTransformedObject("set element 1"),
+                        new GlobalTransformedObject("set element 2"))));
+
+        assertEquals("123", transformed.getA());
+        assertEquals("hallo", transformed.getB().getValue());
+        Assert.assertTrue(transformed.getC().contains(new GlobalTransformedObject("list element 1")));
+        Assert.assertTrue(transformed.getC().contains(new GlobalTransformedObject("list element 2")));
+        Assert.assertTrue(transformed.getD().contains(new GlobalTransformedObject("set element 1")));
+        Assert.assertTrue(transformed.getD().contains(new GlobalTransformedObject("set element 2")));
     }
 
     @Test

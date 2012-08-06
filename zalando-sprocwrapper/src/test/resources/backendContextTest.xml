@@ -22,7 +22,7 @@
 
     </bean>
 
-    <context:component-scan base-package="de.zalando.sprocwrapper.example" />
+    <context:component-scan base-package="de.zalando" />
     <context:annotation-config />
 
     <bean id="testDataSource1" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">

@@ -264,6 +264,12 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public ExampleDomainObjectWithGlobalTransformer testGlobalTransformer(
+            final ExampleDomainObjectWithGlobalTransformer exampleDomainObjectWithGlobalTransformer) {
+        return sproc.testGlobalTransformer(exampleDomainObjectWithGlobalTransformer);
+    }
+
+    @Override
     public ExampleDomainObjectWithValidation testSprocCallWithoutValidation1(
             final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation) {
         return sproc.testSprocCallWithoutValidation1(exampleDomainObjectWithValidation);

@@ -166,6 +166,10 @@ public interface ExampleSProcService {
     @SProcCall
     ExampleDomainObjectWithEnum getEntityWithEnum(@SProcParam long id);
 
+    @SProcCall
+    ExampleDomainObjectWithGlobalTransformer testGlobalTransformer(
+            @SProcParam ExampleDomainObjectWithGlobalTransformer exampleDomainObjectWithGlobalTransformer);
+
     @SProcCall(validate = VALIDATE.AS_DEFINED_IN_SERVICE)
     ExampleDomainObjectWithValidation testSprocCallWithoutValidation1(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
