@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,7 @@ import de.zalando.zomcat.util.ReflectionUtils;
 import de.zalando.zomcat.valuetransformer.annotation.GlobalValueTransformer;
 
 @Component
+@Lazy(value = false)
 public class GlobalValueTransformerRegistration {
     private static final Logger LOG = LoggerFactory.getLogger(GlobalValueTransformerRegistration.class);
 
