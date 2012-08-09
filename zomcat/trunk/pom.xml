@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Zomcat Support Classes (Servlets, Jobs, ..)</description>
-    <version>1.0.41</version>
+    <version>1.0.42</version>
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>

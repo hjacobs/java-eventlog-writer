@@ -45,7 +45,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     private static final Logger LOG = Logger.getLogger(AbstractJob.class);
     private static volatile AtomicInteger globalId = new AtomicInteger(0);
 
-    private static final Pattern LOCK_RESOURCE_NAME_PATTERN = Pattern.compile("^[A-Z][A-Z_][A-Z]$");
+    private static final Pattern LOCK_RESOURCE_NAME_PATTERN = Pattern.compile("^[A-Z][A-Z_]*[A-Z]$");
 
     // the list of job listeners
     private final List<JobListener> jobListeners = Lists.newArrayList();
