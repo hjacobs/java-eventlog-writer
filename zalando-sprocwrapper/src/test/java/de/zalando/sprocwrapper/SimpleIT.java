@@ -1,6 +1,7 @@
 package de.zalando.sprocwrapper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
@@ -114,6 +115,60 @@ public class SimpleIT {
         Assert.assertTrue(transformed.getC().contains(new GlobalTransformedObject("list element 2")));
         Assert.assertTrue(transformed.getD().contains(new GlobalTransformedObject("set element 1")));
         Assert.assertTrue(transformed.getD().contains(new GlobalTransformedObject("set element 2")));
+    }
+
+    @Test
+    public void testGlobalTransformer2() throws SQLException {
+
+        // test void result
+        final GlobalTransformedObject transformed = exampleSProcService.testGlobalTransformer2(
+                new GlobalTransformedObject("global transformed value"));
+
+        assertEquals("global transformed value", transformed.getValue());
+    }
+
+    @Test
+    public void testGlobalTransformer3() throws SQLException {
+
+        // test void result
+        final GlobalTransformedObject transformed = exampleSProcService.testGlobalTransformer3(
+                new GlobalTransformedObject("global transformed value"), new ExampleDomainObject("EDO a", "EDO b"));
+
+        assertEquals("global transformed value:b:EDO aEDO b", transformed.getValue());
+    }
+
+    @Test
+    public void testGlobalTransformer4() throws SQLException {
+
+        // test void result
+        final List<GlobalTransformedObject> transformed = exampleSProcService.testGlobalTransformer4(Lists.newArrayList(
+                    new GlobalTransformedObject("global transformed value 1"),
+                    new GlobalTransformedObject("global transformed value 2")),
+                new ExampleDomainObject("EDO a", "EDO b"));
+
+        assertNotNull(transformed);
+        assertEquals(2, transformed.size());
+        assertEquals("global transformed value 1", transformed.get(0).getValue());
+        assertEquals("global transformed value 2", transformed.get(1).getValue());
+    }
+
+    @Test
+    public void testGlobalTransformer5() throws SQLException {
+
+        // test void result
+        final GlobalTransformedObject transformed = exampleSProcService.testGlobalTransformer2(null);
+        assertNull(transformed);
+    }
+
+    @Test
+    public void testGlobalTransformer6() throws SQLException {
+
+        // test void result
+        final GlobalTransformedObject transformed = exampleSProcService.testGlobalTransformer2(
+                new GlobalTransformedObject(null));
+
+        // we cannot distinct on sql-level if the null is GlobalTransformedObject of GlobalTransformedObject.value
+        assertNull(transformed);
     }
 
     @Test

@@ -25,10 +25,13 @@ import org.springframework.jdbc.core.RowMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.typemapper.core.ValueTransformer;
+
 import de.zalando.sprocwrapper.SProcCall.AdvisoryLock;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.proxy.executors.Executor;
 import de.zalando.sprocwrapper.proxy.executors.ExecutorWrapper;
+import de.zalando.sprocwrapper.proxy.executors.GlobalTransformerExecutorWrapper;
 import de.zalando.sprocwrapper.proxy.executors.MultiRowSimpleTypeExecutor;
 import de.zalando.sprocwrapper.proxy.executors.MultiRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowCustomMapperExecutor;
@@ -37,6 +40,8 @@ import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.ValidationExecutorWrapper;
 import de.zalando.sprocwrapper.sharding.ShardedObject;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
+
+import de.zalando.zomcat.valuetransformer.ZomcatGlobalValueTransformerRegistry;
 
 /**
  * @author  jmussler
@@ -80,7 +85,8 @@ class StoredProcedure {
     public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
             final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final boolean searchShards,
             final boolean parallel, final RowMapper<?> resultMapper, final long timeout,
-            final AdvisoryLock advisoryLock, final boolean useValidation) {
+            final AdvisoryLock advisoryLock, final boolean useValidation) throws InstantiationException,
+        IllegalAccessException {
         this.name = name;
         this.runOnAllShards = runOnAllShards;
         this.searchShards = searchShards;
@@ -92,13 +98,20 @@ class StoredProcedure {
 
         shardStrategy = sStrategy;
 
+        ValueTransformer<?, ?> valueTransformerForClass = null;
+
         if (genericType instanceof ParameterizedType) {
             final ParameterizedType pType = (ParameterizedType) genericType;
 
             if (java.util.List.class.isAssignableFrom((Class<?>) pType.getRawType())
                     && pType.getActualTypeArguments().length > 0) {
                 returnType = (Class<?>) pType.getActualTypeArguments()[0];
-                if (SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
+
+                // check if we have a value transformer:
+                valueTransformerForClass = ZomcatGlobalValueTransformerRegistry.getValueTransformerForClass(returnType);
+
+                if (valueTransformerForClass != null
+                        || SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
                     executor = MULTI_ROW_SIMPLE_TYPE_EXECUTOR;
                 } else {
                     executor = MULTI_ROW_TYPE_MAPPER_EXECUTOR;
@@ -113,7 +126,10 @@ class StoredProcedure {
         } else {
             returnType = (Class<?>) genericType;
 
-            if (SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
+            // check if we have a value transformer:
+            valueTransformerForClass = ZomcatGlobalValueTransformerRegistry.getValueTransformerForClass(returnType);
+
+            if (valueTransformerForClass != null || SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
                 executor = SINGLE_ROW_SIMPLE_TYPE_EXECUTOR;
             } else {
                 if (resultMapper != null) {
@@ -132,6 +148,13 @@ class StoredProcedure {
 
         if (useValidation) {
             this.executor = new ValidationExecutorWrapper(this.executor);
+        }
+
+        if (valueTransformerForClass != null) {
+
+            // we need to transform the return value by the global value transformer.
+            // add the transformation to the as a transformerExecutor
+            this.executor = new GlobalTransformerExecutorWrapper(this.executor);
         }
     }
 
@@ -374,6 +397,7 @@ class StoredProcedure {
         List<Integer> shardIds = null;
         Map<Integer, Object[]> partitionedArguments = null;
         if (runOnAllShards || searchShards) {
+
             shardIds = dp.getDistinctShardIds();
         } else {
             if (autoPartition) {

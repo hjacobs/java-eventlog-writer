@@ -170,6 +170,17 @@ public interface ExampleSProcService {
     ExampleDomainObjectWithGlobalTransformer testGlobalTransformer(
             @SProcParam ExampleDomainObjectWithGlobalTransformer exampleDomainObjectWithGlobalTransformer);
 
+    @SProcCall
+    GlobalTransformedObject testGlobalTransformer2(@SProcParam GlobalTransformedObject globalTransformedObject);
+
+    @SProcCall
+    GlobalTransformedObject testGlobalTransformer3(@SProcParam GlobalTransformedObject globalTransformedObject,
+            @SProcParam ExampleDomainObject object);
+
+    @SProcCall
+    List<GlobalTransformedObject> testGlobalTransformer4(
+            @SProcParam List<GlobalTransformedObject> globalTransformedObjects, @SProcParam ExampleDomainObject object);
+
     @SProcCall(validate = VALIDATE.AS_DEFINED_IN_SERVICE)
     ExampleDomainObjectWithValidation testSprocCallWithoutValidation1(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);

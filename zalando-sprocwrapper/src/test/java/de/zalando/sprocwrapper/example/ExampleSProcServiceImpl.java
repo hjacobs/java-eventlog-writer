@@ -298,4 +298,21 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
             final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation) {
         return sproc.testSprocCallWithValidationInvalidRet2(exampleDomainObjectWithValidation);
     }
+
+    @Override
+    public GlobalTransformedObject testGlobalTransformer2(final GlobalTransformedObject globalTransformedObject) {
+        return sproc.testGlobalTransformer2(globalTransformedObject);
+    }
+
+    @Override
+    public GlobalTransformedObject testGlobalTransformer3(final GlobalTransformedObject globalTransformedObject,
+            final ExampleDomainObject object) {
+        return sproc.testGlobalTransformer3(globalTransformedObject, object);
+    }
+
+    @Override
+    public List<GlobalTransformedObject> testGlobalTransformer4(
+            final List<GlobalTransformedObject> globalTransformedObjects, final ExampleDomainObject object) {
+        return sproc.testGlobalTransformer4(globalTransformedObjects, object);
+    }
 }

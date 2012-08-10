@@ -10,12 +10,20 @@ import de.zalando.zomcat.valuetransformer.annotation.GlobalValueTransformer;
 public class GlobalTransformedObjectTransformer extends ValueTransformer<String, GlobalTransformedObject> {
 
     @Override
-    public GlobalTransformedObject unmarshalFromDb(final String value) {
+    public GlobalTransformedObject unmarshalFromDb(String value) {
+        if (value.isEmpty()) {
+            value = null;
+        }
+
         return new GlobalTransformedObject(value);
     }
 
     @Override
     public String marshalToDb(final GlobalTransformedObject bound) {
+        if (bound.getValue() == null) {
+            return null;
+        }
+
         return String.valueOf(bound.getValue());
     }
 }

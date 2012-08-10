@@ -1,6 +1,7 @@
 package de.zalando.sprocwrapper.proxy;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import java.sql.Connection;
 import java.sql.Types;
@@ -11,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import com.typemapper.core.ValueTransformer;
+
+import de.zalando.zomcat.valuetransformer.ZomcatGlobalValueTransformerRegistry;
 
 /**
  * @author  jmussler
@@ -48,30 +53,45 @@ class StoredProcedureParameter {
     protected final Class<?> clazz;
     protected final boolean sensitive;
 
-    public static StoredProcedureParameter createParameter(final Class<?> clazz, final Method m, final String typeName,
-            final int sqlType, final int javaPosition, final boolean sensitive) {
+    public static StoredProcedureParameter createParameter(final Class<?> clazz, final Type genericType, final Method m,
+            final String typeName, final int sqlType, final int javaPosition, final boolean sensitive)
+        throws InstantiationException, IllegalAccessException {
 
-        Integer typeId = sqlType;
-        if (typeId == null || typeId == -1) {
-            typeId = SQL_MAPPING.get(clazz);
+        // first check if this is a globally mapped class
+        ValueTransformer<?, ?> valueTransformerForClass = null;
+        if (genericType != null) {
+            valueTransformerForClass = ZomcatGlobalValueTransformerRegistry.getValueTransformerForClass((Class<?>)
+                    genericType);
         }
 
-        // explicitly mapping Map to a hstore, since PgTypeHelper does not fall back to it
-        if (typeId == null && Map.class.isAssignableFrom(clazz)) {
-            return new MapStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
-        }
+        if (valueTransformerForClass != null) {
 
-        if (typeId == null) {
-            typeId = java.sql.Types.OTHER;
-        }
+            // inject the additional logic to transform types and values
+            return new GlobalValueTransformedParameter(valueTransformerForClass, clazz, genericType, m, typeName,
+                    sqlType, javaPosition, sensitive);
+        } else {
+            Integer typeId = sqlType;
+            if (typeId == null || typeId == -1) {
+                typeId = SQL_MAPPING.get(clazz);
+            }
 
-        if (typeId == Types.ARRAY) {
-            return new ArrayStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
-        } else if (typeId == Types.OTHER) {
-            return new OtherStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
-        }
+            // explicitly mapping Map to a hstore, since PgTypeHelper does not fall back to it
+            if (typeId == null && Map.class.isAssignableFrom(clazz)) {
+                return new MapStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
+            }
 
-        return new StoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
+            if (typeId == null) {
+                typeId = java.sql.Types.OTHER;
+            }
+
+            if (typeId == Types.ARRAY) {
+                return new ArrayStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
+            } else if (typeId == Types.OTHER) {
+                return new OtherStoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
+            }
+
+            return new StoredProcedureParameter(clazz, m, typeName, sqlType, javaPosition, sensitive);
+        }
     }
 
     public StoredProcedureParameter(final Class<?> clazz, final Method m, final String typeName, final int sqlType,

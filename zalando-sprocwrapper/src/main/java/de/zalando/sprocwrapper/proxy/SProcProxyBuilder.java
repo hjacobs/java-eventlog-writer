@@ -2,6 +2,8 @@ package de.zalando.sprocwrapper.proxy;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import java.util.Locale;
 
@@ -128,11 +130,20 @@ public class SProcProxyBuilder {
                 useValidation = false;
             }
 
-            final StoredProcedure p = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
-                    scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper, scA.timeoutInMilliSeconds(),
-                    scA.adivsoryLockType(), useValidation);
-            if (!"".equals(scA.sql())) {
-                p.setQuery(scA.sql());
+            final StoredProcedure storedProcedure;
+            try {
+                storedProcedure = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
+                        scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper,
+                        scA.timeoutInMilliSeconds(), scA.adivsoryLockType(), useValidation);
+                if (!"".equals(scA.sql())) {
+                    storedProcedure.setQuery(scA.sql());
+                }
+            } catch (final InstantiationException e) {
+                LOG.fatal("Could not instantiate StoredProcedure. ABORTING.", e);
+                return null;
+            } catch (final IllegalAccessException e) {
+                LOG.fatal("Could not instantiate StoredProcedure. ABORTING.", e);
+                return null;
             }
 
             int pos = 0;
@@ -140,9 +151,17 @@ public class SProcProxyBuilder {
 
                 for (final Annotation a : as) {
                     final Class<?> clazz = method.getParameterTypes()[pos];
+                    Type genericType = method.getGenericParameterTypes()[pos];
+                    if (genericType instanceof ParameterizedType) {
+                        final ParameterizedType parameterizedType = (ParameterizedType) genericType;
+                        if (parameterizedType.getActualTypeArguments() != null
+                                && parameterizedType.getActualTypeArguments().length > 0) {
+                            genericType = parameterizedType.getActualTypeArguments()[0];
+                        }
+                    }
 
                     if (a instanceof ShardKey) {
-                        p.addShardKeyParameter(pos, clazz);
+                        storedProcedure.addShardKeyParameter(pos, clazz);
                     }
 
                     if (a instanceof SProcParam) {
@@ -150,16 +169,24 @@ public class SProcProxyBuilder {
 
                         final String dbTypeName = sParam.type();
 
-                        p.addParam(StoredProcedureParameter.createParameter(clazz, method, dbTypeName, sParam.sqlType(),
-                                pos, sParam.sensitive()));
+                        try {
+                            storedProcedure.addParam(StoredProcedureParameter.createParameter(clazz, genericType,
+                                    method, dbTypeName, sParam.sqlType(), pos, sParam.sensitive()));
+                        } catch (final InstantiationException e) {
+                            LOG.fatal("Could not instantiate StoredProcedureParameter. ABORTING.", e);
+                            return null;
+                        } catch (final IllegalAccessException e) {
+                            LOG.fatal("Could not instantiate StoredProcedureParameter. ABORTING.", e);
+                            return null;
+                        }
                     }
                 }
 
                 pos++;
             }
 
-            LOG.debug(c.getSimpleName() + " registering " + p);
-            proxy.addStoredProcedure(method, p);
+            LOG.debug(c.getSimpleName() + " registering " + storedProcedure);
+            proxy.addStoredProcedure(method, storedProcedure);
         }
 
         return (T) java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), new Class[] {c}, proxy);
