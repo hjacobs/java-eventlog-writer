@@ -172,6 +172,17 @@ public class SimpleIT {
     }
 
     @Test
+    public void testGlobalTransformer7() throws SQLException {
+
+        // test void result
+        final List<GlobalTransformedObject> transformed = exampleSProcService.testGlobalTransformer5(Sets.newHashSet(
+                    new GlobalTransformedObject(null)), null);
+
+        // we cannot distinct on sql-level if the null is GlobalTransformedObject of GlobalTransformedObject.value
+        assertNull(transformed);
+    }
+
+    @Test
     public void testSimpleListParam() throws SQLException {
 
         final List<String> skus = new ArrayList<String>();

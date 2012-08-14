@@ -2,6 +2,7 @@ package de.zalando.sprocwrapper.example;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcCall.VALIDATE;
@@ -180,6 +181,10 @@ public interface ExampleSProcService {
     @SProcCall
     List<GlobalTransformedObject> testGlobalTransformer4(
             @SProcParam List<GlobalTransformedObject> globalTransformedObjects, @SProcParam ExampleDomainObject object);
+
+    @SProcCall
+    List<GlobalTransformedObject> testGlobalTransformer5(
+            @SProcParam Set<GlobalTransformedObject> globalTransformedObjects, @SProcParam ExampleDomainObject object);
 
     @SProcCall(validate = VALIDATE.AS_DEFINED_IN_SERVICE)
     ExampleDomainObjectWithValidation testSprocCallWithoutValidation1(
