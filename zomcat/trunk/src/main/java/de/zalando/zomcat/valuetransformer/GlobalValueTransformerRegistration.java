@@ -1,7 +1,5 @@
 package de.zalando.zomcat.valuetransformer;
 
-import java.lang.reflect.Method;
-
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Component;
 import com.typemapper.core.ValueTransformer;
 import com.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
 
-import de.zalando.zomcat.util.ReflectionUtils;
 import de.zalando.zomcat.valuetransformer.annotation.GlobalValueTransformer;
 
 @Component
@@ -49,9 +46,9 @@ public class GlobalValueTransformerRegistration {
                     // get the type that is bound to the transformer:
                     final Class<? extends Object> valueTransformerClass = transformer.getClass();
 
-                    final Method method = ReflectionUtils.findMethod(valueTransformerClass, "unmarshalFromDb");
-                    if (method != null) {
-                        final Class<?> valueTransformerReturnType = method.getReturnType();
+                    final Class<?> valueTransformerReturnType = ValueTransformerUtils.getUnmarshalFromDbClass(
+                            valueTransformerClass);
+                    if (valueTransformerReturnType != null) {
                         GlobalValueTransformerRegistry.register(valueTransformerReturnType,
                             (ValueTransformer<?, ?>) transformer);
                         LOG.debug("Global Value Transformer [{}] for type [{}] registered. ",

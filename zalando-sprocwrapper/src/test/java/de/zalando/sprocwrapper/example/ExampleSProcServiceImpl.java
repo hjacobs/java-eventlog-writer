@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.joda.time.DateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Repository;
@@ -321,5 +323,10 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public List<GlobalTransformedObject> testGlobalTransformer5(
             final Set<GlobalTransformedObject> globalTransformedObjects, final ExampleDomainObject object) {
         return sproc.testGlobalTransformer5(globalTransformedObjects, object);
+    }
+
+    @Override
+    public DateTime testGlobalTransformer6(final DateTime dateTime) {
+        return sproc.testGlobalTransformer6(dateTime);
     }
 }

@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.joda.time.DateTime;
+
 import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcCall.VALIDATE;
 import de.zalando.sprocwrapper.SProcParam;
@@ -186,6 +188,9 @@ public interface ExampleSProcService {
     List<GlobalTransformedObject> testGlobalTransformer5(
             @SProcParam Set<GlobalTransformedObject> globalTransformedObjects, @SProcParam ExampleDomainObject object);
 
+    @SProcCall
+    DateTime testGlobalTransformer6(@SProcParam DateTime dateTime);
+
     @SProcCall(validate = VALIDATE.AS_DEFINED_IN_SERVICE)
     ExampleDomainObjectWithValidation testSprocCallWithoutValidation1(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
@@ -205,4 +210,5 @@ public interface ExampleSProcService {
     @SProcCall(validate = VALIDATE.YES)
     ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet2(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
+
 }

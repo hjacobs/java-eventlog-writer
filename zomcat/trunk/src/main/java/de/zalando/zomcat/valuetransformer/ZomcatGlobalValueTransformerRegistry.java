@@ -1,7 +1,5 @@
 package de.zalando.zomcat.valuetransformer;
 
-import java.lang.reflect.Method;
-
 import java.util.Set;
 
 import org.reflections.Reflections;
@@ -20,7 +18,6 @@ import com.google.common.base.Predicate;
 import com.typemapper.core.ValueTransformer;
 import com.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
 
-import de.zalando.zomcat.util.ReflectionUtils;
 import de.zalando.zomcat.valuetransformer.annotation.GlobalValueTransformer;
 
 public class ZomcatGlobalValueTransformerRegistry {
@@ -48,9 +45,9 @@ public class ZomcatGlobalValueTransformerRegistry {
                             .filterResultsBy(filter)));
             final Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(GlobalValueTransformer.class);
             for (final Class<?> foundGlobalValueTransformer : typesAnnotatedWith) {
-                final Method method = ReflectionUtils.findMethod(foundGlobalValueTransformer, "unmarshalFromDb");
-                if (method != null) {
-                    final Class<?> valueTransformerReturnType = method.getReturnType();
+                final Class<?> valueTransformerReturnType = ValueTransformerUtils.getUnmarshalFromDbClass(
+                        foundGlobalValueTransformer);
+                if (valueTransformerReturnType != null) {
                     GlobalValueTransformerRegistry.register(valueTransformerReturnType,
                         (ValueTransformer<?, ?>) foundGlobalValueTransformer.newInstance());
                     LOG.debug("Global Value Transformer [{}] for type [{}] registered. ",

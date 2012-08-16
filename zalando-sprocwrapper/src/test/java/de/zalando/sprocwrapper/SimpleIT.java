@@ -20,6 +20,8 @@ import javax.sql.DataSource;
 
 import javax.validation.ConstraintViolationException;
 
+import org.joda.time.DateTime;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -179,7 +181,21 @@ public class SimpleIT {
                     new GlobalTransformedObject(null)), null);
 
         // we cannot distinct on sql-level if the null is GlobalTransformedObject of GlobalTransformedObject.value
-        assertNull(transformed);
+        assertNotNull(transformed);
+        assertEquals(1, transformed.size());
+        assertNull(transformed.get(0).getValue());
+    }
+
+    @Test
+    public void testGlobalTransformer8() throws SQLException {
+
+        // test void result
+        final DateTime dateTime = new DateTime();
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
+        // we cannot distinct on sql-level if the null is GlobalTransformedObject of GlobalTransformedObject.value
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
     }
 
     @Test

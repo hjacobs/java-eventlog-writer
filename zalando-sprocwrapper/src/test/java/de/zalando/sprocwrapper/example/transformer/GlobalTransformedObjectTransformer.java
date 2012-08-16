@@ -11,7 +11,8 @@ public class GlobalTransformedObjectTransformer extends ValueTransformer<String,
 
     @Override
     public GlobalTransformedObject unmarshalFromDb(String value) {
-        if (value.isEmpty()) {
+
+        if (value == null || value.isEmpty()) {
             value = null;
         }
 

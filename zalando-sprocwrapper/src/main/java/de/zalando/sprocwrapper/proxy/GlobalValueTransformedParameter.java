@@ -12,6 +12,10 @@ import com.google.common.collect.Lists;
 
 import com.typemapper.core.ValueTransformer;
 
+import com.typemapper.postgres.PgTypeHelper;
+
+import de.zalando.zomcat.valuetransformer.ValueTransformerUtils;
+
 public class GlobalValueTransformedParameter extends StoredProcedureParameter {
 
     private StoredProcedureParameter forwardingStoredProcedureParameter;
@@ -21,13 +25,14 @@ public class GlobalValueTransformedParameter extends StoredProcedureParameter {
     public GlobalValueTransformedParameter(final ValueTransformer<?, ?> valueTransformerForClass, final Class<?> clazz,
             final Type genericType, final Method m, final String typeName, final int sqlType, final int javaPosition,
             final boolean sensitive) throws InstantiationException, IllegalAccessException {
-        super(getValueTransformedClazz(clazz), m, getValueTransformedTypeName(clazz), getValueTransformedTypeId(clazz),
+        super(getValueTransformedClazz(clazz, valueTransformerForClass), m, typeName, getValueTransformedTypeId(clazz),
             javaPosition, sensitive);
 
         this.valueTransformerForClass = valueTransformerForClass;
-        forwardingStoredProcedureParameter = StoredProcedureParameter.createParameter(getValueTransformedClazz(clazz),
-                String.class, m, getValueTransformedTypeName(clazz), getValueTransformedTypeId(clazz), javaPosition,
-                sensitive);
+        forwardingStoredProcedureParameter = StoredProcedureParameter.createParameter(getValueTransformedClazz(clazz,
+                    valueTransformerForClass), getValueTransformedGenericClass(clazz), m,
+                getValueTransformedTypeName(clazz, valueTransformerForClass), getValueTransformedTypeId(clazz),
+                javaPosition, sensitive);
     }
 
     @SuppressWarnings("unchecked")
@@ -38,10 +43,10 @@ public class GlobalValueTransformedParameter extends StoredProcedureParameter {
         }
 
         if (forwardingStoredProcedureParameter instanceof ArrayStoredProcedureParameter) {
-            final List<String> transformedValues = Lists.newArrayList();
+            final List<Object> transformedValues = Lists.newArrayList();
             if (value.getClass().isArray()) {
                 for (final Object o : ((Object[]) value)) {
-                    transformedValues.add(String.valueOf(valueTransformerForClass.marshalToDb(o)));
+                    transformedValues.add(valueTransformerForClass.marshalToDb(o));
                 }
             } else {
                 for (final Object o : ((Collection<?>) value)) {
@@ -76,29 +81,34 @@ public class GlobalValueTransformedParameter extends StoredProcedureParameter {
     }
 
     private static int getValueTransformedTypeId(final Class<?> clazz) {
-        if (clazz.isArray() || Collection.class.isAssignableFrom(clazz)) {
-            return SQL_MAPPING.get(List.class);
-        }
 
-        // this is the only value that is currently available by a transformer
-        return SQL_MAPPING.get(String.class);
+        // start type detection for transformed class
+        return -1;
     }
 
-    private static String getValueTransformedTypeName(final Class<?> clazz) {
-        if (clazz.isArray() || Collection.class.isAssignableFrom(clazz)) {
-            return "text[]";
+    private String getValueTransformedTypeName(final Class<?> clazz,
+            final ValueTransformer<?, ?> valueTransformerForClass) {
+        final Class<?> valueTransformedGenericClass = getValueTransformedGenericClass(
+                valueTransformerForClass.getClass());
+        String sqlNameForClass = PgTypeHelper.getSQLNameForClass(valueTransformedGenericClass);
+
+        if (sqlNameForClass != null && clazz.isArray() || Collection.class.isAssignableFrom(clazz)) {
+            sqlNameForClass += "[]";
         }
 
-        // this is the only value that is currently available by a transformer
-        return "text";
+        return sqlNameForClass;
     }
 
-    private static Class<?> getValueTransformedClazz(final Class<?> clazz) {
+    private static Class<?> getValueTransformedClazz(final Class<?> clazz,
+            final ValueTransformer<?, ?> valueTransformerForClass) {
         if (clazz.isArray() || Collection.class.isAssignableFrom(clazz)) {
             return List.class;
         }
 
-        // this is the only value that is currently available by a transformer
-        return String.class;
+        return ValueTransformerUtils.getMarshalToDbClass(valueTransformerForClass);
+    }
+
+    private Class<?> getValueTransformedGenericClass(final Class<?> clazz) {
+        return ValueTransformerUtils.getMarshalToDbClass(valueTransformerForClass);
     }
 }
