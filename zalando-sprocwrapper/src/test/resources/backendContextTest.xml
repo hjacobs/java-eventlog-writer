@@ -45,6 +45,24 @@
         <property name="maxConnectionsPerPartition" value="1" />
     </bean>
 
+    <bean id="testDataSource3" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="org.postgresql.Driver" />
+        <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
+        <property name="username" value="${frontend.sproc.datasource.username}" />
+        <property name="password" value="${frontend.sproc.datasource.password}" />
+        <property name="initSQL" value="SET TIME ZONE 'PST8PDT'; SET search_path to ztest_shard1, public;" />
+        <property name="minConnectionsPerPartition" value="1" />
+        <property name="maxConnectionsPerPartition" value="1" />
+    </bean>
+
+    <bean id="testDataSourceProviderOtherTimeZone" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
+        <constructor-arg>
+            <list>
+                <ref bean="testDataSource3"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
     <bean id="testDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
         <constructor-arg>
             <list>

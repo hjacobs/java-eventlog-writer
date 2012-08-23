@@ -2,6 +2,7 @@
 package de.zalando.sprocwrapper.example;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.stereotype.Repository;
 
@@ -17,7 +18,7 @@ public class ExampleValidationSProcServiceImpl
     implements ExampleValidationSProcService {
 
     @Autowired
-    public ExampleValidationSProcServiceImpl(final ArrayDataSourceProvider p) {
+    public ExampleValidationSProcServiceImpl(@Qualifier("testDataSourceProvider") final ArrayDataSourceProvider p) {
         super(p, ExampleValidationSProcService.class);
     }
 

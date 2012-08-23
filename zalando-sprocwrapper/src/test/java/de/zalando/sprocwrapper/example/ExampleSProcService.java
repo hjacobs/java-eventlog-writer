@@ -7,7 +7,7 @@ import java.util.Set;
 import org.joda.time.DateTime;
 
 import de.zalando.sprocwrapper.SProcCall;
-import de.zalando.sprocwrapper.SProcCall.VALIDATE;
+import de.zalando.sprocwrapper.SProcCall.Validate;
 import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
 import de.zalando.sprocwrapper.sharding.ShardKey;
@@ -191,23 +191,23 @@ public interface ExampleSProcService {
     @SProcCall
     DateTime testGlobalTransformer6(@SProcParam DateTime dateTime);
 
-    @SProcCall(validate = VALIDATE.AS_DEFINED_IN_SERVICE)
+    @SProcCall(validate = Validate.AS_DEFINED_IN_SERVICE)
     ExampleDomainObjectWithValidation testSprocCallWithoutValidation1(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 
-    @SProcCall(validate = VALIDATE.NO)
+    @SProcCall(validate = Validate.NO)
     ExampleDomainObjectWithValidation testSprocCallWithoutValidation2(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 
-    @SProcCall(validate = VALIDATE.YES)
+    @SProcCall(validate = Validate.YES)
     ExampleDomainObjectWithValidation testSprocCallWithValidation(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 
-    @SProcCall(validate = VALIDATE.NO)
+    @SProcCall(validate = Validate.NO)
     ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet1(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 
-    @SProcCall(validate = VALIDATE.YES)
+    @SProcCall(validate = Validate.YES)
     ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet2(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 

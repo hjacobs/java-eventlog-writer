@@ -75,7 +75,7 @@ public @interface SProcCall {
 
     }
 
-    public static enum VALIDATE {
+    public static enum Validate {
         AS_DEFINED_IN_SERVICE,
         YES,
         NO
@@ -122,5 +122,5 @@ public @interface SProcCall {
 
     AdvisoryLock adivsoryLockType() default AdvisoryLock.NO_LOCK;
 
-    VALIDATE validate() default VALIDATE.AS_DEFINED_IN_SERVICE;
+    Validate validate() default Validate.AS_DEFINED_IN_SERVICE;
 }

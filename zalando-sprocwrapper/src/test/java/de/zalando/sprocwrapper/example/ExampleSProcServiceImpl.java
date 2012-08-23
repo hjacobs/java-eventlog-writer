@@ -8,6 +8,7 @@ import java.util.Set;
 import org.joda.time.DateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +23,7 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     implements ExampleSProcService {
 
     @Autowired
-    public ExampleSProcServiceImpl(final ArrayDataSourceProvider p) {
+    public ExampleSProcServiceImpl(@Qualifier("testDataSourceProvider") final ArrayDataSourceProvider p) {
         super(p, ExampleSProcService.class);
     }
 

@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
 
 import de.zalando.sprocwrapper.SProcCall;
-import de.zalando.sprocwrapper.SProcCall.VALIDATE;
+import de.zalando.sprocwrapper.SProcCall.Validate;
 import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
@@ -124,9 +124,9 @@ public class SProcProxyBuilder {
             }
 
             // overwrite if explicitly set in SprocCall:
-            if (scA.validate() == VALIDATE.YES) {
+            if (scA.validate() == Validate.YES) {
                 useValidation = true;
-            } else if (scA.validate() == VALIDATE.NO) {
+            } else if (scA.validate() == Validate.NO) {
                 useValidation = false;
             }
 
