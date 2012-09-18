@@ -188,12 +188,17 @@ public abstract class AbstractBulkProcessingJob<Item> extends AbstractJob {
             new Object[] {getBeanName(), successfulItems.size(), failedItems.size()});
     }
 
+    /**
+     * @param  executionContext  is allowed to be null
+     * @param  config
+     */
     @Override
     public final void doRun(final JobExecutionContext executionContext, final JobConfig config) {
         setUp();
         try {
             limit = getLimit(config);
-            if (limit == 0 && executionContext.getMergedJobDataMap().containsKey(JOB_DATA_LIMIT_PARAMETER)) {
+            if (limit == 0 && executionContext != null
+                    && executionContext.getMergedJobDataMap().containsKey(JOB_DATA_LIMIT_PARAMETER)) {
                 limit = executionContext.getMergedJobDataMap().getIntValue(JOB_DATA_LIMIT_PARAMETER);
             }
 
