@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:amq="http://activemq.org/config/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context" xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd     http://activemq.org/config/1.0 http://activemq.apache.org/schema/core/activemq-core-5.0-SNAPSHOT.xsd     http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring     http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd     ">
+    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="systemPropertiesMode" value="2"/>
+        <property name="locations">
+            <list>
+                <value>classpath:application.properties</value>
+            </list>
+        </property>
+    </bean>
+    <context:component-scan base-package="de.zalando.zomcat"/>
+    <context:annotation-config/>
+    <bean id="dataSourceFrontendSProcProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">
+        <property name="dataSource">
+            <ref local="dataSourceFrontendSProc"/>
+        </property>
+    </bean>
+    <bean id="dataSourceFrontendSProc" class="com.jolbox.bonecp.spring.DynamicDataSourceProxy">
+        <property name="targetDataSource">
+            <ref local="dataSourceFrontendSProc_first"/>
+        </property>
+    </bean>
+    <bean id="dataSourceFrontendSProc_configBean" class="de.zalando.dbutils.pool.ConnectionPoolMBean">
+        <property name="proxy">
+            <ref local="dataSourceFrontendSProc"/>
+        </property>
+    </bean>
+    <bean id="dataSourceFrontendSProc_first" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="${frontend.sproc.datasource.driverClassName}"/>
+        <property name="jdbcUrl" value="${frontend.sproc.datasource.url}"/>
+        <property name="username" value="${frontend.sproc.datasource.username}"/>
+        <property name="password" value="${frontend.sproc.datasource.password}"/>
+        <property name="idleConnectionTestPeriodInMinutes" value="${frontend.sproc.datasource.idleConnectionTestPeriodInMinutes}"/>
+        <property name="idleMaxAgeInMinutes" value="${frontend.sproc.datasource.idleMaxAgeInMinutes}"/>
+        <property name="maxConnectionsPerPartition" value="${frontend.sproc.datasource.maxConnectionsPerPartition}"/>
+        <property name="minConnectionsPerPartition" value="${frontend.sproc.datasource.minConnectionsPerPartition}"/>
+        <property name="poolAvailabilityThreshold" value="${frontend.sproc.datasource.poolAvailabilityThreshold}"/>
+        <property name="partitionCount" value="${frontend.sproc.datasource.partitionCount}"/>
+        <property name="acquireIncrement" value="${frontend.sproc.datasource.acquireIncrement}"/>
+        <property name="releaseHelperThreads" value="${frontend.sproc.datasource.releaseHelperThreads}"/>
+        <property name="statisticsEnabled" value="${frontend.sproc.datasource.statisticsEnabled}"/>
+        <property name="acquireRetryAttempts" value="${frontend.sproc.datasource.acquireRetryAttempts}"/>
+        <property name="acquireRetryDelayInMs" value="${frontend.sproc.datasource.acquireRetryDelayInMs}"/>
+        <property name="disableJMX" value="${frontend.sproc.datasource.disableJMX}"/>
+        <property name="connectionTimeoutInMs" value="${frontend.sproc.datasource.connectionTimeoutInMs}"/>
+        <property name="disableConnectionTracking" value="${frontend.sproc.datasource.disableConnectionTracking}"/>
+        <property name="initSQL" value="SET search_path to zz_commons, public;"/>
+    </bean>
+    <alias name="dataSourceFrontendSProc" alias="appConfigDataSource"/>
+    <alias name="dataSourceFrontendSProcProvider" alias="resourceLockDataSourceProvider"/>
+</beans>

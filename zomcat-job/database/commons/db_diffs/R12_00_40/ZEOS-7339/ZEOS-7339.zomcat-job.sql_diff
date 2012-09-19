@@ -1,0 +1,15 @@
+--this file db_diff is supposed to add a possibility to exclude a warehouse as outbound depending on shipping method
+ALTER TYPE zoe_data.parameter_type ADD VALUE 'WAREHOUSE_OUTBOUND_EXCLUDE_FOR_SHIPPING_METHOD';
+
+BEGIN;
+
+  SELECT _v.register_patch('ZEOS-7339.zomcat-job');
+
+  SET ROLE TO zalando;
+
+  ALTER TABLE zz_commons.resource_lock add constraint rl_resource_unique unique(rl_resource);
+
+  RESET role;
+
+--ROLLBACK
+COMMIT;
