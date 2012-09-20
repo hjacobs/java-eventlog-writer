@@ -1,4 +1,4 @@
-package de.zalando.orderengine.backend.jobs.lock;
+package de.zalando.zomcat.jobs.lock;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,8 +11,6 @@ import org.springframework.dao.DuplicateKeyException;
 
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import de.zalando.zomcat.jobs.lock.LockResourceManagerImpl;
 
 import junit.framework.Assert;
 
