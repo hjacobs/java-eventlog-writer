@@ -29,6 +29,7 @@ import com.typemapper.core.ValueTransformer;
 
 import de.zalando.sprocwrapper.SProcCall.AdvisoryLock;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
+import de.zalando.sprocwrapper.globalvaluetransformer.GlobalValueTransformerLoader;
 import de.zalando.sprocwrapper.proxy.executors.Executor;
 import de.zalando.sprocwrapper.proxy.executors.ExecutorWrapper;
 import de.zalando.sprocwrapper.proxy.executors.GlobalTransformerExecutorWrapper;
@@ -40,8 +41,6 @@ import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.ValidationExecutorWrapper;
 import de.zalando.sprocwrapper.sharding.ShardedObject;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
-
-import de.zalando.zomcat.valuetransformer.ZomcatGlobalValueTransformerRegistry;
 
 /**
  * @author  jmussler
@@ -107,8 +106,8 @@ class StoredProcedure {
                     && pType.getActualTypeArguments().length > 0) {
                 returnType = (Class<?>) pType.getActualTypeArguments()[0];
 
-                // check if we have a value transformer:
-                valueTransformerForClass = ZomcatGlobalValueTransformerRegistry.getValueTransformerForClass(returnType);
+                // check if we have a value transformer (and initialize the registry):
+                valueTransformerForClass = GlobalValueTransformerLoader.getValueTransformerForClass(returnType);
 
                 if (valueTransformerForClass != null
                         || SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
@@ -126,8 +125,8 @@ class StoredProcedure {
         } else {
             returnType = (Class<?>) genericType;
 
-            // check if we have a value transformer:
-            valueTransformerForClass = ZomcatGlobalValueTransformerRegistry.getValueTransformerForClass(returnType);
+            // check if we have a value transformer (and initialize the registry):
+            valueTransformerForClass = GlobalValueTransformerLoader.getValueTransformerForClass(returnType);
 
             if (valueTransformerForClass != null || SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
                 executor = SINGLE_ROW_SIMPLE_TYPE_EXECUTOR;

@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import com.typemapper.core.ValueTransformer;
-
-import de.zalando.zomcat.valuetransformer.ZomcatGlobalValueTransformerRegistry;
+import com.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
 
 /**
  * This Executor wraps stored procedure calls that use advisory locks and / or need different statement timeouts set.
@@ -38,31 +37,23 @@ public class GlobalTransformerExecutorWrapper implements Executor {
             return null;
         }
 
-        try {
-            final ValueTransformer<?, ?> valueTransformerForClass = ZomcatGlobalValueTransformerRegistry
-                    .getValueTransformerForClass(returnType);
-            if (valueTransformerForClass != null) {
-                if (Collection.class.isAssignableFrom(result.getClass())) {
-                    final List ret = Lists.newArrayList();
-                    for (final Object o : (Collection<?>) result) {
-                        ret.add(valueTransformerForClass.unmarshalFromDb((String) o));
-                    }
-
-                    return ret;
-                } else {
-                    return valueTransformerForClass.unmarshalFromDb((String) result);
+        final ValueTransformer<?, ?> valueTransformerForClass = GlobalValueTransformerRegistry
+                .getValueTransformerForClass(returnType);
+        if (valueTransformerForClass != null) {
+            if (Collection.class.isAssignableFrom(result.getClass())) {
+                final List ret = Lists.newArrayList();
+                for (final Object o : (Collection<?>) result) {
+                    ret.add(valueTransformerForClass.unmarshalFromDb((String) o));
                 }
+
+                return ret;
             } else {
-                LOG.error(
-                    "Could not find a global value transformer for type [{}]. RETURNING NULL instead of transformed [{}] value.",
-                    returnType, result);
+                return valueTransformerForClass.unmarshalFromDb((String) result);
             }
-        } catch (final InstantiationException e) {
-            LOG.error("Could not instantiate transformer. RETURNING NULL instead of transformed [{}] value.", result,
-                e);
-        } catch (final IllegalAccessException e) {
-            LOG.error("Could not instantiate transformer. RETURNING NULL instead of transformed [{}] value.", result,
-                e);
+        } else {
+            LOG.error(
+                "Could not find a global value transformer for type [{}]. RETURNING NULL instead of transformed [{}] value.",
+                returnType, result);
         }
 
         return null;

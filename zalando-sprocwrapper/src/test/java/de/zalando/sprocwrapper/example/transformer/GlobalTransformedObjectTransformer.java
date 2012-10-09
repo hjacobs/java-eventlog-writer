@@ -3,8 +3,7 @@ package de.zalando.sprocwrapper.example.transformer;
 import com.typemapper.core.ValueTransformer;
 
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
-
-import de.zalando.zomcat.valuetransformer.annotation.GlobalValueTransformer;
+import de.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer;
 
 @GlobalValueTransformer
 public class GlobalTransformedObjectTransformer extends ValueTransformer<String, GlobalTransformedObject> {

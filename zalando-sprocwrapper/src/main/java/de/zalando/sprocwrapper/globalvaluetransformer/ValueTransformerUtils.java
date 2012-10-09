@@ -1,10 +1,8 @@
-package de.zalando.zomcat.valuetransformer;
+package de.zalando.sprocwrapper.globalvaluetransformer;
 
 import java.lang.reflect.Method;
 
 import com.typemapper.core.ValueTransformer;
-
-import de.zalando.zomcat.util.ReflectionUtils;
 
 public final class ValueTransformerUtils {
     private ValueTransformerUtils() { }

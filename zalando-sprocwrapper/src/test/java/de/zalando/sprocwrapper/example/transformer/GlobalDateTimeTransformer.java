@@ -8,7 +8,7 @@ import org.joda.time.format.DateTimeFormatterBuilder;
 
 import com.typemapper.core.ValueTransformer;
 
-import de.zalando.zomcat.valuetransformer.annotation.GlobalValueTransformer;
+import de.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer;
 
 @GlobalValueTransformer
 public class GlobalDateTimeTransformer extends ValueTransformer<Date, DateTime> {

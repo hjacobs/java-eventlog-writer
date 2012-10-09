@@ -14,7 +14,7 @@ import com.typemapper.core.ValueTransformer;
 
 import com.typemapper.postgres.PgTypeHelper;
 
-import de.zalando.zomcat.valuetransformer.ValueTransformerUtils;
+import de.zalando.sprocwrapper.globalvaluetransformer.ValueTransformerUtils;
 
 public class GlobalValueTransformedParameter extends StoredProcedureParameter {
 

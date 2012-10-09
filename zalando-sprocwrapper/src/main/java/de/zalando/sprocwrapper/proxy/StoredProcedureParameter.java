@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.typemapper.core.ValueTransformer;
 
-import de.zalando.zomcat.valuetransformer.ZomcatGlobalValueTransformerRegistry;
+import de.zalando.sprocwrapper.globalvaluetransformer.GlobalValueTransformerLoader;
 
 /**
  * @author  jmussler
@@ -60,8 +60,7 @@ class StoredProcedureParameter {
         // first check if this is a globally mapped class
         ValueTransformer<?, ?> valueTransformerForClass = null;
         if (genericType != null) {
-            valueTransformerForClass = ZomcatGlobalValueTransformerRegistry.getValueTransformerForClass((Class<?>)
-                    genericType);
+            valueTransformerForClass = GlobalValueTransformerLoader.getValueTransformerForClass((Class<?>) genericType);
         }
 
         if (valueTransformerForClass != null) {

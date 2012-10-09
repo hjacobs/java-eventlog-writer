@@ -19,5 +19,4 @@ public abstract class AbstractSProcService<I, P extends DataSourceProvider> {
         ds = ps;
         sproc = SProcProxyBuilder.build(ds, interfaceClass);
     }
-
 }
