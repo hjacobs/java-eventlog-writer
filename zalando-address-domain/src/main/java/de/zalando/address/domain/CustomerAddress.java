@@ -82,23 +82,17 @@ public class CustomerAddress implements Address {
 
     @Override
     public String getServicePoint() {
-
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
     public String getCustomerNumber() {
-
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
     public AddressType getType() {
-
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 }
