@@ -1,5 +1,10 @@
 package de.zalando.address.domain;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import com.google.common.base.Joiner;
+
 import com.typemapper.annotations.DatabaseField;
 
 import de.zalando.domain.address.Address;
@@ -93,6 +98,37 @@ public class CustomerAddress implements Address {
     @Override
     public AddressType getType() {
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    private static final Joiner FIELD_JOINER = Joiner.on(", ").skipNulls();
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof CustomerAddress)) {
+            return false;
+        }
+
+        CustomerAddress addr = (CustomerAddress) obj;
+        EqualsBuilder equalsBuilder = new EqualsBuilder();
+        equalsBuilder.append(countryCode, addr.countryCode);
+        equalsBuilder.append(city, addr.city);
+        equalsBuilder.append(zip, addr.zip);
+        equalsBuilder.append(streetWithNumber, addr.streetWithNumber);
+        return equalsBuilder.isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder(62047, 69109);
+        hashCodeBuilder.append(countryCode);
+        hashCodeBuilder.append(city);
+        hashCodeBuilder.append(zip);
+        hashCodeBuilder.append(streetWithNumber);
+        return hashCodeBuilder.toHashCode();
     }
 
 }
