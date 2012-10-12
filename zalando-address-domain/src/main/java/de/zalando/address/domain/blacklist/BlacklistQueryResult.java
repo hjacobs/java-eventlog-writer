@@ -6,11 +6,15 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
+import com.typemapper.annotations.DatabaseField;
+
 @XmlType(propOrder = {"totalSize", "size", "addresses"})
 public class BlacklistQueryResult {
 
+    @DatabaseField(name = "totalcount")
     private int totalSize;
 
+    @DatabaseField(name = "address_list")
     private List<BlacklistAddressEntry> addresses;
 
     @XmlElementWrapper(name = "blacklistedAddresses")
