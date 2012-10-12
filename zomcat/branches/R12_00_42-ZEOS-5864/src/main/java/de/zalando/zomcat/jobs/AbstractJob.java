@@ -59,6 +59,9 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     private String jobHistoryId = null;
     private String appInstanceKey = null;
 
+    private JobConfig jobConfig = null;
+    private JobGroupConfig jobGroupConfig = null;
+
     private final StopWatchListener stopWatchListener = new StopWatchListener();
 
     private LockResourceManager lockResourceManager;
@@ -287,11 +290,16 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     protected boolean isJobGroupDisabled() {
-        final JobGroupTypeStatusBean statusBean = getJobsStatusBean().getJobGroupTypeStatusBean(getJobConfig());
-        if (statusBean == null) {
-            return false;
+        if (jobGroupConfig == null) {
+            final JobGroupTypeStatusBean statusBean = getJobsStatusBean().getJobGroupTypeStatusBean(getJobConfig());
+
+            if (statusBean == null) {
+                return false;
+            } else {
+                return statusBean.isDisabled();
+            }
         } else {
-            return statusBean.isDisabled();
+            return !jobGroupConfig.isJobGroupActive();
         }
     }
 
@@ -391,7 +399,19 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
     @Override
     public JobConfig getJobConfig() {
+        if (jobConfig != null) {
+            return jobConfig;
+        }
+
         return getConfigurationSource().getJobConfig(this);
+    }
+
+    public void setJobConfig(final JobConfig jobConfig) {
+        this.jobConfig = jobConfig;
+    }
+
+    public void setJobGroupConfig(final JobGroupConfig jobGroupConfig) {
+        this.jobGroupConfig = jobGroupConfig;
     }
 
     /**

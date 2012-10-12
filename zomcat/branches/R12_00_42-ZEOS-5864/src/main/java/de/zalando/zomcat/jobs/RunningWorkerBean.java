@@ -31,6 +31,13 @@ public class RunningWorkerBean implements RunningWorker, Serializable {
             runningWorker.getDescription(), runningWorker.getThreadCPUNanoSeconds());
     }
 
+    public RunningWorkerBean(final RunningWorker runningWorker, final JobConfig jobConfig) {
+        this(jobConfig, runningWorker.getFlowId(), runningWorker.getId(), runningWorker.getStartTime(),
+            runningWorker.getActualProcessedItemNumber(), runningWorker.getTotalNumberOfItemsToBeProcessed(),
+            runningWorker.getInternalStartTime(), runningWorker.getDescription(),
+            runningWorker.getThreadCPUNanoSeconds());
+    }
+
     protected RunningWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime) {
         this(jobConfig, jobHistoryId, id, startTime, null, null);

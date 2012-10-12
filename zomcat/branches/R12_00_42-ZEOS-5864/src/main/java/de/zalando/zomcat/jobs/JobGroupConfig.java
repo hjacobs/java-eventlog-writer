@@ -12,6 +12,11 @@ import java.util.Set;
 public class JobGroupConfig implements Serializable {
     private static final long serialVersionUID = 1397771322288321306L;
 
+    /**
+     * Asterisk * indicating that all AppInstanceKeys are allowed to execute the respectively current job.
+     */
+    private static final String ALL_APP_INSTANCE_KEYS_ALLOWED = "*";
+
     public static final String DEFAULT_GROUP_NAME = "none";
 
     private final String jobGroupName;
@@ -24,6 +29,26 @@ public class JobGroupConfig implements Serializable {
         this.jobGroupName = jobGroupName;
         this.jobGroupActive = jobGroupActive;
         this.groupAppInstanceKeys = groupAppInstanceKeys;
+    }
+
+    /**
+     * Check if given appInstanceKey is contained in Set of allowed AppInstanceKeys. This method is used for
+     * preexecution checks for any job dependent on {@link JobConfig} instance for its configuration
+     *
+     * @param   appInstanceKey  The AppInstanceKey to check
+     *
+     * @return  <code>true</code> if given AppInstanceKey is contained in {@link JobConfig}s Set of allowed
+     *          AppInstanceKeys, OR if the {@link JobConfig}s Set of allowed AppInstanceKeys contains the '*' asterisk,
+     *          OR if the {@link JobConfig}s Set of AppInstanceKeys isEmpty AND the {@link JobGroupConfig}s Set of
+     *          AppInstanceKeys contains either the current AppInstanceKey or the '*' asterisk character. Otherwise
+     *          <code>false</code> is returned
+     */
+    public boolean isAllowedAppInstanceKey(final String appInstanceKey) {
+
+        // if (JobGroupConfig.appInstanceKeys.contains(curAppInstanceKey) ||
+        // JobGroupConfig.appInstanceKey.contains(ALL_APP_INSTANCE_KEYS)))
+        return groupAppInstanceKeys.contains(appInstanceKey)
+                || groupAppInstanceKeys.contains(ALL_APP_INSTANCE_KEYS_ALLOWED);
     }
 
     /**
