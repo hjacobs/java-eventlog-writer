@@ -17,11 +17,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.PropertyModel;
 
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-
-import org.springframework.web.context.ContextLoader;
-
 import com.google.common.collect.Lists;
 
 import de.zalando.zomcat.OperationMode;
@@ -29,7 +24,6 @@ import de.zalando.zomcat.jobs.FinishedWorkerBean;
 import de.zalando.zomcat.jobs.JobMonitorPage;
 import de.zalando.zomcat.jobs.JobTypeStatusBean;
 import de.zalando.zomcat.jobs.JobsStatusBean;
-import de.zalando.zomcat.jobs.QuartzJobInfoBean;
 import de.zalando.zomcat.jobs.RunningWorker;
 import de.zalando.zomcat.jobs.model.JobMonitorForm;
 import de.zalando.zomcat.jobs.model.JobRow;
@@ -88,25 +82,10 @@ public class JobFragment extends BaseFragment {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        final JobTypeStatusBean jobTypeStatusBean = getJobMonitorPage().getJobTypeStatusBean(
-                                jobRow.getJobClass());
-                        final QuartzJobInfoBean quartzJobInfoBean = jobTypeStatusBean.getQuartzJobInfoBean();
-                        if (quartzJobInfoBean != null) {
-                            final Scheduler scheduler = (Scheduler) ContextLoader.getCurrentWebApplicationContext()
-                                                                                 .getBean(
-                                                                                     quartzJobInfoBean
-                                                                                             .getSchedulerName());
-                            if (scheduler != null) {
-                                try {
-                                    scheduler.triggerJob(quartzJobInfoBean.getJobName(),
-                                        quartzJobInfoBean.getJobGroup(), quartzJobInfoBean.getJobDataMap());
 
-                                    // todo refresh the row.
-                                } catch (final SchedulerException e) {
-                                    LOG.error("Could not trigger job: " + e.getMessage(), e);
-                                }
-                            }
-                        }
+                        // Trigger Job via JobsStatusBean
+                        final JobsStatusBean jobStatusBean = getJobMonitorPage().getJobsStatusBean();
+                        jobStatusBean.triggerJob(jobRow.getJobClass().getName());
                     }
 
                     @Override
