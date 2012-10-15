@@ -280,6 +280,17 @@ public class JobsStatusBean implements JobsStatusMBean {
         return groups;
     }
 
+    private void toggleJobManagerOperationMode() {
+        if (isJobManagerAvailable()) {
+            try {
+                jobManager.setMainanenceModeActive(this.operationMode == OperationMode.MAINTENANCE);
+            } catch (final JobManagerException e) {
+                LOG.error("An error occured setting Maintenance Mode on JobManager. Error was: [{}]", e.getMessage(),
+                    e);
+            }
+        }
+    }
+
     /**
      * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#toggleOperationMode()
      */
@@ -292,6 +303,7 @@ public class JobsStatusBean implements JobsStatusMBean {
             operationMode = OperationMode.NORMAL;
         }
 
+        toggleJobManagerOperationMode();
         return operationMode.toString();
     }
 
@@ -322,6 +334,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     @Override
     public void setOperationMode(final OperationMode operationMode) {
         this.operationMode = operationMode;
+        toggleJobManagerOperationMode();
     }
 
     /**
@@ -331,6 +344,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     @Override
     public void setOperationMode(final String operationMode) {
         this.operationMode = OperationMode.valueOf(operationMode);
+        toggleJobManagerOperationMode();
     }
 
     /**
