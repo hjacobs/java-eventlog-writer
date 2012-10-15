@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Zomcat Support Classes (Servlets, Jobs, ..)</description>
-    <version>1.0.46-ZEOS-5864d</version>
+    <version>1.0.46-ZEOS-5864e</version>
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>

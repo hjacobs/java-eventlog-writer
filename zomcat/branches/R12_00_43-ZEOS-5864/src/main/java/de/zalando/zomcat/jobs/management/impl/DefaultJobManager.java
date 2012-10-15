@@ -611,11 +611,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
         retVal.setDurability(false);
 
         // Set JobGroup if there is one
-        if (config.getJobConfig() != null && config.getJobConfig().getJobGroupConfig() != null
-                && config.getJobConfig().getJobGroupConfig().getJobGroupName() != null) {
-            retVal.setGroup(config.getJobConfig().getJobGroupConfig().getJobGroupName());
-        }
-
+        retVal.setGroup(config.getJobConfig().getJobGroupName());
         return retVal;
     }
 
