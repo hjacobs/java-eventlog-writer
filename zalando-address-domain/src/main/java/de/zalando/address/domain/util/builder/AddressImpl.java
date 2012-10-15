@@ -218,7 +218,7 @@ public class AddressImpl implements Address {
     private static final Joiner FIELD_JOINER = Joiner.on(", ").skipNulls();
 
     // helper to generate the address string
-    private String getAddressString() {
+    protected String getAddressString() {
         if (addressString == null) {
             addressString = FIELD_JOINER.join(streetWithNumber, additional, zip, city, countryCode);
         }

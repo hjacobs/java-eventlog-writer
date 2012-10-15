@@ -16,14 +16,4 @@ public enum AddressCheckType {
     STORED,
     OPEN_STREET_MAP;
 
-// private int code;
-
-// private AddressCheckType(final int code) {
-// this.code = code;
-// }
-
-// public int getCode() {
-// return code;
-// }
-
 }
