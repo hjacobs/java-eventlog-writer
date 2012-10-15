@@ -11,7 +11,7 @@ public class AddressCheckResult {
 
     private String refId;
     private boolean blacklisted;
-    private AddressCheckStatus status;
+    private AddressCheckResultType status;
     private CheckedDeliveryAddress address;
     private List<CheckedDeliveryAddress> suggestedAddresses;
 
@@ -23,11 +23,11 @@ public class AddressCheckResult {
         this.refId = refId;
     }
 
-    public AddressCheckStatus getStatus() {
+    public AddressCheckResultType getStatus() {
         return status;
     }
 
-    public void setStatus(final AddressCheckStatus status) {
+    public void setStatus(final AddressCheckResultType status) {
         this.status = status;
     }
 
