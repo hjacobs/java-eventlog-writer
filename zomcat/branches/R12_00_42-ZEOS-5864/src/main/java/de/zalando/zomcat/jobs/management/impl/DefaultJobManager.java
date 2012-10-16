@@ -217,12 +217,14 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
         try {
 
-            // If the Job is not managed jet - create all necessary beans and add it to list of managed jobs
-            if (!managedJobs.containsKey(jobSchedulingConfig)) {
-
-                // Put Scheduler into managed Map of Jobs
-                managedJobs.put(jobSchedulingConfig, createManagedJob(jobSchedulingConfig));
+            // Get the already scheduled Job - cancel if already exists
+            final JobManagerManagedJob existingJob = managedJobs.get(jobSchedulingConfig);
+            if (existingJob != null) {
+                cancelJob(jobSchedulingConfig);
             }
+
+            // Put Scheduler into managed Map of Jobs
+            managedJobs.put(jobSchedulingConfig, createManagedJob(jobSchedulingConfig));
 
             // Get current Managed Job - must be managed at this point
             final JobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);

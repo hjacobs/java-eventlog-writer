@@ -8,11 +8,6 @@
         <property name="delegatingJobSchedulingConfigProvider" ref="testJobSchedulerConfigProvider"/>
     </bean>
 
-    <!-- Job Manager MBean -->
-    <bean id="jobManagerMBean" class="de.zalando.zomcat.jobs.management.mbean.impl.JobManagerMBeanImpl">
-        <property name="jobManager" ref="zalandoJobManager"/>
-    </bean>
-
     <!-- Database Job Scheduler Config -->
     <bean id="testJobSchedulerConfigProvider" class="de.zalando.zomcat.jobs.management.TestJobSchedulingConfigProvider"/>
 
