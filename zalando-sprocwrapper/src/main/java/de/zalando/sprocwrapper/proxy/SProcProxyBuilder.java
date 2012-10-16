@@ -17,6 +17,7 @@ import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcCall.Validate;
 import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
+import de.zalando.sprocwrapper.SProcService.WriteTransaction;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.sharding.ShardKey;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
@@ -132,9 +133,32 @@ public class SProcProxyBuilder {
 
             final StoredProcedure storedProcedure;
             try {
+                WriteTransaction writeTransaction = serviceAnnotation.shardedWriteTransaction();
+                if (scA.shardedWriteTransaction()
+                        != de.zalando.sprocwrapper.SProcCall.WriteTransaction.USE_FROM_SERVICE) {
+                    switch (scA.shardedWriteTransaction()) {
+
+                        case NONE :
+                            writeTransaction = WriteTransaction.NONE;
+                            break;
+
+                        case ONE_PHASE :
+                            writeTransaction = WriteTransaction.ONE_PHASE;
+                            break;
+
+                        case TWO_PHASE :
+                            writeTransaction = WriteTransaction.TWO_PHASE;
+                            break;
+
+                        case USE_FROM_SERVICE :
+                            writeTransaction = serviceAnnotation.shardedWriteTransaction();
+                    }
+                }
+
                 storedProcedure = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
                         scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper,
-                        scA.timeoutInMilliSeconds(), scA.adivsoryLockType(), useValidation);
+                        scA.timeoutInMilliSeconds(), scA.adivsoryLockType(), useValidation, scA.readOnly(),
+                        writeTransaction);
                 if (!"".equals(scA.sql())) {
                     storedProcedure.setQuery(scA.sql());
                 }

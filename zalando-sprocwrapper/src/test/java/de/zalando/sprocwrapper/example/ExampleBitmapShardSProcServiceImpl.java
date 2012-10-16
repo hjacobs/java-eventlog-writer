@@ -58,4 +58,63 @@ public class ExampleBitmapShardSProcServiceImpl
         return sproc.collectDataUsingAutoPartition2(keys, additionalParam);
     }
 
+    @Override
+    public List<String> insertNewDataWithoutTransaction(final String someData, final String failOnShard) {
+        return sproc.insertNewDataWithoutTransaction(someData, failOnShard);
+    }
+
+    @Override
+    public List<AddressPojo> findAddressesByStreet(final String string) {
+        return sproc.findAddressesByStreet(string);
+    }
+
+    @Override
+    public List<String> insertAddress(final String someData, final String failOnShard) {
+        return sproc.insertAddress(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressOnePhase(final String someData, final String failOnShard) {
+        return sproc.insertAddressOnePhase(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressTwoPhase(final String someData, final String failOnShard) {
+        return sproc.insertAddressTwoPhase(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressUseFromService(final String someData, final String failOnShard) {
+        return sproc.insertAddressUseFromService(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressTwoPhaseReadOnly(final String someData, final String failOnShard) {
+        return sproc.insertAddressTwoPhaseReadOnly(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressParallel(final String someData, final String failOnShard) {
+        return sproc.insertAddress(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressOnePhaseParallel(final String someData, final String failOnShard) {
+        return sproc.insertAddressOnePhase(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressTwoPhaseParallel(final String someData, final String failOnShard) {
+        return sproc.insertAddressTwoPhase(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressUseFromServiceParallel(final String someData, final String failOnShard) {
+        return sproc.insertAddressUseFromService(someData, failOnShard);
+    }
+
+    @Override
+    public List<String> insertAddressTwoPhaseReadOnlyParallel(final String someData, final String failOnShard) {
+        return sproc.insertAddressTwoPhaseReadOnly(someData, failOnShard);
+    }
 }

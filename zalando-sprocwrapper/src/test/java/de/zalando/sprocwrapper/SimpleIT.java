@@ -59,6 +59,7 @@ import de.zalando.sprocwrapper.example.GlobalTransformedObject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
+@Ignore
 public class SimpleIT {
 
     @Autowired

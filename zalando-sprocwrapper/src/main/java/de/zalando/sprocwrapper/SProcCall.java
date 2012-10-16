@@ -81,6 +81,13 @@ public @interface SProcCall {
         NO
     }
 
+    public static enum WriteTransaction {
+        USE_FROM_SERVICE,
+        NONE,
+        ONE_PHASE,
+        TWO_PHASE
+    }
+
     String name() default "";
 
     String sql() default "";
@@ -114,7 +121,15 @@ public @interface SProcCall {
      *
      * @return
      */
-    boolean readOnly() default false;
+    boolean readOnly() default true;
+
+    /**
+     * Defines how sharded writes will be handled. If set to {@link WriteTransaction#NONE}, no transaction context will
+     * be created. If set to {@link WriteTransaction#ONE_PHASE}, all errors during the sproc call will be rolled back.
+     * If set to {@link WriteTransaction#TWO_PHASE}, all errors during sproc call and "prepare transaction" are rolled
+     * back. In the last case, the Postgres instance must be configured to manage 2-phase-commits (XA).
+     */
+    WriteTransaction shardedWriteTransaction() default WriteTransaction.USE_FROM_SERVICE;
 
     Class<?> resultMapper() default Void.class;
 
