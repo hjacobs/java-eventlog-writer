@@ -220,7 +220,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
             // Get the already scheduled Job - cancel if already exists
             final JobManagerManagedJob existingJob = managedJobs.get(jobSchedulingConfig);
             if (existingJob != null) {
-                cancelJob(jobSchedulingConfig);
+                cancelJob(jobSchedulingConfig, true);
             }
 
             // Put Scheduler into managed Map of Jobs
@@ -228,11 +228,6 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
             // Get current Managed Job - must be managed at this point
             final JobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);
-
-            // Schedule the Job and return next RunDate
-            if (reschedule && isJobScheduled(managedJob)) {
-                cancelJob(jobSchedulingConfig, false);
-            }
 
             // if a Job Config override exists with the same active state as the job itself - remove the override
             final boolean isJobActive = isJobActive(jobSchedulingConfig, null, null);
