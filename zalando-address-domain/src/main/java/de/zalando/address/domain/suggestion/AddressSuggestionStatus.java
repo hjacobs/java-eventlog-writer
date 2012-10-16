@@ -1,5 +1,7 @@
 package de.zalando.address.domain.suggestion;
 
+import com.typemapper.annotations.DatabaseType;
+
 /**
  * Possible result status for AddressSuggestions.
  *
@@ -11,6 +13,7 @@ package de.zalando.address.domain.suggestion;
  *                 3 characters) FAILURE -- any other unspecified error.
  * @formatter:on
  */
+@DatabaseType(name = "address_suggestion_status_type")
 public enum AddressSuggestionStatus {
 
     SUCCESS,

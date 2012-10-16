@@ -10,7 +10,7 @@ public class AddressSuggestionResult {
     @DatabaseField(name = "suggestions")
     private List<AddressSuggestion> suggestions = new ArrayList<AddressSuggestion>();
 
-    @DatabaseField(name = "result_status_msg")
+    @DatabaseField(name = "status")
     private AddressSuggestionStatus status;
 
     @DatabaseField(name = "total_results")
