@@ -60,17 +60,6 @@ public class AddressWithName implements Serializable {
         return gender;
     }
 
-    public void setGender(final Gender gender) {
-        this.gender = gender;
-    }
-
-    public void setGender(final de.zalando.customer.webservice.service.Gender gender) {
-        this.gender = Gender.FEMALE;
-        if (gender == de.zalando.customer.webservice.service.Gender.MALE) {
-            this.gender = Gender.MALE;
-        }
-    }
-
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();

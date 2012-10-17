@@ -46,11 +46,6 @@
             <artifactId>zalando-domain</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.zalando</groupId>
-            <artifactId>customer-orderengine-client</artifactId>
-            <version>0.139</version>
-        </dependency>
-        <dependency>
           <groupId>net.sf.opencsv</groupId>
           <artifactId>opencsv</artifactId>
         </dependency>
