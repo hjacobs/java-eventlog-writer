@@ -21,12 +21,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.xml.namespace.QName;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.AbstractDestination;
@@ -37,13 +40,11 @@ import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.cxf.transport.servlet.BaseUrlHelper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import org.springframework.context.ApplicationContext;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -57,8 +58,6 @@ import com.google.gson.Gson;
  * @author  henning
  */
 public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CXFServlet.class);
 
     // URL to source code browser (e.g. OpenGrok)
     // %1$s is replaced with service name
@@ -101,11 +100,16 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
     private WebServiceInfo getWebServiceInfo(final AbstractDestination sd) {
         final EndpointInfo ei = sd.getEndpointInfo();
-        final String address = ei.getAddress();
-        final String name = ei.getInterface().getName().getLocalPart();
+        final BindingInfo binding = ei.getBinding();
 
-        final Map<String, List<OperationParameter>> operationParameters = Maps.newHashMap();
-        final Map<String, Type> operationReturnTypes = Maps.newHashMap();
+        final String address = ei.getAddress();
+        final QName qname = ei.getInterface() == null ? ei.getName() : ei.getInterface().getName();
+        final String name = qname == null ? "" : qname.getLocalPart();
+
+        WebServiceInfo info = new WebServiceInfo();
+        info.setName(name);
+        info.setAddress(address);
+        info.setRest(binding.getBindingId().contains("jaxrs"));
 
         // workaround to get implementor class: relies on naming convention in cxf.xml
         // (e.g. "MyExampleWebService" needs to have "myExampleWebService" implementor bean)
@@ -119,76 +123,62 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             // => ignore the "bean not found" error
         }
 
-        if (implementor != null) {
-            final Class clazz = implementor.getClass();
-            Method[] methods = clazz.getMethods();
+        Map<String, WebServiceInfo.OperationInfo> operationInformations = getOperationInformations(implementor);
 
-            List<OperationParameter> params;
+        info.setDocumentation(getDocumentation(ei));
 
-            int pos;
-            for (final Method method : methods) {
-                operationReturnTypes.put(method.getName(), method.getGenericReturnType());
-                params = Lists.newArrayList();
+        if (ei.getInterface() != null && ei.getInterface().getOperations() != null) {
+            final List<OperationInfo> operations = Lists.newArrayList(ei.getInterface().getOperations());
 
-                pos = 0;
-                for (final Type t : method.getGenericParameterTypes()) {
-                    params.add(new OperationParameter("arg" + pos, t));
-                    pos++;
-                }
+            // sort operations (methods) by name
+            Collections.sort(operations, OPERATION_INFO_COMPARATOR);
 
-                pos = 0;
-                for (final Annotation[] as : method.getParameterAnnotations()) {
-                    for (final Annotation a : as) {
-                        if (a instanceof WebParam) {
-                            params.get(pos).name = ((WebParam) a).name();
+            List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
+            for (OperationInfo oi : operations) {
+                if (oi.getProperty("operation.is.synthetic") != Boolean.TRUE) {
+                    WebServiceInfo.OperationInfo op = new WebServiceInfo.OperationInfo();
+                    String localName = oi.getName().getLocalPart();
+                    op.setName(localName);
+
+                    List<WebServiceInfo.OperationParameter> params = operationInformations.get(localName)
+                                                                                          .getParameters();
+                    if (params != null) {
+                        List<WebServiceInfo.OperationParameter> opParams = Lists.newArrayList();
+                        op.setParameters(opParams);
+
+                        for (WebServiceInfo.OperationParameter param : params) {
+                            WebServiceInfo.OperationParameter opParam = new WebServiceInfo.OperationParameter();
+                            opParam.setName(param.getName());
+                            opParam.setType(param.getType());
+                            opParams.add(opParam);
                         }
                     }
 
-                    pos++;
-                }
+                    op.setReturnType(operationInformations.get(localName).getReturnType());
 
-                operationParameters.put(method.getName(), params);
-            }
-
-            // also scan interface annotations
-            for (Class intface : clazz.getInterfaces()) {
-                methods = intface.getMethods();
-                for (final Method method : methods) {
-                    params = operationParameters.get(method.getName());
-                    if (params == null) {
-                        continue;
+                    if (oi.getDocumentation() != null) {
+                        op.setDocumentation(oi.getDocumentation());
                     }
 
-                    pos = 0;
-                    for (final Annotation[] as : method.getParameterAnnotations()) {
-                        for (final Annotation a : as) {
-                            if (a instanceof WebParam && params.size() > pos) {
-                                params.get(pos).name = ((WebParam) a).name();
-                            }
-                        }
-
-                        pos++;
-                    }
+                    ops.add(op);
                 }
+
             }
+
+            info.setOperations(ops);
         }
 
-        final List<OperationInfo> operations = Lists.newArrayList(ei.getInterface().getOperations());
+        return info;
+    }
 
-        // sort operations (methods) by name
-        Collections.sort(operations, OPERATION_INFO_COMPARATOR);
-
-        WebServiceInfo info = new WebServiceInfo();
-        info.setName(name);
-        info.setAddress(address);
-
+    private String getDocumentation(final EndpointInfo ei) {
         StringBuilder doc = new StringBuilder();
-        if (ei.getInterface().getDocumentation() != null) {
+        if (ei.getInterface() != null && ei.getInterface().getDocumentation() != null) {
             doc.append(ei.getInterface().getDocumentation());
 
         }
 
-        if (ei.getService().getDocumentation() != null) {
+        if (ei.getService() != null && ei.getService().getDocumentation() != null) {
             if (doc.length() > 0) {
                 doc.append('\n');
             }
@@ -196,46 +186,69 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             doc.append(ei.getService().getDocumentation());
         }
 
-        if (doc.length() > 0) {
-            info.setDocumentation(doc.toString());
+        return doc.toString();
+    }
+
+    private Map<String, WebServiceInfo.OperationInfo> getOperationInformations(final Object implementor) {
+        final Map<String, WebServiceInfo.OperationInfo> operationInformations = Maps.newHashMap();
+
+        if (implementor == null) {
+            return operationInformations;
         }
 
-        List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
-        for (OperationInfo oi : operations) {
-            if (oi.getProperty("operation.is.synthetic") != Boolean.TRUE) {
-                WebServiceInfo.OperationInfo op = new WebServiceInfo.OperationInfo();
-                String localName = oi.getName().getLocalPart();
-                op.setName(localName);
+        final Class clazz = implementor.getClass();
+        Method[] methods = clazz.getMethods();
 
-                List<OperationParameter> params = operationParameters.get(localName);
-                if (params != null) {
-                    List<WebServiceInfo.OperationParameter> opParams = Lists.newArrayList();
-                    op.setParameters(opParams);
+        for (final Method method : methods) {
+            List<WebServiceInfo.OperationParameter> params = Lists.newArrayList();
 
-                    for (OperationParameter param : params) {
-                        WebServiceInfo.OperationParameter opParam = new WebServiceInfo.OperationParameter();
-                        opParam.setName(param.name);
-                        opParam.setType(getTypeString(param.type));
-                        opParams.add(opParam);
-                    }
+            int pos = 0;
+            for (final Type t : method.getGenericParameterTypes()) {
+                WebServiceInfo.OperationParameter param = new WebServiceInfo.OperationParameter();
+                param.setName("arg" + pos);
+                param.setType(getTypeString(t));
+                params.add(param);
+                pos++;
+            }
+
+            updateNameFromAnnotations(method.getParameterAnnotations(), params);
+
+            WebServiceInfo.OperationInfo info = new WebServiceInfo.OperationInfo();
+            info.setName(method.getName());
+            info.setReturnType(getTypeString(method.getGenericReturnType()));
+            operationInformations.put(method.getName(), info);
+        }
+
+        // also scan interface annotations
+        for (Class intface : clazz.getInterfaces()) {
+            methods = intface.getMethods();
+            for (final Method method : methods) {
+                List<WebServiceInfo.OperationParameter> params = operationInformations.get(method.getName())
+                                                                                      .getParameters();
+                if (params == null) {
+                    continue;
                 }
 
-                Type returnType = operationReturnTypes.get(localName);
-                if (returnType != null) {
-                    op.setReturnType(getTypeString(returnType));
-                }
-
-                if (oi.getDocumentation() != null) {
-                    op.setDocumentation(oi.getDocumentation());
-                }
-
-                ops.add(op);
+                updateNameFromAnnotations(method.getParameterAnnotations(), params);
             }
         }
 
-        info.setOperations(ops);
+        return operationInformations;
+    }
 
-        return info;
+    private void updateNameFromAnnotations(final Annotation[][] annotations,
+            final List<WebServiceInfo.OperationParameter> params) {
+        int pos;
+        pos = 0;
+        for (final Annotation[] as : annotations) {
+            for (final Annotation a : as) {
+                if (a instanceof WebParam && params.size() > pos) {
+                    params.get(pos).setName(((WebParam) a).name());
+                }
+            }
+
+            pos++;
+        }
     }
 
     private String getTitle() {
@@ -315,19 +328,13 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
     }
 
-    protected static class OperationParameter {
-        public String name;
-        public Type type;
-
-        public OperationParameter(final String name, final Type type) {
-            this.name = name;
-            this.type = type;
-        }
-    }
-
     private static final OperationInfoComparator OPERATION_INFO_COMPARATOR = new OperationInfoComparator();
 
     private static String getTypeString(final Type type) {
+        if (type == null) {
+            return null;
+        }
+
         if (type instanceof ParameterizedType) {
             ParameterizedType pType = (ParameterizedType) type;
             StringBuilder sb = new StringBuilder(getTypeString(pType.getRawType()));
@@ -366,7 +373,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         }
 
         writer.write("</h2>");
-        if (ws.getDocumentation() != null) {
+        if (!Strings.isNullOrEmpty(ws.getDocumentation())) {
             writer.write("<p class=\"doc\">" + getDocumentationAsHtml(ws.getDocumentation()) + "</p>");
         }
 

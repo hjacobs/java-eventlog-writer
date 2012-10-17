@@ -2,6 +2,8 @@ package de.zalando.zomcat.cxf;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 /**
  * simple DTO with human readable information about a particular web service with all it's operations.
  *
@@ -34,7 +36,7 @@ public class WebServiceInfo {
     public static class OperationInfo {
         private String name;
         private String documentation;
-        private List<OperationParameter> parameters;
+        private List<OperationParameter> parameters = Lists.newLinkedList();
         private String returnType;
 
         public String getDocumentation() {
@@ -74,7 +76,8 @@ public class WebServiceInfo {
     private String name;
     private String address;
     private String documentation;
-    private List<OperationInfo> operations;
+    private List<OperationInfo> operations = Lists.newLinkedList();
+    private boolean rest;
 
     public String getAddress() {
         return address;
@@ -108,4 +111,11 @@ public class WebServiceInfo {
         this.operations = operations;
     }
 
+    public boolean isRest() {
+        return rest;
+    }
+
+    public void setRest(final boolean rest) {
+        this.rest = rest;
+    }
 }
