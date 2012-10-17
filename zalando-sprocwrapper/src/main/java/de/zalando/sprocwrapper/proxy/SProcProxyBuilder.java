@@ -133,7 +133,7 @@ public class SProcProxyBuilder {
 
             final StoredProcedure storedProcedure;
             try {
-                WriteTransaction writeTransaction = serviceAnnotation.shardedWriteTransaction();
+                WriteTransaction writeTransaction = getWriteTransactionServiceAnnotation(serviceAnnotation);
                 if (scA.shardedWriteTransaction()
                         != de.zalando.sprocwrapper.SProcCall.WriteTransaction.USE_FROM_SERVICE) {
                     switch (scA.shardedWriteTransaction()) {
@@ -151,7 +151,7 @@ public class SProcProxyBuilder {
                             break;
 
                         case USE_FROM_SERVICE :
-                            writeTransaction = serviceAnnotation.shardedWriteTransaction();
+                            writeTransaction = getWriteTransactionServiceAnnotation(serviceAnnotation);
                     }
                 }
 
@@ -214,5 +214,9 @@ public class SProcProxyBuilder {
         }
 
         return (T) java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), new Class[] {c}, proxy);
+    }
+
+    private static WriteTransaction getWriteTransactionServiceAnnotation(final SProcService serviceAnnotation) {
+        return serviceAnnotation == null ? WriteTransaction.NONE : serviceAnnotation.shardedWriteTransaction();
     }
 }

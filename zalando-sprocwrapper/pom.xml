@@ -4,11 +4,11 @@
     <parent>
         <groupId>de.zalando</groupId>
         <artifactId>zalando-parent</artifactId>
-        <version>1.5.38</version>
+        <version>1.5.40</version>
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>0.1.46</version>
+    <version>0.1.47</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
     <description>Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration). Supports sharding, advisory locking, statement timeouts and PostgreSQL types such as enums and hstore.</description>
