@@ -21,7 +21,7 @@ import de.zalando.jpa.example.service.UserService;
 
 import junit.framework.Assert;
 
-@TransactionConfiguration
+@TransactionConfiguration(defaultRollback = true)
 @ContextConfiguration({ "classpath:context.xml" })
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)

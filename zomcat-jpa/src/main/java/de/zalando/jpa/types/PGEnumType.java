@@ -109,31 +109,6 @@ public class PGEnumType // implements EnhancedUserType, ParameterizedType
      *  return original;
      * }
      *
-     * public static Parameter parameters(final Class<? extends Enum<?>> enumClass) {
-     *  return new Parameter() {
-     *
-     *      @Override
-     *      public Class<? extends Annotation> annotationType() {
-     *          return Parameter.class;
-     *      }
-     *
-     *      @Override
-     *      public String value() {
-     *          return enumClass.getCanonicalName();
-     *      }
-     *
-     *      @Override
-     *      public String name() {
-     *          return "enum";
-     *      }
-     *  };
-     * }
-     *
-     * public static final String VALUE(final Class<UserEnumType> class1) {
-     *
-     *  // TODO Auto-generated method stub
-     *  return null;
-     * }
      *
      */
 }

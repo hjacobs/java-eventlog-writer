@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -16,8 +19,6 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotEmpty;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public abstract class AbstractEntity {
     /*
      * replace this by an abstract function so that each entity class must implement the correct getter.
      */
-    abstract Class<? extends AbstractEntity> getEntityClass();
+    protected abstract Class<? extends AbstractEntity> getEntityClass();
 
     // getter for the typename of this entity.
     public String getEntityTypename() {
@@ -45,15 +46,15 @@ public abstract class AbstractEntity {
         setModificationDateAutomatically = true;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private Long id;
+
     // do you need optimitic locking support?
     @Version
-    @Column(name = "version")
+    @Column
     private Integer version;
-
-    @Column(name = "creation_user", nullable = false, insertable = false, updatable = false)
-    @NotNull
-    @NotEmpty
-    private String creationUser;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_date", nullable = false, updatable = false)
@@ -68,16 +69,16 @@ public abstract class AbstractEntity {
     @Transient
     private boolean persistent = false;
 
-    public abstract Long getId();
+    public Long getId() {
+        return this.id;
+    }
 
-    public abstract void setId(final Long id);
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
     public Integer getVersion() {
         return this.version;
-    }
-
-    public String getCreationUser() {
-        return this.creationUser;
     }
 
     public Date getCreationDate() {
@@ -241,7 +242,7 @@ public abstract class AbstractEntity {
             if (LOG.isErrorEnabled()) {
                 LOG.error("You are using the current entity hashcode without prior persiting. "
                         + "This may lead to an unexpected behaviour if used in collections."
-                        + "Try to persist the entity before the current action: " + this.toString());
+                        + "Try to persist the entity before the current action.");
             }
 
             result = System.identityHashCode(this);

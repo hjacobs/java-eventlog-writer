@@ -2,44 +2,40 @@ package de.zalando.jpa.example.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import javax.validation.constraints.NotNull;
 
+import de.zalando.jpa.AbstractEntity;
+
 @Entity
 @Table(name = "role", schema = GlobalIdentifier.SCHEME_PUBLIC)
-public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "r_id")
-    private Long id;
+public class Role extends AbstractEntity {
 
-    @Column(name = "r_name", columnDefinition = "TEXT")
+    @Override
+    protected Class<? extends AbstractEntity> getEntityClass() {
+        return Role.class;
+    }
+
+    @Column(columnDefinition = "text")
     private String name;
 
     @ManyToOne(cascade = {}, optional = false)
-    @JoinColumn(name = "r_user_id", nullable = false)
+    @JoinColumn(nullable = false, name = "user_id")
     @NotNull
     private User user;
 
     public Role() { }
 
     public Role(final User user, final String name) {
-        setUser(user);
+
+        // first set all ob your busines object (defining the uniqueness of your object)
         this.name = name;
-    }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
+        // last set all relations (that may use this object within collections..)
+        setUser(user);
     }
 
     public String getName() {
@@ -58,4 +54,33 @@ public class Role {
         this.user = user;
         user.getRoles().add(this);
     }
+
+    /**
+     * Define "business-unique-hashcode & equals for every entity"
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        final int result = prime * ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        final Role other = (Role) obj;
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+
+        return true;
+    }
+
 }
