@@ -1,5 +1,7 @@
 package de.zalando.address.domain;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -11,6 +13,7 @@ import de.zalando.domain.address.Address;
 import de.zalando.domain.address.AddressType;
 import de.zalando.domain.globalization.ISOCountryCode;
 
+@XmlType(propOrder = {"streetName", "houseNumber", "city", "zip", "countryCode", "additional"})
 public class CustomerAddress implements Address {
     @DatabaseField
     protected String streetName;
