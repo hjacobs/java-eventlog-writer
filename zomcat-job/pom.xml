@@ -3,7 +3,7 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.5.27</version>
+        <version>1.5.41</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando</groupId>
@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Zomcat Job Support Classes</description>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <build>
         <resources>
             <resource>
@@ -21,8 +21,7 @@
             <resource>
                 <directory>.</directory>
                 <includes>
-                    <include>database/commons/10_data/**/*</include>
-                    <include>database/commons/20_api/**/*</include>
+                    <include>database/commons/01_commons/**/*</include>
                 </includes>
                 <excludes>
                     <exclude>database/**/*externals/**/*</exclude>
