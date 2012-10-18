@@ -59,7 +59,6 @@ import de.zalando.sprocwrapper.example.GlobalTransformedObject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
-@Ignore
 public class SimpleIT {
 
     @Autowired
@@ -379,10 +378,12 @@ public class SimpleIT {
         final AddressPojo a = getNewTestAddress();
 
         final AddressPojo b = exampleSProcService.createAddress(a);
-        assertEquals((int) b.id, 1);
+        assertNotNull(b);
+        assertNotNull(b.id);
 
         final AddressPojo c = exampleSProcService.createAddress(a);
-        assertEquals((int) c.id, 2);
+        assertNotNull(c);
+        assertNotNull(c.id);
     }
 
     @Test
