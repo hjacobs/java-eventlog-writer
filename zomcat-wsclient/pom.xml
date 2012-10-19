@@ -6,15 +6,15 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.4.40</version>
+        <version>1.5.41</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando</groupId>
-    <artifactId>zomcat-ws</artifactId>
+    <artifactId>zomcat-wsclient</artifactId>
     <packaging>jar</packaging>
-    <name>Zomcat WS</name>
-    <description>Zomcat Webservice/CXF Support Classes (server side)</description>
-    <version>1.0.19</version>
+    <name>Zomcat WS-Client</name>
+    <description>Zomcat Webservice/CXF Client Support Classes (e.g. WebServiceClientFactoryBean)</description>
+    <version>1.0</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -26,11 +26,7 @@
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>zomcat</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.zalando</groupId>
-            <artifactId>appconfig</artifactId>
+            <artifactId>zomcat-appconfig</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -54,7 +50,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
