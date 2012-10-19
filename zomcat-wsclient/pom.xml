@@ -13,17 +13,12 @@
     <artifactId>zomcat-wsclient</artifactId>
     <packaging>jar</packaging>
     <name>Zomcat WS-Client</name>
-    <description>Zomcat Webservice/CXF Client Support Classes (e.g. WebServiceClientFactoryBean)</description>
-    <version>1.0</version>
+    <description>Zomcat Webservice/CXF Client Support Classes (e.g. WebServiceClientFactoryBean), to be used in *-client artifacts.</description>
+    <version>1.0.1</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat-appconfig</artifactId>
@@ -45,15 +40,6 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
