@@ -14,6 +14,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import de.zalando.jpa.example.domain.OtherEnumType;
 import de.zalando.jpa.example.domain.Role;
 import de.zalando.jpa.example.domain.User;
 import de.zalando.jpa.example.domain.UserEnumType;
@@ -35,13 +36,15 @@ public class UserServiceTestIT {
         final User user = new User();
         user.setName("bubu");
         user.setUserEnumType(UserEnumType.VIP);
+        user.setOtherEnumType(OtherEnumType.AHH);
         userService.register(user);
 
         final List<User> allUsers = userService.findAllUsers();
         final User savedUser = allUsers.get(0);
         Assert.assertEquals("There should be one saved user", 1, allUsers.size());
         Assert.assertEquals("User should be equal to saved user", user, savedUser);
-        Assert.assertEquals("Enum type check", user.getUserEnumType(), UserEnumType.VIP);
+        Assert.assertEquals("Enum type check", savedUser.getUserEnumType(), UserEnumType.VIP);
+        Assert.assertEquals("Enum type check", savedUser.getOtherEnumType(), OtherEnumType.AHH);
     }
 
     @Test

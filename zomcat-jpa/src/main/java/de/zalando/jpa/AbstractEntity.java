@@ -186,20 +186,48 @@ public abstract class AbstractEntity {
 
     // ------ Collection helper functions ------
     // -
+/*
+ *  protected <EntityType, FieldType> void removeInverseReference(final Attribute<EntityType, FieldType> member,
+ *          final Attribute<FieldType, EntityType> inverse) {
+ *      final EntityType localMember = getValue(this, member);
+ *      if (localMember != null) {
+ *          final FieldType inverseCollection = getValue(localMember, inverse);
+ *          if (inverseCollection != null) {
+ *              removeInverseReference(localMember, inverseCollection);
+ *          }
+ *      }
+ *
+ *  }
+ *
+ *  protected <EntityType, FieldType> FieldType getValue(final EntityType entity,
+ *          final Attribute<EntityType, FieldType> setType) {
+ *      try {
+ *          final Member member = setType.getJavaMember();
+ *          if (member instanceof Method) {
+ *
+ *              // this should be a getter method:
+ *              return (FieldType) ((Method) member).invoke(entity);
+ *          } else if (member instanceof Field) {
+ *              return (FieldType) ((Field) member).get(entity);
+ *          } else {
+ *              throw new IllegalArgumentException("Unexpected java member type. Expecting method or field, found: "
+ *                      + member);
+ *          }
+ *      } catch (final Exception e) {
+ *          throw new RuntimeException(e);
+ *      }
+ *  }
+ */
     /**
      * Remove 'this' from the collection of the argument object, assuming the collection is the non-owning side of a
      * bi-directional reference. Only updates the collection if needed (loaded in memory.)
      */
     protected void removeInverseReference(final AbstractEntity persistent, final Collection<?> collection) {
-// try {
         if (persistent.getIsRemoving() == false) {
-            if (!collection.remove(this)) {
+            if (!collection.remove(persistent)) {
                 LOG.debug("persistent entity not found in inverse relation");
             }
         }
-/*        } catch (final LazyInitializationException e) {
- *          LOG.debug("Ignore this error if we are outside of a transaction: ", e);
- *      } */
     }
 
     // --------------------------------------------------------------------------
@@ -211,23 +239,15 @@ public abstract class AbstractEntity {
     @SuppressWarnings("unchecked")
     protected void addInverseReference(final AbstractEntity persistent,
             @SuppressWarnings("rawtypes") final Collection collection) {
-// try {
         if (persistent.getIsRemoving() == false) {
-            collection.add(this);
+            collection.add(persistent);
         }
-    } /* catch (final LazyInitializationException e) {
-       * LOG.debug("Ignore this error if we are outside of a transaction: ", e);
-       * } Ü/
-       * }
-       *
-       * @Override
-      /**
-       * Hashcode based on id and class -> logging an error while the primary key is NULL
-       *
-       * Hashcode & Equals have some difficulties in the persistence life cycle.
-       * for reference see https://community.jboss.org/wiki/EqualsAndHashCode
-       *
-       */
+    }
+
+    /**
+     * Hashcode based on id and class -> logging an error while the primary key is NULL. Hashcode & Equals have some
+     * difficulties in the persistence life cycle. for reference see https://community.jboss.org/wiki/EqualsAndHashCode
+     */
 
     @Override
     public int hashCode() {
@@ -239,11 +259,9 @@ public abstract class AbstractEntity {
             result = prime * getId().hashCode();
             result = prime * result + getEntityClass().hashCode();
         } else {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("You are using the current entity hashcode without prior persiting. "
-                        + "This may lead to an unexpected behaviour if used in collections."
-                        + "Try to persist the entity before the current action.");
-            }
+            LOG.error("You are using the current entity hashcode without prior persiting. "
+                    + "This may lead to an unexpected behaviour if used in collections."
+                    + "Try to persist the entity before the current action.");
 
             result = System.identityHashCode(this);
         }

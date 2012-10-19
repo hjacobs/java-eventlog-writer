@@ -1,17 +1,22 @@
 package de.zalando.jpa.example.domain;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.metamodel.Attribute;
 
 import javax.validation.constraints.NotNull;
 
 import de.zalando.jpa.AbstractEntity;
 
 @Entity
-@Table(name = "role", schema = GlobalIdentifier.SCHEME_PUBLIC)
+@Table(name = "role", schema = GlobalIdentifier.SCHEME_ZTEST_SHARD1)
 public class Role extends AbstractEntity {
 
     @Override
@@ -26,6 +31,43 @@ public class Role extends AbstractEntity {
     @JoinColumn(nullable = false, name = "user_id")
     @NotNull
     private User user;
+
+    @Override
+    protected void onPreRemove() {
+        super.onPreRemove();
+
+        // when deleting this role, we must remove ourself from all roles in users.
+        // to maintain a correct (set of roles) collection at the user's side:
+        // removeInverseReference(Role_.user, User_.roles);
+        if (this.user != null) {
+            removeInverseReference(this, this.user.getRoles());
+        }
+    }
+
+    /**
+     * Fetches the value of the given SingularAttribute on the given entity.
+     *
+     * @see  http://stackoverflow.com/questions/7077464/how-to-get-singularattribute-mapped-value-of-a-persistent-object
+     */
+    @SuppressWarnings("unchecked")
+    public static <EntityType, FieldType> FieldType getValue(final EntityType entity,
+            final Attribute<EntityType, FieldType> field) {
+        try {
+            final Member member = field.getJavaMember();
+            if (member instanceof Method) {
+
+                // this should be a getter method:
+                return (FieldType) ((Method) member).invoke(entity);
+            } else if (member instanceof Field) {
+                return (FieldType) ((Field) member).get(entity);
+            } else {
+                throw new IllegalArgumentException("Unexpected java member type. Expecting method or field, found: "
+                        + member);
+            }
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Role() { }
 
@@ -51,8 +93,18 @@ public class Role extends AbstractEntity {
     }
 
     public void setUser(final User user) {
+
+        // if we set a new user - this entity may be connected to
+        // an other, old user.
+        // we need to remove ourself from the old user
+        if (this.user != null) {
+            removeInverseReference(this, this.user.getRoles());
+        }
+
         this.user = user;
-        user.getRoles().add(this);
+        if (this.user != null) {
+            addInverseReference(this, this.user.getRoles());
+        }
     }
 
     /**

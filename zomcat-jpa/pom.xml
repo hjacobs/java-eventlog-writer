@@ -18,8 +18,51 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <eclipselink.version>2.4.1</eclipselink.version>
    </properties>
-   <repositories>
-   </repositories>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.bsc.maven</groupId>
+            <artifactId>maven-processor-plugin</artifactId>
+            <version>1.3.5</version>
+            <executions>
+               <execution>
+                  <id>process</id>
+                  <goals>
+                     <goal>process</goal>
+                  </goals>
+                  <phase>generate-sources</phase>
+                  <configuration>
+                     <compilerArguments>-Aeclipselink.persistencexml=src/test/resources/META-INF/persistence.xml</compilerArguments>
+                     <processors>
+                        <processor>org.eclipse.persistence.internal.jpa.modelgen.CanonicalModelProcessor</processor>
+                     </processors>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>1.7</version>
+            <executions>
+               <execution>
+                  <id>add-source</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>add-source</goal>
+                  </goals>
+                  <configuration>
+                     <sources>
+                        <source>${project.build.directory}/generated-sources/apt/</source>
+                                <source>${project.build.directory}/generated-test-sources/apt/</source>
+                     </sources>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+
+      </plugins>
+   </build>
    <dependencies>
       <dependency>
          <groupId>org.eclipse.persistence</groupId>
@@ -31,6 +74,12 @@
                <groupId>commonj.sdo</groupId>
             </exclusion>
          </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.persistence</groupId>
+         <artifactId>org.eclipse.persistence.jpa.modelgen</artifactId>
+         <version>${eclipselink.version}</version>
+         <scope>compile</scope>
       </dependency>
       <dependency>
          <groupId>org.hibernate</groupId>
@@ -80,6 +129,7 @@
          <artifactId>postgresql</artifactId>
       </dependency>
    </dependencies>
+
    <profiles>
       <profile>
          <id>integration-test</id>
@@ -126,7 +176,8 @@
                            <autocommit>true</autocommit>
                            <url>jdbc:postgresql://${test.db.host}:${test.db.port}/postgres</url>
                            <sqlCommand>
-                              CREATE DATABASE zalando_jpa_test_db TEMPLATE template1;
+                              CREATE DATABASE zalando_jpa_test_db TEMPLATE
+                              template1;
                            </sqlCommand>
                            <onError>continue</onError>
                         </configuration>
@@ -166,7 +217,7 @@
                            <fileset>
                               <basedir>${basedir}</basedir>
                               <includes>
-                                 <include>database/jpa/**/*.sql</include>
+                                 <include>database/test/**/*.sql</include>
                                  <include>database/*.sql</include>
                               </includes>
                               <excludes>

@@ -5,10 +5,8 @@
    <persistence-unit name="persistenceUnit"
       transaction-type="RESOURCE_LOCAL">
       <properties>
-         <property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
-         <property name="eclipselink.ddl-generation.output-mode" value="database"/>
          <property name="eclipselink.weaving" value="false" />
-         <property name="eclipselink.session.customizer" value="de.zalando.jpa.utils.ZalandoSessionCustomizer"/>
+         <property name="eclipselink.session.customizer" value="de.zalando.jpa.naming.ZalandoSessionCustomizer"/>
       </properties>
    </persistence-unit>
 </persistence>

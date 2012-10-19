@@ -1,4 +1,4 @@
-package de.zalando.jpa.utils;
+package de.zalando.jpa.naming;
 
 import java.util.Collection;
 import java.util.Map;
