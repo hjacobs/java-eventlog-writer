@@ -67,4 +67,11 @@ public interface JobManagerManagedJob {
      */
     void onFinishRunningWorker(RunningWorker runningWorker);
 
+    /**
+     * Return amount of running Workers for the Job.
+     *
+     * @return  The Amount of Running Workers
+     */
+    int getRunningWorkerCount();
+
 }

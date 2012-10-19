@@ -110,6 +110,66 @@ public class DefaultJobManagerIT {
 
     }
 
+    // Test Creation and Destruction of Jobmanager - with Managed Jobs
+    // Also Test seperate Getter Methods for Scheduled and Unscheduled Jobs
+    @Test
+    public void testStartupAndShutdownWithWaitForJobToComplete() throws JobManagerException {
+        final Map<String, String> jobData = Maps.newHashMap();
+        jobData.put("someKey", "someValue");
+
+        final List<JobSchedulingConfiguration> jobSchedulingConfigurations = Lists.newArrayList();
+        jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 0 * * ?",
+                "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
+                Sets.newHashSet("local_local"), true, null));
+
+        jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 0 * * ?",
+                "de.zalando.zomcat.jobs.management.TestJob1Job", jobData, Sets.newHashSet("local_local"), false, null));
+
+        jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 1 * * ?",
+                "de.zalando.zomcat.jobs.management.TestJob2Job", new HashMap<String, String>(),
+                Sets.newHashSet("local_local"), true, null));
+
+        // ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+        jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 1 * * ?",
+                "de.zalando.zomcat.jobs.management.TestJob2Job", jobData, Sets.newHashSet("local_local"), true, null));
+
+        final JobSchedulingConfiguration jscToWaitFor = createJobSchedulingConfiguration("0 0 1 * * ?",
+                "de.zalando.zomcat.jobs.management.TestJobToWaitForJob", jobData, Sets.newHashSet("local_local"), true,
+                null);
+
+        jobSchedulingConfigurations.add(jscToWaitFor);
+
+        ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+
+        assertNotNull(jobManagerToTest);
+
+        jobManagerToTest.startup();
+        assertNotNull(jobManagerToTest.getManagedJobs());
+        assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+        assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+        assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+        assertEquals(jobManagerToTest.getManagedJobs().size(), 5);
+        assertFalse(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+        assertEquals(jobManagerToTest.getScheduledManagedJobs().size(), 4);
+        assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+        assertEquals(jobManagerToTest.getUnscheduledManagedJobs().size(), 1);
+
+        jobManagerToTest.triggerJob(jscToWaitFor, true);
+
+        final long curTime = System.currentTimeMillis();
+        jobManagerToTest.shutdown();
+
+        final long finishedShutdownTime = System.currentTimeMillis() - curTime;
+        assertTrue(finishedShutdownTime > 4000);
+        assertNotNull(jobManagerToTest.getManagedJobs());
+        assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+        assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+        assertTrue(jobManagerToTest.getManagedJobs().isEmpty());
+        assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+        assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+
+    }
+
     // Test Update of Scheduling Configuration
     @Test
     public void testUpdateSchedulingConfiguration() throws JobManagerException {

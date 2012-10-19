@@ -1101,12 +1101,48 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
         cancelJobSchedulingConfigurationPollerExecutor();
         LOG.info("Shut down DefaultJobManagers Configuration Poller/Job Rescheduler");
         for (final JobSchedulingConfiguration curConfig : new HashSet<JobSchedulingConfiguration>(managedJobs.keySet())) {
+            cancelJob(curConfig, false);
+        }
+
+        LOG.info("Canceled all Jobs");
+        LOG.info("Waiting for active RunningWorkers to finish...");
+
+        for (final JobManagerManagedJob curManagedJob : getManagedJobs()) {
+            if (curManagedJob.getRunningWorkerCount() > 0) {
+                LOG.info("Job: [{}] still has [{}] active RunningWorker instances running");
+            }
+        }
+
+        // Wait for all active Workers to complete before continueing the Shutdown thread that called this method
+        // Spring will be blocked during its shutdown if there are still Managed Jobs Running
+        boolean continueWaiting = true;
+        while (continueWaiting) {
+            continueWaiting = false;
+
+            // Sleep for a second
+            try {
+                Thread.sleep(1000);
+            } catch (final InterruptedException e) {
+                LOG.error("An error occured waiting for RunningWorkers to complete");
+            }
+
+            // Check if there is at least one Job with a RunningWorkerCount > 0
+            for (final JobManagerManagedJob curManagedJob : getManagedJobs()) {
+                if (curManagedJob.getRunningWorkerCount() > 0) {
+                    continueWaiting = true;
+                    break;
+                }
+            }
+
+        }
+
+        LOG.info("All RunningWorkers finished, continuing shutdown of JobManager...");
+
+        for (final JobSchedulingConfiguration curConfig : new HashSet<JobSchedulingConfiguration>(managedJobs.keySet())) {
             cancelJob(curConfig, true);
         }
 
-        LOG.info("Shut down Quartz Schedulers");
-
-        // TODO: Wait for running Jobs to finish
+        LOG.info("Shut down all Quartz Job Schedulers");
         LOG.info("Finished shutting down JobManager");
     }
 

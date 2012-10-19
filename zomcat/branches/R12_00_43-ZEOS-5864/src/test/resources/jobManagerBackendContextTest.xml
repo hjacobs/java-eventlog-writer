@@ -13,4 +13,9 @@
 
     <!-- JobConfigSource Interface Implementation used for Tests-->
     <bean id="testJobConfigSource" class="de.zalando.zomcat.jobs.management.TestJobConfigSource"/>
+
+    <!-- Make Job Status Bean aware of JobManager in order to have it behave differently -->
+    <bean id="jobsStatusBean" class="de.zalando.zomcat.jobs.JobsStatusBean">
+        <property name="jobManager" ref="zalandoJobManager"/>
+    </bean>
 </beans>

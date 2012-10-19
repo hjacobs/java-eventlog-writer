@@ -1,7 +1,6 @@
 package de.zalando.zomcat.jobs.management.impl;
 
 import java.util.Date;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.quartz.JobDetail;
@@ -9,11 +8,8 @@ import org.quartz.Trigger;
 
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
-import com.google.common.collect.Sets;
-
 import de.zalando.zomcat.jobs.FinishedWorkerBean;
 import de.zalando.zomcat.jobs.RunningWorker;
-import de.zalando.zomcat.jobs.RunningWorkerBean;
 import de.zalando.zomcat.jobs.management.JobManagerManagedJob;
 import de.zalando.zomcat.jobs.management.JobSchedulingConfiguration;
 import de.zalando.zomcat.util.LinkedBoundedQueue;
@@ -33,9 +29,9 @@ public class DefaultJobManagerManagedJob implements JobManagerManagedJob {
 
     private final AtomicInteger executionCount;
 
-    private final SchedulerFactoryBean schedulerFactoryBean;
+    private final AtomicInteger runningWorkerCount;
 
-    private final Set<RunningWorker> runningWorkers;
+    private final SchedulerFactoryBean schedulerFactoryBean;
 
     private final LinkedBoundedQueue<RunningWorker> runningWorkerHistory;
 
@@ -48,7 +44,7 @@ public class DefaultJobManagerManagedJob implements JobManagerManagedJob {
         this.quartzTrigger = quartzTrigger;
         this.schedulerFactoryBean = schedulerFactoryBean;
         this.executionCount = new AtomicInteger(0);
-        this.runningWorkers = Sets.newCopyOnWriteArraySet();
+        this.runningWorkerCount = new AtomicInteger(0);
         this.runningWorkerHistory = new LinkedBoundedQueue<RunningWorker>(50);
     }
 
@@ -104,11 +100,17 @@ public class DefaultJobManagerManagedJob implements JobManagerManagedJob {
     public void onFinishRunningWorker(final RunningWorker runningWorker) {
         this.runningWorkerHistory.add(new FinishedWorkerBean(runningWorker, this.jobSchedulingConfig.getJobConfig()));
         executionCount.incrementAndGet();
+        runningWorkerCount.decrementAndGet();
     }
 
     @Override
     public void onStartRunningWorker(final RunningWorker runningWorker) {
-        this.runningWorkers.add(new RunningWorkerBean(runningWorker, this.jobSchedulingConfig.getJobConfig()));
+        runningWorkerCount.incrementAndGet();
+    }
+
+    @Override
+    public int getRunningWorkerCount() {
+        return runningWorkerCount.intValue();
     }
 
 }
