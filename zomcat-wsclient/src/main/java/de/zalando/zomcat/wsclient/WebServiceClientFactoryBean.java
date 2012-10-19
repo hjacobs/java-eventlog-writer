@@ -46,9 +46,17 @@ public abstract class WebServiceClientFactoryBean<WS> implements FactoryBean<WS>
     @Override
     @SuppressWarnings("unchecked")
     public WS getObject() throws Exception {
-        ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+        final ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 
-        factory.setServiceClass(getWebServiceClass());
+        final Class<WS> clazz = getWebServiceClass();
+        if (!clazz.getSimpleName().endsWith("WebService")) {
+
+            // naming convention check, see https://devwiki.zalando.de/Web_Service_Clients
+            throw new IllegalArgumentException("Web service interface class name must end with \"WebService\": "
+                    + clazz.getSimpleName());
+        }
+
+        factory.setServiceClass(clazz);
         factory.setAddress(getWebServiceUrl().toExternalForm());
 
         return configureTimeouts((WS) factory.create());
@@ -102,12 +110,10 @@ public abstract class WebServiceClientFactoryBean<WS> implements FactoryBean<WS>
         final String timePropertyName = formatProperty(propertyNameFormat);
         final String timeUnitPropertyName = formatProperty(propertyNameFormat + TIME_UNIT_PROPERTY_NAME_SUFFIX);
 
-        final String timeString = applicationConfig.getConfig().getStringConfig(timePropertyName, null,
-                "" + defaultTime);
+        final long time = applicationConfig.getConfig().getLongConfig(timePropertyName, null, defaultTime);
         final String timeUnitString = applicationConfig.getConfig().getStringConfig(timeUnitPropertyName, null,
                 defaultTimeUnit.name());
 
-        final long time = Long.parseLong(timeString);
         final TimeUnit timeUnit = TimeUnit.valueOf(timeUnitString);
 
         return timeUnit.toMillis(time);
