@@ -1,4 +1,4 @@
-package de.zalando.payment.domain.exception;
+package de.zalando.payment.domain.settings;
 
 public class PaymentWebServiceException extends Exception {
 

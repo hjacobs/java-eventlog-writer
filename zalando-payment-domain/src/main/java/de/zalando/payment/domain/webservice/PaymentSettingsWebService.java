@@ -5,10 +5,10 @@ import javax.jws.WebService;
 
 import org.apache.cxf.annotations.WSDLDocumentation;
 
-import de.zalando.payment.domain.exception.PaymentWebServiceException;
 import de.zalando.payment.domain.settings.PaymentSettings;
+import de.zalando.payment.domain.settings.PaymentWebServiceException;
 
-@WebService // (targetNamespace = PaymentServiceConstants.PAYMENT_SERVICE_NAMESPACE)
+@WebService(targetNamespace = "http://payment.zalando.de/settings")
 @WSDLDocumentation("Payment settings")
 public interface PaymentSettingsWebService {
 
