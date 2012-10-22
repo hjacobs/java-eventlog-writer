@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>zalando-parent</artifactId>
+        <groupId>de.zalando</groupId>
+        <version>1.5.43</version>
+    </parent>
+
+    <groupId>de.zalando</groupId>
+    <artifactId>zalando-payment-domain</artifactId>
+    <version>1.0.0</version>
+
+    <packaging>jar</packaging>
+
+    <name>Zalando Payment: Domain Objects</name>
+
+    <organization>
+        <name>Zalando/Technology/Payment</name>
+    </organization>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.typemapper</groupId>
+            <artifactId>sproc-spring-mapper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.zalando</groupId>
+            <artifactId>zalando-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-api</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+    </dependencies>
+</project>
