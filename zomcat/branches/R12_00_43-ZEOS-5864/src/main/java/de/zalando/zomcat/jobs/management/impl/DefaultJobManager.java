@@ -1218,9 +1218,15 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
                 currentJob.onFinishRunningWorker((RunningWorker) quartzJob);
             }
         } else {
-            LOG.warn(
-                "Could find JobManagerManagedJob entry for: [jobWasExecuted] callback. JobExecutionContext was: [{}]. JobExecutionException was: [{}]",
-                new Object[] {context, jobException.getMessage(), jobException});
+            if (jobException == null) {
+                LOG.warn(
+                    "Could find JobManagerManagedJob entry for: [jobWasExecuted] callback. JobExecutionContext was: [{}]",
+                    context);
+            } else {
+                LOG.warn(
+                    "Could find JobManagerManagedJob entry for: [jobWasExecuted] callback. JobExecutionContext was: [{}]. JobExecutionException was: [{}]",
+                    new Object[] {context, jobException.getMessage(), jobException});
+            }
         }
     }
 
