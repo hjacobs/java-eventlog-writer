@@ -33,6 +33,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     private int limit;
 
     protected JobConfigSource jobConfigSource;
+    protected JobExecutionContext jobExecutionContext;
 
     protected AbstractBulkProcessingJob() {
         super();
@@ -205,11 +206,13 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     @Override
     public final void doRun(final JobExecutionContext executionContext, final JobConfig config) {
 
-        fetcher = getFetcher();
-        processor = getProcessor();
-        writer = getWriter();
-        writeTime = getWriteTime();
-        executionStrategy = getExecutionStrategy();
+        this.fetcher = getFetcher();
+        this.processor = getProcessor();
+        this.writer = getWriter();
+        this.writeTime = getWriteTime();
+        this.executionStrategy = getExecutionStrategy();
+
+        this.jobExecutionContext = executionContext;
 
         assertComponentsArePresent();
 
