@@ -214,17 +214,17 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
     private void scheduleOrRescheduleJob(final JobSchedulingConfiguration jobSchedulingConfig, final boolean reschedule)
         throws JobManagerException {
         validateJobSchedulingConfig(jobSchedulingConfig);
-
         try {
 
-            // Get the already scheduled Job - cancel if already exists
-            final JobManagerManagedJob existingJob = managedJobs.get(jobSchedulingConfig);
-            if (existingJob != null) {
-                cancelJob(jobSchedulingConfig, true);
+            // Put Scheduler into managed Map of Jobs
+            if (!managedJobs.containsKey(jobSchedulingConfig)) {
+                managedJobs.put(jobSchedulingConfig, createManagedJob(jobSchedulingConfig));
             }
 
-            // Put Scheduler into managed Map of Jobs
-            managedJobs.put(jobSchedulingConfig, createManagedJob(jobSchedulingConfig));
+            // Cancel Job if a Reschedule has been requested
+            if (reschedule) {
+                cancelJob(jobSchedulingConfig);
+            }
 
             // Get current Managed Job - must be managed at this point
             final JobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);
@@ -694,10 +694,15 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
      * @throws  JobManagerException
      */
     private synchronized void updateSchedulingConfigurationsAndRescheduleManagedJobs() throws JobManagerException {
-
-        // Refresh Active Configurations via
-        // DelegatingJobSchedulingConfigProvider
         try {
+
+            if (isMainanenceModeActive()) {
+                LOG.info("Maintenance Mode is active - skipping Update of SchedulingConfigurations");
+                return;
+            }
+
+            // Refresh Active Configurations via
+            // DelegatingJobSchedulingConfigProvider
 
             // Since this List is only read from but not written to - there is
             // no need for thread safety
@@ -713,44 +718,61 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
             // Loop through provided Configurations and check if it is either not scheduled at all or if a reschedule
             // is required
-            for (final JobSchedulingConfiguration curJobSchedulingConfig : currentProvidedConfigs) {
+            for (final JobSchedulingConfiguration curJobSchedulingConfig : currentProvidedConfigs) { // Check if current JobGroupConfig is managed and make managed if necessary
+                try {
+                    // Create a JobGroupConfig instance when JobGroupConfig is NULL
 
-                // Check if current JobGroupConfig is managed and make managed if necessary
-                // Create a JobGroupConfig instance when JobGroupConfig is NULL
-                JobGroupConfig groupConfig = null;
-                if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() != null) {
-                    groupConfig = curJobSchedulingConfig.getJobConfig().getJobGroupConfig();
-                } else if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() == null) {
-                    groupConfig = new JobGroupConfig(curJobSchedulingConfig.getJobConfig().getJobGroupName(), true,
-                            null);
-                }
-
-                // Check if a Override exists for the current JobGroup - if an override exists and equals the active
-                // state of the group, remove the override
-                // This can only happen if a JobGroup has been (de)activated on an instance, and the group
-                // (de)activation state is provided by the current Configuration refresh as well
-                if (instanceJobGroupConfigOverrides.containsKey(groupConfig)
-                        && instanceJobGroupConfigOverrides.get(groupConfig) == groupConfig.isJobGroupActive()) {
-                    instanceJobGroupConfigOverrides.remove(groupConfig);
-                }
-
-                // if current JobGroup is not managed yet - add it to list of managed JobGroups
-                if (!managedJobGroups.contains(groupConfig)) {
-                    managedJobGroups.add(groupConfig);
-                }
-
-                // Check if the current Configuration is entirely new
-                if (!this.managedJobs.containsKey(curJobSchedulingConfig)) {
-
-                    // Schedule Job
-                    this.scheduleJob(curJobSchedulingConfig);
-                } else if (this.managedJobs.containsKey(curJobSchedulingConfig)) {
-
-                    // Check if Configuration is altered
-                    final JobManagerManagedJob managedJob = this.managedJobs.get(curJobSchedulingConfig);
-                    if (!curJobSchedulingConfig.isEqual(managedJob.getJobSchedulingConfig())) {
-                        this.rescheduleJob(curJobSchedulingConfig);
+                    JobGroupConfig groupConfig = null;
+                    if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() != null) {
+                        groupConfig = curJobSchedulingConfig.getJobConfig().getJobGroupConfig();
+                    } else if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() == null) {
+                        groupConfig = new JobGroupConfig(curJobSchedulingConfig.getJobConfig().getJobGroupName(), true,
+                                null);
                     }
+
+                    // Check if a Override exists for the current JobGroup - if an override exists and equals the active
+                    // state of the group, remove the override
+                    // This can only happen if a JobGroup has been (de)activated on an instance, and the group
+                    // (de)activation state is provided by the current Configuration refresh as well
+                    if (instanceJobGroupConfigOverrides.containsKey(groupConfig)
+                            && instanceJobGroupConfigOverrides.get(groupConfig) == groupConfig.isJobGroupActive()) {
+                        instanceJobGroupConfigOverrides.remove(groupConfig);
+                    }
+
+                    // if current JobGroup is not managed yet - add it to list of managed JobGroups
+                    if (!managedJobGroups.contains(groupConfig)) {
+                        managedJobGroups.add(groupConfig);
+                    }
+
+                    // Check if the current Configuration is entirely new
+                    if (!this.managedJobs.containsKey(curJobSchedulingConfig)) {
+
+                        // Schedule Job
+                        this.scheduleOrRescheduleJob(curJobSchedulingConfig, false);
+                    } else if (this.managedJobs.containsKey(curJobSchedulingConfig)) {
+
+                        // Reschedule Job if
+                        // - Configuration is altered or
+                        // - Job is Active but unscheduled or
+                        // - Job is Inactive but scheduled
+                        // AND OperationMode is Normal
+                        final JobManagerManagedJob managedJob = this.managedJobs.get(curJobSchedulingConfig);
+                        final boolean isSchedulingConfigAltered = !curJobSchedulingConfig.isEqual(
+                                managedJob.getJobSchedulingConfig());
+                        final boolean isScheduled = isJobScheduled(managedJob);
+                        final boolean isActive = isJobActive(curJobSchedulingConfig,
+                                instanceJobConfigOverrides.get(curJobSchedulingConfig),
+                                instanceJobGroupConfigOverrides.get(groupConfig));
+                        if (isSchedulingConfigAltered || isScheduled ^ isActive) {
+                            this.scheduleOrRescheduleJob(curJobSchedulingConfig, true);
+                        }
+                    }
+                } catch (final JobManagerException e) {
+                    LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
+                            + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
+                } catch (final SchedulerException e) {
+                    LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
+                            + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
                 }
             }
 
@@ -758,8 +780,13 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
             // was removed from provided
             // configuration List
             for (final JobSchedulingConfiguration curJobSchedulingConfig : managedJobs.keySet()) {
-                if (!currentProvidedConfigs.contains(curJobSchedulingConfig)) {
-                    cancelJob(curJobSchedulingConfig, true);
+                try {
+                    if (!currentProvidedConfigs.contains(curJobSchedulingConfig)) {
+                        cancelJob(curJobSchedulingConfig, true);
+                    }
+                } catch (final JobManagerException e) {
+                    LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
+                            + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
                 }
             }
 
@@ -1098,8 +1125,14 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
     @Override
     public void shutdown() throws JobManagerException {
         LOG.info("Shutting down JobManager...");
-        cancelJobSchedulingConfigurationPollerExecutor();
-        LOG.info("Shut down DefaultJobManagers Configuration Poller/Job Rescheduler");
+
+        // Shutdown COnfiguration Updater/Rescheduler Thread(s)
+        if (!isMainanenceModeActive()) {
+            cancelJobSchedulingConfigurationPollerExecutor();
+            LOG.info("Shut down DefaultJobManagers Configuration Poller/Job Rescheduler");
+        }
+
+        // Cancel all Jobs without removing them from Map of managed Jobs
         for (final JobSchedulingConfiguration curConfig : new HashSet<JobSchedulingConfiguration>(managedJobs.keySet())) {
             cancelJob(curConfig, false);
         }
@@ -1109,7 +1142,7 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
         for (final JobManagerManagedJob curManagedJob : getManagedJobs()) {
             if (curManagedJob.getRunningWorkerCount() > 0) {
-                LOG.info("Job: [{}] still has [{}] active RunningWorker instances running");
+                LOG.info("Job: [{}] still has [{}] active RunningWorker instances");
             }
         }
 
@@ -1138,6 +1171,8 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
 
         LOG.info("All RunningWorkers finished, continuing shutdown of JobManager...");
 
+        // Fully cancel Jobs (remove Jobs from Map of managed Jobs) - shutdown Quartz infrastructure (schedulers,
+        // triggers, jobdetails etc)
         for (final JobSchedulingConfiguration curConfig : new HashSet<JobSchedulingConfiguration>(managedJobs.keySet())) {
             cancelJob(curConfig, true);
         }
