@@ -614,7 +614,7 @@ class StoredProcedure {
                 break;
             }
 
-            if (collectionResult) {
+            if (sprocResult != null && collectionResult) {
                 results.addAll((Collection) sprocResult);
             }
         }
