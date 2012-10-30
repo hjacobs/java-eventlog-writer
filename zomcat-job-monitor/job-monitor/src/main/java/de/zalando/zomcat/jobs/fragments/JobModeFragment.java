@@ -1,46 +1,23 @@
 package de.zalando.zomcat.jobs.fragments;
 
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.model.IModel;
 
-import de.zalando.zomcat.jobs.JobMonitorPage;
-import de.zalando.zomcat.jobs.JobTypeStatusBean;
+import de.zalando.zomcat.jobs.model.JobRow;
+import de.zalando.zomcat.jobs.model.JobRowsModel;
 
-public class JobModeFragment extends BaseFragment {
+public class JobModeFragment extends WebMarkupContainer {
     private static final long serialVersionUID = 1L;
 
-    private final Class<?> jobClass;
-
-    public JobModeFragment(final MarkupContainer markupProvider, final JobTypeStatusBean jobTypeStatusBean,
-            final boolean enabled) {
-        super("placeholderForJobEnabled",
-            enabled
-                ? (jobTypeStatusBean.isDisabled() ? "jobDisabled" : "jobEnabled")
-                : (jobTypeStatusBean.getJobConfig().isActive()
-                    ? (jobTypeStatusBean.isDisabled() ? "jobDisabledRowDisabled" : "jobEnabledRowDisabled")
-                    : "jobRowDisabled"), markupProvider);
-
-        jobClass = jobTypeStatusBean.getJobClass();
+    public JobModeFragment(final IModel<JobRow> jobRowModel, final JobRowsModel jobRowsModel) {
+        super("placeholderForJobEnabled", jobRowsModel);
 
         setOutputMarkupPlaceholderTag(true);
-        if (enabled) {
-            final AjaxLink<JobMonitorPage> jobGroupModeToggleLink = new AjaxLink<JobMonitorPage>("jobToggle") {
-                private static final long serialVersionUID = 1L;
 
-                @Override
-                public void onClick(final AjaxRequestTarget target) {
-                    final JobTypeStatusBean jobTypeStatusBean = getJobMonitorPage().getJobTypeStatusBean(jobClass);
-                    jobTypeStatusBean.toggleMode();
-
-                    final JobModeFragment toggledFragment = new JobModeFragment(markupProvider, jobTypeStatusBean,
-                            enabled);
-                    JobModeFragment.this.replaceWith(toggledFragment);
-                    target.add(toggledFragment);
-                }
-            };
-
-            add(jobGroupModeToggleLink);
-        }
+        add(new JobMode("jobEnabled", jobRowModel, jobRowsModel));
+        add(new JobMode("jobDisabled", jobRowModel, jobRowsModel));
+        add(new JobMode("jobEnabledRowDisabled", jobRowModel, jobRowsModel));
+        add(new JobMode("jobDisabledRowDisabled", jobRowModel, jobRowsModel));
+        add(new JobMode("jobRowDisabled", jobRowModel, jobRowsModel));
     }
 }

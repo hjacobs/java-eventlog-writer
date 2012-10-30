@@ -3,9 +3,10 @@ package de.zalando.zomcat.jobs.markup.helper;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.repeater.OddEvenItem;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import de.zalando.zomcat.jobs.JobMonitorPage;
 import de.zalando.zomcat.jobs.JobTypeStatusBean;
+import de.zalando.zomcat.jobs.JobsStatusBean;
 import de.zalando.zomcat.jobs.model.JobRow;
 
 public class HoverOddEvenElement extends OddEvenItem<JobRow> {
@@ -18,6 +19,9 @@ public class HoverOddEvenElement extends OddEvenItem<JobRow> {
     private final String ON_MOUSE_OUT_ODD = "this.className='odd';";
     private final String ON_MOUSE_OUT_EVEN = "this.className='even';";
 
+    @SpringBean
+    private JobsStatusBean jobsStatusBean;
+
     public HoverOddEvenElement(final String id, final int index, final IModel<JobRow> model) {
         super(id, index, model);
     }
@@ -26,8 +30,8 @@ public class HoverOddEvenElement extends OddEvenItem<JobRow> {
     protected void onComponentTag(final ComponentTag tag) {
         super.onComponentTag(tag);
 
-        final JobTypeStatusBean jobTypeStatusBean = ((JobMonitorPage) getPage()).getJobTypeStatusBean(getModel()
-                    .getObject().getJobClass());
+        final JobTypeStatusBean jobTypeStatusBean = jobsStatusBean.getJobTypeStatusBean(getModel().getObject()
+                    .getJobClass());
         if (jobTypeStatusBean.getJobConfig().isActive()) {
             tag.put("class", (getIndex() % 2 == 0) ? CLASS_EVEN : CLASS_ODD);
         } else {

@@ -10,16 +10,16 @@
     <body>
         <h1>Job Monitor</h1>
 
-        <div class="operationMode">Operation mode: <span wicket:id="placeholderForOperationMode">[content will go here]</span></div>
-        <wicket:fragment wicket:id="operationModeNormal"><strong class="normal">Normal</strong>/<a class="maintenance" href="#" wicket:id="operationModeToggle">Maintenance</a></wicket:fragment>
-        <wicket:fragment wicket:id="operationModeMaintenance"><a class="normal" href="#" wicket:id="operationModeToggle">Normal</a>/<strong class="maintenance">Maintenance</strong></wicket:fragment>
-
+        <div class="operationMode" wicket:id="operationMode">Operation mode:
+            <span wicket:id="operationModeNormal"><strong class="normal">Normal</strong>/<a class="maintenance" href="#" wicket:id="operationModeToggle">Maintenance</a></span>
+            <span wicket:id="operationModeMaintenance"><a class="normal" href="#" wicket:id="operationModeToggle">Normal</a>/<strong class="maintenance">Maintenance</strong></span>
+        </div>
         <p class="hint">In <i>NORMAL</i> mode the jobs are running normally. In <i>MAINTENANCE</i> the jobs are running OUT and will NOT START AGAIN! After restart/redeploy of tomcat they are back to <i>NORMAL</i> mode. If you do not restart/redeploy tomcat, then DO NOT FORGET TO SWITCH BACK!</p>
 
-        <div class="hearbeatMode">Hearbeat mode: <span wicket:id="placeholderForHeartbeatMode">[content will go here]</span></div>
-        <wicket:fragment wicket:id="hearbeatModeOk"><strong class="ok">OK</strong>/<a class="deploy" href="#" wicket:id="hearbeatModeToggle">DEPLOY</a></wicket:fragment>
-        <wicket:fragment wicket:id="hearbeatModeDeploy"><a class="ok" href="#" wicket:id="hearbeatModeToggle">OK</a>/<strong class="deploy">DEPLOY</strong></wicket:fragment>
-
+        <div class="hearbeatMode" wicket:id="hearbeatMode">Hearbeat mode:
+            <span wicket:id="hearbeatModeOk"><strong class="ok">OK</strong>/<a class="deploy" href="#" wicket:id="hearbeatModeToggle">DEPLOY</a></span>
+            <span wicket:id="hearbeatModeDeploy"><a class="ok" href="#" wicket:id="hearbeatModeToggle">OK</a>/<strong class="deploy">DEPLOY</strong></span>
+        </div>
         <p class="hint">In <i>OK</i> mode the /heartbeat.jsp the loadbalancer needs for checks sends back <i>OK: Zalando JVM is running</i>. In <i>DEPLOY</i> the /heartbeat.jsp sends back <i>Deploy: Zalando JVM is in Updateprocess</i>.
             Then the loadbalancer removes the tomcat after latest 20 seconds!
             After restart/redeploy of tomcat they are back to <i>OK</i> mode. If you do not restart/redeploy tomcat, then DO NOT FORGET TO SWITCH BACK!
@@ -37,12 +37,13 @@
                         <div class="jobGroup">
                             <a href="#" wicket:id="toggleGroup"><span class="jobGroupName" wicket:id="jobGroupName">group name</span></a>
 
-                            <span class="jobGroupEnabled" wicket:id="placeholderForJobGroupEnabled">[content will go here]</span>
-                            <wicket:fragment wicket:id="jobGroupEnabled"><strong class="enabled"><a href="#" wicket:id="jobGroupToggle">Pause group</a></strong></wicket:fragment>
-                            <wicket:fragment wicket:id="jobGroupDisabled"><strong class="disabled"><a href="#" wicket:id="jobGroupToggle">Start group</a></strong></wicket:fragment>
+                            <span class="jobGroupEnabled" wicket:id="placeholderForJobGroupEnabled">
+                               <wicket:container wicket:id="jobGroupEnabled"><strong class="enabled"><a href="#" wicket:id="jobGroupToggle">Pause group</a></strong></wicket:container>
+                               <wicket:container wicket:id="jobGroupDisabled"><strong class="disabled"><a href="#" wicket:id="jobGroupToggle">Start group</a></strong></wicket:container>
+                            </span>
                         </div>
                         <div>
-                            <wicket:enclosure child="show_table_enclosure">
+                            <wicket:enclosure child="jobDetailRow">
                                 <table class="jobDetailView">
                                 <thead>
                                     <tr>
@@ -62,44 +63,47 @@
                                   </thead>
                                     <tbody>
                                         <tr wicket:id="jobDetailRow">
-                                            <wicket:container wicket:id="placeholderForJob">[content will go here]</wicket:container>
-                                            <wicket:fragment wicket:id="simpleJob">
-                                                <td class="checkbox"><input type="checkbox" wicket:id="checkbox"/></td>
-                                                <td class="trigger"><a href="#" wicket:id="trigger"><wicket:container wicket:id="triggerLabel" /></a></td>
-                                                <td class="jobEnabled" wicket:id="placeholderForJobEnabled">[content will go here]</td>
-                                                <td class="name" wicket:id="name">ProcessIncomingDocdataFile</td>
-                                                <td class="description" wicket:id="description">Full update</td>
-                                                <td class="worker" wicket:id="workers">1</td>
-                                                <td class="timestamp" wicket:id="timestamp">2011-12-12 12:32</td>
-                                                <td class="hosts" wicket:id="instances">bm01_p9820</td>
-                                                <td class="batchsize" wicket:id="batchSize">500</td>
-                                                <td class="progress">
-                                                    <span wicket:id="progress"><span wicket:id="jobProgress">1/10</span></span>
-                                                </td>
-                                                <td class="flowIds">
-                                                    <span wicket:id="jobFlowIds">
-                                                        <a href="#" wicket:id="flowIdLink" target="_blank"><span wicket:id="flowId">12345678</span></a>
-                                                    </span>
-                                                </td>
-                                                <td class="history" wicket:id="placeholderForHistory">[content will go here]</td>
-                                                <wicket:fragment wicket:id="jobEnabled"><strong class="enabled"><a href="#" wicket:id="jobToggle">Pause</a></strong></wicket:fragment>
-                                                <wicket:fragment wicket:id="jobDisabled"><strong class="disabled"><a href="#" wicket:id="jobToggle">Start</a></strong></wicket:fragment>
-                                                <wicket:fragment wicket:id="jobEnabledRowDisabled"><em class="enabled">Pause</em></wicket:fragment>
-                                                <wicket:fragment wicket:id="jobDisabledRowDisabled"><em class="disabled">Start</em></wicket:fragment>
-                                                <wicket:fragment wicket:id="jobRowDisabled"><em class="disabled">Disabled</em></wicket:fragment>
-                                                <wicket:fragment wicket:id="historyEnabled"><a href="#" wicket:id="historyToggle">- history</a></wicket:fragment>
-                                                <wicket:fragment wicket:id="historyDisabled"><a href="#" wicket:id="historyToggle">+ history</a></wicket:fragment>
-                                             </wicket:fragment>
-                                            <wicket:fragment wicket:id="jobHistory">
-                                                <td colspan="4"></td>
-                                                <td colspan="2" class="history startTime" wicket:id="startTime">2011-12-12 12:32</td>
-                                                <td class="history endTime" wicket:id="endTime">2011-12-12 12:32</td>
-                                                <td class="history duration" wicket:id="duration">100</td>
-                                                <td class="history workerId" wicket:id="workerId">123</td>
-                                                <td />
-                                                <td class="history flowId"><a class="history" href="#" wicket:id="flowIdLink" target="_blank"><span class="history" wicket:id="flowId">12345678</span></a></td>
-                                                <td colspan="2" />
-                                             </wicket:fragment>
+                                         <wicket:container wicket:id="placeholderForJob">
+                                               <wicket:container wicket:id="simpleJob">
+                                                   <td class="checkbox"><input type="checkbox" wicket:id="checkbox"/></td>
+                                                   <td class="trigger"><a href="#" wicket:id="trigger"><wicket:container wicket:id="triggerLabel" /></a></td>
+                                                   <td class="jobEnabled" wicket:id="placeholderForJobEnabled">
+                                                        <wicket:container wicket:id="jobEnabled"><strong class="enabled"><a href="#" wicket:id="jobToggle">Pause</a></strong></wicket:container>
+                                                        <wicket:container wicket:id="jobDisabled"><strong class="disabled"><a href="#" wicket:id="jobToggle">Start</a></strong></wicket:container>
+                                                        <wicket:container wicket:id="jobEnabledRowDisabled"><em class="enabled">Pause</em></wicket:container>
+                                                        <wicket:container wicket:id="jobDisabledRowDisabled"><em class="disabled">Start</em></wicket:container>
+                                                        <wicket:container wicket:id="jobRowDisabled"><em class="disabled">Disabled</em></wicket:container>
+                                                   </td>
+                                                   <td class="name" wicket:id="name">ProcessIncomingDocdataFile</td>
+                                                   <td class="description" wicket:id="description">Full update</td>
+                                                   <td class="worker" wicket:id="workers">1</td>
+                                                   <td class="timestamp" wicket:id="timestamp">2011-12-12 12:32</td>
+                                                   <td class="hosts" wicket:id="instances">bm01_p9820</td>
+                                                   <td class="batchsize" wicket:id="batchSize">500</td>
+                                                   <td class="progress">
+                                                       <span wicket:id="progress"><span wicket:id="jobProgress">1/10</span></span>
+                                                   </td>
+                                                   <td class="flowIds">
+                                                       <span wicket:id="jobFlowIds">
+                                                           <a href="#" wicket:id="flowIdLink" target="_blank"><span wicket:id="flowId">12345678</span></a>
+                                                       </span>
+                                                   </td>
+                                                   <td class="history" wicket:id="placeholderForHistory">
+                                                      <wicket:container wicket:id="historyEnabled"><a href="#" wicket:id="historyToggle">- history</a></wicket:container>
+                                                      <wicket:container wicket:id="historyDisabled"><a href="#" wicket:id="historyToggle">+ history</a></wicket:container>
+                                                   </td>
+                                                </wicket:container>
+                                                 <wicket:container wicket:id="jobHistory">
+                                                    <td colspan="4"></td>
+                                                    <td colspan="2" class="history startTime" wicket:id="startTime">2011-12-12 12:32</td>
+                                                    <td class="history endTime" wicket:id="endTime">2011-12-12 12:32</td>
+                                                    <td class="history duration" wicket:id="duration">100</td>
+                                                    <td class="history workerId" wicket:id="workerId">123</td>
+                                                    <td />
+                                                    <td class="history flowId"><a class="history" href="#" wicket:id="flowIdLink2" target="_blank"><span class="history" wicket:id="flowId2">12345678</span></a></td>
+                                                    <td colspan="2" />
+                                                 </wicket:container>
+                                            </wicket:container>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -122,4 +126,4 @@
             <li id="info_hosts">BS: 'Bulk Size' - bulk size parameter taken from the job configuration.</li>
         </ul>
     </body>
-</html>
+ </html>

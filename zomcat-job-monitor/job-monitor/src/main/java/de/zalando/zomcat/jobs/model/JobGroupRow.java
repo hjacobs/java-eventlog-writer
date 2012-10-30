@@ -10,21 +10,13 @@ public class JobGroupRow implements Serializable {
 
     public JobGroupRow() { }
 
-    public JobGroupRow(final String groupName) {
+    public JobGroupRow(final String groupName, final boolean visible) {
         this.groupName = groupName;
-        this.visible = true;
+        this.visible = visible;
     }
 
     public boolean isVisible() {
         return visible;
-    }
-
-    public void setVisible(final boolean visible) {
-        this.visible = visible;
-    }
-
-    public void toggleVisible() {
-        this.visible = !this.visible;
     }
 
     public String getGroupName() {
@@ -73,5 +65,4 @@ public class JobGroupRow implements Serializable {
 
         return true;
     }
-
 }
