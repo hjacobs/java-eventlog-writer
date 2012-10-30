@@ -15,3 +15,6 @@ language sql
     volatile
     security definer
     cost 100;
+
+grant execute on function zz_commons.job_resource_release_lock ( text ) to zalando_api_executor;
+alter function zz_commons.job_resource_release_lock ( text ) owner to zalando;

@@ -19,3 +19,6 @@ language plpgsql
     volatile
     security definer
     cost 100;
+
+grant execute on function zz_commons.job_resource_peek_lock ( text ) to zalando_api_executor;
+alter function zz_commons.job_resource_peek_lock ( text ) owner to zalando;

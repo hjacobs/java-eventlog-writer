@@ -1,0 +1,16 @@
+\cd :REBOOT_LIBS
+
+BEGIN;
+
+  -- $Id: ZEOS-9184.zomcat-job.sql_diff 80632 2012-10-29 13:34:42Z maciej.rosiek
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-9184.zomcat-job', NULL);
+
+  SET role TO zalando;
+
+  \i zomcat-job/database/commons/04_tables/10_resource_lock.sql
+
+  RESET role;
+
+COMMIT;
