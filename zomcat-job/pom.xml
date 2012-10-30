@@ -9,9 +9,12 @@
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-job</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
+    <name>Zomcat Job</name>
     <description>Zomcat Job Support Classes</description>
     <version>1.0.1</version>
+    <organization>
+        <name>Zalando/Technology/Platform</name>
+    </organization>
     <build>
         <resources>
             <resource>
