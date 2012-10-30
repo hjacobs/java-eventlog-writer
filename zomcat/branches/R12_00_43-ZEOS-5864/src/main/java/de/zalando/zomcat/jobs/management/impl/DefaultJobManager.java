@@ -691,11 +691,13 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
      * (re)schedules/cancels scheduled Jobs accordingly. Only a single thread must be allowed to to this at any given
      * time.
      *
-     * @throws  JobManagerException
+     * @throws  JobManagerException  if any unanticipated error occurs
      */
     private synchronized void updateSchedulingConfigurationsAndRescheduleManagedJobs() throws JobManagerException {
         try {
 
+            int countAll = 0;
+            int countSuccess = 0;
             if (isMainanenceModeActive()) {
                 LOG.info("Maintenance Mode is active - skipping Update of SchedulingConfigurations");
                 return;
@@ -767,14 +769,27 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
                             this.scheduleOrRescheduleJob(curJobSchedulingConfig, true);
                         }
                     }
+
+                    countSuccess++;
                 } catch (final JobManagerException e) {
                     LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
                             + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
                 } catch (final SchedulerException e) {
                     LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
                             + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
+                } finally {
+                    countAll++;
                 }
             }
+
+            if (countAll != countSuccess) {
+                LOG.warn(
+                    "Processed [%s] JobSchedulingConfigurations for rescheduling. [%s] JobSchedulingConfiguration were errorneous.",
+                    countAll, countAll - countSuccess);
+            }
+
+            countAll = 0;
+            countSuccess = 0;
 
             // Loop through already scheduled Jobs and check if a configuration
             // was removed from provided
@@ -784,10 +799,20 @@ public final class DefaultJobManager implements JobManager, JobListener, Runnabl
                     if (!currentProvidedConfigs.contains(curJobSchedulingConfig)) {
                         cancelJob(curJobSchedulingConfig, true);
                     }
+
+                    countSuccess++;
                 } catch (final JobManagerException e) {
                     LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
                             + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
+                } finally {
+                    countAll++;
                 }
+            }
+
+            if (countAll != countSuccess) {
+                LOG.warn(
+                    "Processed [%s] JobSchedulingConfigurations for cancelation. [%s] JobSchedulingConfiguration were errorneous.",
+                    countAll, countAll - countSuccess);
             }
 
         } catch (final JobSchedulingConfigurationProviderException e) {
