@@ -126,9 +126,9 @@ public class JobsStatusBean implements JobsStatusMBean {
                 QuartzJobInfoBean jobInfoBean;
                 for (final JobManagerManagedJob curJob : jobManager.getScheduledManagedJobs()) {
                     try {
-                        jobInfoBean = new QuartzJobInfoBean(curJob.getQuartzSchedulerFactoryBean().getScheduler()
-                                    .getSchedulerName(), curJob.getQuartzJobDetail().getName(),
-                                curJob.getQuartzJobDetail().getGroup(), curJob.getQuartzJobDetail().getJobDataMap());
+                        jobInfoBean = new QuartzJobInfoBean(curJob.getQuartzScheduler().getSchedulerName(),
+                                curJob.getQuartzJobDetail().getName(), curJob.getQuartzJobDetail().getGroup(),
+                                curJob.getQuartzJobDetail().getJobDataMap());
 
                         final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(
                                 curJob.getJobSchedulingConfig().getJobJavaClass(),
@@ -144,9 +144,9 @@ public class JobsStatusBean implements JobsStatusMBean {
 
                 for (final JobManagerManagedJob curJob : jobManager.getUnscheduledManagedJobs()) {
                     try {
-                        jobInfoBean = new QuartzJobInfoBean(curJob.getQuartzSchedulerFactoryBean().getScheduler()
-                                    .getSchedulerName(), curJob.getQuartzJobDetail().getName(),
-                                curJob.getQuartzJobDetail().getGroup(), curJob.getQuartzJobDetail().getJobDataMap());
+                        jobInfoBean = new QuartzJobInfoBean(curJob.getQuartzScheduler().getSchedulerName(),
+                                curJob.getQuartzJobDetail().getName(), curJob.getQuartzJobDetail().getGroup(),
+                                curJob.getQuartzJobDetail().getJobDataMap());
 
                         final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(
                                 curJob.getJobSchedulingConfig().getJobJavaClass(),

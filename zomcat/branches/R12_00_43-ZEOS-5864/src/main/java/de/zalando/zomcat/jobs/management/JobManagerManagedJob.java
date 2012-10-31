@@ -3,6 +3,7 @@ package de.zalando.zomcat.jobs.management;
 import java.util.Date;
 
 import org.quartz.JobDetail;
+import org.quartz.Scheduler;
 import org.quartz.Trigger;
 
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -37,7 +38,7 @@ public interface JobManagerManagedJob {
      *
      * @return  The {@link SchedulerFactoryBean}
      */
-    SchedulerFactoryBean getQuartzSchedulerFactoryBean();
+    Scheduler getQuartzScheduler();
 
     /**
      * Returns next Fire Time of Jobs associated Trigger.
@@ -52,6 +53,11 @@ public interface JobManagerManagedJob {
      * @return  the executionCount
      */
     int getExecutionCount();
+
+    /**
+     * @return  max amount of concurrent Executions
+     */
+    int getMaxConcurrentExecutionCount();
 
     /**
      * Start a Running Worker.

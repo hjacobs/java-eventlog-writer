@@ -2,6 +2,8 @@ package de.zalando.zomcat.jobs.management;
 
 import java.util.List;
 
+import org.quartz.JobDetail;
+
 import de.zalando.zomcat.OperationMode;
 import de.zalando.zomcat.jobs.JobGroupConfig;
 
@@ -66,9 +68,25 @@ public interface JobManager {
      * @param   jobName
      * @param   jobGroup
      *
-     * @return
+     * @return  {@link JobManagerManagedJob} idenfified by {@link JobSchedulingConfiguration}
+     *
+     * @throws  JobManagerException  if {@link JobSchedulingConfiguration} is <code>null</code>
      */
-    JobManagerManagedJob getManagedJob(String jobName, String jobGroup);
+    JobManagerManagedJob getManagedJob(JobSchedulingConfiguration jobSchedulingConfiguration)
+        throws JobManagerException;
+
+    /**
+     * Get Managed Job for JobName and JobGroup.
+     *
+     * @param   quartzJobDetailName    - The Quartz {@link JobDetail} name
+     * @param   quartzJobDetailGroup-  The Quartz {@link JobDetail} group
+     *
+     * @return  {@link JobManagerManagedJob} idenfified by {@link JobSchedulingConfiguration}
+     *
+     * @throws  JobManagerException  if either parameter is <code>null</code>
+     */
+    JobManagerManagedJob getManagedJob(String quartzJobDetailName, String quartzJobDetailGroup)
+        throws JobManagerException;
 
     /**
      * Schedule a single Job.

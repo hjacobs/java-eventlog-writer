@@ -17,7 +17,7 @@
     </logger>
 
     <logger name="org.quartz">
-        <level value="warn" />
+        <level value="debug" />
         <appender-ref ref="default" />
     </logger>
 
