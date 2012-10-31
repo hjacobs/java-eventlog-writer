@@ -5,7 +5,7 @@ BEGIN;
   -- $Id: ZEOS-9184.zomcat-job.sql_diff 80632 2012-10-29 13:34:42Z maciej.rosiek
   -- $HeadURL$
 
-  select _v.register_patch('ZEOS-9184.zomcat-job', NULL);
+  select _v.register_patch('ZEOS-9184.zomcat-job');
 
   SET role TO zalando;
 
