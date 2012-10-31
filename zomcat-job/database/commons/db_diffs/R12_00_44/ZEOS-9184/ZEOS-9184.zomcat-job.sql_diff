@@ -9,7 +9,7 @@ BEGIN;
 
   SET role TO zalando;
 
-  \i zomcat-job/database/commons/04_tables/10_resource_lock.sql
+  \i zomcat-job/database/commons/01_commons/04_tables/10_resource_lock.sql
 
   RESET role;
 
