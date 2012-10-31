@@ -10,6 +10,11 @@ $BODY$
     -- $HeadURL$
 */
 begin
+
+    if ( select count(1) from zz_commons.resource_lock where rl_resource = p_lock_resource ) > 0 then
+      return false;
+    end if;
+
     insert into zz_commons.resource_lock
         (rl_resource, rl_locked_by, rl_expected_maximum_duration, rl_flowid)
     values (p_lock_resource, p_locking_component, p_expected_maximum_duration * '1 millisecond'::interval, p_flowid);
