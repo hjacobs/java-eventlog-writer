@@ -14,6 +14,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.quartz.CronTrigger;
@@ -139,6 +140,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     private ApplicationContext applicationContext;
 
     /**
+     * Started State of JobManager.
+     */
+    private final AtomicBoolean jobManagerStarted;
+
+    /**
      * JobConfigSource.
      */
     @Autowired
@@ -155,6 +161,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         jobNameSequence = Maps.newConcurrentMap();
         instanceJobConfigOverrides = Maps.newConcurrentMap();
         instanceJobGroupConfigOverrides = Maps.newConcurrentMap();
+        jobManagerStarted = new AtomicBoolean(false);
     }
 
     /**
@@ -187,6 +194,17 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         }
 
         schedulingConfigPollingExecutor.shutdown();
+        while (schedulingConfigPollingExecutor.getActiveCount() > 0) {
+            if (schedulingConfigPollingExecutor.getActiveCount() > 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException e) {
+                    LOG.error(
+                        "An error occured waiting for JobSchedulingConfiguration Poller/Rescheduler Thread to finish");
+                }
+            }
+        }
+
         schedulingConfigPollingExecutor = null;
     }
 
@@ -994,6 +1012,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     }
 
     @Override
+    public boolean isStarted() {
+        return jobManagerStarted.get();
+    }
+
+    @Override
     public final void scheduleJob(final JobSchedulingConfiguration jobSchedulingConfig) throws JobManagerException {
         scheduleOrRescheduleJob(jobSchedulingConfig, false);
     }
@@ -1174,8 +1197,13 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     }
 
     @Override
-    public final void startup() throws JobManagerException {
+    public final synchronized void startup() throws JobManagerException {
+        if (isStarted()) {
+            throw new JobManagerException("Cannot start already started JobManager.");
+        }
+
         LOG.info("Starting up JobManager");
+
         Preconditions.checkArgument(delegatingJobSchedulingConfigProvider != null,
             "DefaultJobManager has no DelegatingJobSchedulingConfigProvider set");
 
@@ -1193,10 +1221,17 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         // Schedule the Rescheduling Thread
         createJobSchedulingConfigurationPollerExecutor();
         LOG.info("Finished starting up JobManager");
+
+        // Set started State
+        jobManagerStarted.set(true);
     }
 
     @Override
-    public final void shutdown() throws JobManagerException {
+    public final synchronized void shutdown() throws JobManagerException {
+        if (!isStarted()) {
+            throw new JobManagerException("Cannot shutdown unstarted JobManager.");
+        }
+
         LOG.info("Shutting down JobManager...");
 
         // Shutdown COnfiguration Updater/Rescheduler Thread(s)
@@ -1262,7 +1297,19 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         instanceJobConfigOverrides.clear();
         instanceJobGroupConfigOverrides.clear();
 
+        // Reset the JobName Sequence Map
+        jobNameSequence.clear();
+
+        // Remove all managed JobGroups
+        managedJobGroups.clear();
+
+        // Remove all remaining Managed Jobs - there should not be any
+        managedJobs.clear();
+
         LOG.info("Finished shutting down JobManager");
+
+        // Set started State
+        jobManagerStarted.set(false);
     }
 
     @Override

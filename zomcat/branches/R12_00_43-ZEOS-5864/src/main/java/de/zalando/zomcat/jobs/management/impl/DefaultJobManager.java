@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
 import org.quartz.impl.StdSchedulerFactory;
@@ -51,16 +52,22 @@ public final class DefaultJobManager extends AbstractJobManager {
     @Override
     protected void onCancelJob(final JobManagerManagedJob managedJob, final boolean removeFromManagedJobs)
         throws JobManagerException {
+        try {
 
-        // Remove from Managed Job Map if Job is to be removed entirely
-        if (removeFromManagedJobs) {
+            // Remove from Managed Job Map if Job is to be removed entirely
+            if (removeFromManagedJobs) {
 
-            // Check if there are Job Instances still running before Stopping the Jobs Bean Infrastructure
-            LOG.debug("Stopped Job Scheduler for Job: [{}]", managedJob);
-            ((DefaultJobManagerManagedJob) managedJob).getQuartzSchedulerFactoryBean().stop();
-            LOG.debug("Stopped Job SchedulerFactory for Job: [{}]", managedJob);
-            getManagedJobsInternal().remove(managedJob.getJobSchedulingConfig());
-            LOG.debug("Removed Job from Map of managed jobs. Job: [{}]", managedJob);
+                // Check if there are Job Instances still running before Stopping the Jobs Bean Infrastructure
+                LOG.debug("Stopped Job Scheduler for Job: [{}]", managedJob);
+                ((DefaultJobManagerManagedJob) managedJob).getQuartzSchedulerFactoryBean().destroy();
+                LOG.debug("Stopped Job SchedulerFactory for Job: [{}]", managedJob);
+                getManagedJobsInternal().remove(managedJob.getJobSchedulingConfig());
+                LOG.debug("Removed Job from Map of managed jobs. Job: [{}]", managedJob);
+            }
+        } catch (final SchedulerException e) {
+            throw new JobManagerException(String.format(
+                    "An error occured shutting down the Quartz Scheduler for Job: [%s]. Error was: [%s]",
+                    managedJob.getJobSchedulingConfig(), e.getMessage()), e);
         }
     }
 
@@ -105,22 +112,6 @@ public final class DefaultJobManager extends AbstractJobManager {
 
         return managedJob;
     }
-
-// /**
-// * Check if a given Job is scheduled.
-// *
-// * @param   job  The {@link JobManagerManagedJob} to check
-// *
-// * @return  <code>true</code> if the job is scheduled, <code>false</code> otheriwsae
-// *
-// * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
-// */
-// @Override
-// protected boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
-// return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
-// && job.getQuartzScheduler().getTrigger(job.getQuartzTrigger().getName(),
-// job.getQuartzTrigger().getGroup()) != null;
-// }
 
     @Override
     public void jobToBeExecuted(final JobExecutionContext context) {

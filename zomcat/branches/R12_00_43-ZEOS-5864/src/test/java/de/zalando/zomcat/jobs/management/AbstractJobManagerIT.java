@@ -431,6 +431,98 @@ public abstract class AbstractJobManagerIT {
      * @throws  InterruptedException  - If waiting for Job to be performed throws an error
      */
     @Test
+    public void testTriggerUnscheduledJobThenScheduleJob() throws JobManagerException, InterruptedException {
+        try {
+            final Map<String, String> jobData = Maps.newHashMap();
+            jobData.put("someKey", "someValue");
+
+            final List<JobSchedulingConfiguration> jobSchedulingConfigurations = Lists.newArrayList();
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, null));
+
+            final JobSchedulingConfiguration jscToNotSchedule = createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJobToWaitForJob", jobData, Sets.newHashSet("local_local"),
+                    false, null);
+            jobSchedulingConfigurations.add(jscToNotSchedule);
+
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob2Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, null));
+
+            // ((TestJobSchedulingConfigProvider)
+            // configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob2Job", jobData, Sets.newHashSet("local_local"), true,
+                    null));
+
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+
+            assertNotNull(jobManagerToTest);
+
+            jobManagerToTest.startup();
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(4, jobManagerToTest.getManagedJobs().size());
+            assertFalse(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(3, jobManagerToTest.getScheduledManagedJobs().size());
+            assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+            assertEquals(1, jobManagerToTest.getUnscheduledManagedJobs().size());
+
+            jobManagerToTest.triggerJob(jscToNotSchedule, true);
+
+            // Wait for Job to have been started
+            Thread.sleep(1000);
+            assertNotNull(jobManagerToTest.getManagedJob(jscToNotSchedule));
+            assertEquals(1, jobManagerToTest.getManagedJob(jscToNotSchedule).getRunningWorkerCount());
+
+            jobSchedulingConfigurations.remove(jscToNotSchedule);
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJobToWaitForJob", jobData, Sets.newHashSet("local_local"),
+                    true, null));
+
+            jobManagerToTest.updateJobSchedulingConfigurations();
+
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(4, jobManagerToTest.getManagedJobs().size());
+            assertFalse(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(4, jobManagerToTest.getScheduledManagedJobs().size());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+            assertEquals(0, jobManagerToTest.getUnscheduledManagedJobs().size());
+
+            final long curTime = System.currentTimeMillis();
+            jobManagerToTest.shutdown();
+
+            final long finishedShutdownTime = System.currentTimeMillis() - curTime;
+            assertTrue(finishedShutdownTime > 4000);
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertTrue(jobManagerToTest.getManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+        } finally {
+            try {
+                jobManagerToTest.shutdown();
+            } catch (final JobManagerException e) { }
+        }
+    }
+
+    /**
+     * Test triggering an unscheduled Job. This testcase will fail until the isRunnable logic has been removed from
+     * {@link AbstractJob} class. The isRunnable logic is now performed by the JobManager. Removal of the isRunnable
+     * logic from AbstractJob class will occur once the old style Job Management solution is fully deprectated and no
+     * longer used.
+     *
+     * @throws  JobManagerException   - If an exception occurs during scheduling
+     * @throws  InterruptedException  - If waiting for Job to be performed throws an error
+     */
+    @Test
     public void testTriggerUnscheduledJobWithMaxConcurrentLimitBreach() throws JobManagerException,
         InterruptedException {
         try {
@@ -1693,9 +1785,99 @@ public abstract class AbstractJobManagerIT {
             assertNotNull(managedJob);
             assertEquals(jobSchedulingConfigurations.get(0), managedJob.getJobSchedulingConfig());
         } finally {
-            try {
-                jobManagerToTest.shutdown();
-            } catch (final JobManagerException e) { }
+            if (jobManagerToTest.isStarted()) {
+                try {
+                    jobManagerToTest.shutdown();
+                } catch (final JobManagerException e) { }
+            }
+        }
+    }
+
+    @Test
+    public void testJobManagerDuplicateStartup() {
+        try {
+            final Map<String, String> jobData = Maps.newHashMap();
+            jobData.put("someKey", "someValue");
+
+            final JobSchedulingConfiguration jsc = createJobSchedulingConfiguration("* * * * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, null);
+            final List<JobSchedulingConfiguration> jobSchedulingConfigurations = Lists.newArrayList();
+            jobSchedulingConfigurations.add(jsc);
+
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+
+            assertNotNull(jobManagerToTest);
+
+            jobManagerToTest.startup();
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(1, jobManagerToTest.getManagedJobs().size());
+            assertFalse(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(1, jobManagerToTest.getScheduledManagedJobs().size());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+
+            jobManagerToTest.startup();
+        } catch (final JobManagerException e) {
+            assertEquals(JobManagerException.class, e.getClass());
+            assertEquals("Cannot start already started JobManager.", e.getMessage());
+        } finally {
+            if (jobManagerToTest.isStarted()) {
+                try {
+                    jobManagerToTest.shutdown();
+                } catch (final JobManagerException e) { }
+            }
+        }
+    }
+
+    @Test
+    public void testJobManagerDuplicateShutdown() {
+        try {
+            final Map<String, String> jobData = Maps.newHashMap();
+            jobData.put("someKey", "someValue");
+
+            final JobSchedulingConfiguration jsc = createJobSchedulingConfiguration("* * * * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, null);
+            final List<JobSchedulingConfiguration> jobSchedulingConfigurations = Lists.newArrayList();
+            jobSchedulingConfigurations.add(jsc);
+
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+
+            assertNotNull(jobManagerToTest);
+
+            jobManagerToTest.startup();
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(1, jobManagerToTest.getManagedJobs().size());
+            assertFalse(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(1, jobManagerToTest.getScheduledManagedJobs().size());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+
+            jobManagerToTest.shutdown();
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertTrue(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(0, jobManagerToTest.getManagedJobs().size());
+            assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(0, jobManagerToTest.getScheduledManagedJobs().size());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+
+            jobManagerToTest.shutdown();
+        } catch (final JobManagerException e) {
+            assertEquals(JobManagerException.class, e.getClass());
+            assertEquals("Cannot shutdown unstarted JobManager.", e.getMessage());
+        } finally {
+            if (jobManagerToTest.isStarted()) {
+                try {
+                    jobManagerToTest.shutdown();
+                } catch (final JobManagerException e) { }
+            }
         }
     }
 }

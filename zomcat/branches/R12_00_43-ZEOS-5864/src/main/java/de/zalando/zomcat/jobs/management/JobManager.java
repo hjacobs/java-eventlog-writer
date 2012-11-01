@@ -89,6 +89,14 @@ public interface JobManager {
         throws JobManagerException;
 
     /**
+     * Getter for Started Status of JobManager.
+     *
+     * @return  <code>true</code> if the JobManager has been successfully started via startup method, <code>false</code>
+     *          otherwise
+     */
+    boolean isStarted();
+
+    /**
      * Schedule a single Job.
      *
      * @param   jobSchedulingConfig  The Job Scheduling Config

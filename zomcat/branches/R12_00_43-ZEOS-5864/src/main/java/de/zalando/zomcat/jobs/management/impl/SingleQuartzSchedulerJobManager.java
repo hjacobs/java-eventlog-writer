@@ -23,13 +23,11 @@ import de.zalando.zomcat.jobs.management.JobSchedulingConfiguration;
 /**
  * Implementation of {@link JobManager} interface using only a single Quartz Scheduler and a single ThreadPool. Handling
  * Quartz Events correctly enables the Job manager to constrain Job Instances as defined by the Jobs Configuration
- * (POOL_SIZE, QUEUE_SIZE). This solution uses far less resources than the 'one scheduler per job' approach (single
- * Scheduler, single ThreadPool instead of per Job creation of Schedulers and Threadpools). Features include: on demand
- * scheduling, on demand rescheduling, on demand job cancelation, maintanence mode support, job history incl results,
- * per AppInstance job and job group (de)activation override, etc. In order to use this {@link JobManager} correctly,
- * the {@link AbstractJob} must set its own {@link Thread} name when running according to data provided by the JobData
- * map. The Jobs {@link Thread}s name can be located in the JobData map, but must be set on the respective current
- * {@link Thread} by the Job itself. The {@link AbstractJob} should be able to do this
+ * (POOL_SIZE, QUEUE_SIZE - is not used in this implementation - queues for JobExecutions do not exist here). This
+ * solution uses far less resources than the 'one scheduler per job' approach (single Scheduler, single ThreadPool
+ * instead of per Job creation of Schedulers and Threadpools). Features include: on demand scheduling, on demand
+ * rescheduling, on demand job cancelation, maintanence mode support, job history incl results, per AppInstance job and
+ * job group (de)activation override, etc.
  *
  * @author  Thomas Zirke (thomas.zirke@zalando.de)
  */
@@ -109,22 +107,6 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
 
         return managedJob;
     }
-
-// /**
-// * Check if a given Job is scheduled.
-// *
-// * @param   job  The {@link JobManagerManagedJob} to check
-// *
-// * @return  <code>true</code> if the job is scheduled, <code>false</code> otheriwsae
-// *
-// * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
-// */
-// @Override
-// protected boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
-// return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
-// && job.getQuartzScheduler().getTrigger(job.getQuartzTrigger().getName(),
-// job.getQuartzTrigger().getGroup()) != null;
-// }
 
     /**
      * {@link JobListener} interface implementations The JobManager should be aware of Jobs being started, finished etc.
