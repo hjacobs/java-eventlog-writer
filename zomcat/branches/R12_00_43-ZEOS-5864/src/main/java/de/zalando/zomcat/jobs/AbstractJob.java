@@ -117,44 +117,53 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         registerListener();
         setupLockResourceManager();
 
-        // no job should be allowed without description
-        checkArgument(!isNullOrEmpty(getDescription()),
-            "Aborting Job: no description for job defined: " + getBeanName());
+        // If no JobConfig was set by JobManager
+        if (!isJobManagerProvidedJobConfig()) {
+
+            // no job should be allowed without description
+            checkArgument(!isNullOrEmpty(getDescription()),
+                "Aborting Job: no description for job defined: " + getBeanName());
+        }
 
         final JobConfig config = getJobConfig();
-        if (shouldRun(config)) {
-            try {
-                if (lockResourceManager != null && getLockResource() != null) {
-                    lockResourceManager.acquireLock(getBeanName(), getLockResource(), FlowId.peekFlowId());
-                    // if we got at this point, we have a lock - else we got an exception that can be ignored.
-                }
 
-                // notify about start running this job
-                notifyStartRunning(context);
+        // If no JobConfig was set by JobManager and the Job is not allowed to run, return here
+        if (!isJobManagerProvidedJobConfig() && !shouldRun(config)) {
+            return;
+        }
 
-                // run the job and catch ALL exceptions
-                // TBC define a condition to control job execution in local
-                // environment
-                // (e.g. job.runlocal=name1 name2 ....)
-
-                Throwable throwable = null;
-                try {
-                    doRun(context, config);
-                } catch (final Throwable e) {
-                    log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
-                    throwable = e;
-                } finally {
-
-                    // notify about stop running this job
-                    if (lockResourceManager != null && getLockResource() != null) {
-                        lockResourceManager.releaseLock(getLockResource());
-                    }
-
-                    notifyStopRunning(throwable);
-                }
-            } catch (final Exception e) {
-                log(Level.INFO, "job's resource is locked and job will not start", null);
+        // Execute the same business Logic as before
+        try {
+            if (lockResourceManager != null && getLockResource() != null) {
+                lockResourceManager.acquireLock(getBeanName(), getLockResource(), FlowId.peekFlowId());
+                // if we got at this point, we have a lock - else we got an exception that can be ignored.
             }
+
+            // notify about start running this job
+            notifyStartRunning(context);
+
+            // run the job and catch ALL exceptions
+            // TBC define a condition to control job execution in local
+            // environment
+            // (e.g. job.runlocal=name1 name2 ....)
+
+            Throwable throwable = null;
+            try {
+                doRun(context, config);
+            } catch (final Throwable e) {
+                log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
+                throwable = e;
+            } finally {
+
+                // notify about stop running this job
+                if (lockResourceManager != null && getLockResource() != null) {
+                    lockResourceManager.releaseLock(getLockResource());
+                }
+
+                notifyStopRunning(throwable);
+            }
+        } catch (final Exception e) {
+            log(Level.INFO, "job's resource is locked and job will not start", null);
         }
     }
 
@@ -399,10 +408,13 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
     @Override
     public JobConfig getJobConfig() {
+
+        // If Set it was set by JobManager
         if (jobConfig != null) {
             return jobConfig;
         }
 
+        // Otherwise consult the Configuration Source
         return getConfigurationSource().getJobConfig(this);
     }
 
@@ -438,6 +450,10 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
     private void log(final Priority priority, final String message, final Throwable throwable) {
         Logger.getLogger(getClass()).log(priority, message, throwable);
+    }
+
+    private boolean isJobManagerProvidedJobConfig() {
+        return this.jobConfig != null;
     }
 
     /**

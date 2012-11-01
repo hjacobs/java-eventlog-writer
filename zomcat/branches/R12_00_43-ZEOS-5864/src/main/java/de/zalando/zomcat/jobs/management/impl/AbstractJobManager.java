@@ -226,6 +226,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             // if the Job is Active - schedule it, otherwise log WHY job is inactive
             if (isJobActive(jobSchedulingConfig, instanceJobConfigOverrides.get(jobSchedulingConfig),
                         instanceJobGroupConfigOverrides.get(jobSchedulingConfig.getJobConfig().getJobGroupName()))) {
+                managedJob.getQuartzTrigger().setStartTime(new Date(System.currentTimeMillis()));
 
                 // Schedule the Jobs Trigger
                 managedJob.getQuartzScheduler().scheduleJob(managedJob.getQuartzJobDetail(),
