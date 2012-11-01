@@ -836,7 +836,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      *
      * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
      */
-    protected abstract boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException;
+    protected final boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
+        return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
+                && job.getQuartzScheduler().getTrigger(job.getQuartzTrigger().getName(),
+                    job.getQuartzTrigger().getGroup()) != null;
+    }
 
     /**
      * Internal Getter for {@link ApplicationContext}.
@@ -1014,7 +1018,9 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
             // Create a onetime Trigger for Job
             if (isJobScheduled || force) {
-                if (isJobScheduled) {
+                if (isJobScheduled
+                        || job.getQuartzScheduler().getJobDetail(job.getQuartzJobDetail().getName(),
+                            job.getQuartzJobDetail().getGroup()) != null) {
                     job.getQuartzScheduler().triggerJob(job.getQuartzJobDetail().getName(),
                         job.getQuartzJobDetail().getGroup());
                 } else {
@@ -1022,7 +1028,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                     // Create One Time Trigger, schedule Job with Trigger on the Jobs Scheduler
                     final Trigger trigger = TriggerUtils.makeImmediateTrigger(0, 0);
                     trigger.setName(trigger.getJobName() + "TriggerImmediate");
-                    trigger.setStartTime(new Date(System.currentTimeMillis() + 500));
+                    trigger.setStartTime(new Date(System.currentTimeMillis()));
                     job.getQuartzScheduler().scheduleJob(job.getQuartzJobDetail(), trigger);
                 }
 

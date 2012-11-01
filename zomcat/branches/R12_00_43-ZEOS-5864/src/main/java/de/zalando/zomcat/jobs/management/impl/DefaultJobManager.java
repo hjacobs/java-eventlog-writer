@@ -5,7 +5,6 @@ import java.util.Properties;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
-import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
 import org.quartz.impl.StdSchedulerFactory;
@@ -107,21 +106,21 @@ public final class DefaultJobManager extends AbstractJobManager {
         return managedJob;
     }
 
-    /**
-     * Check if a given Job is scheduled.
-     *
-     * @param   job  The {@link JobManagerManagedJob} to check
-     *
-     * @return  <code>true</code> if the job is scheduled, <code>false</code> otheriwsae
-     *
-     * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
-     */
-    @Override
-    protected boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
-        return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
-                && job.getQuartzScheduler().getTrigger(job.getQuartzTrigger().getName(),
-                    job.getQuartzTrigger().getGroup()) != null;
-    }
+// /**
+// * Check if a given Job is scheduled.
+// *
+// * @param   job  The {@link JobManagerManagedJob} to check
+// *
+// * @return  <code>true</code> if the job is scheduled, <code>false</code> otheriwsae
+// *
+// * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
+// */
+// @Override
+// protected boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
+// return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
+// && job.getQuartzScheduler().getTrigger(job.getQuartzTrigger().getName(),
+// job.getQuartzTrigger().getGroup()) != null;
+// }
 
     @Override
     public void jobToBeExecuted(final JobExecutionContext context) {

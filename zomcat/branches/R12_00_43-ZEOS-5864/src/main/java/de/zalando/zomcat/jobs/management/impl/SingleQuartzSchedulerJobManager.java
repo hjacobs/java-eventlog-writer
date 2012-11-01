@@ -72,7 +72,7 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
         super.onShutdown();
         try {
             if (quartzScheduler != null && quartzScheduler.isStarted()) {
-                quartzScheduler.shutdown();
+                quartzScheduler.shutdown(true);
                 quartzScheduler = null;
             }
         } catch (final SchedulerException e) {
@@ -110,21 +110,21 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
         return managedJob;
     }
 
-    /**
-     * Check if a given Job is scheduled.
-     *
-     * @param   job  The {@link JobManagerManagedJob} to check
-     *
-     * @return  <code>true</code> if the job is scheduled, <code>false</code> otheriwsae
-     *
-     * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
-     */
-    @Override
-    protected boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
-        return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
-                && job.getQuartzScheduler().getTrigger(job.getQuartzTrigger().getName(),
-                    job.getQuartzTrigger().getGroup()) != null;
-    }
+// /**
+// * Check if a given Job is scheduled.
+// *
+// * @param   job  The {@link JobManagerManagedJob} to check
+// *
+// * @return  <code>true</code> if the job is scheduled, <code>false</code> otheriwsae
+// *
+// * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
+// */
+// @Override
+// protected boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
+// return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
+// && job.getQuartzScheduler().getTrigger(job.getQuartzTrigger().getName(),
+// job.getQuartzTrigger().getGroup()) != null;
+// }
 
     /**
      * {@link JobListener} interface implementations The JobManager should be aware of Jobs being started, finished etc.
