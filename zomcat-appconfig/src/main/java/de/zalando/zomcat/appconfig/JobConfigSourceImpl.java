@@ -32,6 +32,8 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         final Configuration configuration = Preconditions.checkNotNull(getConfig(),
                 "configuration cannot be null. Please provide a complete implementation of Configuration.");
 
+        boolean jobsGlobalActive = true;
+
         // By Default the JobGroup the Job belongs to (even if the Job has no JobGroup) is active
         boolean groupActive = true;
 
@@ -42,6 +44,11 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         final String jobName = job.getBeanName();
 
         LOG.trace("Attempting to create JobConfig for Job {}", jobName);
+
+        jobsGlobalActive = configuration.getBooleanConfig("jobConfig.global.active", null, true);
+        if (!jobsGlobalActive) {
+            LOG.info("Jobs are globally disabled (set jobConfig.global.active=true to enable again)");
+        }
 
         // Load the JobGroup for given Job
         String jobGroupName = null;
@@ -76,7 +83,8 @@ public abstract class JobConfigSourceImpl implements JobConfigSource, AppInstanc
         final int limit = configuration.getIntegerConfig(String.format("jobConfig.%s.limit", jobName), null, 0);
         final int startupLimit = configuration.getIntegerConfig(String.format("jobConfig.%s.startupLimit", jobName),
                 null, limit);
-        jobActive = configuration.getBooleanConfig(String.format("jobConfig.%s.active", jobName), null, true);
+        jobActive = jobsGlobalActive
+                && configuration.getBooleanConfig(String.format("jobConfig.%s.active", jobName), null, true);
 
         // Create Job Config from loaded Props
         final JobConfig retVal = new JobConfig(Sets.newHashSet(appInstanceKeys), limit, startupLimit, jobActive,
