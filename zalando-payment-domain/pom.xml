@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.5.43</version>
+        <version>1.5.47</version>
     </parent>
 
     <groupId>de.zalando</groupId>
@@ -15,6 +15,9 @@
     <packaging>jar</packaging>
 
     <name>Zalando Payment: Domain Objects</name>
+    <description>
+        Payment Service Domain Objects and Webservice Interface used by the services and clients.
+    </description>
 
     <organization>
         <name>Zalando/Technology/Payment</name>
