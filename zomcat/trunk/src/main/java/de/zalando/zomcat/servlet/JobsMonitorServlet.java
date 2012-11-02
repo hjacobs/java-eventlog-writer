@@ -41,7 +41,7 @@ import de.zalando.zomcat.monitoring.HeartbeatStatusBean;
  */
 public class JobsMonitorServlet extends HttpServlet {
 
-    public static final String URL_PATH_JOBS_MONITOR = "/jobs.monitor";
+    public static final String URL_PATH_JOBS_MONITOR = "/jobs.monitor2";
 
     private static final long serialVersionUID = 622992660835204455L;
 
