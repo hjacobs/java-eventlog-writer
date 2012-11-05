@@ -21,6 +21,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -59,6 +62,8 @@ import com.google.gson.Gson;
  */
 public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
+    private static final long serialVersionUID = -5792596996273480173L;
+
     // URL to source code browser (e.g. OpenGrok)
     // %1$s is replaced with service name
     // %2$s is replaced with method name
@@ -91,14 +96,20 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
                 }
             }
 
-            if (ad != null && (ad.equals(path))) {
+            if (ad != null && ad.equals(path)) {
 
                 BaseUrlHelper.setAddress(d2, base + path);
             }
         }
     }
 
+    /**
+     * @param   sd
+     *
+     * @return
+     */
     private WebServiceInfo getWebServiceInfo(final AbstractDestination sd) {
+
         final EndpointInfo ei = sd.getEndpointInfo();
         final BindingInfo binding = ei.getBinding();
 
@@ -129,9 +140,6 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
         if (ei.getInterface() != null && ei.getInterface().getOperations() != null) {
             final List<OperationInfo> operations = Lists.newArrayList(ei.getInterface().getOperations());
-
-            // sort operations (methods) by name
-            Collections.sort(operations, OPERATION_INFO_COMPARATOR);
 
             List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
             for (OperationInfo oi : operations) {
@@ -165,12 +173,41 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
             }
 
+            // sort operations (methods) by name
+            Collections.sort(ops, OPERATION_INFO_COMPARATOR);
+
+            info.setOperations(ops);
+
+        } else if (info.isRest() && implementor != null) {
+
+            List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
+            for (Method m : implementor.getClass().getMethods()) {
+                if (m.isAnnotationPresent(GET.class)) {
+                    WebServiceInfo.OperationInfo op = operationInformations.get(m.getName());
+                    if (m.isAnnotationPresent(Path.class)) {
+                        String path = m.getAnnotation(Path.class).value();
+                        op.setRestPath(path);
+                    }
+
+                    ops.add(op);
+                }
+
+            }
+
+            // sort operations (methods) by name
+            Collections.sort(ops, OPERATION_INFO_COMPARATOR);
+
             info.setOperations(ops);
         }
 
         return info;
     }
 
+    /**
+     * @param   ei
+     *
+     * @return
+     */
     private String getDocumentation(final EndpointInfo ei) {
         StringBuilder doc = new StringBuilder();
         if (ei.getInterface() != null && ei.getInterface().getDocumentation() != null) {
@@ -189,6 +226,11 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         return doc.toString();
     }
 
+    /**
+     * @param   implementor
+     *
+     * @return
+     */
     private Map<String, WebServiceInfo.OperationInfo> getOperationInformations(final Object implementor) {
         final Map<String, WebServiceInfo.OperationInfo> operationInformations = Maps.newHashMap();
 
@@ -196,7 +238,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             return operationInformations;
         }
 
-        final Class clazz = implementor.getClass();
+        final Class<? extends Object> clazz = implementor.getClass();
         Method[] methods = clazz.getMethods();
 
         for (final Method method : methods) {
@@ -216,11 +258,12 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             WebServiceInfo.OperationInfo info = new WebServiceInfo.OperationInfo();
             info.setName(method.getName());
             info.setReturnType(getTypeString(method.getGenericReturnType()));
+            info.setParameters(params);
             operationInformations.put(method.getName(), info);
         }
 
         // also scan interface annotations
-        for (Class intface : clazz.getInterfaces()) {
+        for (Class<?> intface : clazz.getInterfaces()) {
             methods = intface.getMethods();
             for (final Method method : methods) {
                 List<WebServiceInfo.OperationParameter> params = operationInformations.get(method.getName())
@@ -236,6 +279,10 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         return operationInformations;
     }
 
+    /**
+     * @param  annotations
+     * @param  params
+     */
     private void updateNameFromAnnotations(final Annotation[][] annotations,
             final List<WebServiceInfo.OperationParameter> params) {
         int pos;
@@ -251,11 +298,20 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         }
     }
 
+    /**
+     * @return
+     */
     private String getTitle() {
         ServletContext application = getServletConfig().getServletContext();
         return application.getServletContextName();
     }
 
+    /**
+     * @param   request
+     * @param   response
+     *
+     * @throws  IOException
+     */
     private void doRenderServiceList(final HttpServletRequest request, final HttpServletResponse response)
         throws IOException {
         DestinationRegistry registry = getDestinationRegistryFromBus(getBus());
@@ -292,6 +348,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
                 "h2 { font-size: 16px; margin: 16px 0 4px 0; padding: 0 0 4px 0; border-bottom: 4px solid #eee; }");
             writer.write("h2 a { font-size: 12px; margin-left: 24px; }");
             writer.write(".doc { color: #888; font-style: italic; }");
+            writer.write(".restpath { color: darkBlue; }");
             writer.write("p { margin: 4px 0; }");
             writer.write("ul { margin: 0 0 16px 8px; padding: 0; list-style: none;}");
             writer.write("li { margin: 3px 0; padding: 0 0 3px 0; border-bottom: 1px dotted #ccc;}");
@@ -319,17 +376,22 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         }
     }
 
-    protected static class OperationInfoComparator implements Comparator<OperationInfo> {
+    protected static class OperationInfoComparator implements Comparator<WebServiceInfo.OperationInfo> {
 
         @Override
-        public int compare(final OperationInfo a, final OperationInfo b) {
-            return a.getName().getLocalPart().compareTo(b.getName().getLocalPart());
+        public int compare(final WebServiceInfo.OperationInfo a, final WebServiceInfo.OperationInfo b) {
+            return a.getName().compareTo(b.getName());
         }
 
     }
 
     private static final OperationInfoComparator OPERATION_INFO_COMPARATOR = new OperationInfoComparator();
 
+    /**
+     * @param   type
+     *
+     * @return
+     */
     private static String getTypeString(final Type type) {
         if (type == null) {
             return null;
@@ -353,20 +415,36 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             sb.append('>');
             return sb.toString();
         } else if (type instanceof Class) {
-            return ((Class) type).getSimpleName();
+            return ((Class<?>) type).getSimpleName();
         }
 
         return null;
     }
 
+    /**
+     * @param   doc
+     *
+     * @return
+     */
     private static String getDocumentationAsHtml(final String doc) {
         return StringEscapeUtils.escapeXml(doc).replace("\n", "<br />");
     }
 
+    /**
+     * @param  writer
+     * @param  ws
+     * @param  collapsed
+     */
     private void writeSoapEndpoint(final PrintWriter writer, final WebServiceInfo ws, final boolean collapsed) {
 
         writer.write("<h2>" + ws.getName() + " ");
-        writer.write("<a href=\"" + ws.getAddress() + "?wsdl\">WSDL</a>");
+
+        if (ws.isRest()) {
+            writer.write("<a href=\"#\">REST</a>");
+        } else {
+            writer.write("<a href=\"" + ws.getAddress() + "?wsdl\">WSDL</a>");
+        }
+
         if (collapsed) {
             writer.write("<a href=\"javascript:void toggleOperations('" + ws.getName() + "-ops')\">Operations ("
                     + ws.getOperations().size() + ")</a>");
@@ -411,6 +489,11 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             if (oi.getReturnType() != null) {
                 writer.write(" : ");
                 writer.write("<em>" + StringEscapeUtils.escapeXml(oi.getReturnType()) + "</em>");
+            }
+
+            if (ws.isRest() && oi.getRestPath() != null) {
+                String path = ws.getAddress().concat("/").concat(oi.getRestPath());
+                writer.write("<p><span><b>Path: </b></span><span class=\"restpath\">" + path + "</span></p>");
             }
 
             if (oi.getDocumentation() != null) {

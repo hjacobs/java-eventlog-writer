@@ -38,6 +38,7 @@ public class WebServiceInfo {
         private String documentation;
         private List<OperationParameter> parameters = Lists.newLinkedList();
         private String returnType;
+        private String restPath;
 
         public String getDocumentation() {
             return documentation;
@@ -71,6 +72,13 @@ public class WebServiceInfo {
             this.returnType = returnType;
         }
 
+        public String getRestPath() {
+            return restPath;
+        }
+
+        public void setRestPath(final String restPath) {
+            this.restPath = restPath;
+        }
     }
 
     private String name;
