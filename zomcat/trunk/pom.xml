@@ -12,7 +12,7 @@
     <groupId>de.zalando</groupId>
     <artifactId>zomcat</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
+    <name>Zomcat Base</name>
     <description>Zomcat Support Classes (Servlets, Jobs, ..)</description>
     <version>1.0.47</version>
     <organization>

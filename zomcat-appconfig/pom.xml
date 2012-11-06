@@ -12,7 +12,7 @@
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-appconfig</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
+    <name>Zomcat Appconfig Integration</name>
     <description>Zomcat Application Config Abstract Classes, also contains JobConfigSourceImpl (using "jobConfig.*.*" properties)</description>
     <version>1.0.11</version>
     <organization>
