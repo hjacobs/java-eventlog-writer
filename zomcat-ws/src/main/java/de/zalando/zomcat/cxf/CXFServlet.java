@@ -21,7 +21,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 
 import javax.xml.namespace.QName;
@@ -182,7 +186,9 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
             List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
             for (Method m : implementor.getClass().getMethods()) {
-                if (m.isAnnotationPresent(GET.class)) {
+                if (m.isAnnotationPresent(GET.class) || m.isAnnotationPresent(POST.class)
+                        || m.isAnnotationPresent(HEAD.class) || m.isAnnotationPresent(PUT.class)
+                        || m.isAnnotationPresent(DELETE.class)) {
                     WebServiceInfo.OperationInfo op = operationInformations.get(m.getName());
                     if (m.isAnnotationPresent(Path.class)) {
                         String path = m.getAnnotation(Path.class).value();
@@ -191,7 +197,6 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
                     ops.add(op);
                 }
-
             }
 
             // sort operations (methods) by name
