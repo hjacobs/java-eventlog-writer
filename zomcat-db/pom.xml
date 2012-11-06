@@ -12,9 +12,12 @@
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-db</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
+    <name>Zomcat DB</name>
     <description>Zomcat DB Support Classes</description>
     <version>1.0.0</version>
+    <organization>
+        <name>Zalando/Technology/Platform</name>
+    </organization>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
