@@ -148,25 +148,16 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
             for (OperationInfo oi : operations) {
                 if (oi.getProperty("operation.is.synthetic") != Boolean.TRUE) {
-                    WebServiceInfo.OperationInfo op = new WebServiceInfo.OperationInfo();
                     String localName = oi.getName().getLocalPart();
-                    op.setName(localName);
 
-                    List<WebServiceInfo.OperationParameter> params = operationInformations.get(localName)
-                                                                                          .getParameters();
-                    if (params != null) {
-                        List<WebServiceInfo.OperationParameter> opParams = Lists.newArrayList();
-                        op.setParameters(opParams);
+                    WebServiceInfo.OperationInfo op = operationInformations.get(localName);
 
-                        for (WebServiceInfo.OperationParameter param : params) {
-                            WebServiceInfo.OperationParameter opParam = new WebServiceInfo.OperationParameter();
-                            opParam.setName(param.getName());
-                            opParam.setType(param.getType());
-                            opParams.add(opParam);
-                        }
+                    if (op == null) {
+
+                        // implementor was not found => we do not have any method details
+                        op = new WebServiceInfo.OperationInfo();
+                        op.setName(localName);
                     }
-
-                    op.setReturnType(operationInformations.get(localName).getReturnType());
 
                     if (oi.getDocumentation() != null) {
                         op.setDocumentation(oi.getDocumentation());
@@ -209,6 +200,8 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
     }
 
     /**
+     * get documentation string from endpoint and service.
+     *
      * @param   ei
      *
      * @return
@@ -232,6 +225,8 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
     }
 
     /**
+     * retrieve method details (return types, parameters) from implementor class using reflection.
+     *
      * @param   implementor
      *
      * @return
@@ -498,7 +493,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
             if (ws.isRest() && oi.getRestPath() != null) {
                 String path = ws.getAddress().concat("/").concat(oi.getRestPath());
-                writer.write("<p><span><b>Path: </b></span><span class=\"restpath\">" + path + "</span></p>");
+                writer.write("<p><span>Path: </span><span class=\"restpath\">" + path + "</span></p>");
             }
 
             if (oi.getDocumentation() != null) {
