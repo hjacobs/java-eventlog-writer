@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.typemapper.annotations.DatabaseField;
 
-@XmlType(propOrder = {"totalSize", "size", "addresses"})
+@XmlType(propOrder = {"totalSize", "addresses"})
 public class BlacklistQueryResult {
 
     @DatabaseField(name = "totalcount")
@@ -27,10 +27,11 @@ public class BlacklistQueryResult {
         this.addresses = addresses;
     }
 
-    @XmlElement(name = "size", nillable = false, required = true)
-    public int getSize() {
-        return addresses.size();
-    }
+    // What is this for??? The Unmarshaller has serios problems when there is no setter!
+// @XmlElement(name = "size", nillable = false, required = true)
+// public int getSize() {
+// return addresses.size();
+// }
 
     @XmlElement(name = "totalSize", nillable = false, required = true)
     public int getTotalSize() {

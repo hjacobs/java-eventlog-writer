@@ -1,20 +1,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
         <version>1.5.56</version>
     </parent>
+
     <groupId>de.zalando</groupId>
     <artifactId>zalando-address-domain</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>Zalando Address Commons</name>
-    <description>Address check common domain classes</description>
+    <version>12.0.47-SNAPSHOT</version>
+<!--     <version>0.5</version> -->
+
+    <name>Payment: Zalando Address Domain</name>
+     <description>
+        This component contains address related domain objects.
+    </description>
     <organization>
         <name>Zalando/Technology/Payment</name>
     </organization>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
