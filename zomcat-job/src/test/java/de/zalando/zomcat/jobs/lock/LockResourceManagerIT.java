@@ -7,8 +7,6 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.dao.DuplicateKeyException;
-
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -38,13 +36,13 @@ public class LockResourceManagerIT {
 
     }
 
-    @Test(expected = DuplicateKeyException.class)
+    @Test
     public void tryToLockLockedResourceTest() {
         final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
 
-        lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
-        Assert.fail("should not get here");
+        final boolean notAcquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        Assert.assertFalse("should not have acquired the lock", notAcquired);
     }
 
     @Test

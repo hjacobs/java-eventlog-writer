@@ -118,39 +118,46 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         checkArgument(!isNullOrEmpty(getDescription()),
             "Aborting Job: no description for job defined: " + getBeanName());
 
+        boolean isLockedJob = (lockResourceManager != null && getLockResource() != null);
+
         final JobConfig config = getJobConfig();
         if (shouldRun(config)) {
+
+            if (isLockedJob) {
+                boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(),
+                        FlowId.peekFlowId());
+
+                // if we got at this point, we have a lock - else we got an exception that can be ignored.
+                if (!acquiredLock) {
+                    log(Level.INFO, "job's resource is locked and job will not start", null);
+                    return;
+                } else {
+                    log(Level.DEBUG, "acquired resource lock for job; job will start", null);
+                }
+            }
+
+            // notify about start running this job
+            notifyStartRunning(context);
+
+            // run the job and catch ALL exceptions
+            // TBC define a condition to control job execution in local
+            // environment
+            // (e.g. job.runlocal=name1 name2 ....)
+
+            Throwable throwable = null;
             try {
-                if (lockResourceManager != null && getLockResource() != null) {
-                    lockResourceManager.acquireLock(getBeanName(), getLockResource(), FlowId.peekFlowId());
-                    // if we got at this point, we have a lock - else we got an exception that can be ignored.
+                doRun(context, config);
+            } catch (final Throwable e) {
+                log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
+                throwable = e;
+            } finally {
+
+                // notify about stop running this job
+                if (isLockedJob) {
+                    lockResourceManager.releaseLock(getLockResource());
                 }
 
-                // notify about start running this job
-                notifyStartRunning(context);
-
-                // run the job and catch ALL exceptions
-                // TBC define a condition to control job execution in local
-                // environment
-                // (e.g. job.runlocal=name1 name2 ....)
-
-                Throwable throwable = null;
-                try {
-                    doRun(context, config);
-                } catch (final Throwable e) {
-                    log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
-                    throwable = e;
-                } finally {
-
-                    // notify about stop running this job
-                    if (lockResourceManager != null && getLockResource() != null) {
-                        lockResourceManager.releaseLock(getLockResource());
-                    }
-
-                    notifyStopRunning(throwable);
-                }
-            } catch (final Exception e) {
-                log(Level.INFO, "job's resource is locked and job will not start", null);
+                notifyStopRunning(throwable);
             }
         }
     }

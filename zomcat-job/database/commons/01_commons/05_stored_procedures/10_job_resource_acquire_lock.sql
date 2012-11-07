@@ -1,31 +1,36 @@
-create or replace function zz_commons.job_resource_acquire_lock (
+CREATE OR replace FUNCTION zz_commons.job_resource_acquire_lock (
     p_locking_component             text,
     p_lock_resource                 text,
     p_flowid                        text,
     p_expected_maximum_duration     bigint
-) returns boolean as
+) RETURNS boolean AS
 $BODY$
 /**
     -- $Id$
     -- $HeadURL$
 */
-begin
+BEGIN
+    BEGIN
+        IF ( SELECT count(1) FROM zz_commons.resource_lock WHERE rl_resource = p_lock_resource ) > 0 THEN
+            RETURN false;
+        END IF;
 
-    if ( select count(1) from zz_commons.resource_lock where rl_resource = p_lock_resource ) > 0 then
-      return false;
-    end if;
+        INSERT INTO zz_commons.resource_lock
+            (rl_resource, rl_locked_by, rl_expected_maximum_duration, rl_flowid)
+        VALUES (p_lock_resource, p_locking_component, p_expected_maximum_duration * '1 millisecond'::interval, p_flowid);
 
-    insert into zz_commons.resource_lock
-        (rl_resource, rl_locked_by, rl_expected_maximum_duration, rl_flowid)
-    values (p_lock_resource, p_locking_component, p_expected_maximum_duration * '1 millisecond'::interval, p_flowid);
+        RETURN true; -- else an unique constraint violation is thrown.
 
-    return true; -- else an unique constraint violation is thrown.
-end
+    EXCEPTION
+        WHEN unique_violation THEN
+            RETURN false;
+    END;
+END
 $BODY$
 language plpgsql
     volatile
     security definer
     cost 100;
 
-grant execute on function zz_commons.job_resource_acquire_lock ( text,text,text,bigint ) to zalando_api_executor;
-alter function zz_commons.job_resource_acquire_lock ( text,text,text,bigint ) owner to zalando;
+GRANT EXECUTE ON FUNCTION zz_commons.job_resource_acquire_lock (text, text, text, bigint) TO zalando_api_executor;
+ALTER FUNCTION zz_commons.job_resource_acquire_lock (text, text, text, bigint) owner TO zalando;
