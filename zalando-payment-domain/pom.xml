@@ -9,8 +9,8 @@
     </parent>
 
     <groupId>de.zalando</groupId>
-    <artifactId>zalando-payment-domain</artifactId>
-    <version>1.0.0</version>
+    <artifactId>payment-domain</artifactId>
+    <version>1.0.1</version>
 
     <packaging>jar</packaging>
 
