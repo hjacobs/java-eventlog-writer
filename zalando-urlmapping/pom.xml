@@ -4,14 +4,17 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.4.26</version>
+        <version>1.5.63</version>
     </parent>
 
     <groupId>de.zalando.util.web</groupId>
     <artifactId>zalando-urlmapping</artifactId>
     <version>1.0.3</version>
-
-    <name>zalando-urlmapping</name>
+    <name>URL mapping lib</name>
+    <description>lib for fast url mapping</description>
+    <organization>
+        <name>Zalando/Technology/Shop</name>
+    </organization>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
