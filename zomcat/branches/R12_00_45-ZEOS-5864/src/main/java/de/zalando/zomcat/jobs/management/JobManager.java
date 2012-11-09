@@ -58,19 +58,19 @@ public interface JobManager {
     /**
      * Get all unscheduled managed Jobs.
      *
-     * @return  List of all scheduled Jobs
+     * @return  List of all unscheduled Jobs
      */
     List<JobManagerManagedJob> getUnscheduledManagedJobs();
 
     /**
-     * Get Managed Job for JobName and JobGroup.
+     * Get {@link JobManagerManagedJob} by {@link JobSchedulingConfiguration}.
      *
-     * @param   jobName
-     * @param   jobGroup
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the
+     *                                      {@link JobManagerManagedJob} to get
      *
-     * @return  {@link JobManagerManagedJob} idenfified by {@link JobSchedulingConfiguration}
+     * @return  matching {@link JobManagerManagedJob} or <code>null</code> if not found
      *
-     * @throws  JobManagerException  if {@link JobSchedulingConfiguration} is <code>null</code>
+     * @throws  JobManagerException  if any unanticipated error occurs during getManagedJob
      */
     JobManagerManagedJob getManagedJob(JobSchedulingConfiguration jobSchedulingConfiguration)
         throws JobManagerException;
@@ -120,7 +120,7 @@ public interface JobManager {
      * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
      * @param   force                       Even if the Job is not scheduled on current Application Instance, it may be
      *                                      forced to trigger by use of this flag. <code>true</code> will trigger the
-     *                                      Job regardless of its scheduled state
+     *                                      Job regardless of its scheduled state.
      *
      * @throws  JobManagerException  if any error occurs
      */
@@ -132,7 +132,7 @@ public interface JobManager {
      * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
      * @param   force                       Even if the Job is not scheduled on current Application Instance, it may be
      *                                      forced to trigger by use of this flag. <code>true</code> will trigger the
-     *                                      Job regardless of its scheduled state
+     *                                      Job regardless of its scheduled state.
      *
      * @throws  JobManagerException  if any error occurs
      */
@@ -143,6 +143,8 @@ public interface JobManager {
      * according to scheduling configuration.
      *
      * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     * @param   active                      Toggle Job into active (<code>true</code>) or inactive (<code>false</code>)
+     *                                      state
      *
      * @throws  JobManagerException  if any error occurs
      */
@@ -151,10 +153,7 @@ public interface JobManager {
     /**
      * Toggles a given JobGroup on the respective Application Instance.
      *
-     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
-     * @param   force                       Even if the Job is not scheduled on current Application Instance, it may be
-     *                                      forced to trigger by use of this flag. <code>true</code> will trigger the
-     *                                      Job regardless of its scheduled state
+     * @param   jobGroupName  The name of the JobGroup to toggle
      *
      * @throws  JobManagerException  if any error occurs
      */
@@ -163,18 +162,20 @@ public interface JobManager {
     /**
      * Cancel a given Job.
      *
-     * @param   jobSchedulingConfig
+     * @param   jobSchedulingConfig  The {@link JobSchedulingConfiguration} identifying the {@link JobManagerManagedJob}
+     *                               to cancel
      *
-     * @throws  JobManagerException
+     * @throws  JobManagerException  if any unanticipated error occurs on cancel of Job
      */
     void cancelJob(JobSchedulingConfiguration jobSchedulingConfig) throws JobManagerException;
 
     /**
-     * Trigger a given Job.
+     * Cancel a given Job.
      *
-     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} identifying the Job to be triggered
+     * @param   quartzJobDetailName   The Quartz {@link JobDetail} Name of Job
+     * @param   quartzJobDetailGroup  The Quartz {@link JobDetail} Group of Job
      *
-     * @throws  JobManagerException  if any error occurs
+     * @throws  JobManagerException  if any unanticipated error occurs on cancel of Job
      */
     void cancelJob(String quartzJobDetailName, String quartzJobDetailGroup) throws JobManagerException;
 
@@ -188,34 +189,37 @@ public interface JobManager {
     /**
      * Get the OperationMode.
      *
-     * @return  The OperationMode
+     * @return  The {@link OperationMode}
      */
     OperationMode getOperationMode();
 
     /**
-     * Getter for Maintanence Mode Status - whether it is active or not.
+     * Getter for Maintenance Mode Status - whether it is active or not.
      *
-     * @param  isMaintanenceMode
+     * @return  <code>true</code> if {@link OperationMode} is set to MAINTENANCE, <code>false</code> otherwise
      */
     boolean isMainanenceModeActive();
 
     /**
      * Is Job Scheduled.
      *
-     * @param   jobName   JobName
-     * @param   jobGroup  JobGroup
+     * @param   jobName   Quartz {@link JobDetail} Name
+     * @param   jobGroup  Qiuartz {@link JobDetail} Group
      *
      * @return  <code>true</code>if Job is scheduled, <code>false</code> otherwise
      */
     boolean isJobScheduled(String jobName, String jobGroup) throws JobManagerException;
 
     /**
-     * Activate the Maintanence Mode in the JobManager - cancels/holds all future Job Executions Waits for Jobs to be
+     * Activate the Maintenance Mode in the JobManager - cancels/holds all future Job Executions Waits for Jobs to be
      * finished.
      *
-     * @param  isMaintanenceMode
+     * @param   isMaintenanceMode  if <code>true</code> set {@link OperationMode} to MAINTENANCE, if <code>false</code>
+     *                             set {@link OperationMode} to NORMAL.
+     *
+     * @throws  JobManagerException  if any unanticipated error occurs setting the Maintenance Mode
      */
-    void setMainanenceModeActive(boolean isMaintanenceMode) throws JobManagerException;
+    void setMaintenanceModeActive(boolean isMaintenanceMode) throws JobManagerException;
 
     /**
      * Simple Startup Method for JobManager.
@@ -234,7 +238,8 @@ public interface JobManager {
     /**
      * Cause all {@link JobSchedulingConfiguration}s to be updated and Jobs rescheduled as necessary.
      *
-     * @throws  JobManagerException
+     * @throws  JobManagerException  if any unanticipated error occurs performing the {@link JobSchedulingConfiguration}
+     *                               update and resulting reschedule of Jobs.
      */
     void updateJobSchedulingConfigurations() throws JobManagerException;
 }

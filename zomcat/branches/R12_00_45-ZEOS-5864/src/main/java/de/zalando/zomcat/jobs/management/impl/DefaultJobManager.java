@@ -26,7 +26,7 @@ import de.zalando.zomcat.util.DiscardingThreadPoolTaskExecutor;
 
 /**
  * Default Implementation of {@link JobManager} interface. Simple component that manages Quartz Jobs. Features include:
- * on demand scheduling, on demand rescheduling, on demand job cancelation, maintanence mode support, job history incl
+ * on demand scheduling, on demand rescheduling, on demand job cancelation, Maintenance mode support, job history incl
  * results, per AppInstance job and job group (de)activation override, etc. Job Management occurs by reusing the Spring
  * Framework Quartz Integration classes. The DefaultJobManager acts as though it were the Spring Framework initializing
  * all necessary Job components as Spring would during its Context Startup.

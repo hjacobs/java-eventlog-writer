@@ -62,7 +62,7 @@ import de.zalando.zomcat.jobs.management.JobSchedulingConfigurationType;
 
 /**
  * Default Implementation of {@link JobManager} interface. Simple component that manages Quartz Jobs. Features include:
- * on demand scheduling, on demand rescheduling, on demand job cancelation, maintanence mode support, job history incl
+ * on demand scheduling, on demand rescheduling, on demand job cancelation, Maintenance mode support, job history incl
  * results, per AppInstance job and job group (de)activation override, etc.
  *
  * @author  Thomas Zirke (thomas.zirke@zalando.de)
@@ -166,7 +166,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
     /**
      * Create a JobSchedulingConfigurationPoller {@link Executor} that polls the {@link JobSchedulingConfiguration}s
-     * periodically (every 5 minutes).
+     * periodically (every minute).
      *
      * @throws  JobManagerException  if any error occurs during creation of {@link Executor}
      */
@@ -195,13 +195,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
         schedulingConfigPollingExecutor.shutdown();
         while (schedulingConfigPollingExecutor.getActiveCount() > 0) {
-            if (schedulingConfigPollingExecutor.getActiveCount() > 0) {
-                try {
-                    Thread.sleep(1000);
-                } catch (final InterruptedException e) {
-                    LOG.error(
-                        "An error occured waiting for JobSchedulingConfiguration Poller/Rescheduler Thread to finish");
-                }
+            try {
+                Thread.sleep(1000);
+            } catch (final InterruptedException e) {
+                LOG.error(
+                    "An error occured waiting for JobSchedulingConfiguration Poller/Rescheduler Thread to finish");
             }
         }
 
@@ -270,7 +268,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             throw new JobManagerException(e);
         } catch (final ClassNotFoundException e) {
             throw new JobManagerException(e);
-        } catch (final Exception e) {
+        } catch (final SchedulerException e) {
             throw new JobManagerException(e);
         }
     }
@@ -280,10 +278,12 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      *
      * @param   jobSchedulingConfig  The {@link JobSchedulingConfiguration} instance to use for ManagedJobCreation
      *
-     * @throws  Exception
+     * @throws  ClassNotFoundException  if the JobClass cannot be loaded or found
+     * @throws  ParseException          if the supplied CRON Expression is invalid or could not be parsed
+     * @throws  JobManagerException     if any other unanticipated error occurs
      */
     private JobManagerManagedJob createManagedJob(final JobSchedulingConfiguration jobSchedulingConfig)
-        throws Exception {
+        throws ParseException, JobManagerException, ClassNotFoundException {
 
         // Create Job Detail from Scheduler Configuration
         final JobDetail jobDetail = toQuartzJobDetailFromJobSchedulingConfig(jobSchedulingConfig);
@@ -316,7 +316,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             }
         }
 
-        return onCreateManagedJob(jobSchedulingConfig, jobDetail, quartzTrigger, poolSize, queueSize);
+        try {
+            return onCreateManagedJob(jobSchedulingConfig, jobDetail, quartzTrigger, poolSize, queueSize);
+        } catch (final Exception e) {
+            throw new JobManagerException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -328,10 +332,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      * @return  The {@link Trigger} instance representing the scheduling information part of Jobs
      *          {@link JobSchedulingConfiguration}
      *
-     * @throws  Exception  any other unanticipated error occurs
+     * @throws  ParseException       if the CRON Expression could not be parsed
+     * @throws  JobManagerException  if the {@link JobSchedulingConfiguration} contains unsupported Trigger Type
      */
     private Trigger createQuartzTrigger(final JobSchedulingConfiguration jobSchedulingConfig, final JobDetail jobDetail)
-        throws Exception {
+        throws JobManagerException, ParseException {
 
         // Create Quartz Trigger from Scheduler Configuration
         Trigger quartzTrigger = null;
@@ -340,22 +345,13 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             case CRON :
                 quartzTrigger = new CronTrigger();
                 ((CronTrigger) quartzTrigger).setCronExpression(jobSchedulingConfig.getCronExpression());
-                ((CronTrigger) quartzTrigger).setJobDataMap(jobDetail.getJobDataMap());
-                quartzTrigger.setName(String.format("%s%s", jobDetail.getName(), "Trigger"));
-                quartzTrigger.setGroup(jobDetail.getGroup());
-                quartzTrigger.setJobName(jobDetail.getName());
-                quartzTrigger.setJobGroup(jobDetail.getGroup());
-
                 break;
 
             case SIMPLE :
                 quartzTrigger = new SimpleTrigger();
+                ((SimpleTrigger) quartzTrigger).setStartTime(new Date(
+                        System.currentTimeMillis() + jobSchedulingConfig.getStartDelayMS()));
                 ((SimpleTrigger) quartzTrigger).setRepeatInterval(jobSchedulingConfig.getIntervalMS());
-                ((SimpleTrigger) quartzTrigger).setJobDataMap(jobDetail.getJobDataMap());
-                quartzTrigger.setName(String.format("%s%s", jobDetail.getName(), "Trigger"));
-                quartzTrigger.setGroup(jobDetail.getGroup());
-                quartzTrigger.setJobName(jobDetail.getName());
-                quartzTrigger.setJobGroup(jobDetail.getGroup());
                 break;
 
             default :
@@ -363,6 +359,13 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                         jobSchedulingConfig.getJobType()));
 
         }
+
+        // Common Trigger Setup
+        quartzTrigger.setJobDataMap(jobDetail.getJobDataMap());
+        quartzTrigger.setName(String.format("%s%s", jobDetail.getName(), "Trigger"));
+        quartzTrigger.setGroup(jobDetail.getGroup());
+        quartzTrigger.setJobName(jobDetail.getName());
+        quartzTrigger.setJobGroup(jobDetail.getGroup());
 
         return quartzTrigger;
     }
@@ -405,7 +408,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             retVal = false;
         }
 
-        // if MaintanenceModes is active - no job is allowed to run
+        // if Maintenance Mode is active - no job is allowed to run
         if (isMainanenceModeActive()) {
             retVal = false;
         }
@@ -536,9 +539,9 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                 });
         }
 
-        // if MaintanenceModes is active - no job is allowed to run
+        // if Maintenance Mode is active - no job is allowed to run
         if (isMainanenceModeActive()) {
-            LOG.info("Skipping scheduling of Job: [{}]. Maintanence Mode is active", jobSchedulingConfig);
+            LOG.info("Skipping scheduling of Job: [{}]. Maintenance Mode is active", jobSchedulingConfig);
         }
     }
 
@@ -547,7 +550,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      *
      * @param   jobSchedulingConfig  the {@link JobSchedulingConfiguration} to validate
      *
-     * @throws  IllegalArgumentException
+     * @throws  IllegalArgumentException  if any validation error occurs
      */
     private void validateJobSchedulingConfig(final JobSchedulingConfiguration jobSchedulingConfig)
         throws IllegalArgumentException {
@@ -595,7 +598,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      *
      * @return  The unique name generated for Job
      *
-     * @throws  ClassNotFoundException
+     * @throws  ClassNotFoundException  if the supplied JobClass cannot be loaded or found
      */
     private String getJobName(final JobSchedulingConfiguration jobSchedulingConfig) throws ClassNotFoundException {
         final Class<?> clazz = jobSchedulingConfig.getJobJavaClass();
@@ -641,10 +644,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     /**
      * Get {@link JobManagerManagedJob} for given JobDetail Name and Group.
      *
-     * @param   quartzJobDetailName
-     * @param   quartzJobDetailGroup
+     * @param   quartzJobDetailName   The Quartz {@link JobDetail} name
+     * @param   quartzJobDetailGroup  The Quartz {@link JobDetail} group
      *
-     * @return
+     * @return  matching {@link JobManagerManagedJob} or <code>null</code> if no {@link JobManagerManagedJob} can be
+     *          found for given parameters
      */
     protected final JobManagerManagedJob getManagedJobByJobDetailNameAndJobDetailGroup(final String quartzJobDetailName,
             final String quartzJobDetailGroup) {
@@ -666,7 +670,8 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      * (re)schedules/cancels scheduled Jobs accordingly. Only a single thread must be allowed to to this at any given
      * time.
      *
-     * @throws  JobManagerException
+     * @throws  JobManagerException  if any error occurs updateing the {@link JobSchedulingConfiguration}s via
+     *                               {@link JobSchedulingConfigurationProvider}
      */
     private synchronized void updateSchedulingConfigurationsAndRescheduleManagedJobs() throws JobManagerException {
         try {
@@ -789,10 +794,13 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     }
 
     /**
-     * @param   jobSchedulingConfiguration
-     * @param   removeFromManagedJobs
+     * Cancel Job identified by {@link JobSchedulingConfiguration}.
      *
-     * @throws  JobManagerException
+     * @param   jobSchedulingConfiguration  The {@link JobSchedulingConfiguration} of Job to cancel
+     * @param   removeFromManagedJobs       if <code>true</code> remove job from Map of managed Jobs after cancel,
+     *                                      <code>false <code>will only cancel Job but keep it managed
+     *
+     * @throws  JobManagerException  if any error occurs canceling the Job
      */
     private void cancelJob(final JobSchedulingConfiguration jobSchedulingConfiguration,
             final boolean removeFromManagedJobs) throws JobManagerException {
@@ -821,6 +829,21 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     }
 
     /**
+     * Check if a given Job is scheduled.
+     *
+     * @param   job  The {@link JobManagerManagedJob} to check
+     *
+     * @return  <code>true</code> if the job is scheduled, <code>false</code> otheriwsae
+     *
+     * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
+     */
+    private boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
+        return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
+                && job.getQuartzScheduler().getJobDetail(job.getQuartzJobDetail().getName(),
+                    job.getQuartzJobDetail().getGroup()) != null;
+    }
+
+    /**
      * Callback used to create {@link JobManagerManagedJob} instance in respective Implementation of {@link JobManager}
      * interface.
      *
@@ -836,28 +859,15 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             JobDetail jobDetail, Trigger trigger, int poolSize, int queueSize) throws Exception;
 
     /**
-     * @param   jobSchedulingConfiguration
-     * @param   removeFromManagedJobs
+     * Callback used to cancel {@link JobManagerManagedJob}.
      *
-     * @throws  JobManagerException
+     * @param   managedJob             The {@link JobManagerManagedJob} to cancel
+     * @param   removeFromManagedJobs  flag indicating whether or not to remove job from Map of managed Jobs
+     *
+     * @throws  JobManagerException  if any unanticipated error occurs executing the callback
      */
     protected abstract void onCancelJob(final JobManagerManagedJob managedJob, final boolean removeFromManagedJobs)
         throws JobManagerException;
-
-    /**
-     * Check if a given Job is scheduled.
-     *
-     * @param   job  The {@link JobManagerManagedJob} to check
-     *
-     * @return  <code>true</code> if the job is scheduled, <code>false</code> otheriwsae
-     *
-     * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
-     */
-    protected final boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
-        return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
-                && job.getQuartzScheduler().getJobDetail(job.getQuartzJobDetail().getName(),
-                    job.getQuartzJobDetail().getGroup()) != null;
-    }
 
     /**
      * Internal Getter for {@link ApplicationContext}.
@@ -1322,8 +1332,9 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     }
 
     @Override
-    public final synchronized void setMainanenceModeActive(final boolean isMaintanenceMode) throws JobManagerException {
-        if (isMaintanenceMode) {
+    public final synchronized void setMaintenanceModeActive(final boolean isMaintenanceMode)
+        throws JobManagerException {
+        if (isMaintenanceMode) {
             this.operationMode = OperationMode.MAINTENANCE;
             cancelAllJobs();
             cancelJobSchedulingConfigurationPollerExecutor();

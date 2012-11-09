@@ -453,7 +453,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     private boolean isJobManagerProvidedJobConfig() {
-        return this.jobConfig != null;
+        return jobConfig != null;
     }
 
     /**

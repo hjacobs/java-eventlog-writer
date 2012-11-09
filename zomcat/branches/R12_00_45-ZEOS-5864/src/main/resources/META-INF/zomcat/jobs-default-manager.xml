@@ -11,14 +11,13 @@
     <!-- Database Job Scheduler Config -->
     <bean id="databaseJobSchedulerConfigProvider" class="de.zalando.zomcat.jobs.management.impl.DatabaseJobSchedulerConfigProvider"/>
 
-    <!-- Get Job Scheduling Configs Proc -->
-    <bean id="defaultGetJobSchedulingConfigsProc" class="de.zalando.zomcat.jobs.management.persistence.DefaultGetJobSchedulingConfigsProc" >
-        <constructor-arg index="0" ref="jobConfigDataSource" />
-    </bean>
-
     <!-- Make Job Status Bean aware of JobManager in order to have it behave differently -->
     <bean id="jobsStatusBean" class="de.zalando.zomcat.jobs.JobsStatusBean">
         <property name="jobManager" ref="zalandoJobManager"/>
     </bean>
+
+    <!-- A DataSourceProvider named 'jobManagerDatasourceProvider' must be present in Applications Spring Context -->
+    <!-- This is most easily achieved by aliasing the Applications main DatasourceProvider to specified bean name -->
+
 
 </beans>

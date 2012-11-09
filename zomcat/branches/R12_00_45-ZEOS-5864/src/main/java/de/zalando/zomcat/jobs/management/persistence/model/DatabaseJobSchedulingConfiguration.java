@@ -8,8 +8,7 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import de.zalando.dbutils.sproc.SProcParameter;
-import de.zalando.dbutils.sproc.SqlType;
+import com.typemapper.annotations.DatabaseField;
 
 import de.zalando.zomcat.jobs.JobConfig;
 import de.zalando.zomcat.jobs.JobGroupConfig;
@@ -24,35 +23,49 @@ import de.zalando.zomcat.jobs.management.JobSchedulingConfiguration;
  */
 public final class DatabaseJobSchedulingConfiguration {
 
-    @SProcParameter(name = "result_id", type = SqlType.INTEGER)
+    @DatabaseField(name = "result_id")
     private Integer id;
-    @SProcParameter(name = "result_job_class", type = SqlType.VARCHAR)
+
+    @DatabaseField(name = "result_job_class")
     private String jobClass;
-    @SProcParameter(name = "result_job_cron_expression", type = SqlType.VARCHAR)
+
+    @DatabaseField(name = "result_job_cron_expression")
     private String jobCronExpression;
-    @SProcParameter(name = "result_job_description", type = SqlType.BOOLEAN)
+
+    @DatabaseField(name = "result_job_description")
     private String jobDescription;
-    @SProcParameter(name = "result_job_active", type = SqlType.BOOLEAN)
+
+    @DatabaseField(name = "result_job_active")
     private Boolean jobActive;
-    @SProcParameter(name = "result_job_processing_limit", type = SqlType.INTEGER)
+
+    @DatabaseField(name = "result_job_processing_limit")
     private Integer jobProcessingLimit;
-    @SProcParameter(name = "result_job_startup_processing_limit", type = SqlType.INTEGER)
+
+    @DatabaseField(name = "result_job_startup_processing_limit")
     private Integer jobStartupProcessingLimit;
-    @SProcParameter(name = "result_job_app_instance_keys", type = SqlType.ARRAY)
+
+    @DatabaseField(name = "result_job_app_instance_keys")
     private Set<String> jobAppInstanceKeys;
-    @SProcParameter(name = "result_job_data", type = SqlType.ARRAY)
+
+    @DatabaseField(name = "result_job_data")
     private List<String> jobData;
-    @SProcParameter(name = "result_job_group_name", type = SqlType.VARCHAR)
+
+    @DatabaseField(name = "result_job_group_name")
     private String jobGroupName;
-    @SProcParameter(name = "result_job_group_description", type = SqlType.VARCHAR)
+
+    @DatabaseField(name = "result_job_group_description")
     private String jobGroupDescription;
-    @SProcParameter(name = "result_job_group_active", type = SqlType.BOOLEAN)
+
+    @DatabaseField(name = "result_job_group_active")
     private Boolean jobGroupActive;
-    @SProcParameter(name = "result_job_group_app_instance_keys", type = SqlType.ARRAY)
+
+    @DatabaseField(name = "result_job_group_app_instance_keys")
     private Set<String> jobGroupAppInstanceKeys;
-    @SProcParameter(name = "result_created", type = SqlType.TIMESTAMP)
+
+    @DatabaseField(name = "result_created")
     private Date created;
-    @SProcParameter(name = "result_last_modified", type = SqlType.TIMESTAMP)
+
+    @DatabaseField(name = "result_last_modified")
     private Date lastModified;
 
     /**

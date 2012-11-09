@@ -1152,7 +1152,7 @@ public abstract class AbstractJobManagerIT {
             assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
             assertEquals(1, jobManagerToTest.getUnscheduledManagedJobs().size());
 
-            jobManagerToTest.setMainanenceModeActive(true);
+            jobManagerToTest.setMaintenanceModeActive(true);
             assertNotNull(jobManagerToTest.getManagedJobs());
             assertNotNull(jobManagerToTest.getScheduledManagedJobs());
             assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
@@ -1163,7 +1163,7 @@ public abstract class AbstractJobManagerIT {
             assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
             assertEquals(5, jobManagerToTest.getUnscheduledManagedJobs().size());
             assertTrue(jobManagerToTest.isMainanenceModeActive());
-            jobManagerToTest.setMainanenceModeActive(false);
+            jobManagerToTest.setMaintenanceModeActive(false);
 
             assertNotNull(jobManagerToTest.getManagedJobs());
             assertNotNull(jobManagerToTest.getScheduledManagedJobs());
@@ -1244,7 +1244,7 @@ public abstract class AbstractJobManagerIT {
             assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
             assertEquals(jobManagerToTest.getUnscheduledManagedJobs().size(), 1);
 
-            jobManagerToTest.setMainanenceModeActive(true);
+            jobManagerToTest.setMaintenanceModeActive(true);
             assertNotNull(jobManagerToTest.getManagedJobs());
             assertNotNull(jobManagerToTest.getScheduledManagedJobs());
             assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());

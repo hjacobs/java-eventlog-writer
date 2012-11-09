@@ -1,5 +1,7 @@
 package de.zalando.zomcat.jobs.management.impl;
 
+import java.util.concurrent.ConcurrentMap;
+
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -12,6 +14,8 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
 
 import de.zalando.zomcat.jobs.AbstractJob;
 import de.zalando.zomcat.jobs.RunningWorker;
@@ -26,7 +30,7 @@ import de.zalando.zomcat.jobs.management.JobSchedulingConfiguration;
  * (POOL_SIZE, QUEUE_SIZE - is not used in this implementation - queues for JobExecutions do not exist here). This
  * solution uses far less resources than the 'one scheduler per job' approach (single Scheduler, single ThreadPool
  * instead of per Job creation of Schedulers and Threadpools). Features include: on demand scheduling, on demand
- * rescheduling, on demand job cancelation, maintanence mode support, job history incl results, per AppInstance job and
+ * rescheduling, on demand job cancelation, Maintenance mode support, job history incl results, per AppInstance job and
  * job group (de)activation override, etc.
  *
  * @author  Thomas Zirke (thomas.zirke@zalando.de)
@@ -37,6 +41,11 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
      * Logger for this class.
      */
     private static final transient Logger LOG = LoggerFactory.getLogger(SingleQuartzSchedulerJobManager.class);
+
+    /**
+     * Contains all Worker Threads whose Thread Name has been adjusted so it can be reset once the Job is done.
+     */
+    private final ConcurrentMap<Thread, String> originalThreadNames = Maps.newConcurrentMap();
 
     /**
      * Quartz Scheduler to use.
@@ -60,6 +69,7 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
             this.quartzScheduler.addGlobalJobListener(this);
             this.quartzScheduler.addGlobalTriggerListener(this);
             this.quartzScheduler.start();
+            this.originalThreadNames.clear();
         } catch (final SchedulerException e) {
             throw new JobManagerException(e);
         }
@@ -73,6 +83,8 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
                 quartzScheduler.shutdown(true);
                 quartzScheduler = null;
             }
+
+            this.originalThreadNames.clear();
         } catch (final SchedulerException e) {
             throw new JobManagerException(e);
         }
@@ -82,8 +94,7 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
     protected void onCancelJob(final JobManagerManagedJob managedJob, final boolean removeFromManagedJobs)
         throws JobManagerException {
 
-// managedJob.getQuartzScheduler().deleteJob(managedJob.getQuartzJobDetail().getName(),
-// managedJob.getQuartzJobDetail().getGroup());
+        // If Job is to be removed from managed Map of Jobs
         if (removeFromManagedJobs) {
 
             // Check if there are Job Instances still running before Stopping the Jobs Bean Infrastructure
@@ -117,7 +128,14 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
      */
     @Override
     public void triggerComplete(final Trigger trigger, final JobExecutionContext context,
-            final int triggerInstructionCode) { }
+            final int triggerInstructionCode) {
+
+        // Restore original Thread Name if Thread is managed for Original Name Restore
+        if (originalThreadNames.containsKey(Thread.currentThread())) {
+            Thread.currentThread().setName(originalThreadNames.get(Thread.currentThread()));
+            originalThreadNames.remove(Thread.currentThread());
+        }
+    }
 
     @Override
     public void triggerFired(final Trigger trigger, final JobExecutionContext context) { }
@@ -133,6 +151,11 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
         boolean retVal = false;
         if (currentJob != null) {
             if (currentJob.getRunningWorkerCount() < currentJob.getMaxConcurrentExecutionCount()) {
+
+                // Store Original Thread Name so it can be restored once the Executed Job has finished
+                originalThreadNames.put(Thread.currentThread(), Thread.currentThread().getName());
+
+                // Alter Thread Name
                 Thread.currentThread().setName(currentJob.getQuartzJobDetail().getName() + "Executor");
 
                 final Job quartzJob = context.getJobInstance();

@@ -283,7 +283,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     private void toggleJobManagerOperationMode() {
         if (isJobManagerAvailable()) {
             try {
-                jobManager.setMainanenceModeActive(this.operationMode == OperationMode.MAINTENANCE);
+                jobManager.setMaintenanceModeActive(this.operationMode == OperationMode.MAINTENANCE);
             } catch (final JobManagerException e) {
                 LOG.error("An error occured setting Maintenance Mode on JobManager. Error was: [{}]", e.getMessage(),
                     e);

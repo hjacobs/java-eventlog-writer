@@ -89,7 +89,7 @@ public class DefaultJobManagerManagedJobHistory {
      *
      * @return  The Runtime of the respective Job Execution as Milliseconds
      */
-    public long getRuntimeMS() {
+    public long getRuntimeMillis() {
         return stopDate.getTime() - startDate.getTime();
     }
 
