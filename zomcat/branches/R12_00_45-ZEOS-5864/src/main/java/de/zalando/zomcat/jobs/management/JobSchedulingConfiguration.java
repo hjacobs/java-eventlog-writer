@@ -17,9 +17,9 @@ public final class JobSchedulingConfiguration {
 
     private final JobSchedulingConfigurationType jobType;
 
-    private Long startDelayMS;
+    private Long startDelayMillis;
 
-    private Long intervalMS;
+    private Long intervalMillis;
 
     private String cronExpression;
 
@@ -78,17 +78,17 @@ public final class JobSchedulingConfiguration {
     /**
      * Constructor for Simple/Interval based JobConfig.
      *
-     * @param  startDelayMS  The Delay after Application Initialization in Milliseconds at which the Job should run for
-     *                       the first time
-     * @param  intervalMS    The Repetition Interval in Milliseconds for Job Repititions
-     * @param  jobClass      The JobClass to use
-     * @param  jobData       Job Data as {@link String} <-> {@link String} {@link Map}
+     * @param  startDelayMillis  The Delay after Application Initialization in Milliseconds at which the Job should run
+     *                           for the first time
+     * @param  intervalMillis    The Repetition Interval in Milliseconds for Job Repititions
+     * @param  jobClass          The JobClass to use
+     * @param  jobData           Job Data as {@link String} <-> {@link String} {@link Map}
      */
-    public JobSchedulingConfiguration(final long startDelayMS, final long intervalMS, final String jobClass,
+    public JobSchedulingConfiguration(final long startDelayMillis, final long intervalMillis, final String jobClass,
             final String jobDescription, final Map<String, String> jobData, final JobConfig jobConfig) {
         jobType = JobSchedulingConfigurationType.SIMPLE;
-        this.startDelayMS = startDelayMS;
-        this.intervalMS = intervalMS;
+        this.startDelayMillis = startDelayMillis;
+        this.intervalMillis = intervalMillis;
         this.jobClass = jobClass;
         this.jobData = jobData;
         this.jobConfig = jobConfig;
@@ -109,8 +109,8 @@ public final class JobSchedulingConfiguration {
      *
      * @return  the startDelayMS
      */
-    public Long getStartDelayMS() {
-        return startDelayMS;
+    public Long getStartDelayMillis() {
+        return startDelayMillis;
     }
 
     /**
@@ -118,8 +118,8 @@ public final class JobSchedulingConfiguration {
      *
      * @return  the intervalMS
      */
-    public Long getIntervalMS() {
-        return intervalMS;
+    public Long getIntervalMillis() {
+        return intervalMillis;
     }
 
     /**
@@ -253,8 +253,10 @@ public final class JobSchedulingConfiguration {
             isSchedulingEqual = this.getCronExpression() != null
                     && this.getCronExpression().equals(compare.getCronExpression());
         } else {
-            isSchedulingEqual = (this.getIntervalMS() != null && this.getIntervalMS().equals(compare.getIntervalMS()))
-                    & (this.getStartDelayMS() != null && this.getStartDelayMS().equals(compare.getStartDelayMS()));
+            isSchedulingEqual = (this.getIntervalMillis() != null
+                        && this.getIntervalMillis().equals(compare.getIntervalMillis()))
+                    & (this.getStartDelayMillis() != null
+                        && this.getStartDelayMillis().equals(compare.getStartDelayMillis()));
         }
 
         boolean isJobConfigEqual = true;
@@ -275,10 +277,10 @@ public final class JobSchedulingConfiguration {
         builder.append("JobSchedulingConfig [jobType=");
         builder.append(jobType);
         if (jobType == JobSchedulingConfigurationType.SIMPLE) {
-            builder.append(", startDelayMS=");
-            builder.append(startDelayMS);
-            builder.append(", intervalMS=");
-            builder.append(intervalMS);
+            builder.append(", startDelayMillis=");
+            builder.append(startDelayMillis);
+            builder.append(", intervalMillis=");
+            builder.append(intervalMillis);
         } else {
             builder.append(", cronExpression=");
             builder.append(cronExpression);

@@ -41,6 +41,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -95,6 +96,29 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     private static final transient String QUEUE_SIZE_JOB_DATA_KEY = "queue";
 
     /**
+     * Predicate for Scheduled Jobs - not a new Instance of Predicate for each Call to using method.
+     */
+    private final Predicate<JobManagerManagedJob> scheduledJobsPredicate = new Predicate<JobManagerManagedJob>() {
+
+        @Override
+        public boolean apply(final JobManagerManagedJob input) {
+            boolean retVal = false;
+            try {
+                retVal = isJobScheduled(input);
+            } catch (final SchedulerException e) {
+                LOG.error(e.getMessage(), e);
+            }
+
+            return retVal;
+        }
+    };
+
+    /**
+     * Predicate for Unscheduled Jobs - not a new Instance of Predicate for each Call to using method.
+     */
+    private final Predicate<JobManagerManagedJob> unscheduledJobscPredicate = Predicates.not(scheduledJobsPredicate);
+
+    /**
      * Simple Map of Class<?> to AtomicInteger Sequences.
      */
     private final Map<Class<?>, AtomicInteger> jobNameSequence;
@@ -130,7 +154,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     private JobSchedulingConfigurationProvider delegatingJobSchedulingConfigProvider;
 
     /**
-     * Treadpool Executor for {@link JobSchedulingConfiguration} polling.
+     * Threadpool Executor for {@link JobSchedulingConfiguration} polling and Job (re)scheduling.
      */
     private ScheduledThreadPoolExecutor schedulingConfigPollingExecutor;
 
@@ -291,36 +315,43 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         // Create Quartz Trigger
         final Trigger quartzTrigger = createQuartzTrigger(jobSchedulingConfig, jobDetail);
 
-        // Default Executor Size - default avoids multiple Executions of
-        // Same JOB
-        int poolSize = 1;
-        int queueSize = 0;
-
-        if (jobSchedulingConfig.getJobData() != null) {
-            if (jobSchedulingConfig.getJobData().containsKey(POOL_SIZE_JOB_DATA_KEY)) {
-                try {
-                    poolSize = Integer.valueOf(jobSchedulingConfig.getJobData().get(POOL_SIZE_JOB_DATA_KEY));
-                } catch (final NumberFormatException nfe) {
-                    throw new IllegalArgumentException("invalid thread pool size (not an integer)", nfe);
-                }
-            }
-        }
-
-        if (jobSchedulingConfig.getJobData() != null) {
-            if (jobSchedulingConfig.getJobData().containsKey(QUEUE_SIZE_JOB_DATA_KEY)) {
-                try {
-                    queueSize = Integer.valueOf(jobSchedulingConfig.getJobData().get(QUEUE_SIZE_JOB_DATA_KEY));
-                } catch (final NumberFormatException nfe) {
-                    throw new IllegalArgumentException("invalid thread pool size (not an integer)", nfe);
-                }
-            }
-        }
+        // Default Executor Size - default avoids multiple Executions of Same JOB
+        final int poolSize = parseJobDataInteger(jobSchedulingConfig.getJobData(), POOL_SIZE_JOB_DATA_KEY, 1,
+                "invalid thread pool size (not an integer)");
+        final int queueSize = parseJobDataInteger(jobSchedulingConfig.getJobData(), QUEUE_SIZE_JOB_DATA_KEY, 0,
+                "invalid thread queue size (not an integer)");
 
         try {
             return onCreateManagedJob(jobSchedulingConfig, jobDetail, quartzTrigger, poolSize, queueSize);
         } catch (final Exception e) {
             throw new JobManagerException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Parse an Integer that may be contained in given JobData Map.
+     *
+     * @param   jobDataMap     The {@link Map} containing Metadata as String -> String combination
+     * @param   jobDataMapKey  The {@link Map} key to use for Data extraction
+     * @param   defaultValue   The Default value to return if queried metadata key is not available in given {@link Map}
+     * @param   errorMessage   The Error Message to use when parsing of assumed integer value fails
+     *
+     * @return  The parsed Integer or default given
+     *
+     * @throws  IllegalArgumentException  - if a parsing error occurs
+     */
+    private int parseJobDataInteger(final Map<String, String> jobDataMap, final String jobDataMapKey,
+            final int defaultValue, final String errorMessage) {
+        int retVal = defaultValue;
+        if (jobDataMap != null && jobDataMap.containsKey(jobDataMapKey)) {
+            try {
+                retVal = Integer.valueOf(jobDataMap.get(jobDataMapKey));
+            } catch (final NumberFormatException nfe) {
+                throw new IllegalArgumentException(errorMessage, nfe);
+            }
+        }
+
+        return retVal;
     }
 
     /**
@@ -350,8 +381,8 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             case SIMPLE :
                 quartzTrigger = new SimpleTrigger();
                 ((SimpleTrigger) quartzTrigger).setStartTime(new Date(
-                        System.currentTimeMillis() + jobSchedulingConfig.getStartDelayMS()));
-                ((SimpleTrigger) quartzTrigger).setRepeatInterval(jobSchedulingConfig.getIntervalMS());
+                        System.currentTimeMillis() + jobSchedulingConfig.getStartDelayMillis()));
+                ((SimpleTrigger) quartzTrigger).setRepeatInterval(jobSchedulingConfig.getIntervalMillis());
                 break;
 
             default :
@@ -563,9 +594,9 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             Preconditions.checkArgument(jobSchedulingConfig.getCronExpression() != null,
                 "JobSchedulingConfig.cronExpression cannot be NULL on CRON Job");
         } else if (jobSchedulingConfig.getJobType() == JobSchedulingConfigurationType.SIMPLE) {
-            Preconditions.checkArgument(jobSchedulingConfig.getStartDelayMS() != null,
+            Preconditions.checkArgument(jobSchedulingConfig.getStartDelayMillis() != null,
                 "JobSchedulingConfig.startDelayMS cannot be NULL on SIMPLE Job");
-            Preconditions.checkArgument(jobSchedulingConfig.getIntervalMS() != null,
+            Preconditions.checkArgument(jobSchedulingConfig.getIntervalMillis() != null,
                 "JobSchedulingConfig.intervalMS cannot be NULL on SIMPLE Job");
         }
     }
@@ -622,47 +653,45 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     }
 
     /**
-     * Get {@link JobManagerManagedJob} for given JobDetail.
+     * Check given {@link JobManagerManagedJob} if it matches given Quart JobDetail Name and Group.
      *
-     * @param   jobDetail  The Quartz {@link JobDetail} to find {@link JobManagerManagedJob} for
+     * @param   managedJob            The {@link JobManagerManagedJob} to check
+     * @param   quartzJobDetailName   The Quartz {@link JobDetail} name to check Job for
+     * @param   quartzJobDetailGroup  The Quartz {@link JobDetail} group to check Job for
      *
-     * @return  The matching {@link JobManagerManagedJob} or <code>null</code> if no match could be found
+     * @return  <code>true</code> if {@link JobManagerManagedJob} to check is an exact match for supplied Quartz
+     *          JobDetail Name and Group, <code>false/ <code>otherwise
      */
-    protected final JobManagerManagedJob getManagedJobByJobDetail(final JobDetail jobDetail) {
-        JobManagerManagedJob retVal = null;
-        for (final JobManagerManagedJob curManagedJob : managedJobs.values()) {
-            if (curManagedJob != null && curManagedJob.getQuartzJobDetail() != null
-                    && jobDetail.equals(curManagedJob.getQuartzJobDetail())) {
-                retVal = curManagedJob;
-                break;
-            }
-        }
+    private boolean isJobMatchesQuartzJobDetailNameAndGroup(final JobManagerManagedJob managedJob,
+            final String quartzJobDetailName, final String quartzJobDetailGroup) {
+        return managedJob != null && managedJob.getQuartzJobDetail() != null
+                && managedJob.getQuartzJobDetail().getName().equals(quartzJobDetailName)
+                && managedJob.getQuartzJobDetail().getGroup().equals(quartzJobDetailGroup);
 
-        return retVal;
     }
 
     /**
-     * Get {@link JobManagerManagedJob} for given JobDetail Name and Group.
+     * Is a reschedule required for given {@link JobSchedulingConfiguration} and {@link JobGroupConfig}.
      *
-     * @param   quartzJobDetailName   The Quartz {@link JobDetail} name
-     * @param   quartzJobDetailGroup  The Quartz {@link JobDetail} group
+     * @param   jobSchedulingConfigurationToCheck  The {@link JobSchedulingConfiguration} to check
+     * @param   jobGroupConfig                     The {@link JobGroupConfig} to check
      *
-     * @return  matching {@link JobManagerManagedJob} or <code>null</code> if no {@link JobManagerManagedJob} can be
-     *          found for given parameters
+     * @return
+     *
+     * @throws  SchedulerException   if Quartz throws a {@link SchedulerException} on check
+     * @throws  JobManagerException  if an unanticipated Error occurs checking Jobs active State with {@link JobManager}
      */
-    protected final JobManagerManagedJob getManagedJobByJobDetailNameAndJobDetailGroup(final String quartzJobDetailName,
-            final String quartzJobDetailGroup) {
-        JobManagerManagedJob retVal = null;
-        for (final JobManagerManagedJob curManagedJob : managedJobs.values()) {
-            if (curManagedJob != null && curManagedJob.getQuartzJobDetail() != null
-                    && curManagedJob.getQuartzJobDetail().getName().equals(quartzJobDetailName)
-                    && curManagedJob.getQuartzJobDetail().getGroup().equals(quartzJobDetailGroup)) {
-                retVal = curManagedJob;
-                break;
-            }
-        }
+    private boolean isJobRescheduleRequired(final JobSchedulingConfiguration jobSchedulingConfigurationToCheck,
+            final JobGroupConfig jobGroupConfig) throws SchedulerException, JobManagerException {
+        final JobManagerManagedJob managedJob = this.managedJobs.get(jobSchedulingConfigurationToCheck);
+        final boolean isSchedulingConfigAltered = !jobSchedulingConfigurationToCheck.isEqual(
+                managedJob.getJobSchedulingConfig());
+        final boolean isScheduled = isJobScheduled(managedJob);
+        final boolean isActive = isJobActive(jobSchedulingConfigurationToCheck,
+                instanceJobConfigOverrides.get(jobSchedulingConfigurationToCheck),
+                instanceJobGroupConfigOverrides.get(jobGroupConfig));
 
-        return retVal;
+        return isSchedulingConfigAltered || isScheduled ^ isActive;
     }
 
     /**
@@ -689,107 +718,120 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             LOG.info("Provider retrieved: [{}] SchedulingConfigs. Starting Job Scheduling Update...",
                 currentProvidedConfigs.size());
 
-            // Loop through provided Configurations and check if it is either not scheduled at all or if a reschedule
-            // is required
-            int countSuccess = 0;
-            for (final JobSchedulingConfiguration curJobSchedulingConfig : currentProvidedConfigs) { // Check if current JobGroupConfig is managed and make managed if necessary
-                try {
-                    // Create a JobGroupConfig instance when JobGroupConfig is NULL
+            // Process provided JobSchedulingConfigurations and schedule and manage previously unmanaged but currently
+            // provided jobs
+            processProvidedJobSchedulingConfigurations(currentProvidedConfigs);
 
-                    JobGroupConfig groupConfig = null;
-                    if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() != null) {
-                        groupConfig = curJobSchedulingConfig.getJobConfig().getJobGroupConfig();
-                    } else if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() == null) {
-                        groupConfig = new JobGroupConfig(curJobSchedulingConfig.getJobConfig().getJobGroupName(), true,
-                                null);
-                    }
-
-                    // Check if a Override exists for the current JobGroup - if an override exists and equals the active
-                    // state of the group, remove the override
-                    // This can only happen if a JobGroup has been (de)activated on an instance, and the group
-                    // (de)activation state is provided by the current Configuration refresh as well
-                    if (instanceJobGroupConfigOverrides.containsKey(groupConfig)
-                            && instanceJobGroupConfigOverrides.get(groupConfig) == groupConfig.isJobGroupActive()) {
-                        instanceJobGroupConfigOverrides.remove(groupConfig);
-                    }
-
-                    // if current JobGroup is not managed yet - add it to list of managed JobGroups
-                    if (!managedJobGroups.contains(groupConfig)) {
-                        managedJobGroups.add(groupConfig);
-                    }
-
-                    // Check if the current Configuration is entirely new
-                    if (!this.managedJobs.containsKey(curJobSchedulingConfig)) {
-
-                        // Schedule Job
-                        this.scheduleOrRescheduleJob(curJobSchedulingConfig, false);
-                    } else if (this.managedJobs.containsKey(curJobSchedulingConfig)) {
-
-                        // Reschedule Job if
-                        // - Configuration is altered or
-                        // - Job is Active but unscheduled or
-                        // - Job is Inactive but scheduled
-                        // AND OperationMode is Normal
-                        final JobManagerManagedJob managedJob = this.managedJobs.get(curJobSchedulingConfig);
-                        final boolean isSchedulingConfigAltered = !curJobSchedulingConfig.isEqual(
-                                managedJob.getJobSchedulingConfig());
-                        final boolean isScheduled = isJobScheduled(managedJob);
-                        final boolean isActive = isJobActive(curJobSchedulingConfig,
-                                instanceJobConfigOverrides.get(curJobSchedulingConfig),
-                                instanceJobGroupConfigOverrides.get(groupConfig));
-                        if (isSchedulingConfigAltered || isScheduled ^ isActive) {
-                            this.scheduleOrRescheduleJob(curJobSchedulingConfig, true);
-                        }
-                    }
-
-                    countSuccess++;
-                } catch (final JobManagerException e) {
-                    LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
-                            + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
-                } catch (final SchedulerException e) {
-                    LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
-                            + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
-                }
-            }
-
-            // Add a Warning if an error occured on at least one JobSchedulingConfiguration
-            if (countSuccess != currentProvidedConfigs.size()) {
-                LOG.warn("Processed [{}] JobSchedulingConfigurations - [{}] of which were errorneous.",
-                    currentProvidedConfigs.size(), currentProvidedConfigs.size() - countSuccess);
-            }
-
-            // Loop through already scheduled Jobs and check if a configuration
-            // was removed from provided
-            // configuration List
-            countSuccess = 0;
-
-            final Set<JobSchedulingConfiguration> currentlyScheduledJobs = new HashSet<JobSchedulingConfiguration>(
-                    managedJobs.keySet());
-            for (final JobSchedulingConfiguration curJobSchedulingConfig : currentlyScheduledJobs) {
-                try {
-                    if (!currentProvidedConfigs.contains(curJobSchedulingConfig)) {
-                        cancelJob(curJobSchedulingConfig, true);
-                    }
-
-                    countSuccess++;
-                } catch (final JobManagerException e) {
-                    LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
-                            + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
-                }
-            }
-
-            // Add a Warning if an error occured on at least one JobSchedulingConfiguration
-            if (countSuccess != currentlyScheduledJobs.size()) {
-                LOG.warn(
-                    "Validating [{}] scheduled Jobs agains List of provided JobSchedulingConfigurations - [{}] of which were errorneous.",
-                    currentlyScheduledJobs.size(), currentlyScheduledJobs.size() - countSuccess);
-            }
+            // Process managed Jobs - unschedule and remove managed jobs that have not been provided anymore
+            processManagedJobSchedulingConfigurations(currentProvidedConfigs);
 
             LOG.info("Finished Job Scheduling Update - JobManager now contains: [{}] managed jobs.",
                 managedJobs.size());
         } catch (final JobSchedulingConfigurationProviderException e) {
             throw new JobManagerException(String.format(
                     "Refresh of JobSchedulingConfiguration of Jobs failed with Error: [%s]", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * Process all Managed Jobs with currently provided {@link JobSchedulingConfiguration} instances. Unschedule and
+     * remove all Jobs that are managed but unavailable in provided List of {@link JobSchedulingConfiguration}s
+     *
+     * @param  currentProvidedConfigs  The currently provided {@link JobSchedulingConfiguration}s
+     */
+    private void processManagedJobSchedulingConfigurations(
+            final List<JobSchedulingConfiguration> currentProvidedConfigs) {
+
+        // Loop through already scheduled Jobs and check if a configuration
+        // was removed from provided
+        // configuration List
+        int countSuccess = 0;
+
+        final Set<JobSchedulingConfiguration> currentlyScheduledJobs = new HashSet<JobSchedulingConfiguration>(
+                managedJobs.keySet());
+        for (final JobSchedulingConfiguration curJobSchedulingConfig : currentlyScheduledJobs) {
+            try {
+                if (!currentProvidedConfigs.contains(curJobSchedulingConfig)) {
+                    cancelJob(curJobSchedulingConfig, true);
+                }
+
+                countSuccess++;
+            } catch (final JobManagerException e) {
+                LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
+                        + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
+            }
+        }
+
+        // Add a Warning if an error occured on at least one JobSchedulingConfiguration
+        if (countSuccess != currentlyScheduledJobs.size()) {
+            LOG.warn(
+                "Validating [{}] scheduled Jobs agains List of provided JobSchedulingConfigurations - [{}] of which were erroneous.",
+                currentlyScheduledJobs.size(), currentlyScheduledJobs.size() - countSuccess);
+        }
+    }
+
+    /**
+     * Process all currently provided {@link JobSchedulingConfiguration}s and schedule all Jobs that are unscheduled but
+     * allowed to run on respectively current application instance.
+     *
+     * @param  currentProvidedConfigs  The currently provided {@link JobSchedulingConfiguration}s
+     */
+    private void processProvidedJobSchedulingConfigurations(
+            final List<JobSchedulingConfiguration> currentProvidedConfigs) {
+
+        // Loop through provided Configurations and check if it is either not scheduled at all or if a reschedule
+        // is required
+        int countSuccess = 0;
+        for (final JobSchedulingConfiguration curJobSchedulingConfig : currentProvidedConfigs) {    // Check if current JobGroupConfig is managed and make managed if necessary
+            try {
+                // Create a JobGroupConfig instance when JobGroupConfig is NULL
+
+                JobGroupConfig groupConfig = null;
+                if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() != null) {
+                    groupConfig = curJobSchedulingConfig.getJobConfig().getJobGroupConfig();
+                } else if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() == null) {
+                    groupConfig = new JobGroupConfig(curJobSchedulingConfig.getJobConfig().getJobGroupName(), true,
+                            null);
+                }
+
+                // Check if a Override exists for the current JobGroup - if an override exists and equals the active
+                // state of the group, remove the override
+                // This can only happen if a JobGroup has been (de)activated on an instance, and the group
+                // (de)activation state is provided by the current Configuration refresh as well
+                if (instanceJobGroupConfigOverrides.containsKey(groupConfig)
+                        && instanceJobGroupConfigOverrides.get(groupConfig) == groupConfig.isJobGroupActive()) {
+                    instanceJobGroupConfigOverrides.remove(groupConfig);
+                }
+
+                // if current JobGroup is not managed yet - add it to list of managed JobGroups
+                if (!managedJobGroups.contains(groupConfig)) {
+                    managedJobGroups.add(groupConfig);
+                }
+
+                // Check if the current Configuration is entirely new
+                if (!this.managedJobs.containsKey(curJobSchedulingConfig)) {
+
+                    // Schedule Job
+                    this.scheduleOrRescheduleJob(curJobSchedulingConfig, false);
+                } else if (this.managedJobs.containsKey(curJobSchedulingConfig)
+                        && isJobRescheduleRequired(curJobSchedulingConfig, groupConfig)) {
+                    this.scheduleOrRescheduleJob(curJobSchedulingConfig, true);
+                }
+
+                countSuccess++;
+            } catch (final JobManagerException e) {
+                LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
+                        + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
+            } catch (final SchedulerException e) {
+                LOG.error("An error occured processing JobSchedulingConfiguration during Configuration "
+                        + "Update/(re)schedule of Jobs. Error was: [{}]", e.getMessage(), e);
+            }
+        }
+
+        // Add a Warning if an error occured on at least one JobSchedulingConfiguration
+        if (countSuccess != currentProvidedConfigs.size()) {
+            LOG.warn("Processed [{}] JobSchedulingConfigurations - [{}] of which were erroneous.",
+                currentProvidedConfigs.size(), currentProvidedConfigs.size() - countSuccess);
         }
     }
 
@@ -812,16 +854,18 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             Preconditions.checkArgument(managedJob != null,
                 "Cancel Job failed. Could not find Managed Job for JobSchedulingConfiguration: [{}]",
                 jobSchedulingConfiguration);
-            if (isJobScheduled(managedJob)) {
-                managedJob.getQuartzScheduler().deleteJob(managedJob.getQuartzJobDetail().getName(),
-                    managedJob.getQuartzJobDetail().getGroup());
-                LOG.info("Canceled Job: [{}]", managedJob);
+            try {
+                if (isJobScheduled(managedJob)) {
+                    managedJob.getQuartzScheduler().deleteJob(managedJob.getQuartzJobDetail().getName(),
+                        managedJob.getQuartzJobDetail().getGroup());
+                    LOG.info("Canceled Job: [{}]", managedJob);
+                }
+            } catch (final SchedulerException e) {
+                throw new JobManagerException(e);
+            } finally {
+                onCancelJob(managedJob, removeFromManagedJobs);
             }
 
-            onCancelJob(managedJob, removeFromManagedJobs);
-
-        } catch (final SchedulerException e) {
-            throw new JobManagerException(e);
         } catch (final IllegalArgumentException e) {
             throw new JobManagerException(e);
         }
@@ -894,6 +938,47 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      */
     protected void onShutdown() throws JobManagerException {
         // Do nothing by default
+    }
+
+    /**
+     * Get {@link JobManagerManagedJob} for given JobDetail.
+     *
+     * @param   jobDetail  The Quartz {@link JobDetail} to find {@link JobManagerManagedJob} for
+     *
+     * @return  The matching {@link JobManagerManagedJob} or <code>null</code> if no match could be found
+     */
+    protected final JobManagerManagedJob getManagedJobByJobDetail(final JobDetail jobDetail) {
+        JobManagerManagedJob retVal = null;
+        for (final JobManagerManagedJob curManagedJob : managedJobs.values()) {
+            if (isJobMatchesQuartzJobDetailNameAndGroup(curManagedJob, jobDetail.getName(), jobDetail.getGroup())) {
+                retVal = curManagedJob;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Get {@link JobManagerManagedJob} for given JobDetail Name and Group.
+     *
+     * @param   quartzJobDetailName   The Quartz {@link JobDetail} name
+     * @param   quartzJobDetailGroup  The Quartz {@link JobDetail} group
+     *
+     * @return  matching {@link JobManagerManagedJob} or <code>null</code> if no {@link JobManagerManagedJob} can be
+     *          found for given parameters
+     */
+    protected final JobManagerManagedJob getManagedJobByJobDetailNameAndJobDetailGroup(final String quartzJobDetailName,
+            final String quartzJobDetailGroup) {
+        JobManagerManagedJob retVal = null;
+        for (final JobManagerManagedJob curManagedJob : managedJobs.values()) {
+            if (isJobMatchesQuartzJobDetailNameAndGroup(curManagedJob, quartzJobDetailName, quartzJobDetailGroup)) {
+                retVal = curManagedJob;
+                break;
+            }
+        }
+
+        return retVal;
     }
 
     @Override
@@ -988,36 +1073,12 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
     @Override
     public final List<JobManagerManagedJob> getScheduledManagedJobs() {
-        return Lists.newArrayList(Collections2.filter(getManagedJobs(), new Predicate<JobManagerManagedJob>() {
-                        @Override
-                        public boolean apply(final JobManagerManagedJob input) {
-                            boolean retVal = false;
-                            try {
-                                retVal = isJobScheduled(input);
-                            } catch (final SchedulerException e) {
-                                LOG.error(e.getMessage(), e);
-                            }
-
-                            return retVal;
-                        }
-                    }));
+        return Lists.newArrayList(Collections2.filter(getManagedJobs(), scheduledJobsPredicate));
     }
 
     @Override
     public final List<JobManagerManagedJob> getUnscheduledManagedJobs() {
-        return Lists.newArrayList(Collections2.filter(getManagedJobs(), new Predicate<JobManagerManagedJob>() {
-                        @Override
-                        public boolean apply(final JobManagerManagedJob input) {
-                            boolean retVal = false;
-                            try {
-                                retVal = !isJobScheduled(input);
-                            } catch (final SchedulerException e) {
-                                LOG.error(e.getMessage(), e);
-                            }
-
-                            return retVal;
-                        }
-                    }));
+        return Lists.newArrayList(Collections2.filter(getManagedJobs(), unscheduledJobscPredicate));
     }
 
     @Override
