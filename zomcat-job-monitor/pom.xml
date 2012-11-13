@@ -3,8 +3,12 @@
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-job-monitor-parent</artifactId>
         <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+    <name>Job Monitor Super POM</name>
     <version>0.0.1-SNAPSHOT</version>
+    <description>Super POM for Zomcat Job Monitor backend</description>
+    <organization>
+        <name>Zalando/Technology/Platform</name>
+    </organization>
     <parent>
         <groupId>de.zalando</groupId>
         <artifactId>zalando-parent</artifactId>

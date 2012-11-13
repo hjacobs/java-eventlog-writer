@@ -3,23 +3,18 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.5.47</version>
+        <version>1.5.76</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-job-monitor-test</artifactId>
     <packaging>war</packaging>
     <version>1.0.1</version>
-    <!-- TODO project name  -->
-    <name>${project.artifactId}</name>
-    <description></description>
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>Job Monitor Test/Example Project</name>
+    <description>Example/test web application for job monitor servlet.</description>
+    <organization>
+        <name>Zalando/Technology/Platform</name>
+    </organization>
     <properties>
         <jetty.version>7.5.0.v20110901</jetty.version>
     </properties>
