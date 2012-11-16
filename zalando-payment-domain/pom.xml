@@ -20,7 +20,7 @@
     </description>
 
     <organization>
-        <name>Zalando/Technology/Payment</name>
+        <name>Zalando/Technology/Backend/Payment</name>
     </organization>
 
     <dependencies>
