@@ -400,7 +400,6 @@ class StoredProcedure {
 
     private static ExecutorService parallelThreadPool = Executors.newCachedThreadPool();
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object execute(final DataSourceProvider dp, final Object[] args) {
 
         List<Integer> shardIds = null;
