@@ -5,18 +5,12 @@
 
     <!-- Job Manager -->
     <bean id="zalandoJobManager" class="de.zalando.zomcat.jobs.management.impl.SingleQuartzSchedulerJobManager" init-method="startup" destroy-method="shutdown">
-        <property name="delegatingJobSchedulingConfigProvider" ref="databaseJobSchedulerConfigProvider"/>
+        <property name="delegatingJobSchedulingConfigProvider" ref="jobSchedulerConfigProvider"/>
     </bean>
-
-    <!-- Database Job Scheduler Config -->
-    <bean id="databaseJobSchedulerConfigProvider" class="de.zalando.zomcat.jobs.management.impl.DatabaseJobSchedulerConfigProvider"/>
 
     <!-- Make Job Status Bean aware of JobManager in order to have it behave differently -->
     <bean id="jobsStatusBean" class="de.zalando.zomcat.jobs.JobsStatusBean">
         <property name="jobManager" ref="zalandoJobManager"/>
     </bean>
-
-    <!-- A DataSourceProvider named 'jobManagerDatasourceProvider' must be present in Applications Spring Context -->
-    <!-- This is most easily achieved by aliasing the Applications main DatasourceProvider to specified bean name -->
 
 </beans>
