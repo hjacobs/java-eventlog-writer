@@ -243,15 +243,15 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         validateJobSchedulingConfig(jobSchedulingConfig);
         try {
 
-            // Put Scheduler into managed Map of Jobs
-            if (!managedJobs.containsKey(jobSchedulingConfig)) {
-                managedJobs.put(jobSchedulingConfig, createManagedJob(jobSchedulingConfig));
+            // Cancel Job if a Reschedule has been requested
+            if (reschedule && managedJobs.containsKey(jobSchedulingConfig)) {
+                cancelJob(jobSchedulingConfig, true);
             }
 
-            // Cancel Job if a Reschedule has been requested
-            if (reschedule) {
-                cancelJob(jobSchedulingConfig);
-            }
+            // Put Scheduler into managed Map of Jobs
+// if (!managedJobs.containsKey(jobSchedulingConfig)) {
+            managedJobs.put(jobSchedulingConfig, createManagedJob(jobSchedulingConfig));
+// }
 
             // Get current Managed Job - must be managed at this point
             final JobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);
@@ -702,7 +702,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      * @throws  JobManagerException  if any error occurs updateing the {@link JobSchedulingConfiguration}s via
      *                               {@link JobSchedulingConfigurationProvider}
      */
-    private synchronized void updateSchedulingConfigurationsAndRescheduleManagedJobs() throws JobManagerException {
+    private void updateSchedulingConfigurationsAndRescheduleManagedJobs() throws JobManagerException {
         try {
 
             if (isMainanenceModeActive()) {
@@ -1262,7 +1262,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     }
 
     @Override
-    public final void updateJobSchedulingConfigurations() throws JobManagerException {
+    public final synchronized void updateJobSchedulingConfigurations() throws JobManagerException {
         this.updateSchedulingConfigurationsAndRescheduleManagedJobs();
     }
 
@@ -1285,7 +1285,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
         // Do Initial Scheduling
         LOG.info("Fetching/Scheduling initial Scheduling Configuration...");
-        this.updateSchedulingConfigurationsAndRescheduleManagedJobs();
+        this.updateJobSchedulingConfigurations();
         LOG.info("Starting Job Scheduling Configuration update Poller...");
 
         // Schedule the Rescheduling Thread
@@ -1401,7 +1401,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             cancelJobSchedulingConfigurationPollerExecutor();
         } else {
             this.operationMode = OperationMode.NORMAL;
-            this.updateSchedulingConfigurationsAndRescheduleManagedJobs();
+            this.updateJobSchedulingConfigurations();
             createJobSchedulingConfigurationPollerExecutor();
         }
     }
@@ -1447,7 +1447,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     @Override
     public final void run() {
         try {
-            updateSchedulingConfigurationsAndRescheduleManagedJobs();
+            updateJobSchedulingConfigurations();
         } catch (final JobManagerException e) {
             LOG.error("An error occured trying to update Schedulering Configurations/rescheduling Jobs. Error: [{}].",
                 e.getMessage(), e);

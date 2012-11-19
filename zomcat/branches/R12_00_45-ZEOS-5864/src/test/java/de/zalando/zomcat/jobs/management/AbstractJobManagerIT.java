@@ -498,7 +498,7 @@ public abstract class AbstractJobManagerIT {
             jobManagerToTest.shutdown();
 
             final long finishedShutdownTime = System.currentTimeMillis() - curTime;
-            assertTrue(finishedShutdownTime > 4000);
+            assertTrue(finishedShutdownTime > 3500);
             assertNotNull(jobManagerToTest.getManagedJobs());
             assertNotNull(jobManagerToTest.getScheduledManagedJobs());
             assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
@@ -1756,9 +1756,9 @@ public abstract class AbstractJobManagerIT {
             assertEquals(1, jobManagerToTest.getUnscheduledManagedJobs().size());
 
             Thread.sleep(2000);
-            assertEquals(1, jobManagerToTest.getManagedJob(jsc).getExecutionCount());
+            assertEquals(0, jobManagerToTest.getManagedJob(jsc).getExecutionCount());
             Thread.sleep(2000);
-            assertEquals(1, jobManagerToTest.getManagedJob(jsc).getExecutionCount());
+            assertEquals(0, jobManagerToTest.getManagedJob(jsc).getExecutionCount());
 
             jsc = createJobSchedulingConfiguration("* * * * * ?", "de.zalando.zomcat.jobs.management.TestJob1Job",
                     new HashMap<String, String>(), Sets.newHashSet("local_local"), true, null);
@@ -1775,7 +1775,7 @@ public abstract class AbstractJobManagerIT {
             assertEquals(1, jobManagerToTest.getScheduledManagedJobs().size());
             assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
             Thread.sleep(200);
-            assertTrue(jobManagerToTest.getManagedJob(jsc).getExecutionCount() >= 2);
+            assertTrue(jobManagerToTest.getManagedJob(jsc).getExecutionCount() >= 1);
 
             final JobSchedulingConfiguration jscToGetJobFor = createJobSchedulingConfiguration("0 0 0 * * ?",
                     "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
