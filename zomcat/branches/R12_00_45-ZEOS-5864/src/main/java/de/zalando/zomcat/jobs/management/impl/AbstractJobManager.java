@@ -725,8 +725,9 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             // Process managed Jobs - unschedule and remove managed jobs that have not been provided anymore
             processManagedJobSchedulingConfigurations(currentProvidedConfigs);
 
-            LOG.info("Finished Job Scheduling Update - JobManager now contains: [{}] managed jobs.",
-                managedJobs.size());
+            LOG.info("Finished Job Scheduling Update - JobManager now contains: [{}] managed jobs. "
+                    + "JobCount scheduled locally: [{}], JobCount not scheduled locally: [{}]",
+                new Object[] {managedJobs.size(), getScheduledManagedJobs().size(), getUnscheduledManagedJobs().size()});
         } catch (final JobSchedulingConfigurationProviderException e) {
             throw new JobManagerException(String.format(
                     "Refresh of JobSchedulingConfiguration of Jobs failed with Error: [%s]", e.getMessage()), e);
@@ -782,10 +783,12 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         // Loop through provided Configurations and check if it is either not scheduled at all or if a reschedule
         // is required
         int countSuccess = 0;
-        for (final JobSchedulingConfiguration curJobSchedulingConfig : currentProvidedConfigs) {    // Check if current JobGroupConfig is managed and make managed if necessary
-            try {
-                // Create a JobGroupConfig instance when JobGroupConfig is NULL
 
+        // Check if current JobGroupConfig is managed and make managed if necessary
+        for (final JobSchedulingConfiguration curJobSchedulingConfig : currentProvidedConfigs) {
+            try {
+
+                // Create a JobGroupConfig instance when JobGroupConfig is NULL
                 JobGroupConfig groupConfig = null;
                 if (curJobSchedulingConfig.getJobConfig().getJobGroupConfig() != null) {
                     groupConfig = curJobSchedulingConfig.getJobConfig().getJobGroupConfig();
