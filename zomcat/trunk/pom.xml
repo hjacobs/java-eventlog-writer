@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
     <name>Zomcat Base</name>
     <description>Zomcat Support Classes (Servlets, Jobs, ..)</description>
-    <version>1.0.47</version>
+    <version>1.0.48</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
