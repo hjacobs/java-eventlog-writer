@@ -31,8 +31,10 @@ import de.zalando.zomcat.util.DiscardingThreadPoolTaskExecutor;
  * Framework Quartz Integration classes. The DefaultJobManager acts as though it were the Spring Framework initializing
  * all necessary Job components as Spring would during its Context Startup.
  *
- * @author  Thomas Zirke (thomas.zirke@zalando.de)
+ * @author      Thomas Zirke (thomas.zirke@zalando.de)
+ * @deprecated
  */
+@Deprecated
 public final class DefaultJobManager extends AbstractJobManager {
 
     /**
