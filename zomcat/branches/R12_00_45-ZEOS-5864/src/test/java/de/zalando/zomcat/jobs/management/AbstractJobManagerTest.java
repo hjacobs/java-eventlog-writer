@@ -54,7 +54,4 @@ public class AbstractJobManagerTest {
         assertNotNull(retVal);
         assertEquals(false, retVal);
     }
-
-    @Test
-    public void testIsJobRescheduleRequired() { }
 }

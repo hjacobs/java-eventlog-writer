@@ -73,7 +73,8 @@ public abstract class AbstractJobManagerIT {
     /**
      * Test Startup and Shutdown of JobManager.
      *
-     * @throws  JobManagerException  if any error occurs during Startup or Shutdown
+     * @throws  JobManagerException   if any error occurs during Startup or Shutdown
+     * @throws  InterruptedException
      */
     @Test
     public void testStartupAndShutdown() throws JobManagerException {
@@ -114,6 +115,7 @@ public abstract class AbstractJobManagerIT {
             assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
             assertEquals(jobManagerToTest.getUnscheduledManagedJobs().size(), 1);
 
+            // Thread.sleep(1000);
             jobManagerToTest.shutdown();
             assertNotNull(jobManagerToTest.getManagedJobs());
             assertNotNull(jobManagerToTest.getScheduledManagedJobs());
@@ -242,6 +244,97 @@ public abstract class AbstractJobManagerIT {
 
             // Wait for Job to have been started
             Thread.sleep(1000);
+            assertNotNull(jobManagerToTest.getManagedJob(jscToWaitFor));
+            assertEquals(1, jobManagerToTest.getManagedJob(jscToWaitFor).getRunningWorkerCount());
+
+            final long curTime = System.currentTimeMillis();
+            jobManagerToTest.shutdown();
+
+            final long finishedShutdownTime = System.currentTimeMillis() - curTime;
+            assertTrue(finishedShutdownTime > 4000);
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertTrue(jobManagerToTest.getManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+        } finally {
+            try {
+                jobManagerToTest.shutdown();
+            } catch (final JobManagerException e) { }
+        }
+    }
+
+    /**
+     * Test triggering Job.
+     *
+     * @throws  JobManagerException   - If an exception occurs during scheduling
+     * @throws  InterruptedException  - If waiting for Job to be performed throws an error
+     */
+    @Test
+    public void testTriggerMultipleJobs() throws JobManagerException, InterruptedException {
+        try {
+            final Map<String, String> jobData = Maps.newHashMap();
+            jobData.put("someKey", "someValue");
+
+            final List<JobSchedulingConfiguration> jobSchedulingConfigurations = Lists.newArrayList();
+            final JobSchedulingConfiguration jsc1 = createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, null);
+            jobSchedulingConfigurations.add(jsc1);
+
+            final JobSchedulingConfiguration jsc2 = createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", jobData, Sets.newHashSet("local_local"), false,
+                    null);
+            jobSchedulingConfigurations.add(jsc2);
+
+            final JobSchedulingConfiguration jsc3 = createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob2Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, null);
+            jobSchedulingConfigurations.add(jsc3);
+
+            final JobSchedulingConfiguration jsc4 = createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob2Job", jobData, Sets.newHashSet("local_local"), true,
+                    null);
+            jobSchedulingConfigurations.add(jsc4);
+
+            final JobSchedulingConfiguration jscToWaitFor = createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJobToWaitForJob", jobData, Sets.newHashSet("local_local"),
+                    true, null);
+
+            jobSchedulingConfigurations.add(jscToWaitFor);
+
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+
+            assertNotNull(jobManagerToTest);
+
+            jobManagerToTest.startup();
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getManagedJobs().size(), 5);
+            assertFalse(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getScheduledManagedJobs().size(), 4);
+            assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getUnscheduledManagedJobs().size(), 1);
+
+            jobManagerToTest.triggerJob(jsc1, true);
+            jobManagerToTest.triggerJob(jsc2, true);
+            jobManagerToTest.triggerJob(jsc3, true);
+            jobManagerToTest.triggerJob(jsc4, true);
+            jobManagerToTest.triggerJob(jscToWaitFor, true);
+
+            // Wait for Job to have been started
+            Thread.sleep(1000);
+            assertNotNull(jobManagerToTest.getManagedJob(jsc1));
+            assertEquals(1, jobManagerToTest.getManagedJob(jsc1).getExecutionCount());
+            assertNotNull(jobManagerToTest.getManagedJob(jsc2));
+            assertEquals(1, jobManagerToTest.getManagedJob(jsc2).getExecutionCount());
+            assertNotNull(jobManagerToTest.getManagedJob(jsc3));
+            assertEquals(1, jobManagerToTest.getManagedJob(jsc3).getExecutionCount());
+            assertNotNull(jobManagerToTest.getManagedJob(jsc4));
+            assertEquals(1, jobManagerToTest.getManagedJob(jsc4).getExecutionCount());
             assertNotNull(jobManagerToTest.getManagedJob(jscToWaitFor));
             assertEquals(1, jobManagerToTest.getManagedJob(jscToWaitFor).getRunningWorkerCount());
 

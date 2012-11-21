@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.quartz.CronTrigger;
 import org.quartz.Job;
@@ -159,6 +160,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     private ScheduledThreadPoolExecutor schedulingConfigPollingExecutor;
 
     /**
+     * Reentrant Lock for UpdateSchedulingConfigurations.
+     */
+    private final ReentrantLock updateSchedulingConfigurationReentrantLock;
+
+    /**
      * Spring {@link ApplicationContext} - this Bean is {@link ApplicationContextAware}.
      */
     private ApplicationContext applicationContext;
@@ -186,6 +192,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         instanceJobConfigOverrides = Maps.newConcurrentMap();
         instanceJobGroupConfigOverrides = Maps.newConcurrentMap();
         jobManagerStarted = new AtomicBoolean(false);
+        updateSchedulingConfigurationReentrantLock = new ReentrantLock(false);
     }
 
     /**
@@ -194,40 +201,36 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      *
      * @throws  JobManagerException  if any error occurs during creation of {@link Executor}
      */
-    private void createJobSchedulingConfigurationPollerExecutor() throws JobManagerException {
-        if (schedulingConfigPollingExecutor != null) {
-            throw new JobManagerException(
-                "Cannot start JobSchedulingConfigurationPollerExecutor - another Executor already exists");
+    private void createJobSchedulingConfigurationPollerExecutor() {
+        if (schedulingConfigPollingExecutor == null) {
+            schedulingConfigPollingExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
+            schedulingConfigPollingExecutor.setThreadFactory(new DefaultJobManagerPollerThreadFactory());
+            schedulingConfigPollingExecutor.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
         }
 
-        schedulingConfigPollingExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
-        schedulingConfigPollingExecutor.setThreadFactory(new DefaultJobManagerPollerThreadFactory());
-        schedulingConfigPollingExecutor.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
     }
 
     /**
      * Cancel the JobSchedulingConfiguration Poller Thread Executor.
      *
-     * @throws  JobManagerException  if the JobSchedulingConfiguration Poller Thread Executor is null and therefore
-     *                               cannot be canceled
+     * @throws  InterruptedException
+     * @throws  JobManagerException   if the JobSchedulingConfiguration Poller Thread Executor is null and therefore
+     *                                cannot be canceled
      */
-    private void cancelJobSchedulingConfigurationPollerExecutor() throws JobManagerException {
-        if (schedulingConfigPollingExecutor == null) {
-            throw new JobManagerException(
-                "Cannot cancel JobSchedulingConfigurationPollerExecutor - no Executor exists");
-        }
+    private void cancelJobSchedulingConfigurationPollerExecutor() {
+        if (schedulingConfigPollingExecutor != null) {
+            schedulingConfigPollingExecutor.shutdown();
 
-        schedulingConfigPollingExecutor.shutdown();
-        while (schedulingConfigPollingExecutor.getActiveCount() > 0) {
-            try {
-                Thread.sleep(1000);
-            } catch (final InterruptedException e) {
-                LOG.error(
-                    "An error occured waiting for JobSchedulingConfiguration Poller/Rescheduler Thread to finish");
+            while (schedulingConfigPollingExecutor.getActiveCount() > 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException e) {
+                    LOG.error(
+                        "An error occured waiting for JobSchedulingConfiguration Poller/Rescheduler Thread to finish");
+                }
             }
         }
 
-        schedulingConfigPollingExecutor = null;
     }
 
     /**
@@ -245,13 +248,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
             // Cancel Job if a Reschedule has been requested
             if (reschedule && managedJobs.containsKey(jobSchedulingConfig)) {
-                cancelJob(jobSchedulingConfig, true);
+                cancelJob(jobSchedulingConfig);
             }
 
             // Put Scheduler into managed Map of Jobs
-// if (!managedJobs.containsKey(jobSchedulingConfig)) {
             managedJobs.put(jobSchedulingConfig, createManagedJob(jobSchedulingConfig));
-// }
 
             // Get current Managed Job - must be managed at this point
             final JobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);
@@ -806,7 +807,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                     instanceJobGroupConfigOverrides.remove(groupConfig);
                 }
 
-                // if current JobGroup is not managed yet - add it to list of managed JobGroups
+                // If current JobGroup is not managed yet - add it to list of managed JobGroups
                 if (!managedJobGroups.contains(groupConfig)) {
                     managedJobGroups.add(groupConfig);
                 }
@@ -818,6 +819,8 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                     this.scheduleOrRescheduleJob(curJobSchedulingConfig, false);
                 } else if (this.managedJobs.containsKey(curJobSchedulingConfig)
                         && isJobRescheduleRequired(curJobSchedulingConfig, groupConfig)) {
+
+                    // Reschedule Job
                     this.scheduleOrRescheduleJob(curJobSchedulingConfig, true);
                 }
 
@@ -1114,9 +1117,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
             // Create a onetime Trigger for Job
             if (isJobScheduled || force) {
-                if (isJobScheduled
-                        || job.getQuartzScheduler().getJobDetail(job.getQuartzJobDetail().getName(),
-                            job.getQuartzJobDetail().getGroup()) != null) {
+                if (isJobScheduled) {
                     job.getQuartzScheduler().triggerJob(job.getQuartzJobDetail().getName(),
                         job.getQuartzJobDetail().getGroup());
                 } else {
@@ -1265,8 +1266,14 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     }
 
     @Override
-    public final synchronized void updateJobSchedulingConfigurations() throws JobManagerException {
-        this.updateSchedulingConfigurationsAndRescheduleManagedJobs();
+    public final void updateJobSchedulingConfigurations() throws JobManagerException {
+        if (updateSchedulingConfigurationReentrantLock.tryLock()) {
+            try {
+                this.updateSchedulingConfigurationsAndRescheduleManagedJobs();
+            } finally {
+                updateSchedulingConfigurationReentrantLock.unlock();
+            }
+        }
     }
 
     @Override
