@@ -1118,7 +1118,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             // Trigger Scheduled Job - unforced
             // or Create Trigger for Unscheduled Job forcebly triggered
             // or add a WARNING if an unscheduled Job is triggered without force
-            if (isJobScheduled && !force) {
+            if (isJobScheduled) {
                 job.getQuartzScheduler().triggerJob(job.getQuartzJobDetail().getName(),
                     job.getQuartzJobDetail().getGroup());
             } else if (!isJobScheduled && force) {
