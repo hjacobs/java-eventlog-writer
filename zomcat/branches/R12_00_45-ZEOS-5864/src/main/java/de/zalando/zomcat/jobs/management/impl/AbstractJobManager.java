@@ -1115,23 +1115,23 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
             final boolean isJobScheduled = isJobScheduled(job);
 
-            // Create a onetime Trigger for Job
-            if (isJobScheduled || force) {
-                if (isJobScheduled) {
-                    job.getQuartzScheduler().triggerJob(job.getQuartzJobDetail().getName(),
-                        job.getQuartzJobDetail().getGroup());
-                } else {
+            // Trigger Scheduled Job - unforced
+            // or Create Trigger for Unscheduled Job forcebly triggered
+            // or add a WARNING if an unscheduled Job is triggered without force
+            if (isJobScheduled && !force) {
+                job.getQuartzScheduler().triggerJob(job.getQuartzJobDetail().getName(),
+                    job.getQuartzJobDetail().getGroup());
+            } else if (!isJobScheduled && force) {
 
-                    // Create One Time Trigger, schedule Job with Trigger on the Jobs Scheduler
-                    final Trigger trigger = TriggerUtils.makeImmediateTrigger(0, 0);
-                    trigger.setName(trigger.getJobName() + "TriggerImmediate");
-                    trigger.setStartTime(new Date(System.currentTimeMillis()));
-                    job.getQuartzScheduler().scheduleJob(job.getQuartzJobDetail(), trigger);
-                }
+                // Create One Time Trigger, schedule Job with Trigger on the Jobs Scheduler
+                final Trigger trigger = TriggerUtils.makeImmediateTrigger(0, 0);
+                trigger.setName(trigger.getJobName() + "TriggerImmediate");
+                trigger.setStartTime(new Date(System.currentTimeMillis()));
+                job.getQuartzScheduler().scheduleJob(job.getQuartzJobDetail(), trigger);
 
                 LOG.info("Triggered Job: [{}]", job.getJobSchedulingConfig());
 
-            } else if (!isJobScheduled && !force) {
+            } else {
                 LOG.warn("Job: [{}] was to be triggered, but is not scheduled. Skipping execution",
                     jobSchedulingConfiguration);
             }
