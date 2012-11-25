@@ -203,8 +203,8 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      */
     private void createJobSchedulingConfigurationPollerExecutor() {
         if (schedulingConfigPollingExecutor == null) {
-            schedulingConfigPollingExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
-            schedulingConfigPollingExecutor.setThreadFactory(new DefaultJobManagerPollerThreadFactory());
+            schedulingConfigPollingExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1,
+                    new DefaultJobManagerPollerThreadFactory());
             schedulingConfigPollingExecutor.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
         }
 
@@ -1314,7 +1314,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
         LOG.info("Shutting down JobManager...");
 
-        // Shutdown COnfiguration Updater/Rescheduler Thread(s)
+        // Shutdown Configuration Updater/Rescheduler Thread(s)
         if (!isMainanenceModeActive()) {
             cancelJobSchedulingConfigurationPollerExecutor();
             LOG.info("Shut down DefaultJobManagers Configuration Poller/Job Rescheduler");

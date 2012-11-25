@@ -84,9 +84,5 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
         </dependency>
-        <dependency>
-            <groupId>de.zalando</groupId>
-            <artifactId>zalando-sprocwrapper</artifactId>
-        </dependency>
     </dependencies>
 </project>

@@ -12,10 +12,11 @@ public final class DefaultJobManagerPollerThreadFactory implements ThreadFactory
     private static final transient String THREAD_NAME = "JobManagerConfigUpdater-1";
 
     @Override
-    public Thread newThread(final Runnable arg0) {
-        final Thread retVal = new Thread(arg0);
-        retVal.setName(THREAD_NAME);
-        return retVal;
+    public Thread newThread(final Runnable runnable) {
+        final Thread thread = new Thread(runnable);
+        thread.setName(THREAD_NAME);
+        thread.setDaemon(true);
+        return thread;
     }
 
 }

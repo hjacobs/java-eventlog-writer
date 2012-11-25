@@ -457,6 +457,20 @@ public class JobsStatusBean implements JobsStatusMBean {
         return getJobs().get(jobName);
     }
 
+    private JobManagerManagedJob getManagedJobByClass(final Class<?> clazz) throws JobManagerException {
+        final List<JobManagerManagedJob> managedJobsForClass = jobManager.getManagedJobsByClass(clazz);
+        if (managedJobsForClass.size() == 1) {
+            return managedJobsForClass.get(0);
+        } else if (managedJobsForClass.size() > 1) {
+            throw new IllegalArgumentException(String.format(
+                    "Expected exactly one Instance of %s for Job but found: [%s].", clazz.getSimpleName(),
+                    managedJobsForClass.size()));
+        } else {
+            throw new IllegalArgumentException(String.format("Cannot trigger Job %s. No matching Job found.",
+                    clazz.getSimpleName()));
+        }
+    }
+
     /**
      * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#toggleJob(java.lang.String, boolean)
      */
@@ -473,24 +487,13 @@ public class JobsStatusBean implements JobsStatusMBean {
             LOG.info("job not found, status can not be toggled [{}]", jobName);
 
             return null;
-        } else {
+        }
 
-            // Toggle the Job
+        if (isJobManagerAvailable()) {
+
             try {
-                final List<JobManagerManagedJob> managedJobsForClass = jobManager.getManagedJobsByClass(
-                        jobTypeStatusBean.getJobClass());
-                if (managedJobsForClass.size() == 1) {
-                    final JobManagerManagedJob jobToToggle = managedJobsForClass.get(0);
-                    jobManager.toggleJob(jobToToggle.getJobSchedulingConfig(), running);
-                } else if (managedJobsForClass.size() > 1) {
-                    throw new IllegalArgumentException(String.format(
-                            "Cannot trigger Job with name: [%s]. Expected exactly one Instance for Job but found: [%s].",
-                            jobName, managedJobsForClass.size()));
-                } else {
-                    throw new IllegalArgumentException(String.format(
-                            "Cannot trigger Job with name: [%s]. No matching Job found.", jobName));
-                }
-
+                final JobManagerManagedJob jobToToggle = getManagedJobByClass(jobTypeStatusBean.getJobClass());
+                jobManager.toggleJob(jobToToggle.getJobSchedulingConfig(), running);
                 jobTypeStatusBean.setDisabled(!running);
             } catch (final JobManagerException e) {
                 LOG.error(e.getMessage(), e);
@@ -499,6 +502,8 @@ public class JobsStatusBean implements JobsStatusMBean {
             }
 
             LOG.info("set enabled/disabled mode of job + [{}], now it is: [{}]", jobName, !running);
+        } else {
+            jobTypeStatusBean.setDisabled(!running);
         }
 
         return !jobTypeStatusBean.isDisabled();
@@ -564,24 +569,11 @@ public class JobsStatusBean implements JobsStatusMBean {
 
         if (isJobManagerAvailable()) {
 
-            // Toggle the Job
             try {
-                final List<JobManagerManagedJob> managedJobsForClass = jobManager.getManagedJobsByClass(
-                        statusBean.getJobClass());
-                if (managedJobsForClass.size() == 1) {
-                    final JobManagerManagedJob jobToToggle = managedJobsForClass.get(0);
-                    final boolean isScheduled = jobManager.isJobScheduled(jobToToggle.getQuartzJobDetail().getName(),
-                            jobToToggle.getQuartzJobDetail().getName());
-                    jobManager.toggleJob(jobToToggle.getJobSchedulingConfig(), !isScheduled);
-                } else if (managedJobsForClass.size() > 1) {
-                    throw new IllegalArgumentException(String.format(
-                            "Cannot trigger Job with name: [%s]. Expected exactly one Instance for Job but found: [%s].",
-                            jobName, managedJobsForClass.size()));
-                } else {
-                    throw new IllegalArgumentException(String.format(
-                            "Cannot trigger Job with name: [%s]. No matching Job found.", jobName));
-                }
-
+                final JobManagerManagedJob jobToToggle = getManagedJobByClass(statusBean.getJobClass());
+                final boolean isScheduled = jobManager.isJobScheduled(jobToToggle.getQuartzJobDetail().getName(),
+                        jobToToggle.getQuartzJobDetail().getName());
+                jobManager.toggleJob(jobToToggle.getJobSchedulingConfig(), !isScheduled);
                 statusBean.setDisabled(!statusBean.isDisabled());
             } catch (final JobManagerException e) {
                 LOG.error(e.getMessage(), e);
@@ -706,21 +698,9 @@ public class JobsStatusBean implements JobsStatusMBean {
             return true;
         } else {
             boolean success = false;
-            List<JobManagerManagedJob> managedJobsForClass;
             try {
-                managedJobsForClass = jobManager.getManagedJobsByClass(jobTypeStatusBean.getJobClass());
-                if (managedJobsForClass.size() == 1) {
-                    final JobManagerManagedJob jobToToggle = managedJobsForClass.get(0);
-                    jobManager.triggerJob(jobToToggle.getJobSchedulingConfig(), true);
-                } else if (managedJobsForClass.size() > 1) {
-                    throw new IllegalArgumentException(String.format(
-                            "Cannot trigger Job with name: [%s]. Expected exactly one Instance for Job but found: [%s].",
-                            jobName, managedJobsForClass.size()));
-                } else {
-                    throw new IllegalArgumentException(String.format(
-                            "Cannot trigger Job with name: [%s]. No matching Job found.", jobName));
-                }
-
+                final JobManagerManagedJob jobToTrigger = getManagedJobByClass(jobTypeStatusBean.getJobClass());
+                jobManager.triggerJob(jobToTrigger.getJobSchedulingConfig(), true);
                 success = true;
             } catch (final JobManagerException e) {
                 LOG.error(e.getMessage(), e);

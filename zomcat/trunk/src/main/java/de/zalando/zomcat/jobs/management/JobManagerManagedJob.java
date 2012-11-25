@@ -6,8 +6,6 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.Trigger;
 
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-
 import de.zalando.zomcat.jobs.RunningWorker;
 
 public interface JobManagerManagedJob {

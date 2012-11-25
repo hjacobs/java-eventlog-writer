@@ -65,11 +65,11 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
     protected void onStartup() throws JobManagerException {
         super.onStartup();
         try {
-            this.quartzScheduler = StdSchedulerFactory.getDefaultScheduler();
-            this.quartzScheduler.addGlobalJobListener(this);
-            this.quartzScheduler.addGlobalTriggerListener(this);
-            this.quartzScheduler.start();
-            this.originalThreadNames.clear();
+            quartzScheduler = StdSchedulerFactory.getDefaultScheduler();
+            quartzScheduler.addGlobalJobListener(this);
+            quartzScheduler.addGlobalTriggerListener(this);
+            quartzScheduler.start();
+            originalThreadNames.clear();
         } catch (final SchedulerException e) {
             throw new JobManagerException(e);
         }
@@ -84,7 +84,7 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
                 quartzScheduler = null;
             }
 
-            this.originalThreadNames.clear();
+            originalThreadNames.clear();
         } catch (final SchedulerException e) {
             throw new JobManagerException(e);
         }
