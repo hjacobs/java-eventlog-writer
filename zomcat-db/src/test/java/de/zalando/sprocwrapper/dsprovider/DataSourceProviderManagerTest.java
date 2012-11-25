@@ -20,13 +20,15 @@ public class DataSourceProviderManagerTest {
 
     @Test(expected = NullPointerException.class)
     public void testWithoutProviders() {
-        DataSourceProviderManager mgr = new DataSourceProviderManager(null);
+        final DataSourceProviderManager mgr = new DataSourceProviderManager(null);
+        Assert.assertNotNull(mgr);
     }
 
     @Test(expected = NullPointerException.class)
     public void testWithoutDefaultProvider() {
         final Map<Priority, DataSourceProvider> map = Maps.newHashMap();
-        DataSourceProviderManager mgr = new DataSourceProviderManager(map);
+        final DataSourceProviderManager mgr = new DataSourceProviderManager(map);
+        Assert.assertNotNull(mgr);
     }
 
     @Test
@@ -45,7 +47,7 @@ public class DataSourceProviderManagerTest {
                 }
             });
 
-        DataSourceProviderManager mgr = new DataSourceProviderManager(map);
+        final DataSourceProviderManager mgr = new DataSourceProviderManager(map);
         Assert.assertEquals(null, mgr.getDataSource(0));
         Assert.assertEquals(1, mgr.getDistinctShardIds().size());
     }
