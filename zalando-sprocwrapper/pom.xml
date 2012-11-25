@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>de.zalando</groupId>
@@ -85,7 +85,7 @@
         <profile>
             <id>integration-test</id>
             <properties>
-                <test.db.name>zalando_test</test.db.name>
+                <test.db.name>local_test_db</test.db.name>
                 <unit.test.skip>true</unit.test.skip>
                 <test.src.dir>src/test/java</test.src.dir>
             </properties>
@@ -141,6 +141,21 @@
                             <skip>${maven.test.skip}</skip>
                         </configuration>
                         <executions>
+                            <execution>
+                                <id>create-db</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <url>jdbc:postgresql://${test.db.host}:${test.db.port}/postgres</url>
+                                    <autocommit>true</autocommit>
+                                    <sqlCommand>
+                                        CREATE DATABASE local_test_db TEMPLATE template1;
+                                    </sqlCommand>
+                                    <onError>continue</onError>
+                                </configuration>
+                            </execution>
                             <execution>
                                 <id>drop-schemas</id>
                                 <phase>process-test-resources</phase>
