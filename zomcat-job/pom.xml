@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat Job</name>
     <description>Zomcat Job Support Classes</description>
-    <version>1.0.2</version>
+    <version>1.1</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -87,6 +87,8 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat</artifactId>
+            <!-- temporary version fix -->
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
