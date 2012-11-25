@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <!-- Job Manager -->
+    <bean id="zalandoJobManager" class="de.zalando.zomcat.jobs.management.impl.SingleQuartzSchedulerJobManager" init-method="startup" destroy-method="shutdown">
+        <property name="delegatingJobSchedulingConfigProvider" ref="jobSchedulerConfigProvider"/>
+    </bean>
+
+    <!-- Make Job Status Bean aware of JobManager in order to have it behave differently -->
+    <bean id="jobsStatusBean" class="de.zalando.zomcat.jobs.JobsStatusBean">
+        <property name="jobManager" ref="zalandoJobManager"/>
+    </bean>
+
+</beans>

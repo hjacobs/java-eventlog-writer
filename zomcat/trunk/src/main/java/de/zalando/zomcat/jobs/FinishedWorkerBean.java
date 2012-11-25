@@ -24,6 +24,14 @@ public class FinishedWorkerBean extends RunningWorkerBean {
         this.jobClass = runningWorker.getClass();
     }
 
+    public FinishedWorkerBean(final RunningWorker runningWorker, final JobConfig jobConfig) {
+        super(jobConfig, runningWorker.getFlowId(), runningWorker.getId(), runningWorker.getStartTime(),
+            runningWorker.getActualProcessedItemNumber(), runningWorker.getTotalNumberOfItemsToBeProcessed(),
+            runningWorker.getInternalStartTime(), runningWorker.getDescription(),
+            runningWorker.getThreadCPUNanoSeconds());
+        this.jobClass = runningWorker.getClass();
+    }
+
     protected FinishedWorkerBean(final JobConfig jobConfig, final String jobHistoryId, final int id,
             final DateTime startTime) {
         this(jobConfig, jobHistoryId, id, startTime, null, null);

@@ -59,6 +59,9 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     private String jobHistoryId = null;
     private String appInstanceKey = null;
 
+    private JobConfig jobConfig = null;
+    private JobGroupConfig jobGroupConfig = null;
+
     private final StopWatchListener stopWatchListener = new StopWatchListener();
 
     private LockResourceManager lockResourceManager;
@@ -114,51 +117,57 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         registerListener();
         setupLockResourceManager();
 
-        // no job should be allowed without description
-        checkArgument(!isNullOrEmpty(getDescription()),
-            "Aborting Job: no description for job defined: " + getBeanName());
+        if (!isJobManagerProvidedJobConfig()) {
+
+            // no job should be allowed without description
+            checkArgument(!isNullOrEmpty(getDescription()),
+                "Aborting Job: no description for job defined: " + getBeanName());
+        }
 
         boolean isLockedJob = (lockResourceManager != null && getLockResource() != null);
 
         final JobConfig config = getJobConfig();
-        if (shouldRun(config)) {
 
+        // If no JobConfig was set by JobManager and the Job is not allowed to run, return here
+        if (!isJobManagerProvidedJobConfig() && !shouldRun(config)) {
+            return;
+        }
+
+        if (isLockedJob) {
+            boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(),
+                    FlowId.peekFlowId());
+
+            // if we got at this point, we have a lock - else we got an exception that can be ignored.
+            if (!acquiredLock) {
+                log(Level.INFO, "job's resource is locked and job will not start", null);
+                return;
+            } else {
+                log(Level.DEBUG, "acquired resource lock for job; job will start", null);
+            }
+        }
+
+        // notify about start running this job
+        notifyStartRunning(context);
+
+        // run the job and catch ALL exceptions
+        // TBC define a condition to control job execution in local
+        // environment
+        // (e.g. job.runlocal=name1 name2 ....)
+
+        Throwable throwable = null;
+        try {
+            doRun(context, config);
+        } catch (final Throwable e) {
+            log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
+            throwable = e;
+        } finally {
+
+            // notify about stop running this job
             if (isLockedJob) {
-                boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(),
-                        FlowId.peekFlowId());
-
-                // if we got at this point, we have a lock - else we got an exception that can be ignored.
-                if (!acquiredLock) {
-                    log(Level.INFO, "job's resource is locked and job will not start", null);
-                    return;
-                } else {
-                    log(Level.DEBUG, "acquired resource lock for job; job will start", null);
-                }
+                lockResourceManager.releaseLock(getLockResource());
             }
 
-            // notify about start running this job
-            notifyStartRunning(context);
-
-            // run the job and catch ALL exceptions
-            // TBC define a condition to control job execution in local
-            // environment
-            // (e.g. job.runlocal=name1 name2 ....)
-
-            Throwable throwable = null;
-            try {
-                doRun(context, config);
-            } catch (final Throwable e) {
-                log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
-                throwable = e;
-            } finally {
-
-                // notify about stop running this job
-                if (isLockedJob) {
-                    lockResourceManager.releaseLock(getLockResource());
-                }
-
-                notifyStopRunning(throwable);
-            }
+            notifyStopRunning(throwable);
         }
     }
 
@@ -294,11 +303,16 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     protected boolean isJobGroupDisabled() {
-        final JobGroupTypeStatusBean statusBean = getJobsStatusBean().getJobGroupTypeStatusBean(getJobConfig());
-        if (statusBean == null) {
-            return false;
+        if (jobGroupConfig == null) {
+            final JobGroupTypeStatusBean statusBean = getJobsStatusBean().getJobGroupTypeStatusBean(getJobConfig());
+
+            if (statusBean == null) {
+                return false;
+            } else {
+                return statusBean.isDisabled();
+            }
         } else {
-            return statusBean.isDisabled();
+            return !jobGroupConfig.isJobGroupActive();
         }
     }
 
@@ -398,7 +412,22 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
     @Override
     public JobConfig getJobConfig() {
+
+        // If Set it was set by JobManager
+        if (jobConfig != null) {
+            return jobConfig;
+        }
+
+        // Otherwise consult the Configuration Source
         return getConfigurationSource().getJobConfig(this);
+    }
+
+    public void setJobConfig(final JobConfig jobConfig) {
+        this.jobConfig = jobConfig;
+    }
+
+    public void setJobGroupConfig(final JobGroupConfig jobGroupConfig) {
+        this.jobGroupConfig = jobGroupConfig;
     }
 
     /**
@@ -425,6 +454,10 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
     private void log(final Priority priority, final String message, final Throwable throwable) {
         Logger.getLogger(getClass()).log(priority, message, throwable);
+    }
+
+    private boolean isJobManagerProvidedJobConfig() {
+        return jobConfig != null;
     }
 
     /**

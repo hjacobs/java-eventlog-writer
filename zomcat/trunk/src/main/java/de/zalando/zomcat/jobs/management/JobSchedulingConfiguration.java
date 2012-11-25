@@ -1,0 +1,297 @@
+package de.zalando.zomcat.jobs.management;
+
+import java.util.Map;
+
+import org.quartz.Scheduler;
+
+import de.zalando.zomcat.jobs.JobConfig;
+
+/**
+ * Simple Job Scheduling Config used to schedule Jobs. Used in conjunction with
+ * {@link JobSchedulingConfigurationProvider} implementations to provide the {@link SchedulerFactory} with Jobs to be
+ * scheduled
+ *
+ * @author  Thomas Zirke (thomas.zirke@zalando.de)
+ */
+public final class JobSchedulingConfiguration {
+
+    private final JobSchedulingConfigurationType jobType;
+
+    private Long startDelayMillis;
+
+    private Long intervalMillis;
+
+    private String cronExpression;
+
+    private final String jobDescription;
+
+    private final String jobClass;
+
+    private final Map<String, String> jobData;
+
+    private final JobConfig jobConfig;
+
+    /**
+     * Constructor for CRON based JobConfig.
+     *
+     * @param  cronExpression  The CronExpression to use for Job Scheduling
+     * @param  jobClass        The Jobs FQ Classname
+     * @param  jobData         Job Data as {@link String} <-> {@link String} {@link Map}
+     */
+    public JobSchedulingConfiguration(final String cronExpression, final String jobClass, final String jobDescription,
+            final Map<String, String> jobData) {
+        this(cronExpression, jobClass, jobDescription, jobData, null);
+    }
+
+    /**
+     * Constructor for CRON based JobConfig.
+     *
+     * @param  cronExpression  The CronExpression to use for Job Scheduling
+     * @param  jobClass        The Jobs FQ Classname
+     * @param  jobData         Job Data as {@link String} <-> {@link String} {@link Map}
+     * @param  jobConfig       The Job Activation Configuration
+     */
+    public JobSchedulingConfiguration(final String cronExpression, final String jobClass, final String jobDescription,
+            final Map<String, String> jobData, final JobConfig jobConfig) {
+        jobType = JobSchedulingConfigurationType.CRON;
+        this.cronExpression = cronExpression;
+        this.jobClass = jobClass;
+        this.jobData = jobData;
+        this.jobConfig = jobConfig;
+        this.jobDescription = jobDescription;
+    }
+
+    /**
+     * Constructor for Simple/Interval based JobConfig.
+     *
+     * @param  startDelayMS  The Delay after Application Initialization in Milliseconds at which the Job should run for
+     *                       the first time
+     * @param  intervalMS    The Repetition Interval in Milliseconds for Job Repititions
+     * @param  jobClass      The JobClass to use
+     * @param  jobData       Job Data as {@link String} <-> {@link String} {@link Map}
+     */
+    public JobSchedulingConfiguration(final long startDelayMS, final long intervalMS, final String jobClass,
+            final String jobDescription, final Map<String, String> jobData) {
+        this(startDelayMS, intervalMS, jobClass, jobDescription, jobData, null);
+    }
+
+    /**
+     * Constructor for Simple/Interval based JobConfig.
+     *
+     * @param  startDelayMillis  The Delay after Application Initialization in Milliseconds at which the Job should run
+     *                           for the first time
+     * @param  intervalMillis    The Repetition Interval in Milliseconds for Job Repititions
+     * @param  jobClass          The JobClass to use
+     * @param  jobData           Job Data as {@link String} <-> {@link String} {@link Map}
+     */
+    public JobSchedulingConfiguration(final long startDelayMillis, final long intervalMillis, final String jobClass,
+            final String jobDescription, final Map<String, String> jobData, final JobConfig jobConfig) {
+        jobType = JobSchedulingConfigurationType.SIMPLE;
+        this.startDelayMillis = startDelayMillis;
+        this.intervalMillis = intervalMillis;
+        this.jobClass = jobClass;
+        this.jobData = jobData;
+        this.jobConfig = jobConfig;
+        this.jobDescription = jobDescription;
+    }
+
+    /**
+     * Getter for Field: jobType
+     *
+     * @return  the jobType
+     */
+    public JobSchedulingConfigurationType getJobType() {
+        return jobType;
+    }
+
+    /**
+     * Getter for Field: startDelayMS
+     *
+     * @return  the startDelayMS
+     */
+    public Long getStartDelayMillis() {
+        return startDelayMillis;
+    }
+
+    /**
+     * Getter for Field: intervalMS
+     *
+     * @return  the intervalMS
+     */
+    public Long getIntervalMillis() {
+        return intervalMillis;
+    }
+
+    /**
+     * Getter for Field: cronExpression
+     *
+     * @return  the cronExpression
+     */
+    public String getCronExpression() {
+        return cronExpression;
+    }
+
+    /**
+     * Getter for Field: jobClass
+     *
+     * @return  the jobClass
+     */
+    public String getJobClass() {
+        return jobClass;
+    }
+
+    public Class<?> getJobJavaClass() throws ClassNotFoundException {
+        return Class.forName(getJobClass());
+    }
+
+    public String getJobName() throws ClassNotFoundException {
+        final String s = getJobJavaClass().getSimpleName();
+        return s.substring(0, 1).toLowerCase() + s.substring(1);
+    }
+
+    public String getJobGroup() {
+        String retVal = Scheduler.DEFAULT_GROUP;
+        if (getJobConfig() != null && getJobConfig().getJobGroupConfig() != null
+                && getJobConfig().getJobGroupConfig().getJobGroupName() != null) {
+            retVal = getJobConfig().getJobGroupConfig().getJobGroupName();
+        }
+
+        return retVal;
+    }
+
+    public String getJobDescription() {
+        return jobDescription;
+    }
+
+    /**
+     * Getter for Field: jobData
+     *
+     * @return  the jobData
+     */
+    public Map<String, String> getJobData() {
+        return jobData;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((jobClass == null) ? 0 : jobClass.hashCode());
+        result = prime * result + ((jobData == null) ? 0 : jobData.hashCode());
+        result = prime * result + ((jobType == null) ? 0 : jobType.hashCode());
+        return result;
+    }
+
+    /**
+     * Getter for {@link JobConfig}.
+     *
+     * @return  The JobConfig
+     */
+    public JobConfig getJobConfig() {
+        return jobConfig;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final JobSchedulingConfiguration other = (JobSchedulingConfiguration) obj;
+        if (jobClass == null) {
+            if (other.jobClass != null) {
+                return false;
+            }
+        } else if (!jobClass.equals(other.jobClass)) {
+            return false;
+        }
+
+        if (jobData == null) {
+            if (other.jobData != null) {
+                return false;
+            }
+        } else if (!jobData.equals(other.jobData)) {
+            return false;
+        }
+
+        if (jobType != other.jobType) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Comparable implementation.
+     *
+     * @param   compare  The Object to compare to
+     *
+     * @return  <code>true</code> if both objects are equal</code> false</code> otherwise
+     */
+    public boolean isEqual(final JobSchedulingConfiguration compare) {
+        if (compare == null) {
+            return false;
+        }
+
+        // Test if Job is equally configured
+        boolean isSchedulingEqual = false;
+        if (JobSchedulingConfigurationType.CRON == this.getJobType()) {
+            isSchedulingEqual = this.getCronExpression() != null
+                    && this.getCronExpression().equals(compare.getCronExpression());
+        } else {
+            isSchedulingEqual = (this.getIntervalMillis() != null
+                        && this.getIntervalMillis().equals(compare.getIntervalMillis()))
+                    & (this.getStartDelayMillis() != null
+                        && this.getStartDelayMillis().equals(compare.getStartDelayMillis()));
+        }
+
+        boolean isJobConfigEqual = true;
+        if (this.getJobConfig() != null && compare.getJobConfig() != null) {
+            isJobConfigEqual = this.getJobConfig().equals(compare.getJobConfig());
+        }
+
+        // If base data equals (equals), Scheduling equals and JobConfig
+        return this.equals(compare) && isSchedulingEqual && isJobConfigEqual;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("JobSchedulingConfig [jobType=");
+        builder.append(jobType);
+        if (jobType == JobSchedulingConfigurationType.SIMPLE) {
+            builder.append(", startDelayMillis=");
+            builder.append(startDelayMillis);
+            builder.append(", intervalMillis=");
+            builder.append(intervalMillis);
+        } else {
+            builder.append(", cronExpression=");
+            builder.append(cronExpression);
+        }
+
+        builder.append(", jobClass=");
+        builder.append(jobClass);
+        builder.append(", jobData=");
+        builder.append(jobData);
+        builder.append("]");
+        return builder.toString();
+    }
+
+}

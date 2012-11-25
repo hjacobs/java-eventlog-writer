@@ -50,6 +50,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.zalando.zomcat.OperationMode;
+import de.zalando.zomcat.jobs.management.JobManager;
+import de.zalando.zomcat.jobs.management.JobManagerException;
+import de.zalando.zomcat.jobs.management.JobManagerManagedJob;
 
 /**
  * Bean holding all informations about quartz jobs.
@@ -77,6 +80,8 @@ public class JobsStatusBean implements JobsStatusMBean {
     @Autowired
     private ApplicationContext applicationContext;
 
+    private JobManager jobManager;
+
     /**
      * required = false covers the cases where a component does not have any jobs and thus does not define any
      * "jobConfigSource" bean. Otherwise, if the component has jobs, this will later properly fail (probably with a
@@ -88,34 +93,74 @@ public class JobsStatusBean implements JobsStatusMBean {
 
     public synchronized SortedMap<String, JobTypeStatusBean> getJobs() {
         if (jobs.isEmpty()) {
-            for (final Class<? extends RunningWorker> runningWorkerClass : getRunningWorkerImplementations()) {
+            if (!isJobManagerAvailable()) {
+                for (final Class<? extends RunningWorker> runningWorkerClass : getRunningWorkerImplementations()) {
+                    try {
+                        final RunningWorker runningWorker = runningWorkerClass.newInstance();
+
+                        if (runningWorker instanceof AbstractJob) {
+                            final AbstractJob abstractJob = (AbstractJob) runningWorker;
+
+                            // make sure we can use the spring context in the abstract job
+                            abstractJob.setApplicationContext(applicationContext);
+                        }
+
+                        final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(runningWorker.getClass(),
+                                runningWorker.getDescription(), runningWorker.getJobConfig(),
+                                getQuartzJobStatusBean(runningWorker.getClass()));
+                        jobs.put(runningWorkerClass.getName(), jobTypeStatusBean);
+                    } catch (final Exception e) {
+                        LOG.debug("Got exception while getting job infos for runningWorker: [{}], [{}]",
+                            new Object[] {runningWorkerClass.getName(), e.getMessage(), e});
+                    }
+                }
+
+                lastJobConfigRefesh = DateTime.now();
+
                 try {
-                    final RunningWorker runningWorker = runningWorkerClass.newInstance();
+                    refreshJobConfig();
+                } catch (final Exception e) {
+                    LOG.error("Got exception while check expired jobs: [{}]", e.getMessage(), e);
+                }
+            } else {
+                QuartzJobInfoBean jobInfoBean;
+                for (final JobManagerManagedJob curJob : jobManager.getScheduledManagedJobs()) {
+                    try {
+                        jobInfoBean = new QuartzJobInfoBean(curJob.getQuartzScheduler().getSchedulerName(),
+                                curJob.getQuartzJobDetail().getName(), curJob.getQuartzJobDetail().getGroup(),
+                                curJob.getQuartzJobDetail().getJobDataMap());
 
-                    if (runningWorker instanceof AbstractJob) {
-                        final AbstractJob abstractJob = (AbstractJob) runningWorker;
+                        final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(
+                                curJob.getJobSchedulingConfig().getJobJavaClass(),
+                                curJob.getJobSchedulingConfig().getJobDescription(),
+                                curJob.getJobSchedulingConfig().getJobConfig(), jobInfoBean);
+                        jobs.put(curJob.getJobSchedulingConfig().getJobClass(), jobTypeStatusBean);
+                    } catch (final SchedulerException e) {
+                        LOG.error(e.getMessage(), e);
+                    } catch (final ClassNotFoundException e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+                }
 
-                        // make sure we can use the spring context in the abstract job
-                        abstractJob.setApplicationContext(applicationContext);
+                for (final JobManagerManagedJob curJob : jobManager.getUnscheduledManagedJobs()) {
+                    try {
+                        jobInfoBean = new QuartzJobInfoBean(curJob.getQuartzScheduler().getSchedulerName(),
+                                curJob.getQuartzJobDetail().getName(), curJob.getQuartzJobDetail().getGroup(),
+                                curJob.getQuartzJobDetail().getJobDataMap());
+
+                        final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(
+                                curJob.getJobSchedulingConfig().getJobJavaClass(),
+                                curJob.getJobSchedulingConfig().getJobDescription(),
+                                curJob.getJobSchedulingConfig().getJobConfig(), jobInfoBean);
+                        jobs.put(curJob.getJobSchedulingConfig().getJobClass(), jobTypeStatusBean);
+                    } catch (final SchedulerException e) {
+                        LOG.error(e.getMessage(), e);
+                    } catch (final ClassNotFoundException e) {
+                        LOG.error(e.getMessage(), e);
                     }
 
-                    final JobTypeStatusBean jobTypeStatusBean = new JobTypeStatusBean(runningWorker.getClass(),
-                            runningWorker.getDescription(), runningWorker.getJobConfig(),
-                            getQuartzJobStatusBean(runningWorker.getClass()));
-                    jobs.put(runningWorkerClass.getName(), jobTypeStatusBean);
-                } catch (final Exception e) {
-                    LOG.debug("Got exception while getting job infos for runningWorker: [{}], [{}]",
-                        new Object[] {runningWorkerClass.getName(), e.getMessage(), e});
                 }
             }
-
-            lastJobConfigRefesh = DateTime.now();
-        }
-
-        try {
-            refreshJobConfig();
-        } catch (final Exception e) {
-            LOG.error("Got exception while check expired jobs: [{}]", e.getMessage(), e);
         }
 
         return jobs;
@@ -143,23 +188,42 @@ public class JobsStatusBean implements JobsStatusMBean {
         if (lastJobConfigRefesh == null
                 || lastJobConfigRefesh.plusMinutes(JOB_CONFIG_REFRESH_INTERVAL_IN_MINUTES).isBeforeNow()) {
 
-            // we need to refresh the job config for all known jobs:
-            for (final JobTypeStatusBean jobTypeStatusBean : jobs.values()) {
-                try {
-                    final RunningWorker runningWorker = (RunningWorker) jobTypeStatusBean.getJobClass().newInstance();
+            if (!isJobManagerAvailable()) {
 
-                    if (runningWorker instanceof AbstractJob) {
-                        final AbstractJob abstractJob = (AbstractJob) runningWorker;
+                // we need to refresh the job config for all known jobs:
+                for (final JobTypeStatusBean jobTypeStatusBean : jobs.values()) {
+                    try {
+                        final RunningWorker runningWorker = (RunningWorker) jobTypeStatusBean.getJobClass()
+                                                                                             .newInstance();
 
-                        // make sure we can use the spring context in the abstract job
-                        abstractJob.setApplicationContext(applicationContext);
+                        if (runningWorker instanceof AbstractJob) {
+                            final AbstractJob abstractJob = (AbstractJob) runningWorker;
+
+                            // make sure we can use the spring context in the abstract job
+                            abstractJob.setApplicationContext(applicationContext);
+                        }
+
+                        // get a fresh instance of the job config and replace it with the outdated:
+                        jobTypeStatusBean.setJobConfig(runningWorker.getJobConfig());
+                    } catch (final Exception e) {
+                        LOG.debug("Got exception while refreshing job infos for runningWorker: [{}], [{}]",
+                            new Object[] {jobTypeStatusBean.getJobClass().getName(), e.getMessage(), e});
+                    }
+                }
+            } else {
+
+                // we need to refresh the job config for all known jobs:
+                for (final JobTypeStatusBean jobTypeStatusBean : jobs.values()) {
+                    try {
+                        final List<JobManagerManagedJob> managedJobsByClass = jobManager.getManagedJobsByClass(
+                                jobTypeStatusBean.getJobClass());
+                        for (final JobManagerManagedJob curManagedJob : managedJobsByClass) {
+                            jobTypeStatusBean.setJobConfig(curManagedJob.getJobSchedulingConfig().getJobConfig());
+                        }
+                    } catch (final JobManagerException e) {
+                        LOG.error(e.getMessage(), e);
                     }
 
-                    // get a fresh instance of the job config and replace it with the outdated:
-                    jobTypeStatusBean.setJobConfig(runningWorker.getJobConfig());
-                } catch (final Exception e) {
-                    LOG.debug("Got exception while refreshing job infos for runningWorker: [{}], [{}]",
-                        new Object[] {jobTypeStatusBean.getJobClass().getName(), e.getMessage(), e});
                 }
             }
 
@@ -216,6 +280,17 @@ public class JobsStatusBean implements JobsStatusMBean {
         return groups;
     }
 
+    private void toggleJobManagerOperationMode() {
+        if (isJobManagerAvailable()) {
+            try {
+                jobManager.setMaintenanceModeActive(this.operationMode == OperationMode.MAINTENANCE);
+            } catch (final JobManagerException e) {
+                LOG.error("An error occured setting Maintenance Mode on JobManager. Error was: [{}]", e.getMessage(),
+                    e);
+            }
+        }
+    }
+
     /**
      * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#toggleOperationMode()
      */
@@ -228,6 +303,7 @@ public class JobsStatusBean implements JobsStatusMBean {
             operationMode = OperationMode.NORMAL;
         }
 
+        toggleJobManagerOperationMode();
         return operationMode.toString();
     }
 
@@ -258,6 +334,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     @Override
     public void setOperationMode(final OperationMode operationMode) {
         this.operationMode = operationMode;
+        toggleJobManagerOperationMode();
     }
 
     /**
@@ -267,6 +344,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     @Override
     public void setOperationMode(final String operationMode) {
         this.operationMode = OperationMode.valueOf(operationMode);
+        toggleJobManagerOperationMode();
     }
 
     /**
@@ -290,6 +368,10 @@ public class JobsStatusBean implements JobsStatusMBean {
         }
 
         return jobTypeStatusBean;
+    }
+
+    private boolean isJobManagerAvailable() {
+        return jobManager != null;
     }
 
     public synchronized JobGroupTypeStatusBean getJobGroupTypeStatusBean(final JobConfig jobConfig) {
@@ -392,7 +474,29 @@ public class JobsStatusBean implements JobsStatusMBean {
 
             return null;
         } else {
-            jobTypeStatusBean.setDisabled(!running);
+
+            // Toggle the Job
+            try {
+                final List<JobManagerManagedJob> managedJobsForClass = jobManager.getManagedJobsByClass(
+                        jobTypeStatusBean.getJobClass());
+                if (managedJobsForClass.size() == 1) {
+                    final JobManagerManagedJob jobToToggle = managedJobsForClass.get(0);
+                    jobManager.toggleJob(jobToToggle.getJobSchedulingConfig(), running);
+                } else if (managedJobsForClass.size() > 1) {
+                    throw new IllegalArgumentException(String.format(
+                            "Cannot trigger Job with name: [%s]. Expected exactly one Instance for Job but found: [%s].",
+                            jobName, managedJobsForClass.size()));
+                } else {
+                    throw new IllegalArgumentException(String.format(
+                            "Cannot trigger Job with name: [%s]. No matching Job found.", jobName));
+                }
+
+                jobTypeStatusBean.setDisabled(!running);
+            } catch (final JobManagerException e) {
+                LOG.error(e.getMessage(), e);
+            } catch (final IllegalArgumentException e) {
+                LOG.error(e.getMessage(), e);
+            }
 
             LOG.info("set enabled/disabled mode of job + [{}], now it is: [{}]", jobName, !running);
         }
@@ -417,7 +521,18 @@ public class JobsStatusBean implements JobsStatusMBean {
 
             return null;
         } else {
-            jobGroupTypeStatusBean.toggleMode();
+
+            // If
+            if (isJobManagerAvailable()) {
+                try {
+                    jobManager.toggleJobGroup(groupName);
+                    jobGroupTypeStatusBean.toggleMode();
+                } catch (final JobManagerException e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            } else {
+                jobGroupTypeStatusBean.toggleMode();
+            }
 
             LOG.info("set enabled/disabled mode of job group [{}], now it is: [{}]", groupName,
                 !jobGroupTypeStatusBean.isDisabled());
@@ -447,7 +562,35 @@ public class JobsStatusBean implements JobsStatusMBean {
             return null;
         }
 
-        statusBean.setDisabled(!statusBean.isDisabled());
+        if (isJobManagerAvailable()) {
+
+            // Toggle the Job
+            try {
+                final List<JobManagerManagedJob> managedJobsForClass = jobManager.getManagedJobsByClass(
+                        statusBean.getJobClass());
+                if (managedJobsForClass.size() == 1) {
+                    final JobManagerManagedJob jobToToggle = managedJobsForClass.get(0);
+                    final boolean isScheduled = jobManager.isJobScheduled(jobToToggle.getQuartzJobDetail().getName(),
+                            jobToToggle.getQuartzJobDetail().getName());
+                    jobManager.toggleJob(jobToToggle.getJobSchedulingConfig(), !isScheduled);
+                } else if (managedJobsForClass.size() > 1) {
+                    throw new IllegalArgumentException(String.format(
+                            "Cannot trigger Job with name: [%s]. Expected exactly one Instance for Job but found: [%s].",
+                            jobName, managedJobsForClass.size()));
+                } else {
+                    throw new IllegalArgumentException(String.format(
+                            "Cannot trigger Job with name: [%s]. No matching Job found.", jobName));
+                }
+
+                statusBean.setDisabled(!statusBean.isDisabled());
+            } catch (final JobManagerException e) {
+                LOG.error(e.getMessage(), e);
+            } catch (final IllegalArgumentException e) {
+                LOG.error(e.getMessage(), e);
+            }
+        } else {
+            statusBean.setDisabled(!statusBean.isDisabled());
+        }
 
         LOG.info("toggled job [{}], now it is: [{}]", jobName, statusBean);
 
@@ -531,29 +674,62 @@ public class JobsStatusBean implements JobsStatusMBean {
             return false;
         }
 
-        final Scheduler scheduler = (Scheduler) applicationContext.getBean(lastQuartzJobInfoBean.getSchedulerName());
+        // If there is no JobManager Component available
+        if (!isJobManagerAvailable()) {
 
-        if (scheduler == null) {
-            LOG.info("scheduler [{}] not found for job [{}], lastQuartzJobInfoBean = [{}], job can not be triggered",
-                new Object[] {lastQuartzJobInfoBean.getSchedulerName(), jobName, lastQuartzJobInfoBean});
+            final Scheduler scheduler = (Scheduler) applicationContext.getBean(
+                    lastQuartzJobInfoBean.getSchedulerName());
 
-            return false;
+            if (scheduler == null) {
+                LOG.info(
+                    "scheduler [{}] not found for job [{}], lastQuartzJobInfoBean = [{}], job can not be triggered",
+                    new Object[] {lastQuartzJobInfoBean.getSchedulerName(), jobName, lastQuartzJobInfoBean});
+
+                return false;
+            }
+
+            LOG.info("starting triggering job [{}] with lastQuartzJobInfoBean = [{}] ...", jobName,
+                lastQuartzJobInfoBean);
+
+            try {
+                scheduler.triggerJob(lastQuartzJobInfoBean.getJobName(), lastQuartzJobInfoBean.getJobGroup());
+            } catch (final SchedulerException e) {
+                LOG.error("failed to trigger job [{}] with lastQuartzJobInfoBean = [{}]",
+                    new Object[] {jobName, lastQuartzJobInfoBean, e});
+
+                return false;
+            }
+
+            LOG.info("... finished triggering job [{}] with lastQuartzJobInfoBean = [{}]", jobName,
+                lastQuartzJobInfoBean);
+
+            return true;
+        } else {
+            boolean success = false;
+            List<JobManagerManagedJob> managedJobsForClass;
+            try {
+                managedJobsForClass = jobManager.getManagedJobsByClass(jobTypeStatusBean.getJobClass());
+                if (managedJobsForClass.size() == 1) {
+                    final JobManagerManagedJob jobToToggle = managedJobsForClass.get(0);
+                    jobManager.triggerJob(jobToToggle.getJobSchedulingConfig(), true);
+                } else if (managedJobsForClass.size() > 1) {
+                    throw new IllegalArgumentException(String.format(
+                            "Cannot trigger Job with name: [%s]. Expected exactly one Instance for Job but found: [%s].",
+                            jobName, managedJobsForClass.size()));
+                } else {
+                    throw new IllegalArgumentException(String.format(
+                            "Cannot trigger Job with name: [%s]. No matching Job found.", jobName));
+                }
+
+                success = true;
+            } catch (final JobManagerException e) {
+                LOG.error(e.getMessage(), e);
+            } catch (final IllegalArgumentException e) {
+                LOG.error(e.getMessage(), e);
+            }
+
+            return success;
         }
-
-        LOG.info("starting triggering job [{}] with lastQuartzJobInfoBean = [{}] ...", jobName, lastQuartzJobInfoBean);
-
-        try {
-            scheduler.triggerJob(lastQuartzJobInfoBean.getJobName(), lastQuartzJobInfoBean.getJobGroup());
-        } catch (final SchedulerException e) {
-            LOG.error("failed to trigger job [{}] with lastQuartzJobInfoBean = [{}]",
-                new Object[] {jobName, lastQuartzJobInfoBean, e});
-
-            return false;
-        }
-
-        LOG.info("... finished triggering job [{}] with lastQuartzJobInfoBean = [{}]", jobName, lastQuartzJobInfoBean);
-
-        return true;
     }
 
     /**
@@ -623,5 +799,9 @@ public class JobsStatusBean implements JobsStatusMBean {
                             return jobGroupName.equals(input.getJobConfig().getJobGroupConfig().getJobGroupName());
                         }
                     }));
+    }
+
+    public void setJobManager(final JobManager jobManager) {
+        this.jobManager = jobManager;
     }
 }
