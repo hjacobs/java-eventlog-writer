@@ -107,7 +107,7 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
     @Override
     public <Feature extends FeatureToggle> boolean isFeatureEnabled(final Feature feature, final boolean defaultValue) {
         try {
-            String value = config.getStringConfig(feature.getToggleName(), null,
+            String value = config.getStringConfig(feature.getAppConfigName(), null,
                     Toggle.fromBoolean(defaultValue).name());
             return Toggle.fromString(value).asBoolean();
         } catch (Exception e) {
@@ -120,7 +120,7 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
     public <Feature extends FeatureToggle> boolean isFeatureEnabled(final Feature feature, final int appDomainId,
             final boolean defaultValue) {
         try {
-            String value = config.getStringConfig(feature.getToggleName(), new ConfigCtx(appDomainId),
+            String value = config.getStringConfig(feature.getAppConfigName(), new ConfigCtx(appDomainId),
                     Toggle.fromBoolean(defaultValue).name());
             return Toggle.fromString(value).asBoolean();
         } catch (Exception e) {

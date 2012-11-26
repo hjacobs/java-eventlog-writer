@@ -10,7 +10,12 @@ public class FeatureToggleTest {
 
     @Test
     public void testGetToggleName() throws Exception {
-        assertThat(createFeatureToggle("one").getToggleName(), is("feature.one"));
+        assertThat(createFeatureToggle("one").getToggleName(), is("one"));
+    }
+
+    @Test
+    public void testGetAppConfigName() throws Exception {
+        assertThat(createFeatureToggle("one").getAppConfigName(), is("feature.one"));
     }
 
     @Test(expected = IllegalArgumentException.class)

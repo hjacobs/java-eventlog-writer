@@ -9,6 +9,8 @@ public abstract class FeatureToggle {
 
     private final String toggleName;
 
+    private final String appConfigName;
+
     private final String description;
 
     public FeatureToggle(final String toggleName, final String description) {
@@ -16,12 +18,17 @@ public abstract class FeatureToggle {
         checkArgument(!toggleName.startsWith(FEATURE), "toggle name must not start with 'feature.'");
         checkArgument(!isNullOrEmpty(description), "description must not be empty or null");
 
-        this.toggleName = FEATURE + toggleName;
+        this.toggleName = toggleName;
+        this.appConfigName = FEATURE + toggleName;
         this.description = description;
     }
 
     public final String getToggleName() {
         return toggleName;
+    }
+
+    public String getAppConfigName() {
+        return appConfigName;
     }
 
     public final String getDescription() {
