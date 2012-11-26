@@ -260,7 +260,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             // if a Job Config override exists with the same active state as the job itself - remove the override
             final boolean isJobActive = isJobActive(jobSchedulingConfig, null, null);
             if (this.instanceJobConfigOverrides.containsKey(jobSchedulingConfig)
-                    && this.instanceJobConfigOverrides.get(jobSchedulingConfig) == isJobActive) {
+                    && (this.instanceJobConfigOverrides.get(jobSchedulingConfig) == isJobActive)) {
                 instanceJobConfigOverrides.remove(jobSchedulingConfig);
             }
 
@@ -344,7 +344,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     private int parseJobDataInteger(final Map<String, String> jobDataMap, final String jobDataMapKey,
             final int defaultValue, final String errorMessage) {
         int retVal = defaultValue;
-        if (jobDataMap != null && jobDataMap.containsKey(jobDataMapKey)) {
+        if ((jobDataMap != null) && jobDataMap.containsKey(jobDataMapKey)) {
             try {
                 retVal = Integer.valueOf(jobDataMap.get(jobDataMapKey));
             } catch (final NumberFormatException nfe) {
@@ -426,12 +426,12 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         retVal = isJobGroupActive(jobConfig.getJobGroupName(), overrideGroupConfigActive);
 
         // If Job is not Active - and no Override exists - Job is not active
-        if (!jobConfig.isActive() && overrideConfigActive == null) {
+        if (!jobConfig.isActive() && (overrideConfigActive == null)) {
             retVal = false;
         }
 
         // If Job is not Active - Job is not active
-        if (overrideConfigActive != null && !overrideConfigActive) {
+        if ((overrideConfigActive != null) && !overrideConfigActive) {
             retVal = false;
         }
 
@@ -502,12 +502,12 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         }
 
         // If Job is not Active - and no override exists - do not schedule
-        if (!jobGroupConfig.isJobGroupActive() && overrideGroupConfigActive == null) {
+        if (!jobGroupConfig.isJobGroupActive() && (overrideGroupConfigActive == null)) {
             retVal = false;
         }
 
         // If JobGroup has an override active status deactivating it - set it to deactivated
-        if (overrideGroupConfigActive != null && !overrideGroupConfigActive) {
+        if ((overrideGroupConfigActive != null) && !overrideGroupConfigActive) {
             retVal = false;
         }
 
@@ -536,14 +536,14 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         final JobConfig jobConfig = jobSchedulingConfig.getJobConfig();
 
         // If Job is not Active - do not schedule
-        if (jobConfig.getJobGroupConfig() != null && !jobConfig.getJobGroupConfig().isJobGroupActive()
-                && overrideGroupConfigActive == null) {
+        if ((jobConfig.getJobGroupConfig() != null) && !jobConfig.getJobGroupConfig().isJobGroupActive()
+                && (overrideGroupConfigActive == null)) {
             LOG.info("JobGroup: [{}] is not active. Skipping scheduling of Job: [{}].", jobSchedulingConfig,
                 jobConfig.getJobGroupConfig());
         }
 
         // If Job is not Active - do not schedule
-        if (overrideGroupConfigActive != null && !overrideGroupConfigActive) {
+        if ((overrideGroupConfigActive != null) && !overrideGroupConfigActive) {
             LOG.info(
                 "JobGroup: [{}] has been deactivated (toggled) on AppInstance: [{}]. Skipping scheduling of Job: [{}].",
                 new Object[] {
@@ -557,7 +557,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         }
 
         // If Job is not Active - do not schedule
-        if (overrideConfigActive != null && !overrideConfigActive) {
+        if ((overrideConfigActive != null) && !overrideConfigActive) {
             LOG.info("Job has been deactivated (toggled) on AppInstance: [{}]. Skipping scheduling of Job: [{}].",
                 appInstanceKeySource.getAppInstanceKey(), jobSchedulingConfig);
         }
@@ -665,7 +665,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      */
     private boolean isJobMatchesQuartzJobDetailNameAndGroup(final JobManagerManagedJob managedJob,
             final String quartzJobDetailName, final String quartzJobDetailGroup) {
-        return managedJob != null && managedJob.getQuartzJobDetail() != null
+        return (managedJob != null) && (managedJob.getQuartzJobDetail() != null)
                 && managedJob.getQuartzJobDetail().getName().equals(quartzJobDetailName)
                 && managedJob.getQuartzJobDetail().getGroup().equals(quartzJobDetailGroup);
 
@@ -692,7 +692,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                 instanceJobConfigOverrides.get(jobSchedulingConfigurationToCheck),
                 instanceJobGroupConfigOverrides.get(jobGroupConfig));
 
-        return isSchedulingConfigAltered || isScheduled ^ isActive;
+        return isSchedulingConfigAltered || (isScheduled ^ isActive);
     }
 
     /**
@@ -803,7 +803,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                 // This can only happen if a JobGroup has been (de)activated on an instance, and the group
                 // (de)activation state is provided by the current Configuration refresh as well
                 if (instanceJobGroupConfigOverrides.containsKey(groupConfig)
-                        && instanceJobGroupConfigOverrides.get(groupConfig) == groupConfig.isJobGroupActive()) {
+                        && (instanceJobGroupConfigOverrides.get(groupConfig) == groupConfig.isJobGroupActive())) {
                     instanceJobGroupConfigOverrides.remove(groupConfig);
                 }
 
@@ -888,9 +888,9 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      * @throws  SchedulerException  if the Quartz Scheduler has a problem retrieving the appropriate information
      */
     private boolean isJobScheduled(final JobManagerManagedJob job) throws SchedulerException {
-        return job != null && job.getQuartzScheduler() != null && !job.getQuartzScheduler().isInStandbyMode()
-                && job.getQuartzScheduler().getJobDetail(job.getQuartzJobDetail().getName(),
-                    job.getQuartzJobDetail().getGroup()) != null;
+        return (job != null) && (job.getQuartzScheduler() != null) && !job.getQuartzScheduler().isInStandbyMode()
+                && (job.getQuartzScheduler().getJobDetail(job.getQuartzJobDetail().getName(),
+                        job.getQuartzJobDetail().getGroup()) != null);
     }
 
     /**
@@ -1150,8 +1150,8 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             Preconditions.checkArgument(quartzJobDetailName != null, "Parameter quartJobDetailName must not be NULL");
 
             final JobManagerManagedJob job = getManagedJobByJobDetailNameAndJobDetailGroup(quartzJobDetailName,
-                    quartzJobDetailGroup == null || quartzJobDetailGroup.trim().isEmpty() ? Scheduler.DEFAULT_GROUP
-                                                                                          : quartzJobDetailGroup);
+                    ((quartzJobDetailGroup == null) || quartzJobDetailGroup.trim().isEmpty()) ? Scheduler.DEFAULT_GROUP
+                                                                                              : quartzJobDetailGroup);
             if (job == null) {
                 throw new JobManagerException(String.format(
                         "Could not find ManagedJob for JobName: [%s] and JobGroup: [%s]", quartzJobDetailName,
@@ -1243,8 +1243,8 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             Preconditions.checkArgument(quartzJobDetailName != null, "Parameter quartJobDetailName must not be NULL");
 
             final JobManagerManagedJob job = getManagedJobByJobDetailNameAndJobDetailGroup(quartzJobDetailName,
-                    quartzJobDetailGroup == null || quartzJobDetailGroup.trim().isEmpty() ? Scheduler.DEFAULT_GROUP
-                                                                                          : quartzJobDetailGroup);
+                    ((quartzJobDetailGroup == null) || quartzJobDetailGroup.trim().isEmpty()) ? Scheduler.DEFAULT_GROUP
+                                                                                              : quartzJobDetailGroup);
             if (job == null) {
                 throw new JobManagerException(String.format(
                         "Cancel Job failed. Could not find ManagedJob for JobName: [%s] and JobGroup: [%s]",
@@ -1427,7 +1427,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     @Override
     public final void jobExecutionVetoed(final JobExecutionContext context) {
         final JobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
-        LOG.error("Job Execution was vetoed. Job: [{}]", currentJob.getJobSchedulingConfig());
+        LOG.warn("Job Execution was vetoed. Job: [{}]", currentJob);
     }
 
     @Override
@@ -1435,7 +1435,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         final JobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
         if (currentJob != null) {
             final Job quartzJob = context.getJobInstance();
-            if (quartzJob != null && RunningWorker.class.isInstance(quartzJob)) {
+            if ((quartzJob != null) && RunningWorker.class.isInstance(quartzJob)) {
                 currentJob.onFinishRunningWorker((RunningWorker) quartzJob);
             }
         } else {
