@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import de.zalando.appconfig.ConfigCtx;
 import de.zalando.appconfig.Configuration;
 
 import de.zalando.domain.Environment;
@@ -96,6 +97,41 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
     @Override
     public boolean isLocalMachine() {
         return Environment.LOCAL == getEnvironment();
+    }
+
+    @Override
+    public <Feature extends FeatureToggle> boolean isFeatureEnabled(final Feature feature) {
+        return isFeatureEnabled(feature, false);
+    }
+
+    @Override
+    public <Feature extends FeatureToggle> boolean isFeatureEnabled(final Feature feature, final boolean defaultValue) {
+        try {
+            String value = config.getStringConfig(feature.getToggleName(), null,
+                    Toggle.fromBoolean(defaultValue).name());
+            return Toggle.fromString(value).asBoolean();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    @Override
+    public <Feature extends FeatureToggle> boolean isFeatureEnabled(final Feature feature, final int appDomainId,
+            final boolean defaultValue) {
+        try {
+            String value = config.getStringConfig(feature.getToggleName(), new ConfigCtx(appDomainId),
+                    Toggle.fromBoolean(defaultValue).name());
+            return Toggle.fromString(value).asBoolean();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    @Override
+    public <Feature extends FeatureToggle> boolean isFeatureEnabled(final Feature feature, final int appDomainId) {
+        return isFeatureEnabled(feature, appDomainId, false);
     }
 
 }

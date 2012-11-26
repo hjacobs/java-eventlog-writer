@@ -27,4 +27,13 @@ public interface BaseApplicationConfig extends JobConfigSource {
 
     Configuration getConfig();
 
+    <Toggle extends FeatureToggle> boolean isFeatureEnabled(final Toggle feature);
+
+    <Toggle extends FeatureToggle> boolean isFeatureEnabled(final Toggle feature, final int appDomainId,
+            final boolean defaultValue);
+
+    <Toggle extends FeatureToggle> boolean isFeatureEnabled(final Toggle feature, final int appDomainId);
+
+    <Toggle extends FeatureToggle> boolean isFeatureEnabled(final Toggle feature, final boolean defaultValue);
+
 }
