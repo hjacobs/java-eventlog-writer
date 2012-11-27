@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION get_job_scheduling_configs(
+CREATE OR REPLACE FUNCTION zz_commons.job_manager_get_job_scheduling_configs(
   OUT result_id                           INTEGER,
   OUT result_job_class                    TEXT,
   OUT result_job_cron_expression          TEXT,

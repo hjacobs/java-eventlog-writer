@@ -13,7 +13,7 @@ import de.zalando.zomcat.jobs.management.persistence.model.DatabaseJobScheduling
  * SprocService interface for {@link JobManager}. Allows retrieval of {@link JobSchedulingConfiguration} instances via
  * the respective Applications Database
  */
-@SProcService
+@SProcService(namespace = "zz_commons.job_manager")
 public interface JobManagerSProcService {
 
     /**
