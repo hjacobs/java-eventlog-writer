@@ -6,6 +6,7 @@ import static com.google.common.base.Preconditions.checkState;
 import java.util.List;
 import java.util.Set;
 
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
 import org.slf4j.Logger;
@@ -73,6 +74,15 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     protected abstract WriteTime getWriteTime();
 
     protected abstract BatchExecutionStrategy<ITEM_TYPE> getExecutionStrategy();
+
+    /**
+     * expose job data map (properties in scheduler.conf) for fetchers/writers if they are defined in the same class.
+     *
+     * @return
+     */
+    protected JobDataMap getJobDataMap() {
+        return jobExecutionContext.getMergedJobDataMap();
+    }
 
     /**
      * Method fetches and enriches the items. If an error occures an exception is thrown.
@@ -206,13 +216,13 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     @Override
     public final void doRun(final JobExecutionContext executionContext, final JobConfig config) {
 
-        this.fetcher = getFetcher();
-        this.processor = getProcessor();
-        this.writer = getWriter();
-        this.writeTime = getWriteTime();
-        this.executionStrategy = getExecutionStrategy();
+        fetcher = getFetcher();
+        processor = getProcessor();
+        writer = getWriter();
+        writeTime = getWriteTime();
+        executionStrategy = getExecutionStrategy();
 
-        this.jobExecutionContext = executionContext;
+        jobExecutionContext = executionContext;
 
         assertComponentsArePresent();
 
