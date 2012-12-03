@@ -9,6 +9,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
+import org.quartz.JobExecutionContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +36,16 @@ public abstract class BatchExecutionStrategy<Item> {
     protected ItemProcessor<Item> processor;
     protected WriteTime writeTime;
     protected ItemWriter<Item> writer;
+    protected Map<String, Object> localExecutionContext;
+    protected JobExecutionContext jobExecutionContext;
 
-    public void bind(final ItemProcessor<Item> processor, final ItemWriter<Item> writer, final WriteTime writeTime) {
+    public void bind(final ItemProcessor<Item> processor, final ItemWriter<Item> writer, final WriteTime writeTime,
+            final JobExecutionContext jobExecutionContext, final Map<String, Object> localExecutionContext) {
         this.processor = processor;
         this.writer = writer;
         this.writeTime = writeTime;
-
+        this.jobExecutionContext = jobExecutionContext;
+        this.localExecutionContext = localExecutionContext;
     }
 
     /**
@@ -51,7 +57,7 @@ public abstract class BatchExecutionStrategy<Item> {
      *
      * @return
      */
-    public abstract Map<String, Collection<Item>> makeChunks(Collection<Item> items);
+    public abstract Map<String, Collection<Item>> makeChunks(final Collection<Item> items);
 
     /**
      * Executes one chunk of data. Concrete implementations must ideally be aware of the chunking strategy that was
@@ -64,7 +70,7 @@ public abstract class BatchExecutionStrategy<Item> {
      *
      * @throws  Exception
      */
-    public abstract void processChunk(final String chunkId, Collection<Item> items) throws Exception;
+    public abstract void processChunk(final String chunkId, final Collection<Item> items) throws Exception;
 
     /**
      * Receives the fetched items, splits them into chunks (according to the given strategy) and dispatches each of them
@@ -76,7 +82,7 @@ public abstract class BatchExecutionStrategy<Item> {
      */
     public final void execute(final Collection<Item> items) throws Exception {
 
-        Map<String, Collection<Item>> chunks = makeChunks(items);
+        final Map<String, Collection<Item>> chunks = makeChunks(items);
         if (chunks == null) {
             throw new IllegalStateException("Invariant violated: Chunker MUST NOT return null!");
         }
@@ -88,11 +94,11 @@ public abstract class BatchExecutionStrategy<Item> {
         setupExecution(chunks);
 
         try {
-            Set<String> keySet = chunks.keySet();
+            final Set<String> keySet = chunks.keySet();
 
             int i = 0;
 
-            for (String k : keySet) {
+            for (final String k : keySet) {
                 i++;
                 LOG.trace("Dispatching chunk {} of {} ({}).", new Object[] {i, chunks.size(), k});
                 executeChunk(k, chunks.get(k));
@@ -100,10 +106,10 @@ public abstract class BatchExecutionStrategy<Item> {
 
             if (writeTime == WriteTime.AT_END_OF_BATCH) {
 
-                Pair<List<Item>, List<JobResponse<Item>>> r = joinResults();
+                final Pair<List<Item>, List<JobResponse<Item>>> r = joinResults();
 
-                Collection<Item> successfulItems = r.getFirst();
-                Collection<JobResponse<Item>> failedItems = r.getSecond();
+                final Collection<Item> successfulItems = r.getFirst();
+                final Collection<JobResponse<Item>> failedItems = r.getSecond();
 
                 write(successfulItems, failedItems);
             }
@@ -130,8 +136,8 @@ public abstract class BatchExecutionStrategy<Item> {
 
         int sumInChunks = 0;
 
-        Set<String> keySet = chunks.keySet();
-        for (String k : keySet) {
+        final Set<String> keySet = chunks.keySet();
+        for (final String k : keySet) {
             sumInChunks += chunks.get(k).size();
         }
 
@@ -158,7 +164,7 @@ public abstract class BatchExecutionStrategy<Item> {
      */
     protected void write(final Collection<Item> successfulItems, final Collection<JobResponse<Item>> failedItems) {
         LOG.debug(ItemWriter.WRITE_LOG_FORMAT, successfulItems.size(), failedItems.size());
-        writer.writeItems(successfulItems, failedItems);
+        writer.writeItems(successfulItems, failedItems, jobExecutionContext, localExecutionContext);
     }
 
     /*protected Pair<List<Item>, List<JobResponse<Item>>> getStatuses() {
@@ -167,40 +173,8 @@ public abstract class BatchExecutionStrategy<Item> {
 
     public abstract int getProcessedCount();
 
-    /**
-     * Validate the input items with the JSR-303 implementation. If violations are found the items is sorted to the
-     * failed list, otherwise to the successful list.
-     *
-     * @param   items
-     *
-     * @return  a Pair of lists: first is the successful, second is the failed list
-     */
-    private JobResponse<Item> validate(final Item item) {
-        // final Collection<Item> successfulItems = Lists.newArrayList();
-        // final Collection<JobResponse<Item>> failedItems = Lists.newArrayList();
-
-        JobResponse<Item> response = null;
-
-        // for (final Item item : items) {
-        final Set<ConstraintViolation<Item>> violations = VALIDATOR.validate(item);
-        if (violations.isEmpty()) {
-            // successfulItems.add(item);
-        } else {
-            final List<String> messages = getMessageList(violations);
-            response = new JobResponse<Item>(item);
-            response.addErrorMessages(messages);
-
-            // failedItems.add(response);
-            LOG.warn("item [{}] failed validation [{}]", item, messages);
-        }
-        // }
-
-        return response;
-            // return Pair.of(successfulItems, failedItems);
-    }
-
     private static <T> List<String> getMessageList(final Set<ConstraintViolation<T>> violations) {
-        List<String> messages = Lists.newArrayListWithCapacity(violations.size());
+        final List<String> messages = Lists.newArrayListWithCapacity(violations.size());
         for (final ConstraintViolation<?> violation : violations) {
             messages.add(String.format("invalid value [%s] of property [%s] %s", violation.getInvalidValue(),
                     violation.getPropertyPath(), violation.getMessage()));

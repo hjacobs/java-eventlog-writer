@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.quartz.JobExecutionContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,14 +74,14 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
 
             @Override
             public Map<String, Collection<FakeItem>> makeChunks(final Collection<FakeItem> items) {
-                Map<String, Collection<FakeItem>> m = Maps.newHashMap();
+                final Map<String, Collection<FakeItem>> m = Maps.newHashMap();
                 int chunkId = 0;
 
                 int c = 0;
 
                 Collection<FakeItem> l = Lists.newArrayList();
 
-                for (FakeItem fakeItem : items) {
+                for (final FakeItem fakeItem : items) {
 
                     c++;
                     l.add(fakeItem);
@@ -111,17 +113,18 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     }
 
     @Override
-    public List<FakeItem> fetchItems(final int limit) throws Exception {
+    public List<FakeItem> fetchItems(final int limit, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception {
 
         if (sourceFileName == null) {
             throw new IllegalStateException("For testing source file must be set!");
         }
 
-        FileReader fileReader = new FileReader(sourceFileName);
-        BufferedReader br = new BufferedReader(fileReader);
+        final FileReader fileReader = new FileReader(sourceFileName);
+        final BufferedReader br = new BufferedReader(fileReader);
         String line = null;
 
-        List<FakeItem> r = Lists.newArrayList();
+        final List<FakeItem> r = Lists.newArrayList();
         while ((line = br.readLine()) != null) {
             r.add(readFakeItemFromLine(line));
         }
@@ -130,23 +133,25 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     }
 
     private FakeItem readFakeItemFromLine(final String line) {
-        String[] split = line.split(" ");
+        final String[] split = line.split(" ");
 
-        FakeItem f = new FakeItem();
+        final FakeItem f = new FakeItem();
         f.setId(Integer.parseInt(split[0]));
         f.setText(split[1]);
         return f;
     }
 
     @Override
-    public List<FakeItem> enrichItems(final List<FakeItem> items) throws Exception {
+    public List<FakeItem> enrichItems(final List<FakeItem> items, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception {
 
         return items;
     }
 
     @Override
     public void writeItems(final Collection<FakeItem> successfulItems,
-            final Collection<JobResponse<FakeItem>> failedItems) {
+            final Collection<JobResponse<FakeItem>> failedItems, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) {
 
         if (logFile == null) {
             throw new IllegalStateException("For testing logFile must be set.");
@@ -160,14 +165,15 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
             fileWriter = new FileWriter(logFile, true);
             fileWriter.append(String.format("%s %s\n", successfulItems.size(), failedItems.size()));
             fileWriter.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new IllegalStateException("Failed to write file", ex);
         }
 
     }
 
     @Override
-    public void process(final FakeItem item) throws Exception {
+    public void process(final FakeItem item, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception {
 
         count++;
 
@@ -178,7 +184,8 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     }
 
     @Override
-    public void validate(final FakeItem item) { }
+    public void validate(final FakeItem item, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) { }
 
     /*
      * These fields are used only to test since this is a fake job. "Real" jobs won't require any of this.
@@ -210,5 +217,4 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     public void setChunkSize(final int chunkSize) {
         this.chunkSize = chunkSize;
     }
-
 }

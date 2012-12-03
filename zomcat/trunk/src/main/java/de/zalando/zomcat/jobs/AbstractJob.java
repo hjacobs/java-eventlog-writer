@@ -124,7 +124,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
                 "Aborting Job: no description for job defined: " + getBeanName());
         }
 
-        boolean isLockedJob = (lockResourceManager != null && getLockResource() != null);
+        final boolean isLockedJob = (lockResourceManager != null && getLockResource() != null);
 
         final JobConfig config = getJobConfig();
 
@@ -134,7 +134,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         }
 
         if (isLockedJob) {
-            boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(),
+            final boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(),
                     FlowId.peekFlowId());
 
             // if we got at this point, we have a lock - else we got an exception that can be ignored.

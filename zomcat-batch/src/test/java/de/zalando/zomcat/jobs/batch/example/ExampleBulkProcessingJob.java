@@ -81,5 +81,4 @@ public class ExampleBulkProcessingJob extends AbstractBulkProcessingJob<ExampleI
     protected int getLimit(final JobConfig config) {
         return 10;
     }
-
 }

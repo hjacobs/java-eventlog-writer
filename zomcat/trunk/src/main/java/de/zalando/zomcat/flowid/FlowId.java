@@ -1,5 +1,6 @@
 package de.zalando.zomcat.flowid;
 
+import java.util.Stack;
 import java.util.UUID;
 
 import org.apache.commons.codec.binary.Base64;
@@ -122,5 +123,13 @@ public abstract class FlowId {
 
     public static void clear() {
         NDC.remove();
+    }
+
+    public static Stack<?> cloneStack() {
+        return NDC.cloneStack();
+    }
+
+    public static void inherit(final Stack<?> cloneStack) {
+        NDC.inherit(cloneStack);
     }
 }

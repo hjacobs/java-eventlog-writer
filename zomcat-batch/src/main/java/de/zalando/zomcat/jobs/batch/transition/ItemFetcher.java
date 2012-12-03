@@ -1,6 +1,9 @@
 package de.zalando.zomcat.jobs.batch.transition;
 
 import java.util.List;
+import java.util.Map;
+
+import org.quartz.JobExecutionContext;
 
 /**
  * Fetches items from the Database or the File System.
@@ -20,7 +23,8 @@ public interface ItemFetcher<Item> {
      *
      * @throws  ItemFetcherException
      */
-    List<Item> fetchItems(int limit) throws Exception;
+    List<Item> fetchItems(final int limit, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception;
 
     /**
      * Possibly adds additional information, which comes from different sources. These requests should be handled in
@@ -32,6 +36,6 @@ public interface ItemFetcher<Item> {
      *
      * @throws  ItemFetcherException
      */
-    List<Item> enrichItems(final List<Item> items) throws Exception;
-
+    List<Item> enrichItems(final List<Item> items, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception;
 }

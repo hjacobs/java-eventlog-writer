@@ -1,6 +1,9 @@
 package de.zalando.zomcat.jobs.batch.transition;
 
 import java.util.Collection;
+import java.util.Map;
+
+import org.quartz.JobExecutionContext;
 
 /**
  * Writes status of the processed items to the Database and External Systems. These operations should be handled in
@@ -12,14 +15,15 @@ import java.util.Collection;
  */
 public interface ItemWriter<Item> {
 
+    String WRITE_LOG_FORMAT = "writing {} successful and {} failed items";
+
     /**
      * Implementations must be thread safe for any usage under concurrency.
      *
      * @param  successfulItems
      * @param  failedItems
      */
-    String WRITE_LOG_FORMAT = "writing {} successful and {} failed items";
-
-    void writeItems(Collection<Item> successfulItems, Collection<JobResponse<Item>> failedItems);
+    void writeItems(final Collection<Item> successfulItems, final Collection<JobResponse<Item>> failedItems,
+            final JobExecutionContext jobExecutionContext, final Map<String, Object> localExecutionContext);
 
 }

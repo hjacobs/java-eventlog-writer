@@ -8,6 +8,9 @@ import java.io.IOException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import org.quartz.JobExecutionContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,17 +69,18 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
     }
 
     @Override
-    public List<FakeItem> fetchItems(final int limit) throws Exception {
+    public List<FakeItem> fetchItems(final int limit, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception {
 
         if (sourceFileName == null) {
             throw new IllegalStateException("For testing source file must be set!");
         }
 
-        FileReader fileReader = new FileReader(sourceFileName);
-        BufferedReader br = new BufferedReader(fileReader);
+        final FileReader fileReader = new FileReader(sourceFileName);
+        final BufferedReader br = new BufferedReader(fileReader);
         String line = null;
 
-        List<FakeItem> r = Lists.newArrayList();
+        final List<FakeItem> r = Lists.newArrayList();
         while ((line = br.readLine()) != null) {
             r.add(readFakeItemFromLine(line));
         }
@@ -85,23 +89,25 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
     }
 
     private FakeItem readFakeItemFromLine(final String line) {
-        String[] split = line.split(" ");
+        final String[] split = line.split(" ");
 
-        FakeItem f = new FakeItem();
+        final FakeItem f = new FakeItem();
         f.setId(Integer.parseInt(split[0]));
         f.setText(split[1]);
         return f;
     }
 
     @Override
-    public List<FakeItem> enrichItems(final List<FakeItem> items) throws Exception {
+    public List<FakeItem> enrichItems(final List<FakeItem> items, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception {
 
         return items;
     }
 
     @Override
     public void writeItems(final Collection<FakeItem> successfulItems,
-            final Collection<JobResponse<FakeItem>> failedItems) {
+            final Collection<JobResponse<FakeItem>> failedItems, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) {
 
         if (logFile == null) {
             throw new IllegalStateException("For testing logFile must be set.");
@@ -109,16 +115,17 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
 
         LOG.debug("using output file: " + logFile);
         try {
-            FileWriter fileWriter = new FileWriter(logFile, true);
+            final FileWriter fileWriter = new FileWriter(logFile, true);
             fileWriter.append(String.format("%s %s\n", successfulItems.size(), failedItems.size()));
             fileWriter.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new IllegalStateException("Failed to write file", ex);
         }
     }
 
     @Override
-    public void process(final FakeItem item) throws Exception {
+    public void process(final FakeItem item, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception {
         count++;
 
         if (count % 10 == 0) {
@@ -128,7 +135,8 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
     }
 
     @Override
-    public void validate(final FakeItem item) { }
+    public void validate(final FakeItem item, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) { }
 
     /*
      * These fields are used only to test since this is a fake job. "Real" jobs won't require any of this.

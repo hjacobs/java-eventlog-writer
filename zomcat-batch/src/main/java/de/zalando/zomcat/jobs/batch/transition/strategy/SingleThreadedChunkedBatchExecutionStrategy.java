@@ -35,22 +35,22 @@ public abstract class SingleThreadedChunkedBatchExecutionStrategy<ITEM_TYPE> ext
 
         LOG.trace("Starting execution of chunk {}.", chunkId);
 
-        int total = items.size();
+        final int total = items.size();
 
-        for (ITEM_TYPE item : items) {
+        for (final ITEM_TYPE item : items) {
 
             LOG.trace("Dispatching item {} to processor. (%s of %s)",
                 new Object[] {item, (processedCount + 1), items.size()});
 
             try {
                 processedCount++;
-                processor.validate(item);
-                processor.process(item);
+                processor.validate(item, jobExecutionContext, localExecutionContext);
+                processor.process(item, jobExecutionContext, localExecutionContext);
 
                 successfulItems.add(item);
 
-            } catch (Throwable t) {
-                JobResponse<ITEM_TYPE> response = new JobResponse<ITEM_TYPE>(item);
+            } catch (final Throwable t) {
+                final JobResponse<ITEM_TYPE> response = new JobResponse<ITEM_TYPE>(item);
                 response.addErrorMessage(Throwables.getStackTraceAsString(t));
 
                 failedItems.add(response);

@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -41,7 +43,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     }
 
     private void assertComponentsArePresent() {
-        Set<String> missingComponents = Sets.newHashSet();
+        final Set<String> missingComponents = Sets.newHashSet();
         if (fetcher == null) {
             missingComponents.add("fetcher");
         }
@@ -88,14 +90,16 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
      * Method fetches and enriches the items. If an error occures an exception is thrown.
      *
      * @param   limit
+     * @param   localExecutionContext
      *
      * @return
      *
      * @throws  de.zalando.commons.backend.jobs.ItemFetcherException
      */
-    private List<ITEM_TYPE> fetchItems(final int limit) throws Exception {
+    private List<ITEM_TYPE> fetchItems(final int limit, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception {
         try {
-            return fetcher.fetchItems(limit);
+            return fetcher.fetchItems(limit, jobExecutionContext, localExecutionContext);
         } catch (final ItemFetcherException e) {
             throw e;
         } catch (final Exception e) {
@@ -114,9 +118,10 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
      *
      * @throws  ItemFetcherException  if an error occurs enriching Items
      */
-    private List<ITEM_TYPE> enrichItems(final List<ITEM_TYPE> items) throws Exception {
+    private List<ITEM_TYPE> enrichItems(final List<ITEM_TYPE> items, final JobExecutionContext jobExecutionContext,
+            final Map<String, Object> localExecutionContext) throws Exception {
         try {
-            return fetcher.enrichItems(items);
+            return fetcher.enrichItems(items, jobExecutionContext, localExecutionContext);
         } catch (final ItemFetcherException e) {
             throw e;
         } catch (final Exception e) {
@@ -138,7 +143,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
     private static void logFailedNumber(final boolean external, final int size) {
         if ((size > 0)) {
-            LOG.debug("{}validation failed, count {}", external ? "external " : "", size);
+            LOG.debug("[{}] validation failed, count [{}]", external ? "external " : "", size);
         }
     }
 
@@ -147,36 +152,38 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
         if (limit == 0) {
 
             // probably a configuration error, but we continue anyway
-            LOG.warn("running {} with limit zero", getBeanName());
+            LOG.warn("running [{}] with limit zero", getBeanName());
         }
 
         final List<ITEM_TYPE> successfulItems = Lists.newArrayList();
         final List<JobResponse<ITEM_TYPE>> failedItems = Lists.newArrayList();
 
         List<ITEM_TYPE> itemsToProcess = null;
+        final Map<String, Object> localExecutionContext = new ConcurrentHashMap<String, Object>();
         try {
 
             // NOTE: the bean name already ends with "Job" so we do not need to repeat it in log messages
-            LOG.info("starting {} with limit {}", getBeanName(), limit);
+            LOG.info("starting [{}] with limit [{}]", getBeanName(), limit);
 
-            itemsToProcess = fetchItems(limit);
+            itemsToProcess = fetchItems(limit, jobExecutionContext, localExecutionContext);
 
             if (itemsToProcess.isEmpty()) {
 
                 // shortcut exit to avoid cluttering log files with unnecessary "0" items statements
-                LOG.info("finished {} with 0 items", getBeanName());
+                LOG.info("finished [{}] with 0 items, localExecutionContext [{}]", getBeanName(),
+                    localExecutionContext);
                 return;
             }
 
-            LOG.info("processing {} items", itemsToProcess.size());
+            LOG.info("processing [{}] items, localExecutionContext [{}]", itemsToProcess.size(), localExecutionContext);
 
-            itemsToProcess = enrichItems(itemsToProcess);
+            itemsToProcess = enrichItems(itemsToProcess, jobExecutionContext, localExecutionContext);
 
-            LOG.info("enriched {} items", itemsToProcess.size());
+            LOG.info("enriched [{}] items, localExecutionContext [{}]", itemsToProcess.size(), localExecutionContext);
 
             // From here on we should have no possibility of ItemFetcherException
             executionStrategy = getExecutionStrategy();
-            executionStrategy.bind(processor, writer, writeTime);
+            executionStrategy.bind(processor, writer, writeTime, jobExecutionContext, localExecutionContext);
 
             // executionStrategy.execute(validItems);
             executionStrategy.execute(itemsToProcess);
@@ -195,7 +202,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
                         new Function<ITEM_TYPE, JobResponse<ITEM_TYPE>>() {
                             @Override
                             public JobResponse<ITEM_TYPE> apply(final ITEM_TYPE item) {
-                                JobResponse<ITEM_TYPE> jobResponse = new JobResponse<ITEM_TYPE>(item);
+                                final JobResponse<ITEM_TYPE> jobResponse = new JobResponse<ITEM_TYPE>(item);
                                 jobResponse.addErrorMessage(e.getMessage());
                                 return jobResponse;
                             }
@@ -205,12 +212,12 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
             // if we write here we are probably not executing anything.
             LOG.debug(ItemWriter.WRITE_LOG_FORMAT, successfulItems.size(), failedItems.size());
-            writer.writeItems(successfulItems, failedItems);
+            writer.writeItems(successfulItems, failedItems, jobExecutionContext, localExecutionContext);
 
         }
 
-        LOG.info("finished {} with {} successfull and {} failed items",
-            new Object[] {getBeanName(), successfulItems.size(), failedItems.size()});
+        LOG.info("finished [{}] with [{}] successfull and [{}] failed items, localExecutionContext [{}]",
+            new Object[] {getBeanName(), successfulItems.size(), failedItems.size(), localExecutionContext});
     }
 
     @Override
@@ -231,8 +238,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
             process(limit);
 
         } catch (final Exception e) {
-            LOG.error("Exception occured while processing with limit {}", limit, e);
+            LOG.error("Exception occured while processing with limit [{}]", limit, e);
         }
     }
-
 }
