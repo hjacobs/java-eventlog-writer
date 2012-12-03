@@ -4,16 +4,11 @@
     <artifactId>zomcat-job-monitor-parent</artifactId>
         <packaging>pom</packaging>
     <name>Job Monitor Super POM</name>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <description>Super POM for Zomcat Job Monitor backend</description>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
-    <parent>
-        <groupId>de.zalando</groupId>
-        <artifactId>zalando-parent</artifactId>
-        <version>1.3.73</version>
-    </parent>
     <profiles>
         <profile>
             <id>default-modules</id>
