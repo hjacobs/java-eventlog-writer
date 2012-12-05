@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>de.zalando.libs</groupId>
+    <artifactId>gwt-elements</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>GWT Elements</name>
+    <description>The project GWT-Elements is a Library to provide multiple GWT-Constructs for Zalando-Technology.</description>
+    <organization>
+        <name>Zalando/Technology/Frontend/Library</name>
+    </organization>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <modules>
+        <module>widget-library</module>
+        <module>showcase</module>
+    </modules>
+    <scm>
+        <connection>scm:svn:https://svn.zalando.net/reboot-libs/gwt-elements</connection>
+        <developerConnection>scm:svn:https://svn.zalando.net/reboot-libs/gwt-elements</developerConnection>
+        <url>https://svn.zalando.net/reboot-libs/gwt-elements</url>
+    </scm>
+    <build/>
+    <mailingLists>
+        <mailingList>
+            <name>reboot-libs</name>
+            <post>reboot-libs@zalando.de</post>
+        </mailingList>
+    </mailingLists>
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>${repository.url.releases}</url>
+            <uniqueVersion>true</uniqueVersion>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>${repository.url.snapshots}</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <!--site>
+            <id>doc</id>
+            <url>scpexe://doc.zalando.de/home/doc/www/modules/${project.artifactId}/${project.version}</url>
+        </site-->
+    </distributionManagement>
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://ci.zalando.de/</url>
+        <notifiers>
+            <notifier>
+                <type>mail</type>
+                <sendOnError>true</sendOnError>
+                <sendOnFailure>true</sendOnFailure>
+                <sendOnWarning>true</sendOnWarning>
+                <sendOnSuccess>false</sendOnSuccess>
+                <configuration>
+                    <address>reboot-libs@zalando.de</address>
+                </configuration>
+            </notifier>
+        </notifiers>
+    </ciManagement>
+    <issueManagement>
+        <system>jira</system>
+        <url>https://jira.zalando.de/</url>
+    </issueManagement>
+    <contributors>
+        <contributor>
+            <organization>Zalando GmbH</organization>
+            <organizationUrl>http://www.zalando.de/</organizationUrl>
+        </contributor>
+    </contributors>
+    <developers>
+        <developer>
+            <id>nhufschmidt</id>
+            <name>Niels Hufschmidt</name>
+            <email>niels.hufschmidt@zalando.de</email>
+            <organization>Zalando GmbH</organization>
+            <organizationUrl>http://www.zalando.de/</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+</project>
