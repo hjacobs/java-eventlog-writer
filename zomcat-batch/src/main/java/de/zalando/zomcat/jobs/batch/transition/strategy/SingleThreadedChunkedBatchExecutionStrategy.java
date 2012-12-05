@@ -44,8 +44,8 @@ public abstract class SingleThreadedChunkedBatchExecutionStrategy<ITEM_TYPE> ext
 
             try {
                 processedCount++;
-                processor.validate(item, jobExecutionContext, localExecutionContext);
-                processor.process(item, jobExecutionContext, localExecutionContext);
+                processor.validate(item);
+                processor.process(item);
 
                 successfulItems.add(item);
 

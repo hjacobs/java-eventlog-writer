@@ -74,9 +74,8 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
                         FlowId.inherit(cloneStack);
                         try {
 
-                            // Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>> statuses = getStatuses();
-                            final List<ITEM_TYPE> successfulItems = Lists.newArrayList();          // Collections.synchronizedList(statuses.getFirst());
-                            final List<JobResponse<ITEM_TYPE>> failedItems = Lists.newArrayList(); // Collections.synchronizedList(statuses.getSecond());
+                            final List<ITEM_TYPE> successfulItems = Lists.newArrayList();
+                            final List<JobResponse<ITEM_TYPE>> failedItems = Lists.newArrayList();
 
                             LOG.debug("Starting execution of chunk id {} on [{}] ({} items)",
                                 new Object[] {chunkId, Thread.currentThread().getName(), items.size()});
@@ -88,8 +87,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
                                 try {
 
-// processedCount++;
-                                    processor.process(item, jobExecutionContext, localExecutionContext);
+                                    processor.process(item);
                                     successfulItems.add(item);
                                 } catch (final Throwable t) {
                                     final JobResponse<ITEM_TYPE> response = new JobResponse<ITEM_TYPE>(item);

@@ -9,8 +9,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-import org.quartz.JobExecutionContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,16 +34,12 @@ public abstract class BatchExecutionStrategy<Item> {
     protected ItemProcessor<Item> processor;
     protected WriteTime writeTime;
     protected ItemWriter<Item> writer;
-    protected Map<String, Object> localExecutionContext;
-    protected JobExecutionContext jobExecutionContext;
 
-    public void bind(final ItemProcessor<Item> processor, final ItemWriter<Item> writer, final WriteTime writeTime,
-            final JobExecutionContext jobExecutionContext, final Map<String, Object> localExecutionContext) {
+    public void bind(final ItemProcessor<Item> processor, final ItemWriter<Item> writer, final WriteTime writeTime) {
         this.processor = processor;
         this.writer = writer;
         this.writeTime = writeTime;
-        this.jobExecutionContext = jobExecutionContext;
-        this.localExecutionContext = localExecutionContext;
+
     }
 
     /**
@@ -164,12 +158,8 @@ public abstract class BatchExecutionStrategy<Item> {
      */
     protected void write(final Collection<Item> successfulItems, final Collection<JobResponse<Item>> failedItems) {
         LOG.debug(ItemWriter.WRITE_LOG_FORMAT, successfulItems.size(), failedItems.size());
-        writer.writeItems(successfulItems, failedItems, jobExecutionContext, localExecutionContext);
+        writer.writeItems(successfulItems, failedItems);
     }
-
-    /*protected Pair<List<Item>, List<JobResponse<Item>>> getStatuses() {
-     *  return Pair.of(successfulItems, failedItems);
-     *}*/
 
     public abstract int getProcessedCount();
 

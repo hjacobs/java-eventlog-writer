@@ -1,9 +1,5 @@
 package de.zalando.zomcat.jobs.batch.transition;
 
-import java.util.Map;
-
-import org.quartz.JobExecutionContext;
-
 /**
  * Processes one item at a time. Updates only necessary status. Otherwise these should be handled by the writer
  * implementations.
@@ -21,15 +17,13 @@ public interface ItemProcessor<Item> {
      *
      * @throws  ItemProcessorException
      */
-    void process(final Item item, final JobExecutionContext jobExecutionContext,
-            final Map<String, Object> localExecutionContext) throws Exception;
+    void process(final Item item) throws Exception;
 
     /**
      * @param   items
      *
      * @return
      */
-    void validate(final Item item, final JobExecutionContext jobExecutionContext,
-            final Map<String, Object> localExecutionContext);
+    void validate(final Item item);
 
 }

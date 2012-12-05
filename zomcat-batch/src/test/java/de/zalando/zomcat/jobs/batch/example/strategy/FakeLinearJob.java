@@ -8,9 +8,6 @@ import java.io.IOException;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-
-import org.quartz.JobExecutionContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +66,7 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
     }
 
     @Override
-    public List<FakeItem> fetchItems(final int limit, final JobExecutionContext jobExecutionContext,
-            final Map<String, Object> localExecutionContext) throws Exception {
+    public List<FakeItem> fetchItems(final int limit) throws Exception {
 
         if (sourceFileName == null) {
             throw new IllegalStateException("For testing source file must be set!");
@@ -98,16 +94,14 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
     }
 
     @Override
-    public List<FakeItem> enrichItems(final List<FakeItem> items, final JobExecutionContext jobExecutionContext,
-            final Map<String, Object> localExecutionContext) throws Exception {
+    public List<FakeItem> enrichItems(final List<FakeItem> items) throws Exception {
 
         return items;
     }
 
     @Override
     public void writeItems(final Collection<FakeItem> successfulItems,
-            final Collection<JobResponse<FakeItem>> failedItems, final JobExecutionContext jobExecutionContext,
-            final Map<String, Object> localExecutionContext) {
+            final Collection<JobResponse<FakeItem>> failedItems) {
 
         if (logFile == null) {
             throw new IllegalStateException("For testing logFile must be set.");
@@ -124,8 +118,7 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
     }
 
     @Override
-    public void process(final FakeItem item, final JobExecutionContext jobExecutionContext,
-            final Map<String, Object> localExecutionContext) throws Exception {
+    public void process(final FakeItem item) throws Exception {
         count++;
 
         if (count % 10 == 0) {
@@ -135,8 +128,7 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
     }
 
     @Override
-    public void validate(final FakeItem item, final JobExecutionContext jobExecutionContext,
-            final Map<String, Object> localExecutionContext) { }
+    public void validate(final FakeItem item) { }
 
     /*
      * These fields are used only to test since this is a fake job. "Real" jobs won't require any of this.
