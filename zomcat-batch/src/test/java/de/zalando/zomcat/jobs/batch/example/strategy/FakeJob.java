@@ -12,4 +12,5 @@ public interface FakeJob {
     void setLogFile(final File logFile);
 
     void setChunkSize(final int chunkSize);
+
 }

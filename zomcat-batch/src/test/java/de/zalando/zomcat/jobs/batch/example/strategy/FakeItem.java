@@ -3,6 +3,7 @@ package de.zalando.zomcat.jobs.batch.example.strategy;
 public class FakeItem {
     private int id;
     private String text;
+    private boolean processed;
 
     public int getId() {
         return id;

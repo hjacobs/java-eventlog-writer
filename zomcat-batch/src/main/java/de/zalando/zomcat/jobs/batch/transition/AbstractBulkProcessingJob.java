@@ -254,7 +254,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
         LOG.trace("Using contexts to inject: local: {} job: {}",
             new Object[] {executionStrategy, localJobExecutionContext});
 
-        Object[] jobSteps = new Object[] {fetcher, processor, writer};
+        final Object[] jobSteps = new Object[] {fetcher, processor, writer};
         for (int i = 0; i < jobSteps.length; i++) {
             LOG.trace("Verifying need to inject on {}", jobSteps[i]);
             if (jobSteps[i] instanceof ExecutionContextAwareJobStep) {

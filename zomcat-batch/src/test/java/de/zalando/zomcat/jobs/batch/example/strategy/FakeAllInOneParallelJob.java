@@ -13,10 +13,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import de.zalando.utils.Pair;
 
 import de.zalando.zomcat.jobs.batch.transition.AbstractBulkProcessingJob;
 import de.zalando.zomcat.jobs.batch.transition.BatchExecutionStrategy;
@@ -25,17 +24,17 @@ import de.zalando.zomcat.jobs.batch.transition.ItemProcessor;
 import de.zalando.zomcat.jobs.batch.transition.ItemWriter;
 import de.zalando.zomcat.jobs.batch.transition.JobResponse;
 import de.zalando.zomcat.jobs.batch.transition.WriteTime;
-import de.zalando.zomcat.jobs.batch.transition.strategy.SingleThreadedChunkedBatchExecutionStrategy;
+import de.zalando.zomcat.jobs.batch.transition.strategy.ParallelChunkBulkProcessingExecutionStrategy;
 
 /**
  * Sample implementation of a linear job. Reads a simple file and processes its content. Processing rule is that if
  *
  * @author  john
  */
-public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implements ItemFetcher<FakeItem>,
+public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem> implements ItemFetcher<FakeItem>,
     ItemProcessor<FakeItem>, ItemWriter<FakeItem>, FakeJob {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FakeChunkedJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FakeAllInOneParallelJob.class);
 
     @Override
     public String getDescription() {
@@ -63,41 +62,21 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
 
     @Override
     protected BatchExecutionStrategy<FakeItem> getExecutionStrategy() {
-        return new SingleThreadedChunkedBatchExecutionStrategy<FakeItem>() {
-
-            @Override
-            protected Pair<List<FakeItem>, List<JobResponse<FakeItem>>> joinResults() {
-                return Pair.of(successfulItems, failedItems);
-            }
+        return new ParallelChunkBulkProcessingExecutionStrategy<FakeItem>() {
 
             @Override
             public Map<String, Collection<FakeItem>> makeChunks(final Collection<FakeItem> items) {
                 final Map<String, Collection<FakeItem>> m = Maps.newHashMap();
-                int chunkId = 0;
-
-                int c = 0;
-
-                Collection<FakeItem> l = Lists.newArrayList();
-
-                for (final FakeItem fakeItem : items) {
-
-                    c++;
-                    l.add(fakeItem);
-
-                    if (c >= chunkSize) {
-
-                        m.put(new Integer(chunkId).toString(), l);
-
-                        c = 0;
-                        chunkId++;
-                        l = Lists.newArrayList();
-                    }
+                int i = 0;
+                Iterable<List<FakeItem>> partition = Iterables.partition(items, chunkSize);
+                for (List<FakeItem> list : partition) {
+                    m.put(Integer.toString(i++), list);
                 }
 
                 return m;
             }
-
         };
+
     }
 
     @Override
@@ -152,24 +131,27 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
             throw new IllegalStateException("For testing logFile must be set.");
         }
 
-        LOG.debug("using output file: " + logFile);
+        LOG.trace("using output file: " + logFile);
+        synchronized (logFile) {
 
-        FileWriter fileWriter = null;
-        try {
+            FileWriter fileWriter = null;
+            try {
 
-            fileWriter = new FileWriter(logFile, true);
-            fileWriter.append(String.format("%s %s\n", successfulItems.size(), failedItems.size()));
-            fileWriter.close();
-        } catch (final IOException ex) {
-            throw new IllegalStateException("Failed to write file", ex);
+                fileWriter = new FileWriter(logFile, true);
+                fileWriter.append(String.format("%s %s\n", successfulItems.size(), failedItems.size()));
+                fileWriter.close();
+            } catch (final IOException ex) {
+                throw new IllegalStateException("Failed to write file", ex);
+            }
         }
-
     }
 
     @Override
     public void process(final FakeItem item) throws Exception {
+        synchronized (this) {
 
-        count++;
+            count++;
+        }
 
         if (count % 10 == 0) {
             throw new IllegalArgumentException("Simulating failure.");
@@ -210,5 +192,4 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     public void setChunkSize(final int chunkSize) {
         this.chunkSize = chunkSize;
     }
-
 }

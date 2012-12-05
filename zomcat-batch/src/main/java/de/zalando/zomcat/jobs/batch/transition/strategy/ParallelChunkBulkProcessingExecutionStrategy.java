@@ -1,6 +1,7 @@
 package de.zalando.zomcat.jobs.batch.transition.strategy;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +38,16 @@ import de.zalando.zomcat.jobs.batch.transition.WriteTime;
 public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     extends BatchExecutionStrategy<ITEM_TYPE> {
 
-    private final Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>> resultMap = Maps
-            .newHashMap();
+    private ThreadLocal<Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>>> resultMap;
 
     private static final Logger LOG = LoggerFactory.getLogger(ParallelChunkBulkProcessingExecutionStrategy.class);
 
     private ExecutorService threadPool;
+
+    /**
+     * If not null, thread pool gets initialized with at most maxThreadCount threads.
+     */
+    private Integer maxThreadCount = null;
 
     @Override
     protected void setupExecution(final Map<String, Collection<ITEM_TYPE>> chunks) {
@@ -51,11 +57,17 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
         LOG.info("Creating executor pool with {} threads.", numThreads);
 
         threadPool = Executors.newFixedThreadPool(numThreads);
+        resultMap = new ThreadLocal<Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>>>();
+
+        Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>> m = Maps.newHashMap();
+        resultMap.set(Collections.synchronizedMap(m));
     }
 
     @Override
-    protected void cleanup(final Map<String, Collection<ITEM_TYPE>> chunks) {
+    protected void cleanup(final Map<String, Collection<ITEM_TYPE>> chunks) throws InterruptedException {
+        LOG.info("Shutting down thread pool.");
         threadPool.shutdown();
+        threadPool.awaitTermination(1, TimeUnit.HOURS);
     }
 
     @Override
@@ -82,8 +94,8 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
                             for (final ITEM_TYPE item : items) {
 
-                                LOG.debug("Dispatching item {} to processor {}.", item,
-                                    Thread.currentThread().getName());
+                                LOG.trace("Dispatching item [{}:{}] to processor {}.",
+                                    new Object[] {chunkId, item, Thread.currentThread().getName()});
 
                                 try {
 
@@ -115,7 +127,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
                     }
 
                 });
-        resultMap.put(chunkId, f);
+        resultMap.get().put(chunkId, f);
     }
 
     @Override
@@ -123,10 +135,10 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
         int processedCount = 0;
 
-        final Set<String> keySet = resultMap.keySet();
+        final Set<String> keySet = resultMap.get().keySet();
         for (final String k : keySet) {
 
-            final Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> future = resultMap.get(k);
+            final Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> future = resultMap.get().get(k);
 
             try {
                 processedCount += (future.get().getFirst().size() + future.get().getSecond().size());
@@ -144,11 +156,11 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
         final List<ITEM_TYPE> successes = Lists.newArrayList();
         final List<JobResponse<ITEM_TYPE>> failures = Lists.newArrayList();
 
-        final Set<String> keySet = resultMap.keySet();
+        final Set<String> keySet = resultMap.get().keySet();
 
         for (final String k : keySet) {
 
-            final Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> future = resultMap.get(k);
+            final Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> future = resultMap.get().get(k);
 
             int failedFutures = 0;
 
@@ -169,5 +181,9 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
         }
 
         return Pair.of(successes, failures);
+    }
+
+    public void setMaxThreadCount(final Integer maxThreadCount) {
+        this.maxThreadCount = maxThreadCount;
     }
 }

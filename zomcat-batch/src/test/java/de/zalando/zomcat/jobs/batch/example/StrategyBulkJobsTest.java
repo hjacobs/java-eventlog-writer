@@ -32,6 +32,7 @@ import de.zalando.zomcat.jobs.Job;
 import de.zalando.zomcat.jobs.JobConfig;
 import de.zalando.zomcat.jobs.JobConfigSource;
 import de.zalando.zomcat.jobs.JobsStatusBean;
+import de.zalando.zomcat.jobs.batch.example.strategy.FakeAllInOneParallelJob;
 import de.zalando.zomcat.jobs.batch.example.strategy.FakeChunkedJob;
 import de.zalando.zomcat.jobs.batch.example.strategy.FakeItem;
 import de.zalando.zomcat.jobs.batch.example.strategy.FakeJob;
@@ -47,7 +48,6 @@ import junit.framework.Assert;
  *
  * @author  john
  */
-// class Foo { } // just so that jalopy does not bite us.
 
 class ExpectationSet {
     int qtyCommited;
@@ -76,11 +76,13 @@ public class StrategyBulkJobsTest {
     private static File resultFile;
 
     @DataPoints
-    public static WriteTime[] writeTimes = {WriteTime.AT_EACH_CHUNK, WriteTime.AT_EACH_ITEM, WriteTime.AT_END_OF_BATCH};
+    public static WriteTime[] writeTimes = {WriteTime.AT_EACH_ITEM, WriteTime.AT_EACH_CHUNK, WriteTime.AT_END_OF_BATCH};
     @DataPoints
-    public static Class<?>[] jobs = {FakeLinearJob.class, FakeChunkedJob.class};
+    public static Class<?>[] jobs = {FakeLinearJob.class, FakeChunkedJob.class, FakeAllInOneParallelJob.class};
+
+    // size of the chunk to be simulated. there will be FILE_LENGTH / chunkSize chunks.
     @DataPoints
-    public static int[] chunkSizes = {10, 100};
+    public static int[] chunkSizes = {10, 100, 1000};
 
     @BeforeClass
     public static void setup() throws IOException {
@@ -100,7 +102,7 @@ public class StrategyBulkJobsTest {
         j.setSourceFileName(sampleFileName);
         j.setWriteTime(writeTime);
 
-        resultFile = java.io.File.createTempFile("fakeLinear", "result");
+        resultFile = java.io.File.createTempFile(jobClass.getSimpleName(), "result");
         LOG.info("Saving result for execution in " + resultFile);
         j.setLogFile(resultFile);
         j.setChunkSize(chunkSize);

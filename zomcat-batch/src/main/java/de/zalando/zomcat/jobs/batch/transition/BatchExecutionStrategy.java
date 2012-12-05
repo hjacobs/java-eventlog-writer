@@ -94,7 +94,7 @@ public abstract class BatchExecutionStrategy<Item> {
 
             for (final String k : keySet) {
                 i++;
-                LOG.trace("Dispatching chunk {} of {} ({}).", new Object[] {i, chunks.size(), k});
+                LOG.debug("Dispatching chunk {} of {} (chunkId: {}).", new Object[] {i, chunks.size(), k});
                 executeChunk(k, chunks.get(k));
             }
 
@@ -147,8 +147,10 @@ public abstract class BatchExecutionStrategy<Item> {
     /**
      * Called when processing of chunks is done and results have been collected. May be used to cleanup resources used
      * during execution, e.g. closing database connection, shutting down thread pool.
+     *
+     * @throws  InterruptedException
      */
-    protected void cleanup(final Map<String, Collection<Item>> chunks) { }
+    protected void cleanup(final Map<String, Collection<Item>> chunks) throws InterruptedException { }
 
     /**
      * @param   successfulItems
