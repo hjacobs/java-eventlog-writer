@@ -12,11 +12,11 @@
     </appender>
 
     <logger name="de.zalando">
-        <level value="debug"/>
+        <level value="trace"/>
     </logger>
 
     <root>
-        <priority value="error"/>
+        <priority value="trace"/>
         <appender-ref ref="default"/>
     </root>
 

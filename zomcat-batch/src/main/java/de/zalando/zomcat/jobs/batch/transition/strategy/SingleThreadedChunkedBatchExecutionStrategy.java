@@ -36,11 +36,10 @@ public abstract class SingleThreadedChunkedBatchExecutionStrategy<ITEM_TYPE> ext
         LOG.trace("Starting execution of chunk {}.", chunkId);
 
         final int total = items.size();
-
+        int i = 0;
         for (final ITEM_TYPE item : items) {
 
-            LOG.trace("Dispatching item {} to processor. (%s of %s)",
-                new Object[] {item, (processedCount + 1), items.size()});
+            LOG.trace("Dispatching item {} to processor. ({} of {})", new Object[] {item, (i++), items.size()});
 
             try {
                 processedCount++;

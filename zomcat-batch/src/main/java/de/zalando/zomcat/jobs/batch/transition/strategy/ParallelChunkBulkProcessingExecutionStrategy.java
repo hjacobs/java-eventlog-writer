@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -52,9 +53,12 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     @Override
     protected void setupExecution(final Map<String, Collection<ITEM_TYPE>> chunks) {
 
-        final int numThreads = chunks.keySet().size();
+        Preconditions.checkNotNull("Passed null chunks collection.", chunks);
 
-        LOG.info("Creating executor pool with {} threads.", numThreads);
+        int chunkSize = chunks.keySet().size();
+        final int numThreads = Math.min(maxThreadCount == null ? chunkSize + 1 : maxThreadCount, chunkSize);
+
+        LOG.info("Creating executor pool with {} threads for {} chunks.", new Object[] {numThreads, chunkSize});
 
         threadPool = Executors.newFixedThreadPool(numThreads);
         resultMap = new ThreadLocal<Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>>>();
@@ -94,7 +98,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
                             for (final ITEM_TYPE item : items) {
 
-                                LOG.trace("Dispatching item [{}:{}] to processor {}.",
+                                LOG.trace("Dispatching item [{}:{}] to processor [{}].",
                                     new Object[] {chunkId, item, Thread.currentThread().getName()});
 
                                 try {
@@ -167,10 +171,10 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
             try {
 
                 final Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>> futureResult = future.get();
-                LOG.debug("Joining succ (prev {}, will add {})",
+                LOG.trace("Joining succ (prev {}, will add {})",
                     new Object[] {successes.size(), futureResult.getFirst().size()});
                 successes.addAll(futureResult.getFirst());
-                LOG.debug("Joining fail (prev {}, will add {})",
+                LOG.trace("Joining fail (prev {}, will add {})",
                     new Object[] {failures.size(), futureResult.getSecond().size()});
                 failures.addAll(futureResult.getSecond());
             } catch (final Exception ex) {
