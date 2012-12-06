@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
      * If not null, thread pool gets initialized with at most maxThreadCount threads.
      */
     private Integer maxThreadCount = null;
+    private AtomicInteger processedCount;
 
     @Override
     protected void setupExecution(final Map<String, Collection<ITEM_TYPE>> chunks) {
@@ -56,6 +58,8 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
         Preconditions.checkNotNull("Passed null chunks collection.", chunks);
 
         int chunkSize = chunks.keySet().size();
+
+        // TODO: provide way to set maxThreadCount
         final int numThreads = Math.min(maxThreadCount == null ? chunkSize + 1 : maxThreadCount, chunkSize);
 
         LOG.info("Creating executor pool with {} threads for {} chunks.", new Object[] {numThreads, chunkSize});
@@ -65,13 +69,16 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
         Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>> m = Maps.newHashMap();
         resultMap.set(Collections.synchronizedMap(m));
+
+        processedCount = new AtomicInteger(0);
+
     }
 
     @Override
     protected void cleanup(final Map<String, Collection<ITEM_TYPE>> chunks) throws InterruptedException {
         LOG.info("Shutting down thread pool.");
         threadPool.shutdown();
-        threadPool.awaitTermination(1, TimeUnit.HOURS);
+        threadPool.awaitTermination(1, TimeUnit.DAYS);
     }
 
     @Override
@@ -104,6 +111,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
                                 try {
 
                                     processor.process(item);
+                                    processedCount.getAndIncrement();
                                     successfulItems.add(item);
                                 } catch (final Throwable t) {
                                     final JobResponse<ITEM_TYPE> response = new JobResponse<ITEM_TYPE>(item);
@@ -137,21 +145,16 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     @Override
     public int getProcessedCount() {
 
-        int processedCount = 0;
-
-        final Set<String> keySet = resultMap.get().keySet();
-        for (final String k : keySet) {
-
-            final Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> future = resultMap.get().get(k);
-
-            try {
-                processedCount += (future.get().getFirst().size() + future.get().getSecond().size());
-            } catch (final Exception e) {
-                throw new RuntimeException("exception.", e);
-            }
+        /*
+         * In case the job had nothing to do setupExecution would not have been called, thus processedCount is still
+         * null, so we hack a return of 0.
+         */
+        if (processedCount == null) {
+            LOG.debug("Job finished without real work. Explicitly returning processedCount = 0");
+            return 0;
         }
 
-        return processedCount;
+        return processedCount.get();
     }
 
     @Override
