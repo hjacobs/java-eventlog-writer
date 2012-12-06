@@ -1,4 +1,4 @@
-package de.zalando.jpa.types;
+package de.zalando.jpa.eclipselink;
 
 import java.sql.SQLException;
 
@@ -11,16 +11,7 @@ import org.postgresql.util.PGobject;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
 
-/**
- * EclipseLink Converter for Postgres enum types. To use is, the converter must be registered once. E.g. with
- *
- * @author     carsten.wolters
- * @Converter  (name = "pgEnumTypeConverter", converterClass = PGEnumTypeConverter.class) Then you can use it like:
- * @Convert    ("pgEnumTypeConverter")
- * @Column     private UserEnumType userEnumType;
- */
-@SuppressWarnings("rawtypes")
-public class PGEnumTypeConverter implements Converter {
+public class EnumTypeConverter implements Converter {
     private static final long serialVersionUID = -3691595677010300063L;
 
     private Class<Enum> enumClass;

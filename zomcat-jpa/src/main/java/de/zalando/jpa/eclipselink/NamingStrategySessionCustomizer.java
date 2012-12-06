@@ -1,22 +1,27 @@
-package de.zalando.jpa.naming;
+package de.zalando.jpa.eclipselink;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Vector;
 
+import org.eclipse.persistence.config.SessionCustomizer;
 import org.eclipse.persistence.descriptors.ClassDescriptor;
 import org.eclipse.persistence.internal.helper.DatabaseField;
 import org.eclipse.persistence.internal.helper.Helper;
+import org.eclipse.persistence.mappings.Association;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.mappings.DirectToFieldMapping;
 import org.eclipse.persistence.mappings.ManyToOneMapping;
 import org.eclipse.persistence.mappings.OneToManyMapping;
 import org.eclipse.persistence.sessions.Session;
-import org.eclipse.persistence.sessions.factories.SessionCustomizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 
-public class ZalandoSessionCustomizer implements SessionCustomizer {
+public class NamingStrategySessionCustomizer implements SessionCustomizer {
+    private static Logger LOG = LoggerFactory.getLogger(NamingStrategySessionCustomizer.class);
 
     @Override
     public void customize(final Session session) throws Exception {
@@ -31,6 +36,7 @@ public class ZalandoSessionCustomizer implements SessionCustomizer {
             final Vector<String> tableNames = new Vector<String>();
             tableNames.add(tableName);
             updateMappings(desc, tableName);
+            LOG.debug("---------------------" + desc.getAlias() + "      " + tableName + "---------------------------");
         }
     }
 
@@ -39,23 +45,39 @@ public class ZalandoSessionCustomizer implements SessionCustomizer {
             if (mapping.isDirectToFieldMapping()) {
                 final DirectToFieldMapping directMapping = (DirectToFieldMapping) mapping;
                 customizeColumnName(tableName, directMapping);
+                LOG.debug("---------------------" + tableName + "      " + directMapping.getFieldName()
+                        + "---------------------------");
             }
 
             if (mapping.isOneToManyMapping()) {
                 final OneToManyMapping oneToMany = (OneToManyMapping) mapping;
                 customizeColumnName(tableName, oneToMany);
+                LOG.debug("---------------------" + tableName + "      " + oneToMany.getSetMethodName()
+                        + "---------------------------");
+
             }
 
             if (mapping.isManyToOneMapping()) {
                 final ManyToOneMapping manyToOne = (ManyToOneMapping) mapping;
                 customizeColumnName(tableName, manyToOne);
+
+                Vector<Association> assi = manyToOne.getSourceToTargetKeyFieldAssociations();
+                for (Association ass : assi) {
+                    LOG.debug("---------------------" + tableName + "      " + ass.getKey().toString()
+                            + "---------------------------");
+                }
             }
         }
     }
 
     private void customizeColumnName(final String tableName, final ManyToOneMapping manyToOne) {
         for (final DatabaseField foreignKeyField : manyToOne.getForeignKeyFields()) {
-            foreignKeyField.setName(getIconizedTableName(tableName) + "_" + foreignKeyField.getName());
+            String prefix = getIconizedTableName(tableName) + "_";
+            if (!foreignKeyField.getName().startsWith(prefix)) {
+                foreignKeyField.setName(prefix + foreignKeyField.getName());
+            }
+
+// foreignKeyField.setName(getIconizedTableName(tableName) + "_" + foreignKeyField.getName());
         }
     }
 
@@ -75,8 +97,8 @@ public class ZalandoSessionCustomizer implements SessionCustomizer {
         stringBuilder.append(tableName.charAt(0));
         for (int i = 1; i < tableName.length(); ++i) {
             final char charAt = tableName.charAt(i);
-            if (Character.isUpperCase(charAt)) {
-                stringBuilder.append(charAt);
+            if (charAt == '_') {
+                stringBuilder.append(tableName.charAt(i + 1));
             }
         }
 
