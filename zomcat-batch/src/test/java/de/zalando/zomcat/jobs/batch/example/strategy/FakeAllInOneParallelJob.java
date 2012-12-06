@@ -113,7 +113,8 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
 
         final FakeItem f = new FakeItem();
         f.setId(Integer.parseInt(split[0]));
-        f.setText(split[1]);
+        f.setFailed(Integer.parseInt(split[1]) == 0);
+        f.setText(split[2]);
         return f;
     }
 
@@ -148,14 +149,11 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
 
     @Override
     public void process(final FakeItem item) throws Exception {
-        synchronized (this) {
-
-            count++;
-        }
-
-        if (count % 10 == 0) {
+        if (item.isFailed()) {
             throw new IllegalArgumentException("Simulating failure.");
         }
+
+        item.setProcessed(true);
 
     }
 
@@ -171,7 +169,7 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
     private String sourceFileName;
     private File logFile;
     private int chunkSize;
-    private int count = 0;
+    private final int count = 0;
 
     @Override
     public void setWriteTime(final WriteTime writeTime) {

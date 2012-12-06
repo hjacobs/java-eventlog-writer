@@ -77,6 +77,7 @@ public class StrategyBulkJobsTest {
 
     @DataPoints
     public static WriteTime[] writeTimes = {WriteTime.AT_EACH_ITEM, WriteTime.AT_EACH_CHUNK, WriteTime.AT_END_OF_BATCH};
+
     @DataPoints
     public static Class<?>[] jobs = {FakeLinearJob.class, FakeChunkedJob.class, FakeAllInOneParallelJob.class};
 
@@ -92,7 +93,7 @@ public class StrategyBulkJobsTest {
     }
 
     @Theory
-    public void testSimpleLinearProcessing(final Class<?> jobClass, final WriteTime writeTime, final int chunkSize)
+    public void shouldRespectInvariants(final Class<?> jobClass, final WriteTime writeTime, final int chunkSize)
         throws IOException, InstantiationException, IllegalAccessException {
 
         ExpectationSet expectations = setupExpectations(jobClass, writeTime, chunkSize);
@@ -213,7 +214,7 @@ public class StrategyBulkJobsTest {
         Random random = new Random(System.currentTimeMillis());
 
         for (int i = 0; i < FILE_LENGTH; i++) {
-            fileWriter.write(String.format("%s %s\n", i, generateRandomString(random)));
+            fileWriter.write(String.format("%s %s %s\n", i, i % 10 == 0 ? 0 : 1, generateRandomString(random)));
         }
 
         fileWriter.close();

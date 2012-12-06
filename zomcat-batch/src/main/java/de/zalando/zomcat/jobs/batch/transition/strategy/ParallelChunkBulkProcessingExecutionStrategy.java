@@ -166,9 +166,12 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
             try {
 
-                // processedCount += (future.get().getFirst().size() + future.get().getSecond().size());
                 final Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>> futureResult = future.get();
+                LOG.debug("Joining succ (prev {}, will add {})",
+                    new Object[] {successes.size(), futureResult.getFirst().size()});
                 successes.addAll(futureResult.getFirst());
+                LOG.debug("Joining fail (prev {}, will add {})",
+                    new Object[] {failures.size(), futureResult.getSecond().size()});
                 failures.addAll(futureResult.getSecond());
             } catch (final Exception ex) {
                 LOG.debug("Failed to get execution result", ex);
