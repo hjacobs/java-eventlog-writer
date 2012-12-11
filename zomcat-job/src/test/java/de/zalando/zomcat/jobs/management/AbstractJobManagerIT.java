@@ -1972,4 +1972,59 @@ public abstract class AbstractJobManagerIT {
             }
         }
     }
+
+    @Test
+    public void testGlobalDeactivationOfJobs() throws JobManagerException {
+        final String sysPropToSetKey = "jobConfig.global.active";
+        try {
+            System.setProperty(sysPropToSetKey, "false");
+
+            final Map<String, String> jobData = Maps.newHashMap();
+            jobData.put("someKey", "someValue");
+
+            final List<JobSchedulingConfiguration> jobSchedulingConfigurations = Lists.newArrayList();
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, null));
+
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", jobData, Sets.newHashSet("local_local"), false,
+                    null));
+
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob2Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, null));
+
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob2Job", jobData, Sets.newHashSet("local_local"), true,
+                    null));
+
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+
+            assertNotNull(jobManagerToTest);
+
+            jobManagerToTest.startup();
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getManagedJobs().size(), 4);
+            assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getScheduledManagedJobs().size(), 0);
+            assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getUnscheduledManagedJobs().size(), 4);
+
+            // Thread.sleep(1000);
+            jobManagerToTest.shutdown();
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertTrue(jobManagerToTest.getManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+        } finally {
+            System.clearProperty(sysPropToSetKey);
+        }
+    }
 }

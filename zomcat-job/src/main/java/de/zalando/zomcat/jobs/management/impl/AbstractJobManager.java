@@ -79,6 +79,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     /**
      * Date Formatter Pattern used in Logging (Next Trigger Fire Date).
      */
+    private static final transient String GLOBAL_JOB_ACTIVATION_KEY = "jobConfig.global.active";
+
+    /**
+     * Date Formatter Pattern used in Logging (Next Trigger Fire Date).
+     */
     private static final transient String DATE_FORMATTER_PATTERN = "yyyy-MM-dd HH:mm:SS";
 
     /**
@@ -173,6 +178,11 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
      * Started State of JobManager.
      */
     private final AtomicBoolean jobManagerStarted;
+
+    /**
+     * Are Jobs globally deactivated?
+     */
+    private final AtomicBoolean jobsGloballyActive = new AtomicBoolean(true);
 
     /**
      * JobConfigSource.
@@ -420,10 +430,17 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         }
 
         boolean retVal = true;
+
+        // Get Job Config
         final JobConfig jobConfig = jobSchedulingConfig.getJobConfig();
 
         // Check Group active State
         retVal = isJobGroupActive(jobConfig.getJobGroupName(), overrideGroupConfigActive);
+
+        // If Jobs are globally deactivated
+        if (!jobsGloballyActive.get()) {
+            retVal = false;
+        }
 
         // If Job is not Active - and no Override exists - Job is not active
         if (!jobConfig.isActive() && (overrideConfigActive == null)) {
@@ -534,6 +551,13 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         }
 
         final JobConfig jobConfig = jobSchedulingConfig.getJobConfig();
+
+        // If Jobs are globally deactivated
+        if (!jobsGloballyActive.get()) {
+            LOG.warn(
+                "Jobs are globally disabled (JVM Parameter: [{}] is set to [true]). Skipping scheduling of Job: [{}].",
+                GLOBAL_JOB_ACTIVATION_KEY, jobSchedulingConfig);
+        }
 
         // If Job is not Active - do not schedule
         if ((jobConfig.getJobGroupConfig() != null) && !jobConfig.getJobGroupConfig().isJobGroupActive()
@@ -891,6 +915,8 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         return (job != null) && (job.getQuartzScheduler() != null) && !job.getQuartzScheduler().isInStandbyMode()
                 && (job.getQuartzScheduler().getJobDetail(job.getQuartzJobDetail().getName(),
                         job.getQuartzJobDetail().getGroup()) != null);
+// && job.getQuartzScheduler().getTriggersOfJob(job.getQuartzJobDetail().getName(),
+// job.getQuartzJobDetail().getGroup()).length > 0);
     }
 
     /**
@@ -1282,6 +1308,21 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             throw new JobManagerException("Cannot start already started JobManager.");
         }
 
+        // TODO: This is a Temp Solution - fix this as soon as the JobManager is the only instance running jobs
+        // Note: This logic is already implemented in zomcat-appconfig - however the zomcat-job does not know
+        // or use the JobConfigSource Interface
+        try {
+            final String parameterValue = System.getProperty(GLOBAL_JOB_ACTIVATION_KEY);
+            if (!Strings.isNullOrEmpty(parameterValue)) {
+                LOG.info("Attempting to parse JVM Property: [jobConfig.global.active] with Value: ",
+                    GLOBAL_JOB_ACTIVATION_KEY, parameterValue);
+                jobsGloballyActive.set(Boolean.parseBoolean(parameterValue));
+            }
+        } catch (final RuntimeException e) {
+            LOG.error("Could not parse JVM System Parameter: [{}]. Error was: [{}]",
+                new Object[] {GLOBAL_JOB_ACTIVATION_KEY, e.getMessage(), e});
+        }
+
         LOG.info("Starting up JobManager");
 
         Preconditions.checkArgument(delegatingJobSchedulingConfigProvider != null,
@@ -1390,6 +1431,9 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
         // Set started State
         jobManagerStarted.set(false);
+
+        // Set default for Global Deactivation
+        jobsGloballyActive.set(true);
     }
 
     @Override
