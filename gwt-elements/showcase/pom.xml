@@ -3,17 +3,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>gwt-elements</artifactId>
-        <groupId>de.zalando.libs</groupId>
+        <groupId>de.zalando.gwt</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>de.zalando.libs.gwt-elements</groupId>
+    <groupId>de.zalando.gwt.gwt-elements</groupId>
     <artifactId>showcase</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>GWT-Showcase</name>
-    <description>The Showcase is a Submodule of GWT-Elements and shows the Elements of the other Submodules in an Usecase for Zalando-Technology.</description>
+    <description>The Showcase shows the Elements of the other Submodules in an Usecase for Zalando-Technology.</description>
     <organization>
-        <name>Zalando/Technology/Frontend/Library/Showcase</name>
+        <name>Zalando/Technology/Dortmund/PayProc</name>
     </organization>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

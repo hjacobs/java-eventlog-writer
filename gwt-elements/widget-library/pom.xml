@@ -4,17 +4,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>gwt-elements</artifactId>
-        <groupId>de.zalando.libs</groupId>
+        <groupId>de.zalando.gwt</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>de.zalando.libs.gwt-elements</groupId>
+    <groupId>de.zalando.gwt.gwt-elements</groupId>
     <artifactId>widget-library</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>GWT-Widget-Library</name>
-    <description>The Widget-Library is a Submodule of GWT-Elements and provides many Widgets for Zalando-Technology.</description>
+    <description>The Widget-Library provides many Widgets for Zalando-Technology.</description>
     <organization>
-        <name>Zalando/Technology/Frontend/Library/Widgets</name>
+        <name>Zalando/Technology/Frontend/Dortmund/PayProc</name>
     </organization>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

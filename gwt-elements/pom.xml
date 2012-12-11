@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>de.zalando.libs</groupId>
+    <groupId>de.zalando.gwt</groupId>
     <artifactId>gwt-elements</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>GWT Elements</name>
     <description>The project GWT-Elements is a Library to provide multiple GWT-Constructs for Zalando-Technology.</description>
     <organization>
-        <name>Zalando/Technology/Frontend/Library</name>
+        <name>Zalando/Technology/Dortmund/PayProc</name>
     </organization>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
