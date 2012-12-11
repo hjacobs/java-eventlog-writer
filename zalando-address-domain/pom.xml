@@ -1,27 +1,22 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.5.56</version>
+        <version>1.6.23</version>
     </parent>
-
     <groupId>de.zalando</groupId>
     <artifactId>address-domain</artifactId>
     <packaging>jar</packaging>
-    <version>12.0.47-SNAPSHOT</version>
-<!--     <version>0.5</version> -->
-
+    <version>1.0</version>
     <name>Payment: Zalando Address Domain</name>
-     <description>
+    <description>
         This component contains address related domain objects.
     </description>
     <organization>
         <name>Zalando/Technology/Backend/Payment</name>
     </organization>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -57,12 +52,12 @@
             <artifactId>zalando-domain</artifactId>
         </dependency>
         <dependency>
-          <groupId>net.sf.opencsv</groupId>
-          <artifactId>opencsv</artifactId>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
         </dependency>
         <dependency>
-          <groupId>de.zalando</groupId>
-          <artifactId>zalando-validation</artifactId>
+            <groupId>de.zalando</groupId>
+            <artifactId>zalando-validation</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
