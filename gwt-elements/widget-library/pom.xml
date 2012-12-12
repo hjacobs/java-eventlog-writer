@@ -14,7 +14,7 @@
     <name>GWT-Widget-Library</name>
     <description>The Widget-Library provides many Widgets for Zalando-Technology.</description>
     <organization>
-        <name>Zalando/Technology/Frontend/Dortmund/PayProc</name>
+        <name>Zalando/Technology/Dortmund/PayProc</name>
     </organization>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
