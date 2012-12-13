@@ -3,15 +3,15 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.6.22</version>
+        <version>1.6.25</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-job</artifactId>
     <packaging>jar</packaging>
     <name>Zomcat Job</name>
-    <description>Zomcat Job Support Classes</description>
-    <version>1.1.4</version>
+    <description>Zomcat Job Support Classes: LockResource and JobManager implementations</description>
+    <version>1.1.5</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
