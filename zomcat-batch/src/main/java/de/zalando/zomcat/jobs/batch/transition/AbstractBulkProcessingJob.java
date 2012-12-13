@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
 import org.slf4j.Logger;
@@ -39,7 +38,6 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     private int limit;
 
     protected JobConfigSource jobConfigSource;
-    protected JobExecutionContext jobExecutionContext;
 
     protected AbstractBulkProcessingJob() {
         super();
@@ -79,15 +77,6 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     protected abstract WriteTime getWriteTime();
 
     protected abstract BatchExecutionStrategy<ITEM_TYPE> getExecutionStrategy();
-
-    /**
-     * expose job data map (properties in scheduler.conf) for fetchers/writers if they are defined in the same class.
-     *
-     * @return
-     */
-    protected JobDataMap getJobDataMap() {
-        return jobExecutionContext.getMergedJobDataMap();
-    }
 
     /**
      * Method fetches and enriches the items. If an error occures an exception is thrown.
@@ -229,8 +218,6 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
         writeTime = getWriteTime();
         executionStrategy = getExecutionStrategy();
 
-        jobExecutionContext = executionContext;
-
         assertComponentsArePresent();
         injectContextIfRequired();
 
@@ -262,7 +249,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
                 ExecutionContextAwareJobStep step = (ExecutionContextAwareJobStep) jobSteps[i];
                 step.setLocalJobExecutionContext(localJobExecutionContext);
-                step.setJobExecutionContext(jobExecutionContext);
+                step.setJobExecutionContext(executionContext);
             }
 
         }
