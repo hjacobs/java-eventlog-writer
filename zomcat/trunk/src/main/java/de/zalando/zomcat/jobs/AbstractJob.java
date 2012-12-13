@@ -66,6 +66,8 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
     private LockResourceManager lockResourceManager;
 
+    protected JobExecutionContext executionContext;
+
     /**
      * Default Constructor.
      */
@@ -74,6 +76,15 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         startTime = new DateTime();
         id = globalId.incrementAndGet();
 
+    }
+
+    /**
+     * expose job data map (properties in scheduler.conf) for fetchers/writers if they are defined in the same class.
+     *
+     * @return
+     */
+    protected JobDataMap getJobDataMap() {
+        return executionContext.getMergedJobDataMap();
     }
 
     /**
@@ -112,6 +123,8 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      */
     @Override
     protected final void executeInternal(final JobExecutionContext context) {
+
+        executionContext = context;
 
         // register all listeners (if not already done)
         registerListener();
@@ -397,9 +410,10 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     /**
-     * Identifies what resource (if any) is to be locked.
+     * Identifies what resource (if any) is to be locked. Can be dynamically build using the current job execution
+     * context (getJobDataMap())
      *
-     * @return
+     * @return  some string identifing the resource to lock on or null if no locking required
      */
     protected String getLockResource() {
         return null;
