@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+import org.quartz.JobExecutionContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,6 +161,11 @@ public class FakeLinearJob extends AbstractLinearBulkProcessingJob<FakeItem> imp
     public void setChunkSize(final int chunkSize) {
 // no op for this job.
 
+    }
+
+    @Override
+    public void setExecutionContext(final JobExecutionContext dummyExecutionContext) {
+        this.executionContext = dummyExecutionContext;
     }
 
 }

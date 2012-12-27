@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import java.math.BigInteger;
 
+import java.util.Date;
 import java.util.Random;
 
 import org.junit.AfterClass;
@@ -20,6 +21,14 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
 import org.mockito.Mockito;
+
+import org.quartz.Calendar;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.Trigger;
+
+import org.quartz.spi.TriggerFiredBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +109,7 @@ public class StrategyBulkJobsTest {
 
         AbstractBulkProcessingJob<FakeItem> job = (AbstractBulkProcessingJob<FakeItem>) jobClass.newInstance();
         FakeJob j = (FakeJob) job;
+
         j.setSourceFileName(sampleFileName);
         j.setWriteTime(writeTime);
 
@@ -125,7 +135,113 @@ public class StrategyBulkJobsTest {
         final JobsStatusBean jobsStatusBean = new JobsStatusBean();
         Mockito.when(applicationContext.getBean("jobsStatusBean")).thenReturn(jobsStatusBean);
         job.setApplicationContext(applicationContext);
-        job.doRun(null, config);
+
+        JobExecutionContext dummyExecutionContext = new JobExecutionContext(null,
+                new TriggerFiredBundle(new JobDetail(), new Trigger() {
+
+                        @Override
+                        protected boolean validateMisfireInstruction(final int arg0) {
+
+                            // TODO Auto-generated method stub
+                            return false;
+                        }
+
+                        @Override
+                        public void updateWithNewCalendar(final Calendar arg0, final long arg1) {
+                            // TODO Auto-generated method stub
+
+                        }
+
+                        @Override
+                        public void updateAfterMisfire(final Calendar arg0) {
+                            // TODO Auto-generated method stub
+
+                        }
+
+                        @Override
+                        public void triggered(final Calendar arg0) {
+                            // TODO Auto-generated method stub
+
+                        }
+
+                        @Override
+                        public void setStartTime(final Date arg0) {
+                            // TODO Auto-generated method stub
+
+                        }
+
+                        @Override
+                        public void setEndTime(final Date arg0) {
+                            // TODO Auto-generated method stub
+
+                        }
+
+                        @Override
+                        public boolean mayFireAgain() {
+
+                            // TODO Auto-generated method stub
+                            return false;
+                        }
+
+                        @Override
+                        public Date getStartTime() {
+
+                            // TODO Auto-generated method stub
+                            return null;
+                        }
+
+                        @Override
+                        public Date getPreviousFireTime() {
+
+                            // TODO Auto-generated method stub
+                            return null;
+                        }
+
+                        @Override
+                        public Date getNextFireTime() {
+
+                            // TODO Auto-generated method stub
+                            return null;
+                        }
+
+                        @Override
+                        public Date getFireTimeAfter(final Date arg0) {
+
+                            // TODO Auto-generated method stub
+                            return null;
+                        }
+
+                        @Override
+                        public Date getFinalFireTime() {
+
+                            // TODO Auto-generated method stub
+                            return null;
+                        }
+
+                        @Override
+                        public Date getEndTime() {
+
+                            // TODO Auto-generated method stub
+                            return null;
+                        }
+
+                        @Override
+                        public int executionComplete(final JobExecutionContext arg0, final JobExecutionException arg1) {
+
+                            // TODO Auto-generated method stub
+                            return 0;
+                        }
+
+                        @Override
+                        public Date computeFirstFireTime(final Calendar arg0) {
+
+                            // TODO Auto-generated method stub
+                            return null;
+                        }
+                    }, null, false, new Date(), null, null, null), null);
+
+        j.setExecutionContext(dummyExecutionContext);
+        job.doRun(dummyExecutionContext, config);
 
         checkExpectations(expectations);
 
@@ -150,12 +266,11 @@ public class StrategyBulkJobsTest {
 
             sumSuccess += success;
             sumFailure += failed;
-
         }
 
-        Assert.assertEquals(expectations.qtyCommited, qtyLines);
-        Assert.assertEquals(expectations.sumSuccess, sumSuccess);
-        Assert.assertEquals(expectations.sumFail, sumFailure);
+        Assert.assertEquals("wrong total commited items", expectations.qtyCommited, qtyLines);
+        Assert.assertEquals("wrong success sum", expectations.sumSuccess, sumSuccess);
+        Assert.assertEquals("wrong fail sum", expectations.sumFail, sumFailure);
 
     }
 

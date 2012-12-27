@@ -221,6 +221,8 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
         assertComponentsArePresent();
         injectContextIfRequired();
 
+        LOG.info("execution context: " + executionContext);
+
         try {
             limit = getLimit(config);
             process(limit);
@@ -239,13 +241,14 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
         localJobExecutionContext.set(localJobData);
 
         LOG.trace("Using contexts to inject: local: {} job: {}",
-            new Object[] {executionStrategy, localJobExecutionContext});
+            new Object[] {localJobExecutionContext, executionContext});
 
         final Object[] jobSteps = new Object[] {fetcher, processor, writer};
         for (int i = 0; i < jobSteps.length; i++) {
             LOG.trace("Verifying need to inject on {}", jobSteps[i]);
             if (jobSteps[i] instanceof ExecutionContextAwareJobStep) {
-                LOG.debug("\t is ExecutionContextAware. injecting contexts: ");
+                LOG.debug("\t is ExecutionContextAware. injecting contexts: [{}], [{}]",
+                    new Object[] {localJobExecutionContext, executionContext});
 
                 ExecutionContextAwareJobStep step = (ExecutionContextAwareJobStep) jobSteps[i];
                 step.setLocalJobExecutionContext(localJobExecutionContext);

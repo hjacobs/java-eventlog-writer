@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.quartz.JobExecutionContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,6 +211,11 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     @Override
     public void setChunkSize(final int chunkSize) {
         this.chunkSize = chunkSize;
+    }
+
+    @Override
+    public void setExecutionContext(final JobExecutionContext dummyExecutionContext) {
+        this.executionContext = dummyExecutionContext;
     }
 
 }

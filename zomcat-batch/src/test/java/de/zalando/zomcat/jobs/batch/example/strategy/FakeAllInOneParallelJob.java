@@ -10,9 +10,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.quartz.JobExecutionContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -92,9 +95,9 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
     @Override
     public List<FakeItem> fetchItems(final int limit) throws Exception {
 
-        if (sourceFileName == null) {
-            throw new IllegalStateException("For testing source file must be set!");
-        }
+        Preconditions.checkNotNull("For testing source file must be set!", sourceFileName);
+
+        Preconditions.checkNotNull(getJobDataMap());
 
         final FileReader fileReader = new FileReader(sourceFileName);
         final BufferedReader br = new BufferedReader(fileReader);
@@ -132,6 +135,8 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
             throw new IllegalStateException("For testing logFile must be set.");
         }
 
+        Preconditions.checkNotNull(getJobDataMap());
+
         LOG.trace("using output file: " + logFile);
         synchronized (logFile) {
 
@@ -152,6 +157,8 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
         if (item.isFailed()) {
             throw new IllegalArgumentException("Simulating failure.");
         }
+
+        Preconditions.checkNotNull(getJobDataMap());
 
         item.setProcessed(true);
 
@@ -189,5 +196,10 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
     @Override
     public void setChunkSize(final int chunkSize) {
         this.chunkSize = chunkSize;
+    }
+
+    @Override
+    public void setExecutionContext(final JobExecutionContext dummyExecutionContext) {
+        this.executionContext = dummyExecutionContext;
     }
 }
