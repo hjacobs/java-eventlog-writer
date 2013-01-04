@@ -21,15 +21,14 @@ public class EnumTypeConverter implements Converter {
     public Object convertObjectValueToDataValue(final Object objectValue, final Session session) {
 
         // we will transfer a PGobject.
-        final PGobject object = new PGobject();
+        PGobject object = null;
         try {
-            if (objectValue == null) {
-                object.setValue(null);
-            } else {
+            if (objectValue != null) {
+                object = new PGobject();
                 object.setValue(((Enum) objectValue).name());
+                object.setType(pgTypeName);
             }
 
-            object.setType(pgTypeName);
         } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
