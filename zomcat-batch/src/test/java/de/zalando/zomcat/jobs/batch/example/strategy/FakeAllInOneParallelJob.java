@@ -27,15 +27,16 @@ import de.zalando.zomcat.jobs.batch.transition.ItemProcessor;
 import de.zalando.zomcat.jobs.batch.transition.ItemWriter;
 import de.zalando.zomcat.jobs.batch.transition.JobResponse;
 import de.zalando.zomcat.jobs.batch.transition.WriteTime;
+import de.zalando.zomcat.jobs.batch.transition.contextaware.ExecutionContextAwareJobStep;
 import de.zalando.zomcat.jobs.batch.transition.strategy.ParallelChunkBulkProcessingExecutionStrategy;
 
 /**
- * Sample implementation of a linear job. Reads a simple file and processes its content. Processing rule is that if
+ * Sample implementation of a linear job. Reads a simple file and processes its content.
  *
  * @author  john
  */
 public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem> implements ItemFetcher<FakeItem>,
-    ItemProcessor<FakeItem>, ItemWriter<FakeItem>, FakeJob {
+    ItemProcessor<FakeItem>, ItemWriter<FakeItem>, FakeJob, ExecutionContextAwareJobStep {
 
     private static final Logger LOG = LoggerFactory.getLogger(FakeAllInOneParallelJob.class);
 
@@ -105,8 +106,12 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
 
         final List<FakeItem> r = Lists.newArrayList();
         while ((line = br.readLine()) != null) {
-            r.add(readFakeItemFromLine(line));
+            FakeItem fakeItemFromLine = readFakeItemFromLine(line);
+            r.add(fakeItemFromLine);
+
         }
+
+        getLocalJobExecutionContext().put("FAKE_DATA", System.currentTimeMillis());
 
         return r;
     }
@@ -136,6 +141,7 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
         }
 
         Preconditions.checkNotNull(getJobDataMap());
+        Preconditions.checkNotNull(getLocalJobExecutionContext().get("FAKE_DATA"));
 
         LOG.trace("using output file: " + logFile);
         synchronized (logFile) {
@@ -159,6 +165,7 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
         }
 
         Preconditions.checkNotNull(getJobDataMap());
+        Preconditions.checkNotNull(getLocalJobExecutionContext().get("FAKE_DATA"));
 
         item.setProcessed(true);
 
@@ -201,5 +208,31 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
     @Override
     public void setExecutionContext(final JobExecutionContext dummyExecutionContext) {
         this.executionContext = dummyExecutionContext;
+    }
+
+    /**
+     * For Execution context awareness.
+     */
+    private JobExecutionContext jobExecutionContext;
+    private Map<String, Object> localJobExecutionContext;
+
+    @Override
+    public void setJobExecutionContext(final JobExecutionContext jobExecutionContext) {
+        this.jobExecutionContext = jobExecutionContext;
+
+    }
+
+    @Override
+    public void setLocalJobExecutionContext(final Map<String, Object> localJobExecutionContext) {
+        this.localJobExecutionContext = localJobExecutionContext;
+
+    }
+
+    public JobExecutionContext getJobExecutionContext() {
+        return jobExecutionContext;
+    }
+
+    public Map<String, Object> getLocalJobExecutionContext() {
+        return localJobExecutionContext;
     }
 }

@@ -236,9 +236,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
         LOG.debug("Injecting execution context on job");
 
-        ThreadLocal<Map<String, Object>> localJobExecutionContext = new ThreadLocal<Map<String, Object>>();
-        Map<String, Object> localJobData = Collections.synchronizedMap(new HashMap<String, Object>());
-        localJobExecutionContext.set(localJobData);
+        Map<String, Object> localJobExecutionContext = Collections.synchronizedMap(new HashMap<String, Object>());
 
         LOG.trace("Using contexts to inject: local: {} job: {}",
             new Object[] {localJobExecutionContext, executionContext});

@@ -20,5 +20,5 @@ public interface ExecutionContextAwareJobStep {
 
     void setJobExecutionContext(JobExecutionContext executionContext);
 
-    void setLocalJobExecutionContext(ThreadLocal<Map<String, Object>> localExecutionContext);
+    void setLocalJobExecutionContext(Map<String, Object> localExecutionContext);
 }

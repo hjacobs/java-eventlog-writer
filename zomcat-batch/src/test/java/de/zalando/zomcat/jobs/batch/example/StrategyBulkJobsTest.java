@@ -73,6 +73,110 @@ class ExpectationSet {
     }
 }
 
+// dummy class to be able to wire the job execution context without NPEs.
+class DummyTrigger extends Trigger {
+
+    @Override
+    protected boolean validateMisfireInstruction(final int arg0) {
+
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void updateWithNewCalendar(final Calendar arg0, final long arg1) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void updateAfterMisfire(final Calendar arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void triggered(final Calendar arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setStartTime(final Date arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setEndTime(final Date arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean mayFireAgain() {
+
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public Date getStartTime() {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Date getPreviousFireTime() {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Date getNextFireTime() {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Date getFireTimeAfter(final Date arg0) {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Date getFinalFireTime() {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Date getEndTime() {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int executionComplete(final JobExecutionContext arg0, final JobExecutionException arg1) {
+
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public Date computeFirstFireTime(final Calendar arg0) {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+}
+
 @RunWith(Theories.class)
 public class StrategyBulkJobsTest {
 
@@ -136,109 +240,11 @@ public class StrategyBulkJobsTest {
         Mockito.when(applicationContext.getBean("jobsStatusBean")).thenReturn(jobsStatusBean);
         job.setApplicationContext(applicationContext);
 
+        // If no JobExecutionContext is passed there are going to be NPEs under test. This object is always correclty
+        // given in by quartz, but here we simply have to make sure it is not null.
         JobExecutionContext dummyExecutionContext = new JobExecutionContext(null,
-                new TriggerFiredBundle(new JobDetail(), new Trigger() {
-
-                        @Override
-                        protected boolean validateMisfireInstruction(final int arg0) {
-
-                            // TODO Auto-generated method stub
-                            return false;
-                        }
-
-                        @Override
-                        public void updateWithNewCalendar(final Calendar arg0, final long arg1) {
-                            // TODO Auto-generated method stub
-
-                        }
-
-                        @Override
-                        public void updateAfterMisfire(final Calendar arg0) {
-                            // TODO Auto-generated method stub
-
-                        }
-
-                        @Override
-                        public void triggered(final Calendar arg0) {
-                            // TODO Auto-generated method stub
-
-                        }
-
-                        @Override
-                        public void setStartTime(final Date arg0) {
-                            // TODO Auto-generated method stub
-
-                        }
-
-                        @Override
-                        public void setEndTime(final Date arg0) {
-                            // TODO Auto-generated method stub
-
-                        }
-
-                        @Override
-                        public boolean mayFireAgain() {
-
-                            // TODO Auto-generated method stub
-                            return false;
-                        }
-
-                        @Override
-                        public Date getStartTime() {
-
-                            // TODO Auto-generated method stub
-                            return null;
-                        }
-
-                        @Override
-                        public Date getPreviousFireTime() {
-
-                            // TODO Auto-generated method stub
-                            return null;
-                        }
-
-                        @Override
-                        public Date getNextFireTime() {
-
-                            // TODO Auto-generated method stub
-                            return null;
-                        }
-
-                        @Override
-                        public Date getFireTimeAfter(final Date arg0) {
-
-                            // TODO Auto-generated method stub
-                            return null;
-                        }
-
-                        @Override
-                        public Date getFinalFireTime() {
-
-                            // TODO Auto-generated method stub
-                            return null;
-                        }
-
-                        @Override
-                        public Date getEndTime() {
-
-                            // TODO Auto-generated method stub
-                            return null;
-                        }
-
-                        @Override
-                        public int executionComplete(final JobExecutionContext arg0, final JobExecutionException arg1) {
-
-                            // TODO Auto-generated method stub
-                            return 0;
-                        }
-
-                        @Override
-                        public Date computeFirstFireTime(final Calendar arg0) {
-
-                            // TODO Auto-generated method stub
-                            return null;
-                        }
-                    }, null, false, new Date(), null, null, null), null);
+                new TriggerFiredBundle(new JobDetail(), new DummyTrigger(), null, false, new Date(), null, null, null),
+                null);
 
         j.setExecutionContext(dummyExecutionContext);
         job.doRun(dummyExecutionContext, config);
