@@ -57,7 +57,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
         Preconditions.checkNotNull("Passed null chunks collection.", chunks);
 
-        int chunkSize = chunks.keySet().size();
+        final int chunkSize = chunks.keySet().size();
 
         // TODO: provide way to set maxThreadCount
         final int numThreads = Math.min(maxThreadCount == null ? chunkSize + 1 : maxThreadCount, chunkSize);
@@ -67,7 +67,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
         threadPool = Executors.newFixedThreadPool(numThreads);
         resultMap = new ThreadLocal<Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>>>();
 
-        Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>> m = Maps.newHashMap();
+        final Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>> m = Maps.newHashMap();
         resultMap.set(Collections.synchronizedMap(m));
 
         processedCount = new AtomicInteger(0);
@@ -77,6 +77,11 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     @Override
     protected void cleanup(final Map<String, Collection<ITEM_TYPE>> chunks) throws InterruptedException {
         LOG.info("Shutting down thread pool.");
+
+        // remove the resultMap from thread local:
+        resultMap.remove();
+
+        // shutdown the thread pool
         threadPool.shutdown();
         threadPool.awaitTermination(1, TimeUnit.DAYS);
     }
