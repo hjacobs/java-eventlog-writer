@@ -56,6 +56,7 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>9.0-801-ZAL-4</version>
         </dependency>
     </dependencies>
 </project>
