@@ -765,7 +765,7 @@ public abstract class AbstractJobManagerIT {
      *                               {@link JobSchedulingConfigurationProvider} throws an exception)
      */
     @Test
-    public void testUpdateSchedulingConfiguration() throws JobManagerException {
+    public void testUpdateSchedulingConfiguration() throws JobManagerException, InterruptedException {
         try {
             final Map<String, String> jobData = Maps.newHashMap();
             jobData.put("someKey", "someValue");
@@ -1092,7 +1092,7 @@ public abstract class AbstractJobManagerIT {
      * @throws  JobManagerException  if any error occurs updateing the {@link JobSchedulingConfiguration} provided
      */
     @Test
-    public void testAlteredJobSchedulingConfigFromProvider() throws JobManagerException {
+    public void testAlteredJobSchedulingConfigFromProvider() throws JobManagerException, InterruptedException {
         try {
             final Map<String, String> jobData = Maps.newHashMap();
             jobData.put("someKey", "someValue");

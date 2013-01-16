@@ -239,6 +239,8 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                         "An error occured waiting for JobSchedulingConfiguration Poller/Rescheduler Thread to finish");
                 }
             }
+
+            schedulingConfigPollingExecutor = null;
         }
 
     }
@@ -753,6 +755,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             LOG.info("Finished Job Scheduling Update - JobManager now contains: [{}] managed jobs. "
                     + "JobCount scheduled locally: [{}], JobCount not scheduled locally: [{}]",
                 new Object[] {managedJobs.size(), getScheduledManagedJobs().size(), getUnscheduledManagedJobs().size()});
+
         } catch (final JobSchedulingConfigurationProviderException e) {
             throw new JobManagerException(String.format(
                     "Refresh of JobSchedulingConfiguration of Jobs failed with Error: [%s]", e.getMessage()), e);
@@ -1293,12 +1296,18 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
     @Override
     public final void updateJobSchedulingConfigurations() throws JobManagerException {
-        if (updateSchedulingConfigurationReentrantLock.tryLock()) {
+        while (!updateSchedulingConfigurationReentrantLock.tryLock()) {
             try {
-                this.updateSchedulingConfigurationsAndRescheduleManagedJobs();
-            } finally {
-                updateSchedulingConfigurationReentrantLock.unlock();
+                Thread.sleep(100);
+            } catch (final InterruptedException e) {
+                LOG.error("An error occured waiting to accquire lock for UpdateJobSchedulingConfigurations Task", e);
             }
+        }
+
+        try {
+            this.updateSchedulingConfigurationsAndRescheduleManagedJobs();
+        } finally {
+            updateSchedulingConfigurationReentrantLock.unlock();
         }
     }
 

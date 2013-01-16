@@ -65,10 +65,14 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
     protected void onStartup() throws JobManagerException {
         super.onStartup();
         try {
-            quartzScheduler = StdSchedulerFactory.getDefaultScheduler();
+            final StdSchedulerFactory fact = new StdSchedulerFactory();
+            fact.initialize(this.getClass().getClassLoader().getResourceAsStream(
+                    "META-INF/zomcat/quartz/quartz.properties"));
+            quartzScheduler = fact.getScheduler();
             quartzScheduler.addGlobalJobListener(this);
             quartzScheduler.addGlobalTriggerListener(this);
             quartzScheduler.start();
+
             originalThreadNames.clear();
         } catch (final SchedulerException e) {
             throw new JobManagerException(e);
