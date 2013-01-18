@@ -215,7 +215,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         if (schedulingConfigPollingExecutor == null) {
             schedulingConfigPollingExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1,
                     new DefaultJobManagerPollerThreadFactory());
-            schedulingConfigPollingExecutor.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
+            schedulingConfigPollingExecutor.scheduleAtFixedRate(this, 1, 1, TimeUnit.MINUTES);
         }
 
     }
@@ -260,11 +260,14 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
 
             // Cancel Job if a Reschedule has been requested
             if (reschedule && managedJobs.containsKey(jobSchedulingConfig)) {
-                cancelJob(jobSchedulingConfig);
+                cancelJob(jobSchedulingConfig, false);
             }
 
             // Put Scheduler into managed Map of Jobs
-            managedJobs.put(jobSchedulingConfig, createManagedJob(jobSchedulingConfig));
+            final JobManagerManagedJob newJob = createManagedJob(jobSchedulingConfig);
+
+            // Add Managed Job
+            managedJobs.put(jobSchedulingConfig, newJob);
 
             // Get current Managed Job - must be managed at this point
             final JobManagerManagedJob managedJob = managedJobs.get(jobSchedulingConfig);
@@ -323,7 +326,10 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         throws ParseException, JobManagerException, ClassNotFoundException {
 
         // Create Job Detail from Scheduler Configuration
-        final JobDetail jobDetail = toQuartzJobDetailFromJobSchedulingConfig(jobSchedulingConfig);
+        final JobDetail oldJobDetail = managedJobs.get(jobSchedulingConfig) != null
+            ? managedJobs.get(jobSchedulingConfig).getQuartzJobDetail() : null;
+        final JobDetail jobDetail = oldJobDetail != null
+            ? oldJobDetail : toQuartzJobDetailFromJobSchedulingConfig(jobSchedulingConfig);
 
         // Create Quartz Trigger
         final Trigger quartzTrigger = createQuartzTrigger(jobSchedulingConfig, jobDetail);

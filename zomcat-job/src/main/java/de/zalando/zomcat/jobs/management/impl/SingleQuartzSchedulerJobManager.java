@@ -151,45 +151,57 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
 
     @Override
     public boolean vetoJobExecution(final Trigger trigger, final JobExecutionContext context) {
-        final JobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
-        boolean retVal = false;
-        if (currentJob != null) {
-            if (currentJob.getRunningWorkerCount() < currentJob.getMaxConcurrentExecutionCount()) {
-
-                // Store Original Thread Name so it can be restored once the Executed Job has finished
-                originalThreadNames.put(Thread.currentThread(), Thread.currentThread().getName());
-
-                // Alter Thread Name
-                Thread.currentThread().setName(currentJob.getQuartzJobDetail().getName() + "Executor");
-
-                final Job quartzJob = context.getJobInstance();
-                if (quartzJob != null && RunningWorker.class.isInstance(quartzJob)) {
-                    currentJob.onStartRunningWorker((RunningWorker) quartzJob);
+        boolean retVal = true;
+        try {
+            final JobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
+            if (quartzScheduler.isShutdown()) {
+                LOG.error("Quartz Scheduler is already shutdown - cannot perform scheduled Task on shutdown Scheduler");
+            } else if (currentJob == null) {
+                LOG.error(
+                    "Could not find JobManagerManagedJob entry for: [jobToBeExecuted] callback. JobExecutionContext was: [{}]",
+                    context);
+                for (final JobManagerManagedJob curJob : getManagedJobsInternal().values()) {
+                    LOG.info("Currently available ManagedJob(Detail): [{}] for JobSchedulingConfig: [{}]",
+                        curJob.getQuartzJobDetail(), curJob.getJobSchedulingConfig());
                 }
+            } else if (currentJob != null) {
+                synchronized (currentJob) {
+                    if (currentJob.getRunningWorkerCount() < currentJob.getMaxConcurrentExecutionCount()) {
 
-                if (quartzJob != null && AbstractJob.class.isInstance(quartzJob)) {
-                    ((AbstractJob) quartzJob).setJobConfig(currentJob.getJobSchedulingConfig().getJobConfig());
-                    ((AbstractJob) quartzJob).setApplicationContext(getApplicationContext());
-                    try {
-                        ((AbstractJob) quartzJob).setJobGroupConfig(getJobGroupConfigByJobGroupName(
-                                currentJob.getJobSchedulingConfig().getJobConfig().getJobGroupName()));
-                    } catch (final JobManagerException e) {
-                        LOG.error("Could not set JobGroupConfig on Job. Error was: [{}]", e.getMessage(), e);
+                        // Store Original Thread Name so it can be restored once the Executed Job has finished
+                        originalThreadNames.put(Thread.currentThread(), Thread.currentThread().getName());
+
+                        // Alter Thread Name
+                        Thread.currentThread().setName(currentJob.getQuartzJobDetail().getName() + "Executor");
+
+                        final Job quartzJob = context.getJobInstance();
+                        if (quartzJob != null && RunningWorker.class.isInstance(quartzJob)) {
+                            currentJob.onStartRunningWorker((RunningWorker) quartzJob);
+                        }
+
+                        if (quartzJob != null && AbstractJob.class.isInstance(quartzJob)) {
+                            ((AbstractJob) quartzJob).setJobConfig(currentJob.getJobSchedulingConfig().getJobConfig());
+                            ((AbstractJob) quartzJob).setApplicationContext(getApplicationContext());
+                            try {
+                                ((AbstractJob) quartzJob).setJobGroupConfig(getJobGroupConfigByJobGroupName(
+                                        currentJob.getJobSchedulingConfig().getJobConfig().getJobGroupName()));
+                            } catch (final JobManagerException e) {
+                                LOG.error("Could not set JobGroupConfig on Job. Error was: [{}]", e.getMessage(), e);
+                            }
+                        }
+
+                        retVal = false;
+                    } else {
+                        LOG.info("Job: [{}] execution vetoed - already running [{}/{}] Job Instances",
+                            new Object[] {
+                                currentJob.getJobSchedulingConfig(), currentJob.getRunningWorkerCount(),
+                                currentJob.getMaxConcurrentExecutionCount()
+                            });
                     }
                 }
-
-            } else {
-                LOG.info("Job: [{}] execution vetoed - already running [{}/{}] Job Instances",
-                    new Object[] {
-                        currentJob.getJobSchedulingConfig(), currentJob.getRunningWorkerCount(),
-                        currentJob.getMaxConcurrentExecutionCount()
-                    });
-                retVal = true;
             }
-        } else {
-            LOG.warn(
-                "Could find JobManagerManagedJob entry for: [jobToBeExecuted] callback. JobExecutionContext was: [{}]",
-                context);
+        } catch (final SchedulerException e) {
+            LOG.error("Failed to accertain Shutdown State of Quartz Scheduler", e);
         }
 
         return retVal;

@@ -94,7 +94,10 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     protected void registerListener() {
         addJobListener(new JobFlowIdListener());
         addJobListener(new JobHistoryListener());
-        addJobListener(new QuartzJobInfoBeanListener());
+        if (!isJobManagerProvidedJobConfig()) {
+            addJobListener(new QuartzJobInfoBeanListener());
+        }
+
         addJobListener(stopWatchListener);
     }
 
