@@ -57,6 +57,8 @@ import com.google.common.collect.Maps;
 
 import com.google.gson.Gson;
 
+import net.sf.cglib.proxy.Enhancer;
+
 /**
  * Overridden CXFServlet with custom service list rendering: The service list additionally contains WSDL documentation
  * and implementor method parameters/return types. To get the improved service list, just use this class instead of the
@@ -82,16 +84,16 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
      */
     protected void updateDestinations(final DestinationRegistry destinationRegistry, final HttpServletRequest request) {
 
-        String base = BaseUrlHelper.getBaseURL(request);
+        final String base = BaseUrlHelper.getBaseURL(request);
 
         String pathInfo = request.getPathInfo();
         if (pathInfo == null) {
             pathInfo = "/";
         }
 
-        Set<String> paths = destinationRegistry.getDestinationsPaths();
-        for (String path : paths) {
-            AbstractHTTPDestination d2 = destinationRegistry.getDestinationForPath(path);
+        final Set<String> paths = destinationRegistry.getDestinationsPaths();
+        for (final String path : paths) {
+            final AbstractHTTPDestination d2 = destinationRegistry.getDestinationForPath(path);
             String ad = d2.getEndpointInfo().getAddress();
             if (ad == null && d2.getAddress() != null && d2.getAddress().getAddress() != null) {
                 ad = d2.getAddress().getAddress().getValue();
@@ -121,7 +123,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         final QName qname = ei.getInterface() == null ? ei.getName() : ei.getInterface().getName();
         final String name = qname == null ? "" : qname.getLocalPart();
 
-        WebServiceInfo info = new WebServiceInfo();
+        final WebServiceInfo info = new WebServiceInfo();
         info.setName(name);
         info.setAddress(address);
         info.setRest(binding.getBindingId().contains("jaxrs"));
@@ -132,23 +134,23 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         try {
             implementor = getBus().getExtension(ApplicationContext.class).getBean(name.substring(0, 1).toLowerCase()
                         + name.substring(1));
-        } catch (NoSuchBeanDefinitionException e) {
+        } catch (final NoSuchBeanDefinitionException e) {
             // probably our assumption (naming convention) was incorrect and the bean was not found with the assumed
             // name
             // => ignore the "bean not found" error
         }
 
-        Map<String, WebServiceInfo.OperationInfo> operationInformations = getOperationInformations(implementor);
+        final Map<String, WebServiceInfo.OperationInfo> operationInformations = getOperationInformations(implementor);
 
         info.setDocumentation(getDocumentation(ei));
 
         if (ei.getInterface() != null && ei.getInterface().getOperations() != null) {
             final List<OperationInfo> operations = Lists.newArrayList(ei.getInterface().getOperations());
 
-            List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
-            for (OperationInfo oi : operations) {
+            final List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
+            for (final OperationInfo oi : operations) {
                 if (oi.getProperty("operation.is.synthetic") != Boolean.TRUE) {
-                    String localName = oi.getName().getLocalPart();
+                    final String localName = oi.getName().getLocalPart();
 
                     WebServiceInfo.OperationInfo op = operationInformations.get(localName);
 
@@ -175,14 +177,15 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
         } else if (info.isRest() && implementor != null) {
 
-            List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
-            for (Method m : implementor.getClass().getMethods()) {
+            final List<WebServiceInfo.OperationInfo> ops = Lists.newArrayList();
+            for (final Method m : getRealClass(implementor).getMethods()) {
+
                 if (m.isAnnotationPresent(GET.class) || m.isAnnotationPresent(POST.class)
                         || m.isAnnotationPresent(HEAD.class) || m.isAnnotationPresent(PUT.class)
                         || m.isAnnotationPresent(DELETE.class)) {
-                    WebServiceInfo.OperationInfo op = operationInformations.get(m.getName());
+                    final WebServiceInfo.OperationInfo op = operationInformations.get(m.getName());
                     if (m.isAnnotationPresent(Path.class)) {
-                        String path = m.getAnnotation(Path.class).value();
+                        final String path = m.getAnnotation(Path.class).value();
                         op.setRestPath(path);
                     }
 
@@ -200,6 +203,19 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
     }
 
     /**
+     * @param   implementor
+     *
+     * @return
+     */
+    private Class<? extends Object> getRealClass(final Object implementor) {
+        if (Enhancer.isEnhanced(implementor.getClass())) {
+            return implementor.getClass().getSuperclass();
+        }
+
+        return implementor.getClass();
+    }
+
+    /**
      * get documentation string from endpoint and service.
      *
      * @param   ei
@@ -207,7 +223,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
      * @return
      */
     private String getDocumentation(final EndpointInfo ei) {
-        StringBuilder doc = new StringBuilder();
+        final StringBuilder doc = new StringBuilder();
         if (ei.getInterface() != null && ei.getInterface().getDocumentation() != null) {
             doc.append(ei.getInterface().getDocumentation());
 
@@ -238,15 +254,15 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             return operationInformations;
         }
 
-        final Class<? extends Object> clazz = implementor.getClass();
+        final Class<? extends Object> clazz = getRealClass(implementor);
         Method[] methods = clazz.getMethods();
 
         for (final Method method : methods) {
-            List<WebServiceInfo.OperationParameter> params = Lists.newArrayList();
+            final List<WebServiceInfo.OperationParameter> params = Lists.newArrayList();
 
             int pos = 0;
             for (final Type t : method.getGenericParameterTypes()) {
-                WebServiceInfo.OperationParameter param = new WebServiceInfo.OperationParameter();
+                final WebServiceInfo.OperationParameter param = new WebServiceInfo.OperationParameter();
                 param.setName("arg" + pos);
                 param.setType(getTypeString(t));
                 params.add(param);
@@ -255,7 +271,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
             updateNameFromAnnotations(method.getParameterAnnotations(), params);
 
-            WebServiceInfo.OperationInfo info = new WebServiceInfo.OperationInfo();
+            final WebServiceInfo.OperationInfo info = new WebServiceInfo.OperationInfo();
             info.setName(method.getName());
             info.setReturnType(getTypeString(method.getGenericReturnType()));
             info.setParameters(params);
@@ -263,11 +279,11 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         }
 
         // also scan interface annotations
-        for (Class<?> intface : clazz.getInterfaces()) {
+        for (final Class<?> intface : clazz.getInterfaces()) {
             methods = intface.getMethods();
             for (final Method method : methods) {
-                List<WebServiceInfo.OperationParameter> params = operationInformations.get(method.getName())
-                                                                                      .getParameters();
+                final List<WebServiceInfo.OperationParameter> params = operationInformations.get(method.getName())
+                                                                                            .getParameters();
                 if (params == null) {
                     continue;
                 }
@@ -302,7 +318,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
      * @return
      */
     private String getTitle() {
-        ServletContext application = getServletConfig().getServletContext();
+        final ServletContext application = getServletConfig().getServletContext();
         return application.getServletContextName();
     }
 
@@ -314,19 +330,19 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
      */
     private void doRenderServiceList(final HttpServletRequest request, final HttpServletResponse response)
         throws IOException {
-        DestinationRegistry registry = getDestinationRegistryFromBus(getBus());
+        final DestinationRegistry registry = getDestinationRegistryFromBus(getBus());
         updateDestinations(registry, request);
 
         final AbstractDestination[] destinations = registry.getSortedDestinations();
 
-        boolean json = request.getParameterMap().containsKey("view");
+        final boolean json = request.getParameterMap().containsKey("view");
 
         final List<WebServiceInfo> webServices = Lists.newArrayList();
         final WebServiceOverview overview = new WebServiceOverview();
         overview.setTitle(getTitle());
         overview.setWebServices(webServices);
 
-        for (AbstractDestination dest : destinations) {
+        for (final AbstractDestination dest : destinations) {
             webServices.add(getWebServiceInfo(dest));
         }
 
@@ -334,7 +350,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         if (json) {
             response.setContentType("text/plain; charset=UTF-8");
 
-            Gson gson = new Gson();
+            final Gson gson = new Gson();
             writer.print(gson.toJson(overview));
 
         } else {
@@ -367,8 +383,8 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             writer.write("</script>");
             writer.write("<p>Available SOAP services for <strong>" + overview.getTitle() + "</strong>:</p>");
 
-            boolean collapsed = destinations.length > 1;
-            for (WebServiceInfo info : webServices) {
+            final boolean collapsed = destinations.length > 1;
+            for (final WebServiceInfo info : webServices) {
                 writeSoapEndpoint(writer, info, collapsed);
             }
 
@@ -398,12 +414,12 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
         }
 
         if (type instanceof ParameterizedType) {
-            ParameterizedType pType = (ParameterizedType) type;
-            StringBuilder sb = new StringBuilder(getTypeString(pType.getRawType()));
+            final ParameterizedType pType = (ParameterizedType) type;
+            final StringBuilder sb = new StringBuilder(getTypeString(pType.getRawType()));
             sb.append('<');
 
             int i = 0;
-            for (Type t : pType.getActualTypeArguments()) {
+            for (final Type t : pType.getActualTypeArguments()) {
                 if (i > 0) {
                     sb.append(", ");
                 }
@@ -462,8 +478,8 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
 
         writer.write(">");
 
-        for (WebServiceInfo.OperationInfo oi : ws.getOperations()) {
-            String localName = oi.getName();
+        for (final WebServiceInfo.OperationInfo oi : ws.getOperations()) {
+            final String localName = oi.getName();
 
             writer.write("<li><a href=\"" + String.format(SOURCE_LINK, ws.getName(), localName) + "\">" + localName
                     + "</a>");
@@ -472,7 +488,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
                 writer.write(" (");
 
                 int i = 0;
-                for (WebServiceInfo.OperationParameter param : oi.getParameters()) {
+                for (final WebServiceInfo.OperationParameter param : oi.getParameters()) {
                     if (i > 0) {
                         writer.write(", ");
                     }
@@ -492,7 +508,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             }
 
             if (ws.isRest() && oi.getRestPath() != null) {
-                String path = ws.getAddress().concat("/").concat(oi.getRestPath());
+                final String path = ws.getAddress().concat("/").concat(oi.getRestPath());
                 writer.write("<p><span>Path: </span><span class=\"restpath\">" + path + "</span></p>");
             }
 
@@ -514,10 +530,10 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
      */
     private void renderServiceList(final HttpServletRequest request, final HttpServletResponse response)
         throws IOException {
-        ClassLoader origLoader = Thread.currentThread().getContextClassLoader();
+        final ClassLoader origLoader = Thread.currentThread().getContextClassLoader();
         try {
 
-            ClassLoader loader = getBus().getExtension(ClassLoader.class);
+            final ClassLoader loader = getBus().getExtension(ClassLoader.class);
             if (loader != null) {
                 Thread.currentThread().setContextClassLoader(loader);
             }
@@ -539,14 +555,15 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
      * @return
      */
     private static DestinationRegistry getDestinationRegistryFromBus(final Bus bus) {
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        final DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
         try {
-            DestinationFactory df = dfm.getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
+            final DestinationFactory df = dfm.getDestinationFactory(
+                    "http://cxf.apache.org/transports/http/configuration");
             if (df instanceof HTTPTransportFactory) {
-                HTTPTransportFactory transportFactory = (HTTPTransportFactory) df;
+                final HTTPTransportFactory transportFactory = (HTTPTransportFactory) df;
                 return transportFactory.getRegistry();
             }
-        } catch (BusException e) {
+        } catch (final BusException e) {
             // why are we throwing a busexception if the DF isn't found?
         }
 
@@ -556,11 +573,11 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
     @Override
     protected void invoke(final HttpServletRequest request, final HttpServletResponse response)
         throws ServletException {
-        String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
+        final String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
         if (StringUtils.isBlank(pathInfo) || "/".equals(pathInfo)) {
             try {
                 renderServiceList(request, response);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 throw new ServletException("Could not render service list", ex);
             }
         } else {
