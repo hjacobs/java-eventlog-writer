@@ -1,5 +1,14 @@
 package de.zalando.zomcat.jobs.lock;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,6 +28,12 @@ public class LockResourceManagerIT {
     private static final String FLOWID = "flowid";
     private static final String TEST_COMPONENT = "test_component";
     private static final String TEST_RESOURCE = "test_resource";
+
+    private static final int CONCURRENT_CLIENTS = 20;
+    private static final int CLIENT_INVOCATIONS = 20;
+
+    // timeout in milliseconds
+    private static final long CONCURRENT_EXECUTION_TIMEOUT = 5000;
 
     @Autowired
     private LockResourceManagerImpl lockResourceManager;
@@ -73,5 +88,38 @@ public class LockResourceManagerIT {
 
         peeked = lockResourceManager.peekLock(TEST_RESOURCE);
         Assert.assertTrue("should not be locked.", peeked);
+    }
+
+    @Test
+    public void concurrentlyLockFreeResourceTest() throws Exception {
+
+        ExecutorService executorService = Executors.newFixedThreadPool(CONCURRENT_CLIENTS);
+
+        Collection<Callable<Boolean>> callableCollection = new ArrayList<Callable<Boolean>>(CONCURRENT_CLIENTS);
+        for (int i = 0; i < CONCURRENT_CLIENTS; i++) {
+            callableCollection.add(new Callable<Boolean>() {
+
+                    @Override
+                    public Boolean call() throws Exception {
+                        return lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+                    }
+                });
+        }
+
+        for (int i = 0; i < CLIENT_INVOCATIONS; i++) {
+
+            List<Future<Boolean>> results = executorService.invokeAll(callableCollection, CONCURRENT_EXECUTION_TIMEOUT,
+                    TimeUnit.MILLISECONDS);
+
+            int acquiredLocks = 0;
+            for (Future<Boolean> future : results) {
+                if (future.get()) {
+                    acquiredLocks++;
+                }
+            }
+
+            Assert.assertEquals("should have acquired exactly 1 lock", 1, acquiredLocks);
+            lockResourceManager.releaseLock(TEST_RESOURCE);
+        }
     }
 }
