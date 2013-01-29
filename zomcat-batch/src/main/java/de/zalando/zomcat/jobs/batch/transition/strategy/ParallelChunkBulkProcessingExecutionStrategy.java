@@ -24,6 +24,7 @@ import com.google.common.collect.Maps;
 import de.zalando.utils.Pair;
 
 import de.zalando.zomcat.flowid.FlowId;
+import de.zalando.zomcat.flowid.FlowUserContext;
 import de.zalando.zomcat.jobs.batch.transition.BatchExecutionStrategy;
 import de.zalando.zomcat.jobs.batch.transition.JobResponse;
 import de.zalando.zomcat.jobs.batch.transition.WriteTime;
@@ -91,6 +92,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
         // clone the flowid:
         final Stack<?> cloneStack = FlowId.cloneStack();
+        final String userContext = FlowUserContext.getUserContext();
 
         final Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> f = threadPool.submit(
                 new Callable<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>() {
@@ -100,6 +102,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
                         // inherit the existing flow for this thread:
                         FlowId.inherit(cloneStack);
+                        FlowUserContext.setUserContext(userContext);
                         try {
 
                             final List<ITEM_TYPE> successfulItems = Lists.newArrayList();
@@ -140,6 +143,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
                             return Pair.of(successfulItems, failedItems);
                         } finally {
                             FlowId.clear();
+                            FlowUserContext.clear();
                         }
                     }
 
@@ -151,8 +155,8 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     public int getProcessedCount() {
 
         /*
-         * In case the job had nothing to do setupExecution would not have been called, thus processedCount is still
-         * null, so we hack a return of 0.
+         * In case the job had nothing to do setupExecution would not have been
+         * called, thus processedCount is still null, so we hack a return of 0.
          */
         if (processedCount == null) {
             LOG.debug("Job finished without real work. Explicitly returning processedCount = 0");

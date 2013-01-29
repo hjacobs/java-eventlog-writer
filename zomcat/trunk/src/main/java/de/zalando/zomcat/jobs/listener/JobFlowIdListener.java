@@ -12,6 +12,7 @@ import de.zalando.domain.ComponentBean;
 import de.zalando.zomcat.ExecutionContext;
 import de.zalando.zomcat.flowid.FlowId;
 import de.zalando.zomcat.flowid.FlowIdType;
+import de.zalando.zomcat.flowid.FlowUserContext;
 import de.zalando.zomcat.jobs.JobListener;
 import de.zalando.zomcat.jobs.RunningWorker;
 
@@ -39,13 +40,24 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
         ExecutionContext.clear();
         FlowId.clear();
 
+        FlowUserContext.setUserContext(getUserContext(context, host));
         FlowId.generateAndPushFlowIdWithPayload(FlowIdType.JOB);
-        LOG.trace("start running job with flowId {}", FlowId.peekFlowId());
+        LOG.trace("start running job with flowId {} and userContext {}", FlowId.peekFlowId(),
+            FlowUserContext.getUserContext());
+    }
+
+    private String getUserContext(final JobExecutionContext context, final String host) {
+        final StringBuilder stringBuilder = new StringBuilder("job:");
+        stringBuilder.append(host);
+        stringBuilder.append(":");
+        stringBuilder.append(context.getJobDetail().getFullName());
+        return stringBuilder.toString();
     }
 
     @Override
     public void stopRunning(final RunningWorker runningWorker, final Throwable t) {
+        final String userContext = FlowUserContext.clear();
         final String flowId = FlowId.popFlowId();
-        LOG.trace("stop running job with flowId {}", flowId);
+        LOG.trace("stop running job with flowId {} and userContext {}", flowId, userContext);
     }
 }
