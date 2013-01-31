@@ -48,9 +48,19 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
 
     private String getUserContext(final JobExecutionContext context, final String host) {
         final StringBuilder stringBuilder = new StringBuilder("job:");
-        stringBuilder.append(host);
+        if (host != null) {
+            stringBuilder.append(host);
+        } else {
+            stringBuilder.append("n/a");
+        }
+
         stringBuilder.append(":");
-        stringBuilder.append(context.getJobDetail().getFullName());
+        if (context != null) {
+            stringBuilder.append(context.getJobDetail().getFullName());
+        } else {
+            stringBuilder.append("n/a");
+        }
+
         return stringBuilder.toString();
     }
 
