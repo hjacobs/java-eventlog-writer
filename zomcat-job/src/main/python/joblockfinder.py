@@ -7,6 +7,7 @@ import os
 import re
 import argparse
 import collections
+import bisect
 
 JOB_FILE_FILTER = '*?Job.java'
 IGNORE_JOBS = set(['AbstractJob.java'])
@@ -89,7 +90,7 @@ class JobLockFinder(object):
 
             project = match.group(1)
             filename = os.path.splitext(os.path.basename(file_path))[0]
-            configs[project].append('jobConfig.' + filename[0].lower() + filename[1:] + '.appInstanceKey')
+            bisect.insort(configs[project], 'jobConfig.' + filename[0].lower() + filename[1:] + '.appInstanceKey')
 
         for key, value in configs.items():
             logging.debug("Found '%s' jobs on project: '%s'", len(value), key)
