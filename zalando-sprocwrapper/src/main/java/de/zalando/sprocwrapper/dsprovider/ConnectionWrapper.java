@@ -18,6 +18,7 @@ import java.sql.Struct;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 /**
  * @author  jmussler
@@ -282,5 +283,25 @@ public class ConnectionWrapper implements Connection {
     @Override
     public boolean isWrapperFor(final Class<?> type) throws SQLException {
         return conn.isWrapperFor(type);
+    }
+
+    public void setSchema(final String schema) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getSchema() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void abort(final Executor executor) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setNetworkTimeout(final Executor executor, final int milliseconds) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public int getNetworkTimeout() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
