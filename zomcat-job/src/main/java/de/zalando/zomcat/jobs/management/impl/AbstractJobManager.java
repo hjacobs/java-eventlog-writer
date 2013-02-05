@@ -722,7 +722,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
         final boolean isScheduled = isJobScheduled(managedJob);
         final boolean isActive = isJobActive(jobSchedulingConfigurationToCheck,
                 instanceJobConfigOverrides.get(jobSchedulingConfigurationToCheck),
-                instanceJobGroupConfigOverrides.get(jobGroupConfig));
+                instanceJobGroupConfigOverrides.get(jobGroupConfig.getJobGroupName()));
 
         return isSchedulingConfigAltered || (isScheduled ^ isActive);
     }
@@ -835,9 +835,10 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                 // state of the group, remove the override
                 // This can only happen if a JobGroup has been (de)activated on an instance, and the group
                 // (de)activation state is provided by the current Configuration refresh as well
-                if (instanceJobGroupConfigOverrides.containsKey(groupConfig)
-                        && (instanceJobGroupConfigOverrides.get(groupConfig) == groupConfig.isJobGroupActive())) {
-                    instanceJobGroupConfigOverrides.remove(groupConfig);
+                if (instanceJobGroupConfigOverrides.containsKey(groupConfig.getJobGroupName())
+                        && (instanceJobGroupConfigOverrides.get(groupConfig.getJobGroupName())
+                            == groupConfig.isJobGroupActive())) {
+                    instanceJobGroupConfigOverrides.remove(groupConfig.getJobGroupName());
                 }
 
                 // If current JobGroup is not managed yet - add it to list of managed JobGroups
