@@ -8,6 +8,7 @@ import re
 import argparse
 import collections
 import bisect
+import itertools
 
 JOB_FILE_FILTER = '*?Job.java'
 IGNORE_JOBS = set(['AbstractJob.java'])
@@ -94,6 +95,11 @@ class JobLockFinder(object):
 
         for key, value in configs.items():
             logging.debug("Found '%s' jobs on project: '%s'", len(value), key)
+
+        # Check if there are jobs with the same name
+        for key, counter in collections.Counter(list(itertools.chain(*configs.values()))).items():
+            if counter > 1:
+                logging.warn('Found duplicated jobs %s', key)
 
         return configs
 
