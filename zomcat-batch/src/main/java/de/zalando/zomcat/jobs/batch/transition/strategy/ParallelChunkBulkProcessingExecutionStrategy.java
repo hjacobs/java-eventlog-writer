@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,6 +29,7 @@ import de.zalando.zomcat.flowid.FlowUserContext;
 import de.zalando.zomcat.jobs.batch.transition.BatchExecutionStrategy;
 import de.zalando.zomcat.jobs.batch.transition.JobResponse;
 import de.zalando.zomcat.jobs.batch.transition.WriteTime;
+import de.zalando.zomcat.jobs.batch.utils.BatchExecutionThreadFactory;
 
 /**
  * Executes each chunk in a thread. This takes dynamically the amount of chunks and starts a thread pool with the same
@@ -45,6 +47,8 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
     private static final Logger LOG = LoggerFactory.getLogger(ParallelChunkBulkProcessingExecutionStrategy.class);
 
+    private final ThreadFactory threadFactory = new BatchExecutionThreadFactory(this.getClass().getSimpleName());
+
     private ExecutorService threadPool;
 
     /**
@@ -56,7 +60,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     @Override
     protected void setupExecution(final Map<String, Collection<ITEM_TYPE>> chunks) {
 
-        Preconditions.checkNotNull("Passed null chunks collection.", chunks);
+        Preconditions.checkNotNull(chunks, "Passed null chunks collection.");
 
         final int chunkSize = chunks.keySet().size();
 
@@ -65,7 +69,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
         LOG.info("Creating executor pool with {} threads for {} chunks.", new Object[] {numThreads, chunkSize});
 
-        threadPool = Executors.newFixedThreadPool(numThreads);
+        threadPool = Executors.newFixedThreadPool(numThreads, threadFactory);
         resultMap = new ThreadLocal<Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>>>();
 
         final Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>> m = Maps.newHashMap();
