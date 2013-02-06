@@ -12,7 +12,7 @@
     <name>URL mapping lib</name>
     <description>lib for fast url mapping</description>
     <organization>
-        <name>Zalando/Technology/Frontend</name>
+        <name>Zalando/Technology/Shop/Channels</name>
     </organization>
     <build>
         <plugins>
