@@ -16,9 +16,8 @@ ACQUIRE_LOCK_REGEX = re.compile(r'.*Acquiring lock on ([^ ]+) for ([^ ]).*')
 RELEASE_LOCK_REGEX = re.compile(r'.*Releasing lock on ([^\s]+)')
 
 
-# workaround -> KeyboardInterrupt is never sent.
-
 def group_resources_with_interrupt(log_file):
+    # workaround -> KeyboardInterrupt is never sent.
     try:
         return group_resources(log_file)
     except KeyboardInterrupt:
@@ -38,7 +37,7 @@ def group_resources(log_file):
                 match = ACQUIRE_LOCK_REGEX.search(line)
                 if match:
                     resource = match.group(1)
-                    resource_interval = last_acquired_resource.get(resource)
+                    resource_interval = last_acquired_resource.get(resource, None)
                     if resource_interval:
                         logging.debug('Lock %s acquired without success: %s', resource, resource_interval)
                     last_acquired_resource[resource] = parse_timestamp(line[:23])
@@ -54,7 +53,7 @@ def group_resources(log_file):
                             logging.error('Lock %s released without being acquired or just overlaps another one %s',
                                           resource, ts)
 
-    return resources
+    return log_file, resources
 
 
 def parse_timestamp(ts):
@@ -66,18 +65,28 @@ def check_resource_intersections(results):
     if results_len > 1:
         for i in range(results_len):
             for j in range(i + 1, results_len):
-                for key, value in results[i].items():
-                    intervals = results[j].get(key)
+                resources1 = results[i]
+                for key, value in resources1[1].items():
+                    resources2 = results[j]
+                    intervals = resources2[1].get(key)
                     if intervals:
-                        check_interval_intersections(key, value, intervals)
+                        check_interval_intersections(key, resources1[0], value, resources2[0], intervals)
 
 
-def check_interval_intersections(resource, list1, list2):
+def check_interval_intersections(resource, log_file1, list1, log_file2, list2):
     for interval1 in list1:
         interval2 = binary_interval_search(list2, interval1)
         if interval2:
-            logging.error('Found overlapping resource %s: (%s, %s) -> (%s, %s)', resource, interval1[0], interval1[1],
-                          interval2[0], interval2[1])
+            logging.error(
+                'Found overlapping resource %s: (%s: %s, %s) -> (%s: %s, %s)',
+                resource,
+                log_file1,
+                interval1[0],
+                interval1[1],
+                log_file2,
+                interval2[0],
+                interval2[1],
+            )
 
 
 def binary_interval_search(sorted_list, interval):
@@ -92,7 +101,7 @@ def binary_interval_search(sorted_list, interval):
         elif interval[0] > mid_val[1]:
             start = mid + 1
         else:
-            return interval
+            return mid_val
 
 
 if __name__ == '__main__':
