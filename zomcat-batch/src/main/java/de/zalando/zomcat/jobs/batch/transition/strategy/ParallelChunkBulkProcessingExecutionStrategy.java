@@ -1,7 +1,6 @@
 package de.zalando.zomcat.jobs.batch.transition.strategy;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +35,8 @@ import de.zalando.zomcat.jobs.batch.utils.BatchExecutionThreadFactory;
  * size. Subclasses are free to define more specific parallel strategies. Concrete implementations must define
  * makeChunk.
  *
+ * <p>This class is NOT thread safe.
+ *
  * @param   <ITEM_TYPE>
  *
  * @author  john
@@ -43,9 +44,9 @@ import de.zalando.zomcat.jobs.batch.utils.BatchExecutionThreadFactory;
 public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     extends BatchExecutionStrategy<ITEM_TYPE> {
 
-    private ThreadLocal<Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>>> resultMap;
-
     private static final Logger LOG = LoggerFactory.getLogger(ParallelChunkBulkProcessingExecutionStrategy.class);
+
+    private Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>> resultMap;
 
     private final ThreadFactory threadFactory = new BatchExecutionThreadFactory(this.getClass().getSimpleName());
 
@@ -59,8 +60,9 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
 
     @Override
     protected void setupExecution(final Map<String, Collection<ITEM_TYPE>> chunks) {
-
         Preconditions.checkNotNull(chunks, "Passed null chunks collection.");
+        Preconditions.checkArgument(threadPool == null,
+            "Thread pool is already initialized. Every instance should be used only once");
 
         final int chunkSize = chunks.keySet().size();
 
@@ -70,10 +72,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
         LOG.info("Creating executor pool with {} threads for {} chunks.", new Object[] {numThreads, chunkSize});
 
         threadPool = Executors.newFixedThreadPool(numThreads, threadFactory);
-        resultMap = new ThreadLocal<Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>>>();
-
-        final Map<String, Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>>> m = Maps.newHashMap();
-        resultMap.set(Collections.synchronizedMap(m));
+        resultMap = Maps.newHashMap();
 
         processedCount = new AtomicInteger(0);
 
@@ -82,9 +81,6 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
     @Override
     protected void cleanup(final Map<String, Collection<ITEM_TYPE>> chunks) throws InterruptedException {
         LOG.info("Shutting down thread pool.");
-
-        // remove the resultMap from thread local:
-        resultMap.remove();
 
         // shutdown the thread pool
         threadPool.shutdown();
@@ -152,7 +148,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
                     }
 
                 });
-        resultMap.get().put(chunkId, f);
+        resultMap.put(chunkId, f);
     }
 
     @Override
@@ -176,11 +172,11 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
         final List<ITEM_TYPE> successes = Lists.newArrayList();
         final List<JobResponse<ITEM_TYPE>> failures = Lists.newArrayList();
 
-        final Set<String> keySet = resultMap.get().keySet();
+        final Set<String> keySet = resultMap.keySet();
 
         for (final String k : keySet) {
 
-            final Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> future = resultMap.get().get(k);
+            final Future<Pair<List<ITEM_TYPE>, List<JobResponse<ITEM_TYPE>>>> future = resultMap.get(k);
 
             int failedFutures = 0;
 
