@@ -4,7 +4,7 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.5.98</version>
+        <version>2.0</version>
     </parent>
     <groupId>de.zalando.util.web</groupId>
     <artifactId>zalando-urlmapping</artifactId>
