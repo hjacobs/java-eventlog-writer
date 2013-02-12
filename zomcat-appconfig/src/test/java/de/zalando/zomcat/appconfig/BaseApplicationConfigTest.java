@@ -53,7 +53,7 @@ public class BaseApplicationConfigTest extends BaseApplicationConfigImpl {
     public void getEnvironmentInvalidEnvironment() {
 
         // prepare
-        final String environmentConfigured = Environment.BE_STAGING.toString() + "aaa";
+        final String environmentConfigured = Environment.RELEASE_STAGING.toString() + "aaa";
 
         try {
             Environment.valueOf(environmentConfigured);
@@ -75,7 +75,7 @@ public class BaseApplicationConfigTest extends BaseApplicationConfigImpl {
     public void getEnvironmentValidEnvironment() {
 
         // prepare
-        final Environment expected = Environment.BE_STAGING;
+        final Environment expected = Environment.RELEASE_STAGING;
         final String environmentConfigured = expected.toString();
 
         expect(this.confMock.getStringConfig(BaseApplicationConfigImpl.APPLICATION_ENVIRONMENT)).andReturn(
@@ -112,7 +112,7 @@ public class BaseApplicationConfigTest extends BaseApplicationConfigImpl {
     public void isTestingInvalidEnvironment() {
 
         // prepare
-        final String environmentConfigured = Environment.BE_STAGING.toString() + "aaa";
+        final String environmentConfigured = Environment.RELEASE_STAGING.toString() + "aaa";
 
         try {
             Environment.valueOf(environmentConfigured);
@@ -204,7 +204,7 @@ public class BaseApplicationConfigTest extends BaseApplicationConfigImpl {
     public void isLocalMachineInvalidEnvironment() {
 
         // prepare
-        final String environmentConfigured = Environment.BE_STAGING.toString() + "aaa";
+        final String environmentConfigured = Environment.RELEASE_STAGING.toString() + "aaa";
 
         try {
             Environment.valueOf(environmentConfigured);
