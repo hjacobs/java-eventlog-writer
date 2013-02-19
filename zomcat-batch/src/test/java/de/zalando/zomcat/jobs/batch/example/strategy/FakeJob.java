@@ -4,9 +4,10 @@ import java.io.File;
 
 import org.quartz.JobExecutionContext;
 
+import de.zalando.zomcat.jobs.batch.transition.ItemFinalizer;
 import de.zalando.zomcat.jobs.batch.transition.WriteTime;
 
-public interface FakeJob {
+public interface FakeJob<ITEM_TYPE> {
     void setWriteTime(final WriteTime writeTime);
 
     void setSourceFileName(final String sourceFile);
@@ -19,5 +20,7 @@ public interface FakeJob {
      *
      */
     void setExecutionContext(JobExecutionContext dummyExecutionContext);
+
+    void setFinalizer(ItemFinalizer<ITEM_TYPE> finalizer);
 
 }

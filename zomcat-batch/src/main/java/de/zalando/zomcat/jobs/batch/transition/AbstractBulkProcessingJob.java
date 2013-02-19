@@ -32,6 +32,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     private BatchExecutionStrategy<ITEM_TYPE> executionStrategy;
     private ItemProcessor<ITEM_TYPE> processor;
     private ItemWriter<ITEM_TYPE> writer;
+    private ItemFinalizer<ITEM_TYPE> finalizer;
 
     private WriteTime writeTime;
 
@@ -77,6 +78,10 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
     protected abstract WriteTime getWriteTime();
 
     protected abstract BatchExecutionStrategy<ITEM_TYPE> getExecutionStrategy();
+
+    protected ItemFinalizer<ITEM_TYPE> getFinalizer() {
+        return null;
+    }
 
     /**
      * Method fetches and enriches the items. If an error occures an exception is thrown.
@@ -172,7 +177,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
 
             // From here on we should have no possibility of ItemFetcherException
             executionStrategy = getExecutionStrategy();
-            executionStrategy.bind(processor, writer, writeTime);
+            executionStrategy.bind(processor, writer, writeTime, finalizer);
 
             // executionStrategy.execute(validItems);
             executionStrategy.execute(itemsToProcess);
@@ -217,6 +222,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
         writer = getWriter();
         writeTime = getWriteTime();
         executionStrategy = getExecutionStrategy();
+        finalizer = getFinalizer();
 
         assertComponentsArePresent();
         injectContextIfRequired();

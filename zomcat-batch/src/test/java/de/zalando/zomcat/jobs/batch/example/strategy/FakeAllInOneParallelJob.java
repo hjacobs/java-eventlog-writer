@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import de.zalando.zomcat.jobs.batch.transition.AbstractBulkProcessingJob;
 import de.zalando.zomcat.jobs.batch.transition.BatchExecutionStrategy;
 import de.zalando.zomcat.jobs.batch.transition.ItemFetcher;
+import de.zalando.zomcat.jobs.batch.transition.ItemFinalizer;
 import de.zalando.zomcat.jobs.batch.transition.ItemProcessor;
 import de.zalando.zomcat.jobs.batch.transition.ItemWriter;
 import de.zalando.zomcat.jobs.batch.transition.JobResponse;
@@ -36,7 +37,7 @@ import de.zalando.zomcat.jobs.batch.transition.strategy.ParallelChunkBulkProcess
  * @author  john
  */
 public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem> implements ItemFetcher<FakeItem>,
-    ItemProcessor<FakeItem>, ItemWriter<FakeItem>, FakeJob, ExecutionContextAwareJobStep {
+    ItemProcessor<FakeItem>, ItemWriter<FakeItem>, FakeJob<FakeItem>, ExecutionContextAwareJobStep {
 
     private static final Logger LOG = LoggerFactory.getLogger(FakeAllInOneParallelJob.class);
 
@@ -62,6 +63,12 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
     protected ItemWriter<FakeItem> getWriter() {
 
         return this;
+    }
+
+    @Override
+    protected ItemFinalizer<FakeItem> getFinalizer() {
+
+        return finalizer;
     }
 
     @Override
@@ -96,7 +103,7 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
     @Override
     public List<FakeItem> fetchItems(final int limit) throws Exception {
 
-        Preconditions.checkNotNull("For testing source file must be set!", sourceFileName);
+        Preconditions.checkNotNull(sourceFileName, "For testing source file must be set!");
 
         Preconditions.checkNotNull(getJobDataMap());
 
@@ -183,7 +190,7 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
     private String sourceFileName;
     private File logFile;
     private int chunkSize;
-    private final int count = 0;
+    private ItemFinalizer<FakeItem> finalizer;
 
     @Override
     public void setWriteTime(final WriteTime writeTime) {
@@ -208,6 +215,12 @@ public class FakeAllInOneParallelJob extends AbstractBulkProcessingJob<FakeItem>
     @Override
     public void setExecutionContext(final JobExecutionContext dummyExecutionContext) {
         this.executionContext = dummyExecutionContext;
+    }
+
+    @Override
+    public void setFinalizer(final ItemFinalizer<FakeItem> finalizer) {
+        this.finalizer = finalizer;
+
     }
 
     /**

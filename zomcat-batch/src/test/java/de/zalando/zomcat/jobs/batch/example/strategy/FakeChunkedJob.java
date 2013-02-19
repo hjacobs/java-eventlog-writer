@@ -23,6 +23,7 @@ import de.zalando.utils.Pair;
 import de.zalando.zomcat.jobs.batch.transition.AbstractBulkProcessingJob;
 import de.zalando.zomcat.jobs.batch.transition.BatchExecutionStrategy;
 import de.zalando.zomcat.jobs.batch.transition.ItemFetcher;
+import de.zalando.zomcat.jobs.batch.transition.ItemFinalizer;
 import de.zalando.zomcat.jobs.batch.transition.ItemProcessor;
 import de.zalando.zomcat.jobs.batch.transition.ItemWriter;
 import de.zalando.zomcat.jobs.batch.transition.JobResponse;
@@ -35,7 +36,7 @@ import de.zalando.zomcat.jobs.batch.transition.strategy.SingleThreadedChunkedBat
  * @author  john
  */
 public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implements ItemFetcher<FakeItem>,
-    ItemProcessor<FakeItem>, ItemWriter<FakeItem>, FakeJob {
+    ItemProcessor<FakeItem>, ItemWriter<FakeItem>, FakeJob<FakeItem> {
 
     private static final Logger LOG = LoggerFactory.getLogger(FakeChunkedJob.class);
 
@@ -61,6 +62,12 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     protected ItemWriter<FakeItem> getWriter() {
 
         return this;
+    }
+
+    @Override
+    protected ItemFinalizer<FakeItem> getFinalizer() {
+
+        return finalizer;
     }
 
     @Override
@@ -192,6 +199,7 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     private File logFile;
     private int chunkSize;
     private int count = 0;
+    private ItemFinalizer<FakeItem> finalizer;
 
     @Override
     public void setWriteTime(final WriteTime writeTime) {
@@ -216,6 +224,11 @@ public class FakeChunkedJob extends AbstractBulkProcessingJob<FakeItem> implemen
     @Override
     public void setExecutionContext(final JobExecutionContext dummyExecutionContext) {
         this.executionContext = dummyExecutionContext;
+    }
+
+    @Override
+    public void setFinalizer(final ItemFinalizer<FakeItem> finalizer) {
+        this.finalizer = finalizer;
     }
 
 }

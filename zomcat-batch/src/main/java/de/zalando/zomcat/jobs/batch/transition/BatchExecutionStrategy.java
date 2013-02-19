@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,17 +27,17 @@ public abstract class BatchExecutionStrategy<Item> {
 
     private final Logger LOG = LoggerFactory.getLogger(BatchExecutionStrategy.class);
 
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
     protected ItemProcessor<Item> processor;
     protected WriteTime writeTime;
     protected ItemWriter<Item> writer;
+    protected ItemFinalizer<Item> finalizer;
 
-    public void bind(final ItemProcessor<Item> processor, final ItemWriter<Item> writer, final WriteTime writeTime) {
+    public void bind(final ItemProcessor<Item> processor, final ItemWriter<Item> writer, final WriteTime writeTime,
+            final ItemFinalizer<Item> finalizer) {
         this.processor = processor;
         this.writer = writer;
         this.writeTime = writeTime;
-
+        this.finalizer = finalizer;
     }
 
     /**
@@ -98,15 +96,19 @@ public abstract class BatchExecutionStrategy<Item> {
                 executeChunk(k, chunks.get(k));
             }
 
-            if (writeTime == WriteTime.AT_END_OF_BATCH) {
+            if (holdResults()) {
 
                 final Pair<List<Item>, List<JobResponse<Item>>> r = joinResults();
 
-                final Collection<Item> successfulItems = r.getFirst();
-                final Collection<JobResponse<Item>> failedItems = r.getSecond();
+                if (writeTime == WriteTime.AT_END_OF_BATCH) {
+                    write(r.getFirst(), r.getSecond());
+                }
 
-                write(successfulItems, failedItems);
+                if (this.finalizer != null) {
+                    this.finalizer.finalizeItems(r.getFirst(), r.getSecond());
+                }
             }
+
         } finally {
             cleanup(chunks);
         }
@@ -116,6 +118,10 @@ public abstract class BatchExecutionStrategy<Item> {
 
         processChunk(chunkId, items);
 
+    }
+
+    protected boolean holdResults() {
+        return writeTime == WriteTime.AT_END_OF_BATCH || finalizer != null;
     }
 
     /**

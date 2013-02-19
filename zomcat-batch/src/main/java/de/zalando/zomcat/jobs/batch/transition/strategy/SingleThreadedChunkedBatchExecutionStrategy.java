@@ -27,15 +27,17 @@ public abstract class SingleThreadedChunkedBatchExecutionStrategy<ITEM_TYPE> ext
 
     private int processedCount = 0;
 
-    protected final List<ITEM_TYPE> successfulItems = Lists.newArrayList();
-    protected final List<JobResponse<ITEM_TYPE>> failedItems = Lists.newArrayList();
+    protected final List<ITEM_TYPE> successfulItems = Lists.newLinkedList();
+    protected final List<JobResponse<ITEM_TYPE>> failedItems = Lists.newLinkedList();
 
     @Override
     public void processChunk(final String chunkId, final Collection<ITEM_TYPE> items) throws Exception {
 
         LOG.trace("Starting execution of chunk {}.", chunkId);
 
-        final int total = items.size();
+        List<ITEM_TYPE> successfulChunkItems = Lists.newLinkedList();
+        List<JobResponse<ITEM_TYPE>> failedChunkItems = Lists.newLinkedList();
+
         int i = 0;
         for (final ITEM_TYPE item : items) {
 
@@ -46,26 +48,35 @@ public abstract class SingleThreadedChunkedBatchExecutionStrategy<ITEM_TYPE> ext
                 processor.validate(item);
                 processor.process(item);
 
-                successfulItems.add(item);
+                successfulChunkItems.add(item);
+
+                if (holdResults()) {
+                    successfulItems.add(item);
+                }
 
             } catch (final Throwable t) {
                 final JobResponse<ITEM_TYPE> response = new JobResponse<ITEM_TYPE>(item);
                 response.addErrorMessage(Throwables.getStackTraceAsString(t));
 
-                failedItems.add(response);
+                failedChunkItems.add(response);
+
+                if (holdResults()) {
+                    failedItems.add(response);
+                }
             }
 
             if (writeTime == WriteTime.AT_EACH_ITEM) {
-                write(successfulItems, failedItems);
-                successfulItems.clear();
-                failedItems.clear();
+                write(successfulChunkItems, failedChunkItems);
+                successfulChunkItems.clear();
+                failedChunkItems.clear();
             }
+
         }
 
         if (writeTime == WriteTime.AT_EACH_CHUNK) {
-            write(successfulItems, failedItems);
-            successfulItems.clear();
-            failedItems.clear();
+            write(successfulChunkItems, failedChunkItems);
+            successfulChunkItems.clear();
+            failedChunkItems.clear();
         }
 
     }

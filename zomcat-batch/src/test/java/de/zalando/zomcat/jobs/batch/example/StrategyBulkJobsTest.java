@@ -37,12 +37,11 @@ import org.springframework.context.ApplicationContext;
 
 import com.google.common.collect.Sets;
 
-import de.zalando.zomcat.jobs.Job;
 import de.zalando.zomcat.jobs.JobConfig;
-import de.zalando.zomcat.jobs.JobConfigSource;
 import de.zalando.zomcat.jobs.JobsStatusBean;
 import de.zalando.zomcat.jobs.batch.example.strategy.FakeAllInOneParallelJob;
 import de.zalando.zomcat.jobs.batch.example.strategy.FakeChunkedJob;
+import de.zalando.zomcat.jobs.batch.example.strategy.FakeFinalizer;
 import de.zalando.zomcat.jobs.batch.example.strategy.FakeItem;
 import de.zalando.zomcat.jobs.batch.example.strategy.FakeJob;
 import de.zalando.zomcat.jobs.batch.example.strategy.FakeLinearJob;
@@ -198,6 +197,9 @@ public class StrategyBulkJobsTest {
     @DataPoints
     public static int[] chunkSizes = {10, 100, 1000};
 
+    @DataPoints
+    public static boolean[] enableFinalizer = {true, false};
+
     @BeforeClass
     public static void setup() throws IOException {
 
@@ -206,13 +208,13 @@ public class StrategyBulkJobsTest {
     }
 
     @Theory
-    public void shouldRespectInvariants(final Class<?> jobClass, final WriteTime writeTime, final int chunkSize)
-        throws IOException, InstantiationException, IllegalAccessException {
+    public void shouldRespectInvariants(final Class<?> jobClass, final WriteTime writeTime, final int chunkSize,
+            final boolean enableFinalizer) throws IOException, InstantiationException, IllegalAccessException {
 
         ExpectationSet expectations = setupExpectations(jobClass, writeTime, chunkSize);
 
         AbstractBulkProcessingJob<FakeItem> job = (AbstractBulkProcessingJob<FakeItem>) jobClass.newInstance();
-        FakeJob j = (FakeJob) job;
+        FakeJob<FakeItem> j = (FakeJob<FakeItem>) job;
 
         j.setSourceFileName(sampleFileName);
         j.setWriteTime(writeTime);
@@ -222,18 +224,13 @@ public class StrategyBulkJobsTest {
         j.setLogFile(resultFile);
         j.setChunkSize(chunkSize);
 
-        final JobConfig config = new JobConfig(Sets.newHashSet(APP_INSTANCE_KEY), LIMIT, LIMIT, true, null);
-        JobConfigSource applicationConfig = new JobConfigSource() {
-            @Override
-            public String getAppInstanceKey() {
-                return APP_INSTANCE_KEY;
-            }
+        FakeFinalizer finalizer = null;
+        if (enableFinalizer) {
+            finalizer = new FakeFinalizer();
+            j.setFinalizer(finalizer);
+        }
 
-            @Override
-            public JobConfig getJobConfig(final Job job) {
-                return config;
-            }
-        };
+        final JobConfig config = new JobConfig(Sets.newHashSet(APP_INSTANCE_KEY), LIMIT, LIMIT, true, null);
 
         final ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
         final JobsStatusBean jobsStatusBean = new JobsStatusBean();
@@ -249,29 +246,42 @@ public class StrategyBulkJobsTest {
         j.setExecutionContext(dummyExecutionContext);
         job.doRun(dummyExecutionContext, config);
 
-        checkExpectations(expectations);
+        checkExpectations(expectations, finalizer);
 
     }
 
-    private void checkExpectations(final ExpectationSet expectations) throws IOException {
+    private void checkExpectations(final ExpectationSet expectations, final FakeFinalizer finalizer)
+        throws IOException {
 
-        FileReader fileReader = new FileReader(resultFile);
-        BufferedReader br = new BufferedReader(fileReader);
         String line = null;
         int qtyLines = 0;
         int sumSuccess = 0;
         int sumFailure = 0;
-        while ((line = br.readLine()) != null) {
+        BufferedReader br = new BufferedReader(new FileReader(resultFile));
 
-            // there will be one line per chunk
-            qtyLines++;
+        try {
+            while ((line = br.readLine()) != null) {
 
-            String[] parts = line.split(" ");
-            int success = Integer.parseInt(parts[0]);
-            int failed = Integer.parseInt(parts[1]);
+                // there will be one line per chunk
+                qtyLines++;
 
-            sumSuccess += success;
-            sumFailure += failed;
+                String[] parts = line.split(" ");
+                int success = Integer.parseInt(parts[0]);
+                int failed = Integer.parseInt(parts[1]);
+
+                sumSuccess += success;
+                sumFailure += failed;
+            }
+        } finally {
+            br.close();
+        }
+
+        if (finalizer != null) {
+            Assert.assertTrue("finalizer not executed",
+                finalizer.getSuccessfulItems() != null && finalizer.getFailedItems() != null);
+
+            Assert.assertEquals("wrong success sum", expectations.sumSuccess, finalizer.getSuccessfulItems().size());
+            Assert.assertEquals("wrong fail sum", expectations.sumFail, finalizer.getFailedItems().size());
         }
 
         Assert.assertEquals("wrong total commited items", expectations.qtyCommited, qtyLines);
