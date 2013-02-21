@@ -199,6 +199,42 @@ public class SimpleIT {
     }
 
     @Test
+    public void testGlobalTransformer9() throws SQLException {
+        final DateTime dateTime = new DateTime(2013, 2, 20, 18, 20, 0, 0);
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
+    }
+
+    @Test
+    public void testGlobalTransformer10() throws SQLException {
+        final DateTime dateTime = new DateTime(2013, 2, 20, 18, 20, 0, 10);
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
+    }
+
+    @Test
+    public void testGlobalTransformer11() throws SQLException {
+        final DateTime dateTime = new DateTime(2013, 2, 20, 18, 20, 0, 100);
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
+    }
+
+    @Test
+    public void testGlobalTransformer12() throws SQLException {
+        final DateTime dateTime = new DateTime(2013, 2, 20, 18, 20, 0, 111);
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
+    }
+
+    @Test
     public void testSimpleListParam() throws SQLException {
 
         final List<String> skus = new ArrayList<String>();
