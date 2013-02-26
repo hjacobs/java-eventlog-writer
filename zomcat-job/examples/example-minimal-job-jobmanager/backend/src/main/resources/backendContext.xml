@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+    xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
+       http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
+       ">
+
+    <!-- Application config-->
+    <bean id="applicationConfig" class="de.zalando.mentoring.example.configuration.impl.ApplicationConfigImpl">
+        <property name="config" ref="compositeConfiguration"/>
+    </bean>
+
+    <import resource="classpath:cxf.xml"/>
+    <!-- we need an appconfig Configuration instance for WS authorization -->
+
+    <import resource="classpath:META-INF/appconfig/no-db.xml"/>
+
+
+    <context:component-scan base-package="de.zalando.mentoring, de.zalando.zomcat"/>
+    <context:annotation-config />
+
+    <!-- This is the JobManager based Jobs Framework inclusion-->
+    <import resource="classpath:META-INF/zomcat/jobs-single-quartz-scheduler-manager.xml"/>
+    <!-- scheduler.conf
+    <import resource="classpath:META-INF/zomcat/jobs-classpath-configuration-provider.xml"/> -->
+    <!-- Job Scheduling Configuration Provider for Job Manager - using Job Scheduling Database Resources located in zz_commons-->
+    <import resource="classpath:META-INF/zomcat/jobs-database-configuration-provider.xml"/>
+
+
+
+
+
+
+
+
+    <bean id="dataSourceFrontendSProcProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">
+        <property name="dataSource">
+            <ref local="dataSourceFrontendSProc"/>
+        </property>
+    </bean>
+    <bean id="dataSourceFrontendSProc" class="com.jolbox.bonecp.spring.DynamicDataSourceProxy">
+        <property name="targetDataSource">
+            <ref local="dataSourceFrontendSProc_first"/>
+        </property>
+    </bean>
+    <bean id="dataSourceFrontendSProc_configBean" class="de.zalando.dbutils.pool.ConnectionPoolMBean">
+        <property name="proxy">
+            <ref local="dataSourceFrontendSProc"/>
+        </property>
+    </bean>
+    <bean id="dataSourceFrontendSProc_first" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="${partner.sproc.datasource.driverClassName}"/>
+        <property name="jdbcUrl" value="${partner.sproc.datasource.url}"/>
+        <property name="username" value="${partner.sproc.datasource.username}"/>
+        <property name="password" value="${partner.sproc.datasource.password}"/>
+        <property name="idleConnectionTestPeriodInMinutes" value="${partner.sproc.datasource.idleConnectionTestPeriodInMinutes}"/>
+        <property name="idleMaxAgeInMinutes" value="${partner.sproc.datasource.idleMaxAgeInMinutes}"/>
+        <property name="maxConnectionsPerPartition" value="${partner.sproc.datasource.maxConnectionsPerPartition}"/>
+        <property name="minConnectionsPerPartition" value="${partner.sproc.datasource.minConnectionsPerPartition}"/>
+        <property name="poolAvailabilityThreshold" value="${partner.sproc.datasource.poolAvailabilityThreshold}"/>
+        <property name="partitionCount" value="${partner.sproc.datasource.partitionCount}"/>
+        <property name="acquireIncrement" value="${partner.sproc.datasource.acquireIncrement}"/>
+        <property name="releaseHelperThreads" value="${partner.sproc.datasource.releaseHelperThreads}"/>
+        <property name="statisticsEnabled" value="${partner.sproc.datasource.statisticsEnabled}"/>
+        <property name="acquireRetryAttempts" value="${partner.sproc.datasource.acquireRetryAttempts}"/>
+        <property name="acquireRetryDelayInMs" value="${partner.sproc.datasource.acquireRetryDelayInMs}"/>
+        <property name="disableJMX" value="${partner.sproc.datasource.disableJMX}"/>
+        <property name="connectionTimeoutInMs" value="${partner.sproc.datasource.connectionTimeoutInMs}"/>
+        <property name="disableConnectionTracking" value="${partner.sproc.datasource.disableConnectionTracking}"/>
+        <property name="initSQL" value="SET search_path to zpa_api${zpa_api_version}, public;"/>    </bean>
+
+
+
+
+
+
+    <!-- Wicket WebApplication setup -->
+    <bean id="wicketApplication" class="de.zalando.zomcat.jobs.WicketApplication"/>
+    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="systemPropertiesMode" value="2"/>
+        <property name="locations">
+            <list>
+                <value>classpath:db_api_version.properties</value>
+                <value>classpath:application.properties</value>
+                <value>classpath:scheduler.properties</value>
+            </list>
+        </property>
+    </bean>
+
+
+
+
+
+    <!-- Create alias for SProcs in zalando-commons -->
+    <alias name="dataSourceFrontendSProcProviderc" alias="dataSourceBM"/>
+    <alias name="dataSourceFrontendSProcProvider" alias="appConfigDataSource"/>
+    <alias name="dataSourceFrontendSProcProvider" alias="appDomainDataSourceProvider"/>
+    <!-- JobManager requires this qualifier for the datasourceprovider -->
+    <alias name="dataSourceFrontendSProcProvider" alias="resourceLockDataSourceProvider"/>
+    <alias name="dataSourceFrontendSProcProvider" alias="jobManagerDatasourceProvider"/>
+
+
+
+</beans>
