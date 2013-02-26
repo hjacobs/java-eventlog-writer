@@ -177,8 +177,6 @@
                                     <url>jdbc:postgresql://${test.db.host}:${test.db.port}/postgres</url>
                                     <sqlCommand>
                                         CREATE DATABASE local_partner_db TEMPLATE template1;
-                                        CREATE DATABASE local_partner02_db TEMPLATE template1;
-                                        CREATE DATABASE local_partnerlog_db TEMPLATE template1;
                                     </sqlCommand>
                                     <onError>continue</onError>
                                 </configuration>
