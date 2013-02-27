@@ -10,18 +10,12 @@
        http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
        ">
 
+
     <!-- Application config-->
-    <bean id="applicationConfig" class="de.zalando.mentoring.example.configuration.impl.ApplicationConfigImpl">
-        <property name="config" ref="compositeConfiguration"/>
-    </bean>
-
-    <import resource="classpath:cxf.xml"/>
-    <!-- we need an appconfig Configuration instance for WS authorization -->
-
     <import resource="classpath:META-INF/appconfig/no-db.xml"/>
 
 
-    <context:component-scan base-package="de.zalando.mentoring, de.zalando.zomcat"/>
+    <context:component-scan base-package="de.zalando, de.zalando.mentoring, de.zalando.zomcat"/>
     <context:annotation-config />
 
     <!-- This is the JobManager based Jobs Framework inclusion-->
@@ -30,12 +24,6 @@
     <import resource="classpath:META-INF/zomcat/jobs-classpath-configuration-provider.xml"/> -->
     <!-- Job Scheduling Configuration Provider for Job Manager - using Job Scheduling Database Resources located in zz_commons-->
     <import resource="classpath:META-INF/zomcat/jobs-database-configuration-provider.xml"/>
-
-
-
-
-
-
 
 
     <bean id="dataSourceFrontendSProcProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">
@@ -78,7 +66,7 @@
 
 
 
-
+    <import resource="classpath:cxf.xml"/>
     <!-- Wicket WebApplication setup -->
     <bean id="wicketApplication" class="de.zalando.zomcat.jobs.WicketApplication"/>
     <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -96,14 +84,8 @@
 
 
 
-    <!-- Create alias for SProcs in zalando-commons -->
-    <alias name="dataSourceFrontendSProcProviderc" alias="dataSourceBM"/>
-    <alias name="dataSourceFrontendSProcProvider" alias="appConfigDataSource"/>
-    <alias name="dataSourceFrontendSProcProvider" alias="appDomainDataSourceProvider"/>
     <!-- JobManager requires this qualifier for the datasourceprovider -->
     <alias name="dataSourceFrontendSProcProvider" alias="resourceLockDataSourceProvider"/>
     <alias name="dataSourceFrontendSProcProvider" alias="jobManagerDatasourceProvider"/>
-
-
 
 </beans>
