@@ -5,7 +5,7 @@ This is a very simple example for https://devwiki.zalando.de/Jobs_Framework
 It shows a backend job service doing a simple "echo".
 
 * build everything by calling "mvn install -Pintegration-test"
-* go in "backend" and start it whit "mvn tomcat:run-war"
+* go into "backend" and start it whit "mvn tomcat:run-war"
 Every minute a "Hello world" message should appear.
 NOTE: System.out is forbidden in web projects, here it's used only for demonstration purposes.
 

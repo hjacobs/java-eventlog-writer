@@ -20,50 +20,47 @@
 
     <!-- This is the JobManager based Jobs Framework inclusion-->
     <import resource="classpath:META-INF/zomcat/jobs-single-quartz-scheduler-manager.xml"/>
-    <!-- scheduler.conf
+    <!-- scheduler.conf If used, remove db configuration provider
     <import resource="classpath:META-INF/zomcat/jobs-classpath-configuration-provider.xml"/> -->
     <!-- Job Scheduling Configuration Provider for Job Manager - using Job Scheduling Database Resources located in zz_commons-->
     <import resource="classpath:META-INF/zomcat/jobs-database-configuration-provider.xml"/>
 
 
-    <bean id="dataSourceFrontendSProcProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">
+    <bean id="dataSourceExampleSProcProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">
         <property name="dataSource">
-            <ref local="dataSourceFrontendSProc"/>
+            <ref local="dataSourceExampleSProc"/>
         </property>
     </bean>
-    <bean id="dataSourceFrontendSProc" class="com.jolbox.bonecp.spring.DynamicDataSourceProxy">
+    <bean id="dataSourceExampleSProc" class="com.jolbox.bonecp.spring.DynamicDataSourceProxy">
         <property name="targetDataSource">
-            <ref local="dataSourceFrontendSProc_first"/>
+            <ref local="dataSourceExampleSProc_first"/>
         </property>
     </bean>
-    <bean id="dataSourceFrontendSProc_configBean" class="de.zalando.dbutils.pool.ConnectionPoolMBean">
+    <bean id="dataSourceExampleSProc_configBean" class="de.zalando.dbutils.pool.ConnectionPoolMBean">
         <property name="proxy">
-            <ref local="dataSourceFrontendSProc"/>
+            <ref local="dataSourceExampleSProc"/>
         </property>
     </bean>
-    <bean id="dataSourceFrontendSProc_first" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
-        <property name="driverClass" value="${partner.sproc.datasource.driverClassName}"/>
-        <property name="jdbcUrl" value="${partner.sproc.datasource.url}"/>
-        <property name="username" value="${partner.sproc.datasource.username}"/>
-        <property name="password" value="${partner.sproc.datasource.password}"/>
-        <property name="idleConnectionTestPeriodInMinutes" value="${partner.sproc.datasource.idleConnectionTestPeriodInMinutes}"/>
-        <property name="idleMaxAgeInMinutes" value="${partner.sproc.datasource.idleMaxAgeInMinutes}"/>
-        <property name="maxConnectionsPerPartition" value="${partner.sproc.datasource.maxConnectionsPerPartition}"/>
-        <property name="minConnectionsPerPartition" value="${partner.sproc.datasource.minConnectionsPerPartition}"/>
-        <property name="poolAvailabilityThreshold" value="${partner.sproc.datasource.poolAvailabilityThreshold}"/>
-        <property name="partitionCount" value="${partner.sproc.datasource.partitionCount}"/>
-        <property name="acquireIncrement" value="${partner.sproc.datasource.acquireIncrement}"/>
-        <property name="releaseHelperThreads" value="${partner.sproc.datasource.releaseHelperThreads}"/>
-        <property name="statisticsEnabled" value="${partner.sproc.datasource.statisticsEnabled}"/>
-        <property name="acquireRetryAttempts" value="${partner.sproc.datasource.acquireRetryAttempts}"/>
-        <property name="acquireRetryDelayInMs" value="${partner.sproc.datasource.acquireRetryDelayInMs}"/>
-        <property name="disableJMX" value="${partner.sproc.datasource.disableJMX}"/>
-        <property name="connectionTimeoutInMs" value="${partner.sproc.datasource.connectionTimeoutInMs}"/>
-        <property name="disableConnectionTracking" value="${partner.sproc.datasource.disableConnectionTracking}"/>
-        <property name="initSQL" value="SET search_path to zpa_api${zpa_api_version}, public;"/>    </bean>
-
-
-
+    <bean id="dataSourceExampleSProc_first" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="${example.sproc.datasource.driverClassName}"/>
+        <property name="jdbcUrl" value="${example.sproc.datasource.url}"/>
+        <property name="username" value="${example.sproc.datasource.username}"/>
+        <property name="password" value="${example.sproc.datasource.password}"/>
+        <property name="idleConnectionTestPeriodInMinutes" value="${example.sproc.datasource.idleConnectionTestPeriodInMinutes}"/>
+        <property name="idleMaxAgeInMinutes" value="${example.sproc.datasource.idleMaxAgeInMinutes}"/>
+        <property name="maxConnectionsPerPartition" value="${example.sproc.datasource.maxConnectionsPerPartition}"/>
+        <property name="minConnectionsPerPartition" value="${example.sproc.datasource.minConnectionsPerPartition}"/>
+        <property name="poolAvailabilityThreshold" value="${example.sproc.datasource.poolAvailabilityThreshold}"/>
+        <property name="partitionCount" value="${example.sproc.datasource.partitionCount}"/>
+        <property name="acquireIncrement" value="${example.sproc.datasource.acquireIncrement}"/>
+        <property name="releaseHelperThreads" value="${example.sproc.datasource.releaseHelperThreads}"/>
+        <property name="statisticsEnabled" value="${example.sproc.datasource.statisticsEnabled}"/>
+        <property name="acquireRetryAttempts" value="${example.sproc.datasource.acquireRetryAttempts}"/>
+        <property name="acquireRetryDelayInMs" value="${example.sproc.datasource.acquireRetryDelayInMs}"/>
+        <property name="disableJMX" value="${example.sproc.datasource.disableJMX}"/>
+        <property name="connectionTimeoutInMs" value="${example.sproc.datasource.connectionTimeoutInMs}"/>
+        <property name="disableConnectionTracking" value="${example.sproc.datasource.disableConnectionTracking}"/>
+    </bean>
 
 
     <import resource="classpath:cxf.xml"/>
@@ -85,7 +82,7 @@
 
 
     <!-- JobManager requires this qualifier for the datasourceprovider -->
-    <alias name="dataSourceFrontendSProcProvider" alias="resourceLockDataSourceProvider"/>
-    <alias name="dataSourceFrontendSProcProvider" alias="jobManagerDatasourceProvider"/>
+    <alias name="dataSourceExampleSProcProvider" alias="resourceLockDataSourceProvider"/>
+    <alias name="dataSourceExampleSProcProvider" alias="jobManagerDatasourceProvider"/>
 
 </beans>

@@ -98,6 +98,10 @@
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
         </dependencies>
     <profiles>
         <profile>
@@ -110,7 +114,7 @@
         <profile>
             <id>integration-test</id>
             <properties>
-                <test.db.name>local_partner_db</test.db.name>
+                <test.db.name>local_example_db</test.db.name>
                 <unit.test.skip>true</unit.test.skip>
                 <test.src.dir>src/test/java</test.src.dir>
             </properties>
@@ -130,7 +134,7 @@
                             <systemPropertyVariables>
                                 <frontend.sproc.datasource.username>zalando_api</frontend.sproc.datasource.username>
                                 <frontend.sproc.datasource.password>zalando_api</frontend.sproc.datasource.password>
-                                <frontend.sproc.datasource.url>jdbc:postgresql://${test.db.host}:5432/${test.db.name}</frontend.sproc.datasource.url>
+                                <frontend.sproc.datasource.url>jdbc:postgresql://${test.db.host}:5433/${test.db.name}</frontend.sproc.datasource.url>
                             </systemPropertyVariables>
                         </configuration>
                         <executions>
@@ -161,7 +165,7 @@
                         </dependencies>
                         <configuration>
                             <driver>org.postgresql.Driver</driver>
-                            <url>jdbc:postgresql://${test.db.host}:5432/${test.db.name}</url>
+                            <url>jdbc:postgresql://${test.db.host}:5433/${test.db.name}</url>
                             <settingsKey>testdb</settingsKey>
                             <skip>${maven.test.skip}</skip>
                         </configuration>
@@ -174,9 +178,9 @@
                                 </goals>
                                 <configuration>
                                     <autocommit>true</autocommit>
-                                    <url>jdbc:postgresql://${test.db.host}:${test.db.port}/postgres</url>
+                                    <url>jdbc:postgresql://${test.db.host}:5433/postgres</url>
                                     <sqlCommand>
-                                        CREATE DATABASE local_partner_db TEMPLATE template1;
+                                        CREATE DATABASE local_example_db TEMPLATE template1;
                                     </sqlCommand>
                                     <onError>continue</onError>
                                 </configuration>
