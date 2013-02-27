@@ -6,7 +6,7 @@ It shows a backend job service doing a simple "echo".
 
 * build everything by calling "mvn install -Pintegration-test"
 * go into "backend" and start it whit "mvn tomcat:run-war"
-Every minute a "Hello world" message should appear.
+Every 2 minutes a "Hello world" message should appear.
 NOTE: System.out is forbidden in web projects, here it's used only for demonstration purposes.
 
 
