@@ -9,7 +9,7 @@
     <groupId>de.zalando.mentoring.example</groupId>
     <artifactId>example-minimal-job-framework-backend</artifactId>
     <packaging>war</packaging>
-    <name>Example Webservice Backend</name>
+    <name>Example Job Framework Backend</name>
     <version>0.1-SNAPSHOT</version>
     <description>Some example server.</description>
     <organization>

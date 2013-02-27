@@ -4,7 +4,7 @@
     <groupId>de.zalando.mentoring.example</groupId>
     <artifactId>example-minimal-job-framework</artifactId>
     <packaging>pom</packaging>
-    <name>Example Super POM</name>
+    <name>Example Job Framework</name>
     <version>0.1-SNAPSHOT</version>
     <description>Example minimal job-framework project</description>
     <organization>
