@@ -4,8 +4,8 @@ Example Job-Framework Project
 This is a very simple example for https://devwiki.zalando.de/Jobs_Framework
 It shows a backend job service doing a simple "echo".
 
-* build everything by calling "mvn install"
-* go into "backend" and start it whit "mvn tomcat:run-war"
+* build everything by calling "mvn clean install"
+* go into "backend" and start it whit "mvn clean tomcat:run-war"
 Every 15 seconds a "Hello world" message should appear.
 NOTE: System.out is forbidden in web projects, here it's used only for demonstration purposes.
 
@@ -18,4 +18,5 @@ Building everything by yourself from an empty project:
 * Define your SProc provider and include your applicationConfig in your application context
 * The resource 'scheduler.conf' will contain the job scheduling configuration
 
-
+TODO: add documentation about job monitor
+http://localhost:8080/example-minimal-job-default-scheduler-backend/jobs.monitor2

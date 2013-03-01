@@ -1,21 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_ID" version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
-    <description>Example</description>
-    <display-name>Example</display-name>
-    <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>WEB-INF/spring-context.xml</param-value>
-    </context-param>
-    <servlet>
-        <servlet-name>CXFServlet</servlet-name>
-        <servlet-class>de.zalando.zomcat.cxf.CXFServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CXFServlet</servlet-name>
-        <url-pattern>/ws/*</url-pattern>
-    </servlet-mapping>
+<web-app id="WebApp_ID" version="2.5"
+   xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+   <description>Example</description>
+   <display-name>Example</display-name>
+   <listener>
+      <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+   </listener>
+   <context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>WEB-INF/spring-context.xml</param-value>
+   </context-param>
+
+   <!-- JobsMonitor - servlet for monitoring the jobs -->
+   <servlet>
+      <servlet-name>JobsMonitor</servlet-name>
+      <servlet-class>de.zalando.zomcat.servlet.JobsMonitorServlet</servlet-class>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
+   <servlet-mapping>
+      <servlet-name>JobsMonitor</servlet-name>
+      <url-pattern>/jobs.monitor2</url-pattern>
+   </servlet-mapping>
+
+   <servlet>
+      <servlet-name>ToggleJobModeServlet</servlet-name>
+      <servlet-class>de.zalando.zomcat.servlet.ToggleJobModeServlet</servlet-class>
+      <load-on-startup>2</load-on-startup>
+   </servlet>
+   <servlet-mapping>
+      <servlet-name>ToggleJobModeServlet</servlet-name>
+      <url-pattern>/toggleJobMode</url-pattern>
+   </servlet-mapping>
+
 </web-app>
