@@ -6,7 +6,7 @@
     <packaging>pom</packaging>
     <name>Example Job Framework</name>
     <version>0.1-SNAPSHOT</version>
-    <description>Example minimal job-framework project</description>
+    <description>Example minimal job-framework default scheduler project</description>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
