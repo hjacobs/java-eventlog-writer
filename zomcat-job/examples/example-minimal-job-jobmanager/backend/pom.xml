@@ -7,11 +7,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando.mentoring.example</groupId>
-    <artifactId>example-minimal-job-framework-backend</artifactId>
+    <artifactId>example-minimal-job-jobmanager-backend</artifactId>
     <packaging>war</packaging>
-    <name>Example Job Framework Backend</name>
+    <name>Example Job Manager Backend</name>
     <version>0.1-SNAPSHOT</version>
-    <description>Some example server.</description>
+    <description>Example minimal job manager project</description>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -67,28 +67,15 @@
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>zomcat-ws</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.zalando</groupId>
-               <artifactId>zomcat-appconfig</artifactId>
-            <version>1.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>de.zalando</groupId>
-            <artifactId>zomcat</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.zalando</groupId>
             <artifactId>zomcat-job</artifactId>
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>zomcat-job-monitor-backend</artifactId>
+               <artifactId>zomcat-appconfig</artifactId>
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>appconfig</artifactId>
+            <artifactId>zomcat-job-monitor-backend</artifactId>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>

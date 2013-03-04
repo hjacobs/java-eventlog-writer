@@ -2,18 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
     xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
-       http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
-       http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
        ">
-
-
-    <!-- Application config-->
-    <import resource="classpath:META-INF/appconfig/no-db.xml"/>
-
 
     <context:component-scan base-package="de.zalando, de.zalando.mentoring, de.zalando.zomcat"/>
     <context:annotation-config />
@@ -24,7 +16,6 @@
     <import resource="classpath:META-INF/zomcat/jobs-classpath-configuration-provider.xml"/> -->
     <!-- Job Scheduling Configuration Provider for Job Manager - using Job Scheduling Database Resources located in zz_commons-->
     <import resource="classpath:META-INF/zomcat/jobs-database-configuration-provider.xml"/>
-
 
     <bean id="dataSourceExampleSProcProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">
         <property name="dataSource">
@@ -62,10 +53,6 @@
         <property name="disableConnectionTracking" value="${example.sproc.datasource.disableConnectionTracking}"/>
     </bean>
 
-
-    <import resource="classpath:cxf.xml"/>
-    <!-- Wicket WebApplication setup -->
-    <bean id="wicketApplication" class="de.zalando.zomcat.jobs.WicketApplication"/>
     <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="systemPropertiesMode" value="2"/>
         <property name="locations">
@@ -76,10 +63,6 @@
             </list>
         </property>
     </bean>
-
-
-
-
 
     <!-- JobManager requires this qualifier for the datasourceprovider -->
     <alias name="dataSourceExampleSProcProvider" alias="resourceLockDataSourceProvider"/>
