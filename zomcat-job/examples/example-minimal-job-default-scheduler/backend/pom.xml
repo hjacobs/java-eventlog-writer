@@ -16,10 +16,6 @@
         <name>Zalando/Technology/Platform</name>
     </organization>
     <dependencies>
-         <dependency>
-            <groupId>de.zalando</groupId>
-            <artifactId>zomcat-job</artifactId>
-         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat-appconfig</artifactId>

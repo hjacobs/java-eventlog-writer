@@ -20,19 +20,4 @@
         <property name="config" ref="compositeConfiguration"/>
     </bean>
 
-    <!-- JobManager requires this qualifier for the datasourceprovider -->
-    <alias name="dataSourceFrontendSProcProvider" alias="resourceLockDataSourceProvider"/>
-
-    <bean id="dataSourceFrontendSProcProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">
-        <property name="dataSource">
-            <ref local="dataSourceFrontendSProc"/>
-        </property>
-    </bean>
-    <bean id="dataSourceFrontendSProc" class="com.jolbox.bonecp.spring.DynamicDataSourceProxy">
-        <property name="targetDataSource">
-            <ref local="dataSourceFrontendSProc_first"/>
-        </property>
-    </bean>
-
-    <bean id="dataSourceFrontendSProc_first" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true" />
 </beans>
