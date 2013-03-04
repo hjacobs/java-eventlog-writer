@@ -23,6 +23,7 @@
       <url-pattern>/jobs.monitor2</url-pattern>
    </servlet-mapping>
 
+    <!-- ToggleJobModeServlet - servlet for toggling heartbeat mode between ok/deploy -->
    <servlet>
       <servlet-name>ToggleJobModeServlet</servlet-name>
       <servlet-class>de.zalando.zomcat.servlet.ToggleJobModeServlet</servlet-class>
@@ -32,5 +33,16 @@
       <servlet-name>ToggleJobModeServlet</servlet-name>
       <url-pattern>/toggleJobMode</url-pattern>
    </servlet-mapping>
+
+    <!-- TriggerJobServlet - servlet for triggering jobs instantly -->
+    <servlet>
+        <servlet-name>TriggerJobServlet</servlet-name>
+        <servlet-class>de.zalando.zomcat.servlet.TriggerJobServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TriggerJobServlet</servlet-name>
+        <url-pattern>/triggerJob</url-pattern>
+    </servlet-mapping>
 
 </web-app>
