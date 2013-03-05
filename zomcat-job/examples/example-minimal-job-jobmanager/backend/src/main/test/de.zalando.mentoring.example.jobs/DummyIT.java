@@ -1,4 +1,4 @@
-package de.zalando.appdomain;
+package de.zalando.mentoring.example.jobs;
 
 import org.junit.Test;
 
