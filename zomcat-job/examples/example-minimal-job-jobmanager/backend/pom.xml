@@ -16,7 +16,7 @@
         <name>Zalando/Technology/Platform</name>
     </organization>
     <properties>
-        <test.src.dir>src/test/java</test.src.dir>
+        <test.src.dir>src/main/test/java</test.src.dir>
     </properties>
     <build>
         <plugins>
