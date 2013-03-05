@@ -5,7 +5,7 @@ import org.junit.Test;
 /**
  * @author  hjacobs
  */
-public class DummyIT {
+public class DummyTest {
 
     @Test
     public void testNoop() { }
