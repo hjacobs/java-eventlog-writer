@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
     <name>Zomcat Base</name>
     <description>Zomcat Support Classes: Servlets (heartbeat, status, toggle), AbstractJob, Flow-ID, ..</description>
-    <version>1.1.6</version>
+    <version>1.1.7</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
