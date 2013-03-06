@@ -8,6 +8,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
 import de.zalando.zomcat.HeartbeatMode;
+import de.zalando.zomcat.HostStatus;
 
 @ManagedResource(objectName = "Zalando:name=Heartbeat Status Bean")
 @Component("heartbeatStatusBean")
@@ -61,6 +62,12 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     public String getLoadbalancerMessage() {
         if (heartbeatMode == null) {
             return null;
+        }
+
+        if (!HostStatus.isAllocated()) {
+
+            // make sure that the LB status is disabled if the host-status is not production ready
+            return HeartbeatMode.DEPLOY.getLoadbalancerMessage();
         }
 
         return heartbeatMode.getLoadbalancerMessage();

@@ -25,6 +25,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
+import de.zalando.zomcat.HostStatus;
 import de.zalando.zomcat.OperationMode;
 import de.zalando.zomcat.flowid.FlowId;
 import de.zalando.zomcat.jobs.listener.JobFlowIdListener;
@@ -354,6 +355,13 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
             // get the correct logger and debug
             log(Level.INFO, "maintenance mode, job will not start", null);
+            return false;
+        }
+
+        if (!HostStatus.isAllocated()) {
+
+            // PF-188 make sure that all jobs are disabled if the host-status is not production ready
+            log(Level.INFO, "host status is not ALLOCATED, job will not start", null);
             return false;
         }
 

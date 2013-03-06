@@ -44,6 +44,7 @@ import com.jolbox.bonecp.BoneCPDataSource;
 import com.jolbox.bonecp.Statistics;
 import com.jolbox.bonecp.spring.DynamicDataSourceProxy;
 
+import de.zalando.zomcat.HostStatus;
 import de.zalando.zomcat.spread.HeartbeatInformation;
 import de.zalando.zomcat.spread.SpreadServiceInformation;
 
@@ -97,6 +98,7 @@ public class StatusServlet extends HttpServlet {
         throws ServletException, IOException {
         final StringBuilder pageContent = new StringBuilder();
         getVmInfos(pageContent);
+        getHostInfos(pageContent);
         getDataSourceInfos(pageContent);
         getThreadInfos(pageContent);
         getSpreadHeartbeat(pageContent);
@@ -119,6 +121,15 @@ public class StatusServlet extends HttpServlet {
             RuntimeMXBean mx = ManagementFactory.getRuntimeMXBean();
             pageContent.append("startTime=").append(new Date(mx.getStartTime())).append(NEW_LINE);
             pageContent.append("uptime=").append(mx.getUptime()).append(" ms").append(NEW_LINE);
+            pageContent.append(NEW_LINE);
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    private void getHostInfos(final StringBuilder pageContent) {
+        try {
+            pageContent.append("hostStatus=").append(HostStatus.getStatusName()).append(NEW_LINE);
             pageContent.append(NEW_LINE);
         } catch (Exception e) {
             // ignore
