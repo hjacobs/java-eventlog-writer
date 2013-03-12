@@ -19,6 +19,11 @@ public abstract class FlowId {
     private static final Logger LOG = Logger.getLogger(FlowId.class);
 
     /**
+     * Spring "flow" scope implementation.
+     */
+    private static final FlowScopeImpl FLOW_SCOPE = new FlowScopeImpl();
+
+    /**
      * generate a new, totally random (UUID-based) Flow-ID.
      *
      * @return  22-character Flow-ID starting with "R"
@@ -131,5 +136,9 @@ public abstract class FlowId {
 
     public static void inherit(final Stack<?> cloneStack) {
         NDC.inherit(cloneStack);
+    }
+
+    public static FlowScope getScope() {
+        return FLOW_SCOPE;
     }
 }
