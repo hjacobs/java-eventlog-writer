@@ -74,10 +74,6 @@
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
-               <artifactId>zomcat-appconfig</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.zalando</groupId>
             <artifactId>zomcat-job-monitor-backend</artifactId>
         </dependency>
         <dependency>

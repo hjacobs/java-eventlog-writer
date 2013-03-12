@@ -62,3 +62,4 @@ Building everything by yourself from an empty project:
 * You can use SProcs to acces job configurations, job history... please check https://devwiki.zalando.de/Jobs_Framework
 
 
+Job monitor servlet: http://localhost:8080/example-minimal-job-jobmanager-backend/jobs.monitor
