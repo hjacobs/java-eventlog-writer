@@ -88,7 +88,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
-        </dependencies>
+        <dependency>
+            <groupId>de.zalando</groupId>
+            <artifactId>zomcat-appconfig</artifactId>
+            <version>1.0.9</version>
+        </dependency>
+    </dependencies>
     <profiles>
         <profile>
             <id>development</id>
