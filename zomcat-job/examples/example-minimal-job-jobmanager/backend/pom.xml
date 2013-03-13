@@ -91,7 +91,6 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat-appconfig</artifactId>
-            <version>1.0.9</version>
         </dependency>
     </dependencies>
     <profiles>
