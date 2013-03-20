@@ -18,4 +18,9 @@
         <module>zomcat-jpa-eclipselink</module>
         <module>zomcat-jpa-domain</module>
     </modules>
+    <scm>
+        <url>https://svn.zalando.net/reboot-libs/zomcat-jpa/trunk</url>
+        <connection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/trunk</connection>
+        <developerConnection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/trunk</developerConnection>
+    </scm>
 </project>
