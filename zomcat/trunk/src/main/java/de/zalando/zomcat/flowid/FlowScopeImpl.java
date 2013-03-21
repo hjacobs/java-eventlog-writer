@@ -40,8 +40,6 @@ class FlowScopeImpl implements FlowScope {
     public void enter(final String flowId) {
         Preconditions.checkState(!isActive(), "Flow scope already initialized with flow ID {}!", flowId);
 
-        FlowId.pushFlowId(flowId);
-
         FLOW_CONTEXT.set(Maps.<String, Object>newHashMap());
 
         getContext().put(FLOW_ID_KEY, flowId);
