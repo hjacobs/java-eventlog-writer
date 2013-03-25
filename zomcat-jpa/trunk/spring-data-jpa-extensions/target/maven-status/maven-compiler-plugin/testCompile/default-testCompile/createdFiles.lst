@@ -1,9 +1,0 @@
-de/zalando/data/jpa/domain/sample/BusinessKeyAwareProduct.class
-de/zalando/data/jpa/repository/sample/KeyableProductRepository.class
-de/zalando/data/jpa/domain/sample/BusinessKeyGeneratorStub.class
-de/zalando/data/jpa/domain/sample/AnnotatedProduct.class
-de/zalando/data/jpa/domain/sample/AuditorAwareStub.class
-de/zalando/data/jpa/repository/sample/AnnotatedKeyableProductRepository.class
-de/zalando/data/jpa/domain/support/BusinessKeyNamespaceHandlerTest.class
-de/zalando/data/jpa/domain/support/BusinessKeyBeanFactoryPostProcessorUnitTests.class
-de/zalando/data/jpa/domain/support/BusinessKeyEntityListenerTests.class
