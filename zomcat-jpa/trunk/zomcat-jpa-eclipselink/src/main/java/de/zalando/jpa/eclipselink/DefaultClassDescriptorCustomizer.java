@@ -47,7 +47,7 @@ public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomiz
     }
 
     protected ConverterCustomizer<DatabaseMapping> getConverterCustomizer(final DatabaseMapping databaseMapping) {
-        ConverterCustomizer<DatabaseMapping> customizer = CONVERTER_CUSTOMIZER_REGISTRY.get(databaseMapping);
+        ConverterCustomizer<DatabaseMapping> customizer = CONVERTER_CUSTOMIZER_REGISTRY.get(databaseMapping.getClass());
         if (customizer == null) {
             return new NoOpConverterCustomizer();
         } else {

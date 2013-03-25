@@ -36,6 +36,9 @@ public class ClassDescriptorCustomizerTest {
         clazzDescriptorCustomizer.registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
         clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
 
+        // enumConverter
+        clazzDescriptorCustomizer.registerConverterCustomizer(new DirectToFieldMappingEnumTypeConverterCustomizer());
+
         // invoke
         ColumnNameCustomizer<DatabaseMapping> result = clazzDescriptorCustomizer.getColumnNameCustomizer(
                 new DirectToFieldMapping());
@@ -54,6 +57,18 @@ public class ClassDescriptorCustomizerTest {
 
         // assert
         assertCustomizer(result, OneToManyMappingColumnNameCustomizer.class);
+
+        ConverterCustomizer<DatabaseMapping> converterCustomizerResult =
+            clazzDescriptorCustomizer.getConverterCustomizer(new DirectToFieldMapping());
+
+        assertConverter(converterCustomizerResult, DirectToFieldMappingEnumTypeConverterCustomizer.class);
+
+    }
+
+    private void assertConverter(final ConverterCustomizer<DatabaseMapping> converterCustomizerResult,
+            final Class<?> clazz) {
+        Assert.assertNotNull(converterCustomizerResult);
+        Assert.assertEquals(clazz, converterCustomizerResult.getClass());
 
     }
 
