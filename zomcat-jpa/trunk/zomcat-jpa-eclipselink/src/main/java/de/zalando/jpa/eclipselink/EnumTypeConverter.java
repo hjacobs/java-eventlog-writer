@@ -9,6 +9,7 @@ import org.eclipse.persistence.sessions.Session;
 import org.postgresql.util.PGobject;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 public class EnumTypeConverter implements Converter {
@@ -16,6 +17,17 @@ public class EnumTypeConverter implements Converter {
 
     private Class<Enum> enumClass;
     private String pgTypeName;
+
+    public EnumTypeConverter() {
+        //
+    }
+
+    public EnumTypeConverter(final Class clazz, final String columnDefinition) {
+        Preconditions.checkNotNull(clazz, "Class should never be null");
+        this.enumClass = clazz;
+        this.pgTypeName = columnDefinition;
+        checkPgTypeName();
+    }
 
     @Override
     public Object convertObjectValueToDataValue(final Object objectValue, final Session session) {
@@ -67,6 +79,13 @@ public class EnumTypeConverter implements Converter {
     public void initialize(final DatabaseMapping mapping, final Session session) {
         enumClass = mapping.getAttributeClassification();
         pgTypeName = mapping.getField().getColumnDefinition();
+        checkPgTypeName();
+// if (Strings.isNullOrEmpty(pgTypeName)) {
+// pgTypeName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, enumClass.getSimpleName());
+// }
+    }
+
+    protected void checkPgTypeName() {
         if (Strings.isNullOrEmpty(pgTypeName)) {
             pgTypeName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, enumClass.getSimpleName());
         }
