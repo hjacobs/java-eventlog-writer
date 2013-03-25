@@ -16,7 +16,7 @@ public class OneToManyMappingColumnNameCustomizerTest {
     @Test
     public void testWithoutAnyFurtherActionOnMapping() {
         OneToManyMapping mapping = Mockito.mock(OneToManyMapping.class);
-        customizer.customizeColumnName("purchase_order_head", mapping);
+        customizer.customizeColumnName("purchase_order_head", mapping, MockSessionCreator.create());
         Mockito.verifyZeroInteractions(mapping);
     }
 

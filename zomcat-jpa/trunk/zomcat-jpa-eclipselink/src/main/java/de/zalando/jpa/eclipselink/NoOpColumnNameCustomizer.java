@@ -1,21 +1,20 @@
 package de.zalando.jpa.eclipselink;
 
+import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DatabaseMapping;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.persistence.sessions.Session;
 
 /**
  * @author  jbellmann
  */
 final class NoOpColumnNameCustomizer implements ColumnNameCustomizer<DatabaseMapping> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NoOpColumnNameCustomizer.class);
-
     @Override
-    public void customizeColumnName(final String tableName, final DatabaseMapping databaseMapping) {
-        LOG.warn("Do nothing for TableName : {} and DatabaseMapping-class {}", tableName,
-            databaseMapping.getClass().getName());
+    public void customizeColumnName(final String tableName, final DatabaseMapping databaseMapping,
+            final Session session) {
+        session.getSessionLog().log(SessionLog.FINE,
+            "Do not customize for TableName : {0} and DatabaseMapping-class {1}",
+            new Object[] {tableName, databaseMapping.getClass().getName()}, false);
     }
 
     @Override

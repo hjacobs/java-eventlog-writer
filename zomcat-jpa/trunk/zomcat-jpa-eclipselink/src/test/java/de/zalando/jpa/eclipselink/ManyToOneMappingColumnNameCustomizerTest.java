@@ -43,7 +43,7 @@ public class ManyToOneMappingColumnNameCustomizerTest {
         Mockito.when(dataBaseField.getName()).thenReturn("order_status");
 
         //
-        customizer.customizeColumnName("purchase_order_head", mapping);
+        customizer.customizeColumnName("purchase_order_head", mapping, MockSessionCreator.create());
 
         // invocation was needed, not prefixed yet
         Mockito.verify(dataBaseField, times(1)).setName(eq("poh_order_status"));
@@ -59,7 +59,7 @@ public class ManyToOneMappingColumnNameCustomizerTest {
         Mockito.when(dataBaseField.getName()).thenReturn("poh_order_status");
 
         //
-        customizer.customizeColumnName("purchase_order_head", mapping);
+        customizer.customizeColumnName("purchase_order_head", mapping, MockSessionCreator.create());
 
         // no invocation needed, fieldname is prefixed
         Mockito.verify(dataBaseField, times(0)).setName(anyString());

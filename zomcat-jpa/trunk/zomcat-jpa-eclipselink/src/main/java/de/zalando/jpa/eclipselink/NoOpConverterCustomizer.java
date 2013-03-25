@@ -1,26 +1,22 @@
 package de.zalando.jpa.eclipselink;
 
+import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.sessions.Session;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author  jbellmann
  */
 public class NoOpConverterCustomizer implements ConverterCustomizer<DatabaseMapping> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NoOpConverterCustomizer.class);
-
     @Override
     public void customizeConverter(final DatabaseMapping databaseMapping, final Session session) {
-        LOG.debug("Do nothing on databaseMapping for attribute {} ", databaseMapping.getAttributeName());
+        session.getSessionLog().log(SessionLog.FINE, "Do not customize converter on databaseMapping for field {0} ",
+            new Object[] {databaseMapping.getAttributeName()}, false);
     }
 
     @Override
     public Class<DatabaseMapping> supportedDatabaseMapping() {
         return DatabaseMapping.class;
     }
-
 }

@@ -22,6 +22,7 @@
     </modules>
     <properties>
         <aspectj.version>1.7.1</aspectj.version>
+        <jodatime.version>2.1</jodatime.version>
     </properties>
     <dependencyManagement>
         <dependencies>

@@ -24,7 +24,7 @@ public class DirectToFieldMappingColumnNameCustomizerTest {
         Mockito.when(mapping.getAttributeName()).thenReturn("orderStatus");
 
         // invoke
-        customizer.customizeColumnName("purchase_order_head", mapping);
+        customizer.customizeColumnName("purchase_order_head", mapping, MockSessionCreator.create());
 
         //
         Mockito.verify(dataBaseField).setName(eq("poh_order_status"));

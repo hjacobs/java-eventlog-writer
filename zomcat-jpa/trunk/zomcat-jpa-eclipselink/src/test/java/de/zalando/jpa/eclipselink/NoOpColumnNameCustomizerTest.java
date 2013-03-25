@@ -17,7 +17,7 @@ public class NoOpColumnNameCustomizerTest {
     public void testNoOpOnInvocation() {
 
         DatabaseMapping mapping = Mockito.mock(DatabaseMapping.class);
-        customizer.customizeColumnName("purchase_order_head", mapping);
+        customizer.customizeColumnName("purchase_order_head", mapping, MockSessionCreator.create());
         Mockito.verifyZeroInteractions(mapping);
     }
 

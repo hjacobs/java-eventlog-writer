@@ -3,12 +3,12 @@ package de.zalando.jpa.eclipselink;
 import java.util.Map;
 
 import org.eclipse.persistence.descriptors.ClassDescriptor;
+import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.sessions.Session;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 /**
@@ -16,7 +16,9 @@ import com.google.common.collect.Maps;
  */
 public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomizer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultClassDescriptorCustomizer.class);
+// private static final Logger LOG = LoggerFactory.getLogger(DefaultClassDescriptorCustomizer.class);
+
+    private SessionLog sessionLog = null;
 
     private static final Map<Class<DatabaseMapping>, ColumnNameCustomizer<DatabaseMapping>> COLUMN_NAME_CUSTOMIZER_REGISTRY =
         Maps.newConcurrentMap();
@@ -30,11 +32,13 @@ public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomiz
 
     @Override
     public void customize(final ClassDescriptor clazzDescriptor, final Session session) {
+        this.sessionLog = session.getSessionLog();
+        Preconditions.checkNotNull(this.sessionLog, "SessionLog should never be null");
         for (DatabaseMapping databaseMapping : clazzDescriptor.getMappings()) {
 
             // columnNames
             ColumnNameCustomizer<DatabaseMapping> columnNameCustomizer = getColumnNameCustomizer(databaseMapping);
-            columnNameCustomizer.customizeColumnName(clazzDescriptor.getTableName(), databaseMapping);
+            columnNameCustomizer.customizeColumnName(clazzDescriptor.getTableName(), databaseMapping, session);
 
             // converter
             ConverterCustomizer<DatabaseMapping> converterCustomizer = getConverterCustomizer(databaseMapping);
@@ -55,8 +59,8 @@ public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomiz
         ColumnNameCustomizer<DatabaseMapping> customizer = COLUMN_NAME_CUSTOMIZER_REGISTRY.get(
                 databaseMapping.getClass());
         if (customizer == null) {
-            LOG.debug("No ColumnNameCustomizer found for {}, return NoOpColumnNameCustomizer",
-                databaseMapping.getClass().getName());
+            sessionLog.log(SessionLog.FINE, "No ColumnNameCustomizer found for {0}, return NoOpColumnNameCustomizer",
+                new Object[] {databaseMapping.getClass().getName()}, false);
             return NOOPCOLUMNNAMECUSTOMIZER;
         } else {
             return customizer;
@@ -71,6 +75,11 @@ public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomiz
     @Override
     public void registerConverterCustomizer(final ConverterCustomizer converterCustomizer) {
         CONVERTER_CUSTOMIZER_REGISTRY.put(converterCustomizer.supportedDatabaseMapping(), converterCustomizer);
+    }
+
+    @VisibleForTesting
+    protected void setSessionLog(final SessionLog sessionLog) {
+        this.sessionLog = sessionLog;
     }
 
 }

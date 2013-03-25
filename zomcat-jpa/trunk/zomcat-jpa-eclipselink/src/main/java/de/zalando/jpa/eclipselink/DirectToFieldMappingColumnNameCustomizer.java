@@ -1,9 +1,8 @@
 package de.zalando.jpa.eclipselink;
 
+import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DirectToFieldMapping;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.persistence.sessions.Session;
 
 /**
  * Supports Column-Name-Customization for DirectToFieldMappings.
@@ -12,16 +11,15 @@ import org.slf4j.LoggerFactory;
  */
 public class DirectToFieldMappingColumnNameCustomizer extends AbstractColumnNameCustomizer<DirectToFieldMapping> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DirectToFieldMappingColumnNameCustomizer.class);
-
     public DirectToFieldMappingColumnNameCustomizer() {
         super(DirectToFieldMapping.class);
     }
 
     @Override
-    public void customizeColumnName(final String tableName, final DirectToFieldMapping databaseMapping) {
+    public void customizeColumnName(final String tableName, final DirectToFieldMapping databaseMapping,
+            final Session session) {
         final String newFieldName = NameUtils.buildFieldName(tableName, databaseMapping.getAttributeName());
         databaseMapping.getField().setName(newFieldName);
-        LOG.debug("set new field-name to {}", newFieldName);
+        session.getSessionLog().log(SessionLog.FINE, "set new field-name to {0}", new Object[] {newFieldName}, false);
     }
 }
