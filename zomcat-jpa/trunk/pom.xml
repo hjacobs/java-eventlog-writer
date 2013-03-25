@@ -17,8 +17,26 @@
     <modules>
         <module>zomcat-jpa-eclipselink</module>
         <module>zomcat-jpa-domain</module>
+        <module>spring-data-jpa-extensions</module>
         <module>playground</module>
     </modules>
+    <properties>
+        <aspectj.version>1.7.1</aspectj.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjtools</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <scm>
         <url>https://svn.zalando.net/reboot-libs/zomcat-jpa/trunk</url>
         <connection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/trunk</connection>
