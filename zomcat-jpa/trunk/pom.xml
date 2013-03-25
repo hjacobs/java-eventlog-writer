@@ -17,6 +17,7 @@
     <modules>
         <module>zomcat-jpa-eclipselink</module>
         <module>zomcat-jpa-domain</module>
+        <module>playground</module>
     </modules>
     <scm>
         <url>https://svn.zalando.net/reboot-libs/zomcat-jpa/trunk</url>
