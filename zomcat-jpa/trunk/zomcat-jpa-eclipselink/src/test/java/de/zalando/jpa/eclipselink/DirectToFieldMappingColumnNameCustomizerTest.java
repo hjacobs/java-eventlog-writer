@@ -1,0 +1,33 @@
+package de.zalando.jpa.eclipselink;
+
+import static org.mockito.Matchers.eq;
+
+import org.eclipse.persistence.internal.helper.DatabaseField;
+import org.eclipse.persistence.mappings.DirectToFieldMapping;
+
+import org.junit.Test;
+
+import org.mockito.Mockito;
+
+/**
+ * @author  jbellmann
+ */
+public class DirectToFieldMappingColumnNameCustomizerTest {
+
+    DirectToFieldMappingColumnNameCustomizer customizer = new DirectToFieldMappingColumnNameCustomizer();
+
+    @Test
+    public void testCustomization() {
+        DirectToFieldMapping mapping = Mockito.mock(DirectToFieldMapping.class);
+        DatabaseField dataBaseField = Mockito.mock(DatabaseField.class);
+        Mockito.when(mapping.getField()).thenReturn(dataBaseField);
+        Mockito.when(mapping.getAttributeName()).thenReturn("orderStatus");
+
+        // invoke
+        customizer.customizeColumnName("purchase_order_head", mapping);
+
+        //
+        Mockito.verify(dataBaseField).setName(eq("poh_order_status"));
+    }
+
+}
