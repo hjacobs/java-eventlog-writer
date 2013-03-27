@@ -1,17 +1,13 @@
 package de.zalando.jpa.eclipselink;
 
+import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DirectToFieldMapping;
 import org.eclipse.persistence.sessions.Session;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author  jbellmann
  */
 public class DirectToFieldMappingEnumTypeConverterCustomizer extends AbstractConverterCustomizer<DirectToFieldMapping> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DirectToFieldMappingEnumTypeConverterCustomizer.class);
 
     public DirectToFieldMappingEnumTypeConverterCustomizer() {
         super(DirectToFieldMapping.class);
@@ -25,8 +21,8 @@ public class DirectToFieldMappingEnumTypeConverterCustomizer extends AbstractCon
             return;
         }
 
-        LOG.debug("Set converter to field '{}' with class '{}'", databaseMapping.getFieldName(),
-            attributeClass.getName());
+        session.getSessionLog().log(SessionLog.FINE, "Set converter to field '{0}' with class '{1}'",
+            new Object[] {databaseMapping.getFieldName(), attributeClass.getName()}, false);
         databaseMapping.setConverter(new EnumTypeConverter(attributeClass,
                 databaseMapping.getField().getColumnDefinition()));
     }

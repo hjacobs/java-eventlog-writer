@@ -12,12 +12,12 @@
     </appender>
 
     <logger name="de.zalando.jpa.eclipselink" additivity="false">
-        <level value="fine"/>
+        <level value="DEBUG"/>
         <appender-ref ref="default"/>
     </logger>
 
     <root>
-        <priority value="info"/>
+        <priority value="DEBUG"/>
         <appender-ref ref="default"/>
     </root>
 

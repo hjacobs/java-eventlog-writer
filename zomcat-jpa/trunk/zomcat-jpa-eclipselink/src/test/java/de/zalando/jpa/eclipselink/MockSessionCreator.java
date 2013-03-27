@@ -8,10 +8,10 @@ import org.mockito.Mockito;
 public class MockSessionCreator {
 
     public static Session create() {
-        SessionLog log = Mockito.mock(SessionLog.class);
+        SessionLog log = new Log4jSessionLog();
         Session session = Mockito.mock(Session.class);
         Mockito.when(session.getSessionLog()).thenReturn(log);
+
         return session;
     }
-
 }

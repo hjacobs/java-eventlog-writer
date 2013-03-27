@@ -130,6 +130,26 @@ public class Log4jSessionLog extends AbstractSessionLog {
                             LOG.warn(sb.toString());
                             break;
 
+                        case INFO :
+                            LOG.info(sb.toString());
+                            break;
+
+                        case FINE :
+                            LOG.debug(sb.toString());
+                            break;
+
+                        case FINER :
+                            LOG.debug(sb.toString());
+                            break;
+
+                        case FINEST :
+                            LOG.trace(sb.toString());
+                            break;
+
+                        case ALL :
+                            LOG.trace(sb.toString());
+                            break;
+
                         default :
                             LOG.info(sb.toString());
                     }
