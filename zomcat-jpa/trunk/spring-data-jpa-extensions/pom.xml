@@ -252,6 +252,20 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>de.jbellmann.maven.plugins</groupId>
+                <artifactId>markdown-maven-plugin</artifactId>
+                <version>0.9.0</version>
+                <executions>
+                    <execution>
+                        <id>render-markdown</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>gen generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.2-beta-5</version>
