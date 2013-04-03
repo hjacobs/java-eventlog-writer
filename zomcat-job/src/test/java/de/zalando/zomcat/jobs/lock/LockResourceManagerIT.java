@@ -39,13 +39,12 @@ public class LockResourceManagerIT {
     private LockResourceManagerImpl lockResourceManager;
 
     @Before
-    public void setUp() {
-        lockResourceManager.releaseLock(TEST_RESOURCE);
+    public void setUp() throws InterruptedException {
+        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
     }
 
     @Test
-    public void lockFreeResourceTest() {
-
+    public void lockFreeResourceTest() throws InterruptedException {
         final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
 
@@ -62,7 +61,7 @@ public class LockResourceManagerIT {
 
     @Test
     public void tryToUnlockUnlockedResourceTest() {
-        lockResourceManager.releaseLock(TEST_RESOURCE);
+        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
     }
 
     @Test
@@ -71,7 +70,7 @@ public class LockResourceManagerIT {
         boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
 
-        lockResourceManager.releaseLock(TEST_RESOURCE);
+        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
 
         acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
@@ -88,6 +87,33 @@ public class LockResourceManagerIT {
 
         peeked = lockResourceManager.peekLock(TEST_RESOURCE);
         Assert.assertTrue("should not be locked.", peeked);
+    }
+
+    @Test
+    public void testReconnect() {
+
+        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        Assert.assertTrue("should have acquired lock", acquired);
+
+        // DEBUG TEST: set breakpopints 1 and 2
+
+        // bp 1
+        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
+        // stop DB, run until next bp
+
+        // Up to here, resource is locked on DB, DB is not reachable.
+        // Now, we will simulate that network is up and working again:
+
+        // bp 2
+        boolean locked = true;
+        // restart DB and run
+
+        while (locked) {
+            try {
+                locked = lockResourceManager.peekLock(TEST_RESOURCE);
+            } catch (Exception e) { }
+
+        }
     }
 
     @Test
@@ -119,7 +145,7 @@ public class LockResourceManagerIT {
             }
 
             Assert.assertEquals("should have acquired exactly 1 lock", 1, acquiredLocks);
-            lockResourceManager.releaseLock(TEST_RESOURCE);
+            lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
         }
     }
 }
