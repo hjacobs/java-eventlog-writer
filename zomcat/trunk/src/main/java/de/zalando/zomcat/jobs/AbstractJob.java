@@ -186,7 +186,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
             if (isLockedJob) {
 
                 // if the database is not available, the lock needs to be removed manually.
-                lockResourceManager.releaseLock(getLockResource());
+                lockResourceManager.releaseLock(getLockResource(), FlowId.peekFlowId());
             }
 
             notifyStopRunning(throwable);
