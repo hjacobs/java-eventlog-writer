@@ -17,7 +17,7 @@ public interface LockResourceSprocService extends LockResourceManager {
 
     @Override
     @SProcCall
-    void releaseLock(@SProcParam String resource, @SProcParam String flowId);
+    void releaseLock(@SProcParam String resource);
 
     @Override
     @SProcCall

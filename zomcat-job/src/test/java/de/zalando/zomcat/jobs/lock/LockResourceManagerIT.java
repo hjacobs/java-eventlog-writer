@@ -39,12 +39,12 @@ public class LockResourceManagerIT {
     private LockResourceManagerImpl lockResourceManager;
 
     @Before
-    public void setUp() throws InterruptedException {
-        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
+    public void setUp() {
+        lockResourceManager.releaseLock(TEST_RESOURCE);
     }
 
     @Test
-    public void lockFreeResourceTest() throws InterruptedException {
+    public void lockFreeResourceTest() {
         final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
 
@@ -61,7 +61,7 @@ public class LockResourceManagerIT {
 
     @Test
     public void tryToUnlockUnlockedResourceTest() {
-        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
+        lockResourceManager.releaseLock(TEST_RESOURCE);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class LockResourceManagerIT {
         boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
 
-        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
+        lockResourceManager.releaseLock(TEST_RESOURCE);
 
         acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
@@ -98,7 +98,7 @@ public class LockResourceManagerIT {
         // DEBUG TEST: set breakpopints 1 and 2
 
         // bp 1
-        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
+        lockResourceManager.releaseLock(TEST_RESOURCE);
         // stop DB, run until next bp
 
         // Up to here, resource is locked on DB, DB is not reachable.
@@ -145,7 +145,7 @@ public class LockResourceManagerIT {
             }
 
             Assert.assertEquals("should have acquired exactly 1 lock", 1, acquiredLocks);
-            lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
+            lockResourceManager.releaseLock(TEST_RESOURCE);
         }
     }
 }
