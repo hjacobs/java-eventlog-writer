@@ -12,7 +12,7 @@ public interface LockResourceManager {
     boolean acquireLock(final String lockingComponent, final String resource, final String flowId,
             long expectedMaximumDuration);
 
-    void releaseLock(String resource, String flowId);
+    void releaseLock(String resource);
 
     boolean peekLock(String resource);
 }
