@@ -1,5 +1,7 @@
 package de.zalando.zomcat.jobs.lock;
 
+import java.text.MessageFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,17 +79,18 @@ public class LockResourceManagerImpl extends AbstractSProcService<LockResourceSp
             } catch (DataAccessException e) {
                 retry = retryCounter++ < maxRetries;
                 if (retry) {
-                    LOG.warn("Could not release job lock {}. Retrying in {} millis",
-                        new Object[] {resource, retryTime});
+                    LOG.warn(MessageFormat.format("Could not release job lock {0}. Retrying in {1} millis", resource,
+                            retryTime), e);
 
                     try {
                         Thread.sleep(retryTime);
                     } catch (InterruptedException e1) {
-                        LOG.warn("Retry sleep interrupted. Retrying to release lock {} now.", new Object[] {resource});
+                        LOG.warn(MessageFormat.format("Retry sleep interrupted. Retrying to release lock {0} now.",
+                                resource), e1);
                     }
                 } else {
-                    LOG.error("Could not release lock {}. Max retries exceeded {}",
-                        new Object[] {resource, maxRetries});
+                    LOG.error("Could not release lock {}, max retries exceeded {}. Please remove the lock manually",
+                        resource, maxRetries);
 
                     throw e;
                 }
