@@ -74,7 +74,7 @@ public class LockResourceManagerImplTest {
      *
      * @author  pribeiro
      */
-    private static class MockLockResourceManagerImpl extends LockResourceManagerImpl {
+    private static final class MockLockResourceManagerImpl extends LockResourceManagerImpl {
 
         public MockLockResourceManagerImpl(final DataSourceProvider provider, final LockResourceSprocService sproc) {
             super(provider);
