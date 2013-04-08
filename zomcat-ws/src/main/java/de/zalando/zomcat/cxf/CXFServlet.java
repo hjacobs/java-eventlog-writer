@@ -49,6 +49,8 @@ import org.apache.cxf.transport.servlet.BaseUrlHelper;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
+import org.springframework.cglib.proxy.Enhancer;
+
 import org.springframework.context.ApplicationContext;
 
 import com.google.common.base.Strings;
@@ -56,8 +58,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.google.gson.Gson;
-
-import net.sf.cglib.proxy.Enhancer;
 
 /**
  * Overridden CXFServlet with custom service list rendering: The service list additionally contains WSDL documentation
