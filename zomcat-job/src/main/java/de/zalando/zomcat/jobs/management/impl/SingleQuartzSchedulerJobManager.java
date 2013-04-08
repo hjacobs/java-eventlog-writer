@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+import de.zalando.zomcat.HostStatus;
 import de.zalando.zomcat.jobs.AbstractJob;
 import de.zalando.zomcat.jobs.RunningWorker;
 import de.zalando.zomcat.jobs.management.JobManager;
@@ -156,6 +157,8 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
             final JobManagerManagedJob currentJob = getManagedJobByJobDetail(context.getJobDetail());
             if (quartzScheduler.isShutdown()) {
                 LOG.error("Quartz Scheduler is already shutdown - cannot perform scheduled Task on shutdown Scheduler");
+            } else if (!HostStatus.isAllocated()) {
+                LOG.info("host status is not ALLOCATED, job will not start");
             } else if (currentJob == null) {
                 LOG.error(
                     "Could not find JobManagerManagedJob entry for: [jobToBeExecuted] callback. JobExecutionContext was: [{}]",
@@ -164,7 +167,7 @@ public final class SingleQuartzSchedulerJobManager extends AbstractJobManager im
                     LOG.info("Currently available ManagedJob(Detail): [{}] for JobSchedulingConfig: [{}]",
                         curJob.getQuartzJobDetail(), curJob.getJobSchedulingConfig());
                 }
-            } else if (currentJob != null) {
+            } else {
                 synchronized (currentJob) {
                     if (currentJob.getRunningWorkerCount() < currentJob.getMaxConcurrentExecutionCount()) {
 
