@@ -12,6 +12,11 @@
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
+    <properties>
+        <test.db.host>localhost</test.db.host>
+        <test.db.port>5432</test.db.port>
+        <test.db.name>zalando_test</test.db.name>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
