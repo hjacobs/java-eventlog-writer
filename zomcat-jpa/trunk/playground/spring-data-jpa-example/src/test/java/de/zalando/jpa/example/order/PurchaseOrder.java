@@ -21,7 +21,7 @@ import de.zalando.data.annotation.BusinessKey;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(name = "purchase_order")
+@Table(schema = "zzj_data", name = "purchase_order")
 public class PurchaseOrder extends AbstractPersistable<Integer> {
 
     private String brandCode;

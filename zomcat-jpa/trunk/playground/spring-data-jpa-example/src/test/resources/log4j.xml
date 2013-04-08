@@ -7,20 +7,20 @@
             <param name="ConversionPattern" value="%d %x %p %t %l: %m%n" />
         </layout>
     </appender>
-    <logger name="de.zalando.data" additivity="false">
-        <level value="INFO" />
-        <appender-ref ref="default" />
+    <logger name="org.springframework.web.context.ContextLoader">
+        <level value="info"/>
     </logger>
-    <logger name="de.zalando.jpa.example" additivity="false">
-        <level value="INFO" />
-        <appender-ref ref="default" />
+    <logger name="de.zalando.data">
+        <level value="debug" />
     </logger>
-    <logger name="de.zalando.jpa.eclipselink" additivity="false">
-        <level value="FINE" />
-        <appender-ref ref="default" />
+    <logger name="org.springframework">
+        <level value="info" />
+    </logger>
+    <logger name="de.zalando.jpa.eclipselink">
+        <level value="debug"/>
     </logger>
     <root>
-        <priority value="INFO" />
+        <priority value="debug" />
         <appender-ref ref="default" />
     </root>
 </log4j:configuration>
