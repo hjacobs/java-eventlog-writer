@@ -21,7 +21,7 @@ import de.zalando.data.annotation.BusinessKey;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(name = "purchase_order_head")
+@Table(name = "purchase_order")
 public class PurchaseOrder extends AbstractPersistable<Integer> {
 
     private String brandCode;
@@ -82,6 +82,7 @@ public class PurchaseOrder extends AbstractPersistable<Integer> {
         return modifiedBy;
     }
 
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).add("id", getId()).add("brandCode", getBrandCode())
                       .add("orderStatus", getOrderStatus().name()).add("createdBy", getCreatedBy())
