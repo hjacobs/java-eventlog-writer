@@ -97,6 +97,7 @@ public class CXFServlet extends org.apache.cxf.transport.servlet.CXFServlet {
             String ad = d2.getEndpointInfo().getAddress();
             if (ad == null && d2.getAddress() != null && d2.getAddress().getAddress() != null) {
                 ad = d2.getAddress().getAddress().getValue();
+
                 if (ad == null) {
                     ad = "/";
                 }
