@@ -15,5 +15,7 @@
     </organization>
     <modules>
         <module>spring-data-jpa-example</module>
+        <module>spring-data-jpa-loadtime-weaving</module>
+        <module>spring-data-jpa-static-weaving</module>
     </modules>
 </project>
