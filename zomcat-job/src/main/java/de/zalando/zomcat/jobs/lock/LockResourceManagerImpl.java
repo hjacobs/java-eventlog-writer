@@ -64,8 +64,8 @@ public class LockResourceManagerImpl extends AbstractSProcService<LockResourceSp
 
         boolean retry = true;
         int retryCounter = 0;
-        int retryTime = getRetryTime();
-        int maxRetries = getNumberOfRetries();
+        final int retryTime = getRetryTime();
+        final int maxRetries = getNumberOfRetries();
 
         do {
             try {
