@@ -1,6 +1,7 @@
 package de.zalando.jpa.example;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -33,6 +34,7 @@ public class PurchaseOrderTest {
     private PurchaseOrderRepository purchaseOrderRepository;
 
     @Test
+    @Ignore
 // @Rollback(false)
     public void testSavePurchaseOrder() {
         PurchaseOrder order = new PurchaseOrder();
