@@ -22,9 +22,9 @@ import de.zalando.jpa.example.order.PurchaseOrderRepository;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @Transactional
-public class PurchaseOrderTest {
+public class PurchaseOrderIT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PurchaseOrderTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PurchaseOrderIT.class);
 
     @Autowired
     private PurchaseOrderRepository purchaseOrderRepository;
