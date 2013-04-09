@@ -2,6 +2,7 @@ package de.zalando.jpa.eclipselink;
 
 import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DirectToFieldMapping;
+import org.eclipse.persistence.mappings.converters.EnumTypeConverter;
 import org.eclipse.persistence.sessions.Session;
 
 /**
@@ -13,18 +14,26 @@ public class DirectToFieldMappingEnumTypeConverterCustomizer extends AbstractCon
         super(DirectToFieldMapping.class);
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void customizeConverter(final DirectToFieldMapping databaseMapping, final Session session) {
-        Class attributeClass = databaseMapping.getAttributeClassification();
-        if (!Enum.class.isAssignableFrom(attributeClass)) {
+
+        if (databaseMapping.getConverter() == null) {
             return;
         }
 
-        session.getSessionLog().log(SessionLog.FINE, "Set converter to field '{0}' with class '{1}'",
-            new Object[] {databaseMapping.getFieldName(), attributeClass.getName()}, false);
-        databaseMapping.setConverter(new EnumTypeConverter(attributeClass,
-                databaseMapping.getField().getColumnDefinition()));
+        if (databaseMapping.getConverter().getClass().equals(EnumTypeConverter.class)) {
+
+            final EnumTypeConverter eclipseConverter = (EnumTypeConverter) databaseMapping.getConverter();
+            final Class enumClazz = eclipseConverter.getEnumClass();
+
+            session.getSessionLog().log(SessionLog.FINE, "Set enum-converter to field {0} with class {1}",
+                new Object[] {databaseMapping.getField().getName(), enumClazz.getName()}, false);
+
+            databaseMapping.setConverter(new de.zalando.jpa.eclipselink.EnumTypeConverter(enumClazz,
+                    databaseMapping.getField().getColumnDefinition()));
+
+        }
+
     }
 
 }
