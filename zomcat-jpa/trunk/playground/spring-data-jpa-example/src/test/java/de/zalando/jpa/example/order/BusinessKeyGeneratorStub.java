@@ -7,7 +7,7 @@ import de.zalando.data.jpa.domain.support.BusinessKeyGenerator;
 /**
  * @author  jbellmann
  */
-public class BusikessGeneratorStub implements BusinessKeyGenerator {
+public class BusinessKeyGeneratorStub implements BusinessKeyGenerator {
 
     @Override
     public String getBusinessKeyForSelector(final String businessKeySelector) {

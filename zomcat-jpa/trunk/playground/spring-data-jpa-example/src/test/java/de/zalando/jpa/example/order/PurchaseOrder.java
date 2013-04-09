@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,7 +28,7 @@ public class PurchaseOrder extends AbstractPersistable<Integer> {
     private String brandCode;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus;
+    private OrderStatus orderStatus = OrderStatus.INITIAL;
 
     @BusinessKey("UUID")
     private String businessKey;
@@ -45,6 +46,9 @@ public class PurchaseOrder extends AbstractPersistable<Integer> {
 
     @LastModifiedBy
     private String modifiedBy;
+
+    @Version
+    private Integer version;
 
     public String getBrandCode() {
         return brandCode;
@@ -80,6 +84,10 @@ public class PurchaseOrder extends AbstractPersistable<Integer> {
 
     public String getModifiedBy() {
         return modifiedBy;
+    }
+
+    public Integer getVersion() {
+        return version;
     }
 
     @Override

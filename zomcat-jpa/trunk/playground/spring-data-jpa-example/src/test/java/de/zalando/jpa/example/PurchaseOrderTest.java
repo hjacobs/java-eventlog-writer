@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -25,20 +26,20 @@ import de.zalando.jpa.example.order.PurchaseOrderRepository;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @Transactional
-public class PurchaseOrderIT {
+public class PurchaseOrderTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PurchaseOrderIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PurchaseOrderTest.class);
 
     @Autowired
     private PurchaseOrderRepository purchaseOrderRepository;
 
     @Test
-// @Rollback(false)
+    @Rollback(false)
     public void testSavePurchaseOrder() {
         PurchaseOrder order = new PurchaseOrder();
-        order.setOrderStatus(OrderStatus.INITIAL);
+        order.setOrderStatus(OrderStatus.ORDERED);
         order.setBrandCode("BRANDCODE_A");
-        purchaseOrderRepository.saveAndFlush(order);
+        purchaseOrderRepository.save(order);
 
         Assert.assertNotNull(order.getBusinessKey());
         Assert.assertNotNull(order.getBrandCode());
