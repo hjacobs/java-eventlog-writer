@@ -51,5 +51,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
         <!-- <prop key="eclipselink.weaving">true</prop>-->
         <!-- <prop key="eclipselink.logging.level">SEVERE</prop>-->
     </util:properties>
-    <context:annotation-config/>
+    <context:annotation-config />
+    <context:component-scan base-package="de.zalando.data.jpa.init"/>
 </beans>

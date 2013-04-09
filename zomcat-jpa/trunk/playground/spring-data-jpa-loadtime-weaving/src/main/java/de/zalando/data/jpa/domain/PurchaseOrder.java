@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -32,12 +33,12 @@ public class PurchaseOrder implements Serializable {
     @BusinessKey("UUID")
     private String businessKey;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<PurchaseOrderPosition> positions = Lists.newArrayList();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "po_invoice_address_id")
-    private InvoiceAddress invoiceAdress;
+    private InvoiceAddress invoiceAddress;
 
     public String getBusinessKey() {
         return businessKey;
@@ -51,12 +52,12 @@ public class PurchaseOrder implements Serializable {
         this.positions = positions;
     }
 
-    public InvoiceAddress getInvoiceAdress() {
-        return invoiceAdress;
+    public InvoiceAddress getInvoiceAddress() {
+        return invoiceAddress;
     }
 
-    public void setInvoiceAdress(final InvoiceAddress invoiceAdress) {
-        this.invoiceAdress = invoiceAdress;
+    public void setInvoiceAddress(final InvoiceAddress invoiceAddress) {
+        this.invoiceAddress = invoiceAddress;
     }
 
     public String toString() {

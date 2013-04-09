@@ -16,17 +16,20 @@
             <param name="ConversionPattern" value="%d %x %p %t %l: %m%n"/>
         </layout>
     </appender>
-    <logger name="de.zalando.data" additivity="false">
-        <level value="DEBUG" />
+    <logger name="org.springframework.web.context.ContextLoader">
+        <level value="info"/>
     </logger>
-    <logger name="org.springframework" additivity="false">
-        <level value="INFO" />
+    <logger name="de.zalando.data">
+        <level value="debug" />
     </logger>
-    <logger name="de.zalando.jpa.eclipselink" additivity="false">
-        <level value="DEBUG"/>
+    <logger name="org.springframework">
+        <level value="info" />
+    </logger>
+    <logger name="de.zalando.jpa.eclipselink">
+        <level value="trace"/>
     </logger>
     <root>
-        <priority value="DEBUG" />
+        <priority value="debug" />
         <appender-ref ref="default" />
         <appender-ref ref="defaultFileAppender"/>
     </root>
