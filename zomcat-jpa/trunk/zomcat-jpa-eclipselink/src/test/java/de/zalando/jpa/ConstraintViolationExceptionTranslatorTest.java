@@ -2,6 +2,8 @@ package de.zalando.jpa;
 
 import org.junit.Test;
 
+import de.zalando.jpa.validation.ConstraintViolationExceptionTranslator;
+
 import junit.framework.Assert;
 
 /**
