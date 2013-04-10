@@ -60,6 +60,10 @@ public class PurchaseOrder implements Serializable {
         this.invoiceAddress = invoiceAddress;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("businesskey", getBusinessKey()).toString();
     }

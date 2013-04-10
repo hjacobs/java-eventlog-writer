@@ -8,6 +8,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.google.common.base.Objects;
+
 @Entity
 @Table(name = "invoice_address")
 public class InvoiceAddress implements Serializable {
@@ -70,6 +72,12 @@ public class InvoiceAddress implements Serializable {
 
     public void setStreet(final String street) {
         this.street = street;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("id", id).add("firstname", firstname).add("lastname", lastname)
+                      .toString();
     }
 
 }

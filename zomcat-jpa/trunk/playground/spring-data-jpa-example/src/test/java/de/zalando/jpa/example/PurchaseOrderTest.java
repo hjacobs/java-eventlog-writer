@@ -1,6 +1,7 @@
 package de.zalando.jpa.example;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -23,6 +24,7 @@ import de.zalando.jpa.example.order.PurchaseOrderRepository;
 /**
  * @author  jbellmann
  */
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @Transactional
