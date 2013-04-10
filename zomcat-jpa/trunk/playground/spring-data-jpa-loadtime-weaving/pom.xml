@@ -13,6 +13,10 @@
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
+    <properties>
+        <!-- DONT KNOW WHY THIS IS NOT TAKEN FROM THE PARENT -->
+        <zomcat.jpa.version>1.4.0-SNAPSHOT</zomcat.jpa.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
