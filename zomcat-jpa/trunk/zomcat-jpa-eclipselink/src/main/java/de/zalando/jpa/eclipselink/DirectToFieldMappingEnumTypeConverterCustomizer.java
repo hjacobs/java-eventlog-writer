@@ -17,11 +17,7 @@ public class DirectToFieldMappingEnumTypeConverterCustomizer extends AbstractCon
     @Override
     public void customizeConverter(final DirectToFieldMapping databaseMapping, final Session session) {
 
-        if (databaseMapping.getConverter() == null) {
-            return;
-        }
-
-        if (databaseMapping.getConverter().getClass().equals(EnumTypeConverter.class)) {
+        if (hasEnumTypeConverter(databaseMapping)) {
 
             final EnumTypeConverter eclipseConverter = (EnumTypeConverter) databaseMapping.getConverter();
             final Class enumClazz = eclipseConverter.getEnumClass();
@@ -34,6 +30,15 @@ public class DirectToFieldMappingEnumTypeConverterCustomizer extends AbstractCon
 
         }
 
+    }
+
+    protected boolean hasEnumTypeConverter(final DirectToFieldMapping databaseMapping) {
+
+        if (databaseMapping.getConverter() == null) {
+            return false;
+        }
+
+        return EnumTypeConverter.class.equals(databaseMapping.getConverter().getClass());
     }
 
 }

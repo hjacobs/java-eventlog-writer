@@ -7,7 +7,7 @@ import org.junit.Test;
 /**
  * @author  jbellmann
  */
-public class DefaultZomcatSessionCustomizerTest extends AbstractSessionCutomizerTest {
+public class PostgresZomcatSessionCustomizerTest extends AbstractSessionCutomizerTest {
 
     @Test
     public void testCustomizer() throws Exception {
@@ -16,7 +16,7 @@ public class DefaultZomcatSessionCustomizerTest extends AbstractSessionCutomizer
 
     @Override
     SessionCustomizer getSessionCustomizer() {
-        return new DefaultZomcatSessionCustomizer();
+        return new PostgresZomcatSessionCustomizer();
     }
 
 }
