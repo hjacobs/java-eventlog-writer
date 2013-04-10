@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -24,10 +25,13 @@ import de.zalando.data.annotation.BusinessKey;
 
 @Entity
 @Table(schema = "zzj_data", name = "purchase_order")
+@SequenceGenerator(
+    name = "purchase_order_id_seq", sequenceName = "zzj_data.purchase_order_po_id_seq", allocationSize = 1
+)
 public class PurchaseOrder {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchase_order_id_seq")
     private Integer id;
 
     private String brandCode;
