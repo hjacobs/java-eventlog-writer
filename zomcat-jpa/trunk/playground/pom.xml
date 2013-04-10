@@ -13,6 +13,9 @@
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
+    <properties>
+        <zomcat.jpa.version>1.4.0-SNAPSHOT</zomcat.jpa.version>
+    </properties>
     <modules>
         <module>spring-data-jpa-example</module>
         <module>spring-data-jpa-loadtime-weaving</module>
