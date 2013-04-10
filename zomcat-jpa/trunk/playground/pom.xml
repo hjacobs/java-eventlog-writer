@@ -6,6 +6,7 @@
         <artifactId>zomcat-jpa-parent</artifactId>
         <version>1.4.0-SNAPSHOT</version>
     </parent>
+    <groupId>de.zalando</groupId>
     <artifactId>playground</artifactId>
     <packaging>pom</packaging>
     <name>Zomcat JPA Parent for Playground</name>
