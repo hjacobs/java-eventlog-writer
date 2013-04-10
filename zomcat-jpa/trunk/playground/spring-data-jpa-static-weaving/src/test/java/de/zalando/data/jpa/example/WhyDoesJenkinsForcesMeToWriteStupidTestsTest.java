@@ -16,7 +16,7 @@ public class WhyDoesJenkinsForcesMeToWriteStupidTestsTest {
 
     @Test
     public void test() {
-        LOG.warn("THIS TEST IS NEEDLES, BUT IT HELPS TO SHINE ON JENKINS");
+        LOG.warn("THIS TEST IS SENSELESS, BUT IT HELPS TO SHINE ON JENKINS");
     }
 
 }
