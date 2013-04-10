@@ -62,8 +62,7 @@ public class BusinessKeyBeanWrapperFactory {
 
         public String getBusinessKeySelector() {
             BusinessKey keyAnnotation = this.metadata.getKeyField().getAnnotation(BusinessKey.class);
-            String keySelector = (String) AnnotationUtils.getValue(keyAnnotation, "value");
-            return keySelector;
+            return (String) AnnotationUtils.getValue(keyAnnotation, "value");
         }
 
         public void setBusinessKey(final String key) {

@@ -15,7 +15,7 @@ import de.zalando.data.annotation.BusinessKey;
 /**
  * @author  jbellmann
  */
-class AnnotationBusinessKeyMetadata {
+final class AnnotationBusinessKeyMetadata {
 
     private static final AnnotationFieldFilter BUSINESSKEY_FILTER = new AnnotationFieldFilter(BusinessKey.class);
 
