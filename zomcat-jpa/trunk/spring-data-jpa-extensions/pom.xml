@@ -202,6 +202,7 @@
                     <target>${targetJdk}</target>
                 </configuration>
             </plugin>
+            <!--
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>maven-apt-plugin</artifactId>
@@ -237,6 +238,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
             <plugin>
                 <groupId>de.jbellmann.maven.plugins</groupId>
                 <artifactId>markdown-maven-plugin</artifactId>
