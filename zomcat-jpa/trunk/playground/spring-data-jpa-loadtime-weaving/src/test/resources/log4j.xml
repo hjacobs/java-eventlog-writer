@@ -22,6 +22,5 @@
     <root>
         <priority value="debug" />
         <appender-ref ref="default" />
-        <appender-ref ref="defaultFileAppender"/>
     </root>
 </log4j:configuration>
