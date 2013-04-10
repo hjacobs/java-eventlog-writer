@@ -5,6 +5,9 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -14,16 +17,18 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import com.google.common.base.Objects;
 
 import de.zalando.data.annotation.BusinessKey;
 
-@SuppressWarnings("serial")
 @Entity
 @Table(schema = "zzj_data", name = "purchase_order")
-public class PurchaseOrder extends AbstractPersistable<Integer> {
+public class PurchaseOrder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 
     private String brandCode;
 
@@ -88,6 +93,10 @@ public class PurchaseOrder extends AbstractPersistable<Integer> {
 
     public Integer getVersion() {
         return version;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     @Override
