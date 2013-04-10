@@ -135,7 +135,6 @@
                             </includes>
                         </configuration>
                     </execution>
-                    <!--
                     <execution>
                         <id>integration-tests</id>
                         <goals>
@@ -168,7 +167,7 @@
                             </includes>
                             <argLine>-javaagent:${settings.localRepository}/org/springframework/spring-instrument/${spring.version}/spring-instrument-${spring.version}.jar</argLine>
                         </configuration>
-                    </execution>-->
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
