@@ -19,8 +19,6 @@
     </properties>
     <modules>
         <module>spring-data-jpa-example</module>
-        <module>spring-data-jpa-loadtime-weaving</module>
-        <module>spring-data-jpa-static-weaving</module>
     </modules>
     <build>
         <pluginManagement>
@@ -35,4 +33,13 @@
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>withLoadTimeWeaving</id>
+            <modules>
+                <module>spring-data-jpa-loadtime-weaving</module>
+                <module>spring-data-jpa-static-weaving</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
