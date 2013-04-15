@@ -18,12 +18,14 @@
         <module>zomcat-jpa-eclipselink</module>
         <module>zomcat-jpa-domain</module>
         <module>spring-data-jpa-extensions</module>
+        <module>spring-data-jpa-auditing-filter</module>
+        <module>spring-data-jpa-auditing-cxf</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>3.2.2.RELEASE</spring.version>
         <aspectj.version>1.7.1</aspectj.version>
-        <jodatime.version>2.1</jodatime.version>
+        <jodatime.version>2.2</jodatime.version>
         <eclipselink.version>2.4.1</eclipselink.version>
     </properties>
     <dependencyManagement>
