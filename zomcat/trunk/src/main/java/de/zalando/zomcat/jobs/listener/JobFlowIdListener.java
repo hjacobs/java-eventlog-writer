@@ -34,7 +34,8 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
     }
 
     @Override
-    public void startRunning(final RunningWorker runningWorker, final JobExecutionContext context, final String host) {
+    public void onExecutionSetUp(final RunningWorker runningWorker, final JobExecutionContext context,
+            final String host) {
 
         // clear this thread: there can be no other context in there...
         ExecutionContext.clear();
@@ -45,6 +46,26 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
         FlowId.getScope().enter(FlowId.peekFlowId());
         LOG.trace("start running job with flowId {} and userContext {}", FlowId.peekFlowId(),
             FlowUserContext.getUserContext());
+
+    }
+
+    @Override
+    public void onExecutionTearDown(final RunningWorker runningWorker) {
+        FlowId.getScope().exit(FlowId.peekFlowId());
+
+        final String userContext = FlowUserContext.clear();
+        final String flowId = FlowId.popFlowId();
+        LOG.trace("stop running job with flowId {} and userContext {}", flowId, userContext);
+    }
+
+    @Override
+    public void startRunning(final RunningWorker runningWorker, final JobExecutionContext context, final String host) {
+        // nothing to do on this stage
+    }
+
+    @Override
+    public void stopRunning(final RunningWorker runningWorker, final Throwable t) {
+        // nothing to do on this stage
     }
 
     private String getUserContext(final JobExecutionContext context, final String host) {
@@ -65,12 +86,4 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
         return stringBuilder.toString();
     }
 
-    @Override
-    public void stopRunning(final RunningWorker runningWorker, final Throwable t) {
-        FlowId.getScope().exit(FlowId.peekFlowId());
-
-        final String userContext = FlowUserContext.clear();
-        final String flowId = FlowId.popFlowId();
-        LOG.trace("stop running job with flowId {} and userContext {}", flowId, userContext);
-    }
 }

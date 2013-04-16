@@ -141,8 +141,6 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
                 "Aborting Job: no description for job defined: " + getBeanName());
         }
 
-        final boolean isLockedJob = (lockResourceManager != null && getLockResource() != null);
-
         final JobConfig config = getJobConfig();
 
         // If no JobConfig was set by JobManager and the Job is not allowed to run, return here
@@ -150,46 +148,55 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
             return;
         }
 
-        if (isLockedJob) {
-            final boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(),
-                    FlowId.peekFlowId());
+        final boolean isLockedJob = (lockResourceManager != null && getLockResource() != null);
 
-            // if some problem happens from now on and before the lock is released (JVM crash, etc...) the lock needs
-            // to be removed manually
+        notifyExecutionSetUp(context);
 
-            // if we got at this point, we have a lock - else we got an exception that can be ignored.
-            if (!acquiredLock) {
-                log(Level.INFO, "job's resource is locked and job will not start", null);
-                return;
-            } else {
+        try {
+            if (isLockedJob) {
+                final boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(),
+                        FlowId.peekFlowId());
+
+                // if some problem happens from now on and before the lock is released (JVM crash, etc...) the lock
+                // needs
+                // to be removed manually
+
+                // if we got at this point, we have a lock - else we got an exception that can be ignored.
+                if (!acquiredLock) {
+                    log(Level.INFO, "job's resource is locked and job will not start", null);
+                    return;
+                }
+
                 log(Level.DEBUG, "acquired resource lock for job; job will start", null);
             }
-        }
 
-        // notify about start running this job
-        notifyStartRunning(context);
+            // notify about start running this job
+            notifyStartRunning(context);
 
-        // run the job and catch ALL exceptions
-        // TBC define a condition to control job execution in local
-        // environment
-        // (e.g. job.runlocal=name1 name2 ....)
+            // run the job and catch ALL exceptions
+            // TBC define a condition to control job execution in local
+            // environment
+            // (e.g. job.runlocal=name1 name2 ....)
 
-        Throwable throwable = null;
-        try {
-            doRun(context, config);
-        } catch (final Throwable e) {
-            log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
-            throwable = e;
-        } finally {
+            Throwable throwable = null;
+            try {
+                doRun(context, config);
+            } catch (final Throwable e) {
+                log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
+                throwable = e;
+            } finally {
 
-            // notify about stop running this job
-            if (isLockedJob) {
+                // notify about stop running this job
+                if (isLockedJob) {
 
-                // if the database is not available, the lock needs to be removed manually.
-                lockResourceManager.releaseLock(getLockResource());
+                    // if the database is not available, the lock needs to be removed manually.
+                    lockResourceManager.releaseLock(getLockResource());
+                }
+
+                notifyStopRunning(throwable);
             }
-
-            notifyStopRunning(throwable);
+        } finally {
+            notifyExecutionTearDown();
         }
     }
 
@@ -274,7 +281,38 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     protected void addJobListener(final JobListener jobListener) {
-        this.jobListeners.add(jobListener);
+        jobListeners.add(jobListener);
+    }
+
+    /**
+     * notify all {@link JobListener} that this job is being setup.
+     */
+    protected void notifyExecutionSetUp(final JobExecutionContext context) {
+        for (final JobListener jobListener : jobListeners) {
+            try {
+                jobListener.onExecutionSetUp(this, context, getAppInstanceKey());
+            } catch (final Throwable t) {
+
+                // log the error and proceed
+                log(Level.FATAL,
+                    "Could not execute onExecutionSetUp on jobListener: " + jobListener + ", context:" + context, t);
+            }
+        }
+    }
+
+    /**
+     * notify all {@link JobListener} about job tear down.
+     */
+    protected void notifyExecutionTearDown() {
+        for (final JobListener jobListener : Lists.reverse(jobListeners)) {
+            try {
+                jobListener.onExecutionTearDown(this);
+            } catch (final Throwable t) {
+
+                // log the error and proceed
+                log(Level.FATAL, "Could not execute onExecutionTearDown on jobListener: " + jobListener, t);
+            }
+        }
     }
 
     /**
@@ -523,6 +561,17 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      * @author  wolters
      */
     class QuartzJobInfoBeanListener implements JobListener {
+
+        @Override
+        public void onExecutionSetUp(final RunningWorker runningWorker, final JobExecutionContext context,
+                final String appInstanceKey) {
+            // nothing to do on this stage
+        }
+
+        @Override
+        public void onExecutionTearDown(final RunningWorker runningWorker) {
+            // nothing to do on this stage
+        }
 
         @Override
         public void startRunning(final RunningWorker runningWorker, final JobExecutionContext context,

@@ -37,6 +37,17 @@ public class JobHistoryListener implements JobListener, ComponentBean {
     }
 
     @Override
+    public void onExecutionSetUp(final RunningWorker runningWorker, final JobExecutionContext context,
+            final String appInstanceKey) {
+        // nothing to do on this stage
+    }
+
+    @Override
+    public void onExecutionTearDown(final RunningWorker runningWorker) {
+        // nothing to do on this stage
+    }
+
+    @Override
     public void startRunning(final RunningWorker runningWorker, final JobExecutionContext context,
             final String appInstanceKey) {
 
