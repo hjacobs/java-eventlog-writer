@@ -47,7 +47,7 @@ public class FlowScopeTest {
 
         Assert.assertEquals("flowId", "myid", FlowId.getScope().getConversationId());
 
-        FlowId.getScope().exit();
+        FlowId.getScope().exit("myid");
         Assert.assertFalse("not active again", FlowId.getScope().isActive());
     }
 

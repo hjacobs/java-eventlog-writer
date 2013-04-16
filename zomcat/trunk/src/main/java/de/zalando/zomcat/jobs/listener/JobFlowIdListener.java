@@ -42,7 +42,7 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
 
         FlowUserContext.setUserContext(getUserContext(context, host));
         FlowId.generateAndPushFlowIdWithPayload(FlowIdType.JOB);
-        FlowId.getScope().enter();
+        FlowId.getScope().enter(FlowId.peekFlowId());
         LOG.trace("start running job with flowId {} and userContext {}", FlowId.peekFlowId(),
             FlowUserContext.getUserContext());
     }
@@ -67,7 +67,7 @@ public class JobFlowIdListener implements JobListener, ComponentBean {
 
     @Override
     public void stopRunning(final RunningWorker runningWorker, final Throwable t) {
-        FlowId.getScope().exit();
+        FlowId.getScope().exit(FlowId.peekFlowId());
 
         final String userContext = FlowUserContext.clear();
         final String flowId = FlowId.popFlowId();

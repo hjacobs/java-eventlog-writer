@@ -32,6 +32,11 @@ public interface FlowScope extends Scope {
     void exit();
 
     /**
+     * End the flow scope of the current thread.
+     */
+    void exit(String flowId);
+
+    /**
      * Store information important for logging in the scope. Exiting the scope will clean up the information
      * automatically.
      */

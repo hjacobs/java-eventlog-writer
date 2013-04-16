@@ -38,38 +38,43 @@ class FlowScopeImpl implements FlowScope {
 
     @Override
     public void enter(final String flowId) {
-        Preconditions.checkState(!isActive(), "Flow scope already initialized with flow ID {}!", flowId);
+        if (!isActive()) {
+            FLOW_CONTEXT.set(Maps.<String, Object>newHashMap());
 
-        FLOW_CONTEXT.set(Maps.<String, Object>newHashMap());
+            getContext().put(FLOW_ID_KEY, flowId);
+            getContext().put(DESTRUCTION_CALLBACKS_KEY, Maps.<String, Runnable>newHashMap());
+            getContext().put(LOGGING_KEYS_KEY, Sets.<String>newHashSet());
 
-        getContext().put(FLOW_ID_KEY, flowId);
-        getContext().put(DESTRUCTION_CALLBACKS_KEY, Maps.<String, Runnable>newHashMap());
-        getContext().put(LOGGING_KEYS_KEY, Sets.<String>newHashSet());
-
-        LOG.trace("Flow scope {} initialized.", flowId);
+            LOG.trace("Flow scope {} initialized.", flowId);
+        }
     }
 
     @Override
     public void exit() {
+        exit(FlowId.peekFlowId());
+    }
+
+    @Override
+    public void exit(final String flowId) {
         Preconditions.checkState(isActive(), "No flow scope active!");
 
-        final String flowId = getConversationId();
+        if (flowId.equals(getConversationId())) {
+            for (final String destructionCallbackName : getDestructionCallbacks().keySet()) {
+                callDestructionCallback(destructionCallbackName);
+            }
 
-        for (final String destructionCallbackName : getDestructionCallbacks().keySet()) {
-            callDestructionCallback(destructionCallbackName);
+            getDestructionCallbacks().clear();
+
+            for (final String loggingKey : getLoggingKeys()) {
+                MDC.remove(loggingKey);
+            }
+
+            getLoggingKeys().clear();
+
+            getContext().clear();
+            FLOW_CONTEXT.remove();
+            LOG.trace("Flow scope {} destroyed.", flowId);
         }
-
-        getDestructionCallbacks().clear();
-
-        for (final String loggingKey : getLoggingKeys()) {
-            MDC.remove(loggingKey);
-        }
-
-        getLoggingKeys().clear();
-
-        getContext().clear();
-        FLOW_CONTEXT.remove();
-        LOG.trace("Flow scope {} destroyed.", flowId);
     }
 
     private Map<String, Object> getContext() {
