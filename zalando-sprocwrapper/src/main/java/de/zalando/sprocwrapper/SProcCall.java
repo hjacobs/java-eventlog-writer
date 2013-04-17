@@ -56,6 +56,8 @@ public @interface SProcCall {
         IMPORT_COMMISSIONS(36L),
         IMPORT_INBOUND_TOURS(37L),
         GET_ZALOS_DEVICE(38L),
+        ZALOS_PRINT_LIST_PREPARE(39L),
+        ZALOS_PRINT_LIST_POSITION_PREPARE(40L),
 
         /*
          * The values following now don't exist in LockingSproc. To allow adding new values to
