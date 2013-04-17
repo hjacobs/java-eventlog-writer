@@ -1,0 +1,4 @@
+# Tooling related information for the ZJPA namespace
+http\://www.zalando.de/schema/data/jpa@name=Zalando JPA Namespace
+http\://www.zalando.de/schema/data/jpa@prefix=zjpa
+http\://www.zalando.de/schema/data/jpa@icon=org/springframework/jdbc/config/spring-jdbc.gif
