@@ -249,13 +249,13 @@
             <plugin>
                 <groupId>de.jbellmann.maven.plugins</groupId>
                 <artifactId>markdown-maven-plugin</artifactId>
-                <version>0.9.0</version>
+                <version>0.9.1</version>
                 <executions>
                     <execution>
                         <id>render-markdown</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>gen generate</goal>
+                            <goal>render</goal>
                         </goals>
                     </execution>
                 </executions>
