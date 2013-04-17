@@ -147,6 +147,7 @@
                     <artifactId>maven-release-plugin</artifactId>
                     <version>2.1</version>
                     <configuration>
+                        <scmCommentPrefix>ZEOS-14909 release plugin</scmCommentPrefix>
                         <mavenExecutorId>forked-path</mavenExecutorId>
                         <useReleaseProfile>false</useReleaseProfile>
                         <arguments>-Pcustom-release,maven</arguments>
