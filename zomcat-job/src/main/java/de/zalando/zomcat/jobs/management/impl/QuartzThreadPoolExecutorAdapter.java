@@ -1,7 +1,5 @@
 package de.zalando.zomcat.jobs.management.impl;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -14,31 +12,35 @@ import org.quartz.spi.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
 // TODO test with negative values
 // TODO test wait timeout
-// TODO test work queue
-// TODO add set validation and remove from init method
-public class QuartzThreadPoolAdapter implements ThreadPool {
+// TODO log dropped tasks on shutdown
+/**
+ * Simple implementation of quartz thread pool based on {@link ThreadPoolExecutor}.
+ *
+ * <p>This pool is capable of growing and shrink on demand preserving resources.
+ *
+ * @author  pribeiro
+ */
+public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
-    private static final Logger LOG = LoggerFactory.getLogger(QuartzThreadPoolAdapter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(QuartzThreadPoolExecutorAdapter.class);
 
     private final Object availableThreadsLock = new Object();
 
-    private int corePoolSize = 25;
+    private int corePoolSize = 1;
 
     private int maximumPoolSize = 50;
 
     // Maximum time in milliseconds that excess idle threads will wait for new tasks before terminating.
-    // Default: 60 seconds
-    private long keepAliveTime = 60000;
+    // Default: 5 minutes
+    private long keepAliveTime = 5 * 60 * 1000;
 
     // Shutdown timeout in milliseconds.
-    // Default: 10 seconds
-    private long shutdownTimeout = 10000;
-
-    // Queue size. If the queue size is zero, thread pool will block if it reaches the maximum size
-    // Default 0
-    private int queueSize = 0;
+    // Default: 60 seconds
+    private long shutdownTimeout = 10 * 60 * 1000;
 
     private String instanceId;
 
@@ -46,7 +48,7 @@ public class QuartzThreadPoolAdapter implements ThreadPool {
 
     private ThreadPoolExecutor executor;
 
-    public QuartzThreadPoolAdapter() { }
+    public QuartzThreadPoolExecutorAdapter() { }
 
     /**
      * Gets the core number of threads.
@@ -61,6 +63,7 @@ public class QuartzThreadPoolAdapter implements ThreadPool {
      * Sets the number of core threads in the pool - has no effect after <code>initialize()</code> has been called.
      */
     public void setCorePoolSize(final int corePoolSize) {
+        Preconditions.checkArgument(corePoolSize >= 0, "Core thread count must be >= 0");
         this.corePoolSize = corePoolSize;
     }
 
@@ -77,6 +80,7 @@ public class QuartzThreadPoolAdapter implements ThreadPool {
      * Sets the number of worker threads in the pool - has no effect after <code>initialize()</code> has been called.
      */
     public void setMaximumPoolSize(final int maximumPoolSize) {
+        Preconditions.checkArgument(maximumPoolSize > 0, "Maximum thread count must be > 0");
         this.maximumPoolSize = maximumPoolSize;
     }
 
@@ -95,6 +99,7 @@ public class QuartzThreadPoolAdapter implements ThreadPool {
      * @param  keepAliveTime
      */
     public void setKeepAliveTime(final long keepAliveTime) {
+        Preconditions.checkArgument(keepAliveTime >= 0, "Thread keep alive time must be >= 0");
         this.keepAliveTime = keepAliveTime;
     }
 
@@ -110,9 +115,10 @@ public class QuartzThreadPoolAdapter implements ThreadPool {
     /**
      * Gets the timeout used on shutdown for running jobs.
      *
-     * @param  shutdownTimeout  shtdown timeout
+     * @param  shutdownTimeout  shutdown timeout
      */
     public void setShutdownTimeout(final long shutdownTimeout) {
+        Preconditions.checkArgument(shutdownTimeout >= 0, "Shutdown timeout must be >= 0");
         this.shutdownTimeout = shutdownTimeout;
     }
 
@@ -151,27 +157,12 @@ public class QuartzThreadPoolAdapter implements ThreadPool {
 
     @Override
     public void initialize() throws SchedulerConfigException {
-        if (corePoolSize <= 0) {
-            throw new SchedulerConfigException("Core thread count must be > 0");
-        }
-
-        if (maximumPoolSize <= 0) {
-            throw new SchedulerConfigException("Maximum thread count must be > 0");
-        }
-
-        if (keepAliveTime <= 0) {
-            throw new SchedulerConfigException("Thread keep alive time must be > 0");
-        }
-
         if (maximumPoolSize < corePoolSize) {
             throw new SchedulerConfigException("Maximum thread cound must be higher than core pool size");
         }
 
-        BlockingQueue<Runnable> workQueue = queueSize > 0 ? new LinkedBlockingQueue<Runnable>(queueSize)
-                                                          : new SynchronousQueue<Runnable>();
-
         executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MILLISECONDS,
-                workQueue);
+                new SynchronousQueue<Runnable>());
     }
 
     @Override
@@ -216,12 +207,13 @@ public class QuartzThreadPoolAdapter implements ThreadPool {
     @Override
     public boolean runInThread(final Runnable runnable) {
         boolean ran = false;
-
-        try {
-            this.executor.execute(runnable);
-            ran = true;
-        } catch (RejectedExecutionException e) {
-            LOG.error("Could not execute job", e);
+        if (runnable != null) {
+            try {
+                this.executor.execute(runnable);
+                ran = true;
+            } catch (RejectedExecutionException e) {
+                LOG.error("Could not execute job", e);
+            }
         }
 
         return ran;
@@ -229,15 +221,47 @@ public class QuartzThreadPoolAdapter implements ThreadPool {
 
     @Override
     public void shutdown(final boolean waitForJobsToComplete) {
+        LOG.info("Shutting down quartz thread pool");
+
         executor.shutdown();
 
         if (waitForJobsToComplete) {
+            LOG.info("Waiting {} ms for jobs termination", shutdownTimeout);
             try {
-                executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS);
+                if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
+                    LOG.error(
+                        "Quartz thread pool quartz timeout elapsed before termination. Some jobs might have terminated abruptly");
+                }
             } catch (InterruptedException e) {
                 LOG.error("Job thread pool interrupted", e);
             }
         }
+
+        LOG.info("Shutdown complete: {}", executor.toString());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("QuartzThreadPoolExecutorAdapter [availableThreadsLock=");
+        builder.append(availableThreadsLock);
+        builder.append(", corePoolSize=");
+        builder.append(corePoolSize);
+        builder.append(", maximumPoolSize=");
+        builder.append(maximumPoolSize);
+        builder.append(", keepAliveTime=");
+        builder.append(keepAliveTime);
+        builder.append(", shutdownTimeout=");
+        builder.append(shutdownTimeout);
+        builder.append(", instanceId=");
+        builder.append(instanceId);
+        builder.append(", instanceName=");
+        builder.append(instanceName);
+        builder.append(", executor=");
+        builder.append(executor);
+        builder.append("]");
+
+        return builder.toString();
     }
 
 }
