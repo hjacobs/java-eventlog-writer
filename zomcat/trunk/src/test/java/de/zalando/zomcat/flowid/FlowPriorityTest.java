@@ -1,5 +1,7 @@
 package de.zalando.zomcat.flowid;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.zalando.zomcat.flowid.FlowPriority.Priority;
@@ -7,6 +9,13 @@ import de.zalando.zomcat.flowid.FlowPriority.Priority;
 import junit.framework.Assert;
 
 public class FlowPriorityTest {
+
+    @After
+    @Before
+    public void clearPriority() {
+        FlowPriority.clearFlowPriority();
+    }
+
     @Test
     public void testFlowPriority1() throws Exception {
         FlowPriority.setFlowPriority(Priority.DEFAULT);

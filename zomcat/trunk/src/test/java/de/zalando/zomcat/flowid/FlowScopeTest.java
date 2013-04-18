@@ -1,13 +1,11 @@
 package de.zalando.zomcat.flowid;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore(value = "This new feature is still unstable. Test temporarily disabled while it's not fully operational")
 public class FlowScopeTest {
     private ApplicationContext newContext() {
         return new ClassPathXmlApplicationContext("flowScopeTests.xml");
@@ -17,18 +15,21 @@ public class FlowScopeTest {
     public void testServiceExists() {
         final ApplicationContext ctx = newContext();
 
+        Assert.assertFalse("not active", FlowId.getScope().isActive());
         FlowId.getScope().enter();
+        Assert.assertTrue("active", FlowId.getScope().isActive());
 
         final CounterService service = ctx.getBean(CounterService.class);
         Assert.assertNotNull(service);
-
         FlowId.getScope().exit();
+        Assert.assertFalse("not active again", FlowId.getScope().isActive());
     }
 
     @Test(expected = Exception.class)
     public void testNoScopeActive() {
         final ApplicationContext ctx = newContext();
 
+        Assert.assertFalse("not active", FlowId.getScope().isActive());
         ctx.getBean(CounterService.class);
     }
 
