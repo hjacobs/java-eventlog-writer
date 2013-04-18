@@ -2,6 +2,7 @@ package de.zalando.zomcat.jobs.management;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.zalando.zomcat.jobs.management.impl.QuartzThreadPoolExecutorAdapter;
@@ -57,6 +58,7 @@ public class QuartzThreadPoolExecutorAdapterTest {
     }
 
     @Test(timeout = 60000)
+    @Ignore
     public void testRunMaxJobs() throws Exception {
         final QuartzThreadPoolExecutorAdapter pool = new QuartzThreadPoolExecutorAdapter();
         pool.setCorePoolSize(0);
