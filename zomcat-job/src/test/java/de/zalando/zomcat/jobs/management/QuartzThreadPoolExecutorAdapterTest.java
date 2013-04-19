@@ -2,7 +2,6 @@ package de.zalando.zomcat.jobs.management;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import de.zalando.zomcat.jobs.management.impl.QuartzThreadPoolExecutorAdapter;
@@ -58,7 +57,6 @@ public class QuartzThreadPoolExecutorAdapterTest {
     }
 
     @Test(timeout = 60000)
-    @Ignore
     public void testRunMaxJobs() throws Exception {
         final QuartzThreadPoolExecutorAdapter pool = new QuartzThreadPoolExecutorAdapter();
         pool.setCorePoolSize(0);
@@ -141,19 +139,19 @@ public class QuartzThreadPoolExecutorAdapterTest {
 
     private static final class WaitJob implements Runnable {
 
-        private final CountDownLatch ran = new CountDownLatch(1);
+        private final CountDownLatch lock = new CountDownLatch(1);
 
         @Override
         public void run() {
             try {
-                ran.await();
+                lock.await();
             } catch (InterruptedException e) {
                 Assert.fail(e.getMessage());
             }
         }
 
         public void unlock() {
-            ran.countDown();
+            lock.countDown();
         }
     }
 
