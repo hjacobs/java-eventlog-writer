@@ -131,6 +131,12 @@
             </modules>
         </profile>
         <profile>
+            <id>withDocumentation</id>
+            <modules>
+                <module>documentation</module>
+            </modules>
+        </profile>
+        <profile>
             <id>custom-release</id>
             <build>
                 <plugins>
