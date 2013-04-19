@@ -169,5 +169,55 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>m3</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.1.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-project-rules</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                            <!-- 2.2 <= X < 3.0 -->
+                                <!-- Cheat here, allows Maven 3 ;-) -->
+                                    <version>[2.2,3.1)</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.6</version>
+                                </requireJavaVersion>
+                                <requirePluginVersions>
+                                    <message>Best Practice is to always
+                                        define plugin versions!</message>
+                                    <banLatest>true</banLatest>
+                                    <banRelease>true</banRelease>
+                                    <banSnapshots>false</banSnapshots>
+                                    <phases>clean,deploy,site</phases>
+                                    <additionalPlugins>
+                                <!--
+                                <additionalPlugin>org.apache.maven.plugins:maven-eclipse-plugin</additionalPlugin>
+                                <additionalPlugin>org.apache.maven.plugins:maven-reactor-plugin</additionalPlugin>-->
+                                    </additionalPlugins>
+                                    <unCheckedPluginList>au.com.alderaan:eclipselink-staticweave-maven-plugin,org.apache.maven.plugins:maven-enforcer-plugin,org.apache.maven.plugins:maven-idea-plugin</unCheckedPluginList>
+                                </requirePluginVersions>
+                                <!-- TODO require the absent of SNAPSHOTs in a release?
+                                <requireReleaseDeps/>
+                                -->
+                            </rules>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
