@@ -1,7 +1,6 @@
 package de.zalando.jpa.example;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -17,14 +16,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import de.zalando.jpa.example.order.Address;
 import de.zalando.jpa.example.order.OrderStatus;
 import de.zalando.jpa.example.order.PurchaseOrder;
+import de.zalando.jpa.example.order.PurchaseOrderPosition;
 import de.zalando.jpa.example.order.PurchaseOrderRepository;
 
 /**
  * @author  jbellmann
  */
-@Ignore
+// @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @Transactional
@@ -41,7 +42,7 @@ public class PurchaseOrderTest {
         PurchaseOrder order = new PurchaseOrder();
         order.setOrderStatus(OrderStatus.ORDERED);
         order.setBrandCode("BRANDCODE_A");
-        purchaseOrderRepository.save(order);
+        purchaseOrderRepository.saveAndFlush(order);
 
         Assert.assertNotNull(order.getBusinessKey());
         Assert.assertNotNull(order.getBrandCode());
@@ -51,5 +52,33 @@ public class PurchaseOrderTest {
         Assert.assertNotNull(order.getModificationDate());
 
         LOG.info("PurchaseOrder to save on commit : {}", order);
+
+        order.getPositions().add(new PurchaseOrderPosition(order));
+        order.getPositions().add(new PurchaseOrderPosition(order));
+
+        order.setAddress(new Address());
+
+        purchaseOrderRepository.saveAndFlush(order);
+        LOG.info("PurchaseOrder to save with Postions : {}", order);
+
+        for (PurchaseOrderPosition pos : order.getPositions()) {
+            LOG.info("Saved Position : {}", pos.toString());
+        }
+
+        LOG.info("PurchaseOrder to save with Postions : {}", order);
+        LOG.info("Address : {}", order.getAddress());
+
+        LOG.info("---- NOW DELETE THE FIRST ----------");
+        order.getPositions().remove(0);
+        purchaseOrderRepository.saveAndFlush(order);
+
+        LOG.info("---- AFTER DELETE ----------");
+        for (PurchaseOrderPosition pos : order.getPositions()) {
+            LOG.info("Saved Position : {}", pos.toString());
+        }
+
+        LOG.info("PurchaseOrder to save with Postions : {}", order);
+        LOG.info("Address : {}", order.getAddress());
+
     }
 }
