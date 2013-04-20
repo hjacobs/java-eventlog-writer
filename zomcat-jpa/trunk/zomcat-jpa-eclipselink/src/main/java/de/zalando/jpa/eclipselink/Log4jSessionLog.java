@@ -143,11 +143,11 @@ public class Log4jSessionLog extends AbstractSessionLog {
                             break;
 
                         case FINEST :
-                            LOG.trace(sb.toString());
+                            LOG.debug(sb.toString());
                             break;
 
                         case ALL :
-                            LOG.trace(sb.toString());
+                            LOG.debug(sb.toString());
                             break;
 
                         default :
