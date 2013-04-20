@@ -13,15 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author      <a href="mailto:marcel.wieczorek@zalando.de" title="Marcel Wieczorek">mwieczorek</a>
- * @deprecated  use Slf4jSessionLog
+ * @author  <a href="mailto:marcel.wieczorek@zalando.de" title="Marcel Wieczorek">mwieczorek</a>
  */
-@Deprecated
-public class Log4jSessionLog extends AbstractSessionLog {
+public class Slf4jSessionLog extends AbstractSessionLog {
 
     private static final Logger LOG = LoggerFactory.getLogger("org.eclipse.persistence");
 
-    public Log4jSessionLog() {
+    public Slf4jSessionLog() {
         setShouldPrintThread(true);
     }
 
