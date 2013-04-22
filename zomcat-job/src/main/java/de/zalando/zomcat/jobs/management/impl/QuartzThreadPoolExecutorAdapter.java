@@ -36,7 +36,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
     private long keepAliveTime = 5 * 60 * 1000;
 
     // Shutdown timeout in milliseconds.
-    // Default: 60 seconds
+    // Default: 10 minutes
     private long shutdownTimeout = 10 * 60 * 1000;
 
     private String instanceId;
@@ -58,6 +58,8 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     /**
      * Sets the number of core threads in the pool - has no effect after <code>initialize()</code> has been called.
+     *
+     * @param  corePoolSize  corePoolSize the core size
      */
     public void setCorePoolSize(final int corePoolSize) {
         Preconditions.checkArgument(corePoolSize >= 0, "Core thread count must be >= 0");
@@ -75,6 +77,8 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     /**
      * Sets the number of worker threads in the pool - has no effect after <code>initialize()</code> has been called.
+     *
+     * @param  maximumPoolSize  maximum pool size
      */
     public void setMaximumPoolSize(final int maximumPoolSize) {
         Preconditions.checkArgument(maximumPoolSize > 0, "Maximum thread count must be > 0");
@@ -166,11 +170,15 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     @Override
     public int blockForAvailableThreads() {
+        // this method is always executed by the same scheduler thread
+
         return helper.blockForAvailableThreads();
     }
 
     @Override
     public boolean runInThread(final Runnable runnable) {
+        // this method is executed sequentially after blockForAvailableThreads() and in the same scheduler thread
+
         boolean ran = false;
 
         if (runnable != null) {
@@ -217,21 +225,24 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
     private static final class ThreadPoolExecutorHelper extends ThreadPoolExecutor {
 
         private final Object lock = new Object();
+
         private int count = 0;
 
-        private final int maxPoolSize;
+        // cache maximumPoolSize to minimize locking on thread pool executor
+        // ThreadPoolExecutor.getPoolSize should return what we want, but it acquires one lock to do it
+        // Since we can't change maximumPoolSize dynamically we can safely cache this value
+        private final int maximumPoolSize;
         private final long shutdownTimeout;
 
         public ThreadPoolExecutorHelper(final int corePoolSize, final int maximumPoolSize, final long keepAliveTime,
                 final long shutdownTimeout) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MILLISECONDS,
 
-                // we are using an linked blocking queue for the case when method afterExecute was executed, but the
-                // worker
-                // was not yet released
+                // use a linked blocking queue because method afterExecute()  is invoked by the thread that executed
+                // the task
                 new LinkedBlockingQueue<Runnable>());
 
-            this.maxPoolSize = maximumPoolSize;
+            this.maximumPoolSize = maximumPoolSize;
             this.shutdownTimeout = shutdownTimeout;
         }
 
@@ -250,9 +261,11 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
             int availableThreads;
 
             synchronized (lock) {
-                availableThreads = maxPoolSize - count;
+                availableThreads = maximumPoolSize - count;
 
                 if (availableThreads < 1) {
+                    // if we are here, we have performance problems. The pool is to short and some tasks are waiting for
+                    // available resources. We should notify this problem
 
                     // only log once
                     LOG.warn("Maximum quartz thread pool size reached. Please increase quartz pool size");
@@ -260,12 +273,14 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
                     while (availableThreads < 1 && !isShutdown()) {
 
                         try {
+
+                            // prevent this to lock forever, keep trying
                             lock.wait(1000);
                         } catch (InterruptedException e) {
                             LOG.warn("Available threads wait interrupted", e);
                         }
 
-                        availableThreads = maxPoolSize - count;
+                        availableThreads = maximumPoolSize - count;
                     }
                 }
             }
@@ -303,6 +318,12 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         @Override
         protected void afterExecute(final Runnable r, final Throwable t) {
             super.afterExecute(r, t);
+
+            // The main reason, why we are using LinkedBlockingQueue instead of a SynchronousQueue.
+            // We are decreasing the number of running threads inside the thread that executed the task, so this
+            // worker is not yet available.
+            // If method blockForAvailableThreads() returns immediately we should block the task for a
+            // small amount of time and not reject it.
 
             synchronized (lock) {
                 count--;
