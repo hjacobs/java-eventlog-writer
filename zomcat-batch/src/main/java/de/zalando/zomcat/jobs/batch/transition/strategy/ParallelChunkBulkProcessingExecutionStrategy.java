@@ -120,7 +120,7 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
                                     new Object[] {chunkId, item, Thread.currentThread().getName()});
 
                                 try {
-
+                                    processor.validate(item);
                                     processor.process(item);
                                     processedCount.getAndIncrement();
 
