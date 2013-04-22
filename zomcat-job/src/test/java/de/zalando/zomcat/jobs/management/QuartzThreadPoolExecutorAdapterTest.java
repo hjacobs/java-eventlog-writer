@@ -113,8 +113,10 @@ public class QuartzThreadPoolExecutorAdapterTest {
 
                             try {
 
-                                // Seems like a code smell, if the machine is very very slow, this might not be enough
-                                // but if there is something wrong on the code the test it will eventually fail
+                                // Seems like a code smell, because we can't guarantee that method
+                                // blockForAvailableThreads() will be called while this method is being executed
+                                // (sleeping).
+                                // Still, if there is something wrong on the thread pool this test will eventually fail
                                 Thread.sleep(5000);
                                 counter.incrementAndGet();
                             } catch (InterruptedException e) {
