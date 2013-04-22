@@ -1,6 +1,8 @@
 package de.zalando.zomcat.jobs.management;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
@@ -66,17 +68,18 @@ public class QuartzThreadPoolExecutorAdapterTest {
 
         try {
             WaitJob job1 = new WaitJob();
+            WaitJob job2 = new WaitJob();
+            WaitJob job3 = new WaitJob();
+
             Assert.assertEquals(2, pool.blockForAvailableThreads());
             Assert.assertTrue(pool.runInThread(job1));
 
-            WaitJob job2 = new WaitJob();
             Assert.assertEquals(1, pool.blockForAvailableThreads());
             Assert.assertTrue(pool.runInThread(job2));
 
             // thread pool is full. Unlock job1 and run other job
             job1.unlock();
 
-            WaitJob job3 = new WaitJob();
             Assert.assertEquals(1, pool.blockForAvailableThreads());
             Assert.assertTrue(pool.runInThread(job3));
 
@@ -84,6 +87,61 @@ public class QuartzThreadPoolExecutorAdapterTest {
             job2.unlock();
             job3.unlock();
 
+        } finally {
+            pool.shutdown(true);
+        }
+    }
+
+    @Test(timeout = 60000)
+    public void testBlockForAvailableThreads() throws Exception {
+        final QuartzThreadPoolExecutorAdapter pool = new QuartzThreadPoolExecutorAdapter();
+        pool.setCorePoolSize(0);
+        pool.setMaximumPoolSize(1);
+        pool.setKeepAliveTime(0);
+        pool.initialize();
+
+        final Semaphore semaphore = new Semaphore(0);
+        final AtomicInteger counter = new AtomicInteger();
+
+        try {
+            Assert.assertEquals(1, pool.blockForAvailableThreads());
+            Assert.assertTrue(pool.runInThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            semaphore.release();
+
+                            try {
+
+                                // Seems like a code smell, if the machine is very very slow, this might not be enough
+                                // but if there is something wrong on the code the test it will eventually fail
+                                Thread.sleep(5000);
+                                counter.incrementAndGet();
+                            } catch (InterruptedException e) {
+                                Assert.fail(e.getMessage());
+                            }
+                        }
+                    }));
+
+            // wait for the job
+            semaphore.acquire();
+
+            Assert.assertEquals(1, pool.blockForAvailableThreads());
+            Assert.assertEquals(1, counter.get());
+
+            Assert.assertTrue(pool.runInThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            counter.incrementAndGet();
+                            semaphore.release();
+                        }
+                    }));
+
+            semaphore.acquire();
+
+            // check if job ran
+            Assert.assertEquals(2, counter.get());
         } finally {
             pool.shutdown(true);
         }

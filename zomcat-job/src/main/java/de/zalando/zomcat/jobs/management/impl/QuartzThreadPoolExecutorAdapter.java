@@ -1,7 +1,7 @@
 package de.zalando.zomcat.jobs.management.impl;
 
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -14,9 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-// TODO test with negative values
-// TODO test wait timeout
-// TODO log dropped tasks on shutdown
 /**
  * Simple implementation of quartz thread pool based on {@link ThreadPoolExecutor}.
  *
@@ -175,6 +172,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
     @Override
     public boolean runInThread(final Runnable runnable) {
         boolean ran = false;
+
         if (runnable != null) {
             try {
                 helper.execute(runnable);
@@ -227,7 +225,12 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         public ThreadPoolExecutorHelper(final int corePoolSize, final int maximumPoolSize, final long keepAliveTime,
                 final long shutdownTimeout) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MILLISECONDS,
-                new SynchronousQueue<Runnable>());
+
+                // we are using an linked blocking queue for the case when method afterExecute was executed, but the
+                // worker
+                // was not yet released
+                new LinkedBlockingQueue<Runnable>());
+
             this.maxPoolSize = maximumPoolSize;
             this.shutdownTimeout = shutdownTimeout;
         }
@@ -265,7 +268,6 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
                         availableThreads = maxPoolSize - count;
                     }
                 }
-
             }
 
             return availableThreads;
@@ -278,7 +280,9 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
             // notify waiting threads
             synchronized (lock) {
-                lock.notifyAll();
+                if (count == 0) {
+                    lock.notifyAll();
+                }
             }
 
             if (waitForJobsToComplete) {
@@ -308,5 +312,4 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
             }
         }
     }
-
 }
