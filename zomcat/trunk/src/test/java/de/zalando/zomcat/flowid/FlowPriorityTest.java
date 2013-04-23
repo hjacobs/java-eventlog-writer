@@ -30,7 +30,6 @@ public class FlowPriorityTest {
 
     @Test
     public void testFlowPriority3() throws Exception {
-        FlowPriority.clearFlowPriority();
         Assert.assertEquals(Priority.DEFAULT, FlowPriority.flowPriority());
     }
 

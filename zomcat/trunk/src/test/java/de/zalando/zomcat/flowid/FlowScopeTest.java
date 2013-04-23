@@ -1,6 +1,8 @@
 package de.zalando.zomcat.flowid;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.context.ApplicationContext;
@@ -9,6 +11,19 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class FlowScopeTest {
     private ApplicationContext newContext() {
         return new ClassPathXmlApplicationContext("flowScopeTests.xml");
+    }
+
+    @After
+    @Before
+    public void cleanResources() {
+
+        // cleanup resources before and after each test.
+        // Jenkins should use a thread pool, so if for some reason one test injects information on flow id and fails
+        // that information will remain and probably fail other tests.
+
+        if (FlowId.getScope().isActive()) {
+            FlowId.getScope().exit(FlowId.getScope().getConversationId());
+        }
     }
 
     @Test
