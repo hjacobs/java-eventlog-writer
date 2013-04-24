@@ -8,7 +8,7 @@ v1.4.0-SNAPSHOT, 2013
 :numbered:
 
 
-image:icon.png[link="http://10.111.151.89:10080/jenkins/job/ZOMCAT_JPA_MVN_3/badge/icon"]
+image::http://10.111.151.89:10080/jenkins/job/ZOMCAT_JPA_MVN_3/badge/icon[link="http://10.111.151.89:10080/jenkins/job/ZOMCAT_JPA_MVN_3/badge/icon"]
 
 
 Das Zomcat-JPA-Project beinhaltet einige Erweiterungen und Anpassungen um JPA bei Zalando zu verwenden.
