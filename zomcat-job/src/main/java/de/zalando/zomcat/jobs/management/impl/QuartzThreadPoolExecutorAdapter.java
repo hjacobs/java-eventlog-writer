@@ -327,7 +327,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
             // small amount of time and not reject it.
 
             synchronized (lock) {
-                if ((maximumPoolSize - --count) < 1) {
+                if ((maximumPoolSize - count--) < 1) {
                     lock.notifyAll();
                 }
             }
