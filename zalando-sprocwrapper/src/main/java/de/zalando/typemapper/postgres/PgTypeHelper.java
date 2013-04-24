@@ -8,7 +8,17 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.Column;
 
@@ -125,7 +135,7 @@ public class PgTypeHelper {
         m.put(Boolean.class, "bool");
         m.put(Date.class, "timestamp");
         m.put(java.sql.Date.class, "timestamp");
-        m.put(Timestamp.class, "timestamp");
+        m.put(java.sql.Timestamp.class, "timestamp");
         m.put(java.sql.Time.class, "timestamp");
         javaGenericClassToPgTypeNameMap = Collections.unmodifiableMap(m);
     }
@@ -250,7 +260,7 @@ public class PgTypeHelper {
         List<Object> resultList = null;
         TreeMap<Integer, Object> resultPositionMap = null;
 
-        final Field[] fields = obj.getClass().getDeclaredFields();
+        final Field[] fields = getFields(clazz);
         Map<String, DbTypeField> dbFields = null;
 
         if (connection != null) {
@@ -347,6 +357,38 @@ public class PgTypeHelper {
             return new PgTypeDataHolder(typeName, Collections.unmodifiableCollection(resultPositionMap.values()));
         } else {
             return new PgTypeDataHolder(typeName, Collections.unmodifiableCollection(resultList));
+        }
+    }
+
+    private static Field[] getFields(final Class<?> clazz) {
+
+        // remove block when deprecation is executed
+        com.typemapper.annotations.DatabaseType deprecatedDatabaseType = clazz.getAnnotation(
+                com.typemapper.annotations.DatabaseType.class);
+        if (deprecatedDatabaseType != null && deprecatedDatabaseType.inheritance()) {
+            List<Field> fields = new ArrayList<Field>();
+            Class<?> targetClass = clazz;
+            do {
+                fields.addAll(Arrays.asList(targetClass.getDeclaredFields()));
+                targetClass = targetClass.getSuperclass();
+            } while (targetClass != null && targetClass != Object.class);
+
+            return fields.toArray(new Field[fields.size()]);
+        }
+        // --end remove block when deprecation is executed
+
+        DatabaseType databaseType = clazz.getAnnotation(DatabaseType.class);
+        if (databaseType == null || !databaseType.inheritance()) {
+            return clazz.getDeclaredFields();
+        } else {
+            List<Field> fields = new ArrayList<Field>();
+            Class<?> targetClass = clazz;
+            do {
+                fields.addAll(Arrays.asList(targetClass.getDeclaredFields()));
+                targetClass = targetClass.getSuperclass();
+            } while (targetClass != null && targetClass != Object.class);
+
+            return fields.toArray(new Field[fields.size()]);
         }
     }
 

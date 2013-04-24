@@ -24,8 +24,10 @@ import static de.zalando.typemapper.postgres.PgRow.ROW;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+
 @RunWith(Parameterized.class)
 public class PgSerializerToDatabaseTestIT extends AbstractTest {
+
     private TestContextManager testContextManager;
 
     @Override
@@ -35,7 +37,7 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
     }
 
     @Before
-    public void createJdbcTemplate() throws Exception {
+    public void createJdbcTemplate() {
         // BasicConfigurator.configure();
         // Logger.getRootLogger().setLevel(Level.INFO);
         // Logger.getLogger(org.springframework.jdbc.datasource.DataSourceUtils.class).setLevel(Level.INFO);
@@ -59,7 +61,7 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
      * @Parameters.
      */
     public PgSerializerToDatabaseTestIT(final Object objectToSerialize, final String expectedString,
-                                        final Integer expectedSQLType) {
+            final Integer expectedSQLType) {
         this.objectToSerialize = objectToSerialize;
         this.expectedString = expectedString;
         this.expectedSQLType = expectedSQLType;
@@ -81,6 +83,8 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
     public static Collection<Object[]> generateData() throws SQLException {
         return Arrays.asList(
                 new Object[][] {
+                    /* 23 */
+                        {PgTypeHelper.asPGobject(new InheritedClassWithPrimitivesDeprecated(1L, "1", 12)), "(1,12,1)", Types.OTHER},
 
                     /* 0 */
                     {1, "1", Types.INTEGER},
@@ -196,6 +200,10 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
 
                     /* 21 */
                     {new Date(112, 9, 1, 6, 6, 6), "2012-10-01 06:06:06.000000 +02:00:00", Types.TIMESTAMP},
+
+                    /* 22 */
+                    {PgTypeHelper.asPGobject(new InheritedClassWithPrimitives(1L, "1", 12)), "(1,12,1)", Types.OTHER},
+
                 });
     }
 
@@ -221,6 +229,9 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
         execute("CREATE TYPE gender_enum_type AS ENUM ('MALE', 'FEMALE');");
         execute(
             "CREATE TYPE tmp.class_with_simple_transformers AS (file_column text, gender_as_code text, gender_as_int integer, gender_as_name gender_enum_type, string_list_with_separtion_char text);");
+
+        execute("CREATE TYPE tmp.inherited_class_with_primitives AS (l bigint, cc text, i int);");
+        execute("CREATE TYPE tmp.inherited_class_with_primitives_deprecated AS (l bigint, cc text, i int);");
     }
 
     @After
@@ -232,6 +243,8 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
         execute("DROP TYPE tmp.int_with_additional_type;");
         execute("DROP TYPE tmp.int_with_additional_type_array;");
         execute("DROP TYPE tmp.additional_type;");
+        execute("DROP TYPE tmp.inherited_class_with_primitives;");
+        execute("DROP TYPE tmp.inherited_class_with_primitives_deprecated;");
     }
 
     @Test

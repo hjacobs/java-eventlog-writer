@@ -50,7 +50,7 @@ class ArrayStoredProcedureParameter extends StoredProcedureParameter {
                     final DatabaseType dbType = paramsClass.getAnnotation(DatabaseType.class);
                     if (dbType != null) {
                         innerTypeName = dbType.name();
-                    } else {
+                    } else if (innerTypeName == null) {
                         innerTypeName = SProcProxyBuilder.camelCaseToUnderscore(paramsClass.getSimpleName());
                     }
                 }

@@ -12,7 +12,7 @@ import de.zalando.typemapper.core.fieldMapper.AnyTransformer;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Deprecated // use de.zalando.typemapper2.annotations namespace instead
+@Deprecated // use de.zalando.typemapper.annotations namespace instead
 public @interface DatabaseField {
 
     /**

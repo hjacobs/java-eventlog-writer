@@ -12,6 +12,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.zalando.typemapper.parser.exception.HStoreParseException;
+
 public class HStoreTest {
 
     static final String[] validHStoreStrings = {

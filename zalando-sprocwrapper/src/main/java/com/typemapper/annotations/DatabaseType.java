@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Deprecated // use de.zalando.typemapper2.annotations namespace instead
+@Deprecated // use de.zalando.typemapper.annotations namespace instead
 public @interface DatabaseType {
 
     /**
@@ -17,4 +17,8 @@ public @interface DatabaseType {
      */
     String name() default "";
 
+    /**
+     * Flattens hierarchical structure of object and makes parent fields exposed to PgTypeHelper.
+     */
+    boolean inheritance() default false;
 }

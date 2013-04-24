@@ -1,6 +1,7 @@
 package de.zalando.typemapper.core.fieldMapper;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -14,6 +15,7 @@ import de.zalando.typemapper.core.result.ArrayResultNode;
 import de.zalando.typemapper.core.result.DbResultNode;
 import de.zalando.typemapper.core.result.ObjectResultNode;
 import de.zalando.typemapper.core.result.SimpleResultNode;
+import de.zalando.typemapper.exception.NotsupportedTypeException;
 
 public class ArrayFieldMapper {
 
