@@ -658,10 +658,10 @@ class StoredProcedure {
         return ret;
     }
 
-    private void commitTransaction(final Map<Integer, SameConnectionDatasource> transactionIds) {
+    private void commitTransaction(final Map<Integer, SameConnectionDatasource> datasources) {
         if (readOnly == false && writeTransaction != WriteTransaction.NONE) {
             if (writeTransaction == WriteTransaction.ONE_PHASE) {
-                for (final Entry<Integer, SameConnectionDatasource> shardEntry : transactionIds.entrySet()) {
+                for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                     try {
                         LOG.trace("commitTransaction on shard [{}]", shardEntry.getKey());
 
@@ -681,40 +681,44 @@ class StoredProcedure {
                     }
                 }
             } else if (writeTransaction == WriteTransaction.TWO_PHASE) {
-                final Map<Integer, String> transactionIdMap = Maps.newHashMap();
+
                 boolean commitFailed = false;
-                for (final Entry<Integer, SameConnectionDatasource> shardEntry : transactionIds.entrySet()) {
+
+                final String transactionId = "sprocwrapper_" + UUID.randomUUID();
+                final String prepareTransactionStatement = "PREPARE TRANSACTION " + transactionId;
+
+                for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                     try {
                         LOG.trace("prepare transaction on shard [{}]", shardEntry.getKey());
 
                         final DataSource shardDs = shardEntry.getValue();
                         final Statement st = shardDs.getConnection().createStatement();
-                        final String transactionId = "'" + UUID.randomUUID() + "'";
 
-                        transactionIdMap.put(shardEntry.getKey(), transactionId);
-
-                        st.execute("PREPARE TRANSACTION " + transactionId);
+                        st.execute(prepareTransactionStatement);
                         st.close();
+
                     } catch (final Exception e) {
                         commitFailed = true;
 
                         // log, but go on, prepare other transactions - but they will be removed as well.
                         LOG.debug("prepare transaction [{}] on shard [{}] failed!",
-                            new Object[] {transactionIdMap.get(shardEntry.getKey()), shardEntry.getKey(), e});
+                            new Object[] {transactionId, shardEntry.getKey(), e});
                     }
                 }
 
                 if (commitFailed) {
-                    rollbackPrepared(transactionIds, transactionIdMap);
+                    rollbackPrepared(datasources, transactionId);
                 } else {
-                    for (final Entry<Integer, SameConnectionDatasource> shardEntry : transactionIds.entrySet()) {
+                    final String commitStatement = "COMMIT PREPARED " + transactionId;
+
+                    for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                         try {
-                            LOG.trace("commit prepared transaction [{}] on shard [{}]",
-                                transactionIdMap.get(shardEntry.getKey()), shardEntry.getKey());
+                            LOG.trace("commit prepared transaction [{}] on shard [{}]", transactionId,
+                                shardEntry.getKey());
 
                             final DataSource shardDs = shardEntry.getValue();
                             final Statement st = shardDs.getConnection().createStatement();
-                            st.execute("COMMIT PREPARED " + transactionIdMap.get(shardEntry.getKey()));
+                            st.execute(commitStatement);
                             st.close();
 
                             shardEntry.getValue().close();
@@ -728,13 +732,13 @@ class StoredProcedure {
                             // that may be produced at this point.
                             LOG.error(
                                 "FAILED: could not commit prepared transaction [{}] on shard [{}] - this will produce inconsistent data.",
-                                new Object[] {transactionIdMap.get(shardEntry.getKey()), shardEntry.getKey(), e});
+                                new Object[] {transactionId, shardEntry.getKey(), e});
                         }
                     }
 
                     // for all failed commits:
                     if (commitFailed) {
-                        rollbackPrepared(transactionIds, transactionIdMap);
+                        rollbackPrepared(datasources, transactionId);
                     }
                 }
             } else {
@@ -743,30 +747,32 @@ class StoredProcedure {
         }
     }
 
-    private void rollbackPrepared(final Map<Integer, SameConnectionDatasource> transactionIds,
-            final Map<Integer, String> transactionIdMap) {
-        for (final Entry<Integer, SameConnectionDatasource> shardEntry : transactionIds.entrySet()) {
+    private void rollbackPrepared(final Map<Integer, SameConnectionDatasource> datasources,
+            final String transactionId) {
+
+        final String rollbackQuery = "ROLLBACK PREPARED " + transactionId;
+
+        for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
             try {
-                LOG.error("rollback prepared transaction [{}] on shard [{}]", transactionIdMap.get(shardEntry.getKey()),
-                    shardEntry.getKey());
+                LOG.error("rollback prepared transaction [{}] on shard [{}]", transactionId, shardEntry.getKey());
 
                 final DataSource shardDs = shardEntry.getValue();
                 final Statement st = shardDs.getConnection().createStatement();
-                st.execute("ROLLBACK PREPARED " + transactionIdMap.get(shardEntry.getKey()));
+                st.execute(rollbackQuery);
                 st.close();
 
                 shardEntry.getValue().close();
             } catch (final Exception e) {
                 LOG.error(
                     "FAILED: could not rollback prepared transaction [{}] on shard [{}] - this will produce inconsistent data.",
-                    new Object[] {transactionIdMap.get(shardEntry.getKey()), shardEntry.getKey(), e});
+                    new Object[] {transactionId, shardEntry.getKey(), e});
             }
         }
     }
 
-    private void rollbackTransaction(final Map<Integer, SameConnectionDatasource> transactionIds) {
+    private void rollbackTransaction(final Map<Integer, SameConnectionDatasource> datasources) {
         if (readOnly == false && writeTransaction != WriteTransaction.NONE) {
-            for (final Entry<Integer, SameConnectionDatasource> shardEntry : transactionIds.entrySet()) {
+            for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                 try {
                     LOG.trace("rollbackTransaction on shard [{}]", shardEntry.getKey());
 
