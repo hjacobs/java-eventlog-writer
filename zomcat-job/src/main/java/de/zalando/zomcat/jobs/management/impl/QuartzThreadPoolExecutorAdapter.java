@@ -27,7 +27,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     private final Object availableThreadsLock = new Object();
 
-    private int corePoolSize = 1;
+    private int corePoolSize = 5;
 
     private int maximumPoolSize = 50;
 
@@ -293,9 +293,10 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
             super.shutdown();
 
-            // notify waiting threads
             synchronized (lock) {
-                if (count == 0) {
+
+                // notify waiting threads
+                if (maximumPoolSize - count < 1) {
                     lock.notifyAll();
                 }
             }
@@ -326,8 +327,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
             // small amount of time and not reject it.
 
             synchronized (lock) {
-                count--;
-                if (count == 0) {
+                if ((maximumPoolSize - --count) < 1) {
                     lock.notifyAll();
                 }
             }
