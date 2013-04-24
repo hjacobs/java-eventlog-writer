@@ -7,10 +7,9 @@ import java.sql.Connection;
 
 import java.util.Collection;
 
-import com.typemapper.annotations.DatabaseType;
-
-import com.typemapper.postgres.PgArray;
-import com.typemapper.postgres.PgTypeHelper;
+import de.zalando.typemapper.annotations.DatabaseType;
+import de.zalando.typemapper.postgres.PgArray;
+import de.zalando.typemapper.postgres.PgTypeHelper;
 
 /**
  * @author  jmussler
@@ -41,11 +40,18 @@ class ArrayStoredProcedureParameter extends StoredProcedureParameter {
                 innerTypeName = PgTypeHelper.getSQLNameForClass(paramsClass);
                 if (innerTypeName == null) {
 
+                    // remove when removing deprecated annotations:
+                    final com.typemapper.annotations.DatabaseType dbTypeDeprecated = paramsClass.getAnnotation(
+                            com.typemapper.annotations.DatabaseType.class);
+                    if (dbTypeDeprecated != null) {
+                        innerTypeName = dbTypeDeprecated.name();
+                    }
+
                     final DatabaseType dbType = paramsClass.getAnnotation(DatabaseType.class);
-                    if (dbType == null) {
-                        innerTypeName = SProcProxyBuilder.camelCaseToUnderscore(paramsClass.getSimpleName());
-                    } else {
+                    if (dbType != null) {
                         innerTypeName = dbType.name();
+                    } else {
+                        innerTypeName = SProcProxyBuilder.camelCaseToUnderscore(paramsClass.getSimpleName());
                     }
                 }
             }

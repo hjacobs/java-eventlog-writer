@@ -29,8 +29,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import com.typemapper.core.ValueTransformer;
-
 import de.zalando.sprocwrapper.SProcCall.AdvisoryLock;
 import de.zalando.sprocwrapper.SProcService.WriteTransaction;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
@@ -47,6 +45,8 @@ import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.ValidationExecutorWrapper;
 import de.zalando.sprocwrapper.sharding.ShardedObject;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
+
+import de.zalando.typemapper.core.ValueTransformer;
 
 /**
  * @author  jmussler

@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>de.zalando</groupId>
@@ -8,10 +9,14 @@
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>0.1.51</version>
+    <version>0.1.51-ZEOS-15832</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
-    <description>Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration). Supports sharding, advisory locking, statement timeouts and PostgreSQL types such as enums and hstore.</description>
+    <description>Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces
+        including automatic object serialization and deserialization (using typemapper and
+        convention-over-configuration). Supports sharding, advisory locking, statement timeouts and PostgreSQL types
+        such as enums and hstore.
+    </description>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -34,10 +39,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.typemapper</groupId>
-            <artifactId>sproc-spring-mapper</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jolbox</groupId>
@@ -80,6 +81,12 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
         </dependency>
+        <dependency>
+            <!-- please move to zalando parent with apropriate version -->
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>1.0.2</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -105,7 +112,8 @@
                             <systemPropertyVariables>
                                 <frontend.sproc.datasource.username>postgres</frontend.sproc.datasource.username>
                                 <frontend.sproc.datasource.password>postgres</frontend.sproc.datasource.password>
-                                <frontend.sproc.datasource.url>jdbc:postgresql://${test.db.host}:5432/${test.db.name}</frontend.sproc.datasource.url>
+                                <frontend.sproc.datasource.url>jdbc:postgresql://${test.db.host}:5432/${test.db.name}
+                                </frontend.sproc.datasource.url>
                             </systemPropertyVariables>
                         </configuration>
                         <executions>

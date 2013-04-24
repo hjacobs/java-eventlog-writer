@@ -6,9 +6,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
 
-import com.typemapper.core.ValueTransformer;
-
 import de.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer;
+
+import de.zalando.typemapper.core.ValueTransformer;
 
 @GlobalValueTransformer
 public class GlobalDateTimeTransformer extends ValueTransformer<Date, DateTime> {

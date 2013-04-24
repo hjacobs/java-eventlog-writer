@@ -13,9 +13,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.typemapper.core.ValueTransformer;
-
 import de.zalando.sprocwrapper.globalvaluetransformer.GlobalValueTransformerLoader;
+
+import de.zalando.typemapper.core.ValueTransformer;
 
 /**
  * @author  jmussler

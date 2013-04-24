@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 import org.postgresql.util.PGobject;
 
-import com.typemapper.postgres.PgTypeHelper;
+import de.zalando.typemapper.postgres.PgTypeHelper;
 
 /**
  * @author  jmussler
