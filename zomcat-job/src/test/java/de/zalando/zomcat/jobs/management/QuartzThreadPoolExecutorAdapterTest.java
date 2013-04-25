@@ -66,6 +66,29 @@ public class QuartzThreadPoolExecutorAdapterTest {
         pool.setKeepAliveTime(0);
         pool.initialize();
 
+        final CountDownLatch sync = new CountDownLatch(2);
+        final AtomicInteger counter = new AtomicInteger();
+
+        final class WaitJob implements Runnable {
+
+            private final CountDownLatch lock = new CountDownLatch(1);
+
+            @Override
+            public void run() {
+                counter.incrementAndGet();
+                sync.countDown();
+                try {
+                    lock.await();
+                } catch (InterruptedException e) {
+                    Assert.fail(e.getMessage());
+                }
+            }
+
+            public void unlock() {
+                lock.countDown();
+            }
+        }
+
         try {
             WaitJob job1 = new WaitJob();
             WaitJob job2 = new WaitJob();
@@ -76,6 +99,10 @@ public class QuartzThreadPoolExecutorAdapterTest {
 
             Assert.assertEquals(1, pool.blockForAvailableThreads());
             Assert.assertTrue(pool.runInThread(job2));
+
+            // make sure that both threads are running in parallel
+            sync.await();
+            Assert.assertEquals(2, counter.get());
 
             // thread pool is full. Unlock job1 and run other job
             job1.unlock();
@@ -196,23 +223,4 @@ public class QuartzThreadPoolExecutorAdapterTest {
             pool.shutdown(waitForJobsToComplete);
         }
     }
-
-    private static final class WaitJob implements Runnable {
-
-        private final CountDownLatch lock = new CountDownLatch(1);
-
-        @Override
-        public void run() {
-            try {
-                lock.await();
-            } catch (InterruptedException e) {
-                Assert.fail(e.getMessage());
-            }
-        }
-
-        public void unlock() {
-            lock.countDown();
-        }
-    }
-
 }
