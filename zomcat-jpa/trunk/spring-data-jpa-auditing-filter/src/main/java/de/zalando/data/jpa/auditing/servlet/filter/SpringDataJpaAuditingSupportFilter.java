@@ -1,4 +1,4 @@
-package de.zalando.data.jpa.auditing.filter;
+package de.zalando.data.jpa.auditing.servlet.filter;
 
 import java.io.IOException;
 
