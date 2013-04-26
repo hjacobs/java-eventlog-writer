@@ -28,4 +28,12 @@ public class AuditorAwareOutboundInterceptor extends AbstractPhaseInterceptor<Me
         AuditorContextHolder.clearContext();
         LOG.debug("AuditorContext cleared");
     }
+
+    @Override
+    public void handleFault(final Message message) {
+        LOG.info("Seems an error occurred. Clear context.");
+        AuditorContextHolder.clearContext();
+        LOG.info("AuditorContext cleared.");
+    }
+
 }
