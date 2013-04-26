@@ -64,63 +64,6 @@ von Tabellen und Spalten.
 </persistence>
 ----
 
-
-
-
-Chapters can contain sub-sections nested up to three deep.
-footnote:[An example footnote.]
-indexterm:[Example index entry]
-
-Chapters can have their own bibliography, glossary and index.
-
-And now for something completely different: ((monkeys)), lions and
-tigers (Bengal and Siberian) using the alternative syntax index
-entries.
-(((Big cats,Lions)))
-(((Big cats,Tigers,Bengal Tiger)))
-(((Big cats,Tigers,Siberian Tiger)))
-Note that multi-entry terms generate separate index entries.
-
-Here are a couple of image examples: an image:images/smallnew.png[]
-example inline image followed by an example block image:
-
-.Tiger block image
-image::images/tiger.png[Tiger image]
-
-Followed by an example table:
-
-.An example table
-[width="60%",options="header"]
-|==============================================
-| Option          | Description
-| -a 'USER GROUP' | Add 'USER' to 'GROUP'.
-| -R 'GROUP'      | Disables access to 'GROUP'.
-|==============================================
-
-.An example example
-===============================================
-Lorum ipum...
-===============================================
-
-[[X1]]
-Sub-section with Anchor
-~~~~~~~~~~~~~~~~~~~~~~~
-Sub-section at level 2.
-
-Chapter Sub-section
-^^^^^^^^^^^^^^^^^^^
-Sub-section at level 3.
-
-Chapter Sub-section
-+++++++++++++++++++
-Sub-section at level 4.
-
-This is the maximum sub-section depth supported by the distributed
-AsciiDoc configuration.
-footnote:[A second example footnote.]
-
-
-
 zomcat-jpa-domain
 -----------------
 
@@ -199,24 +142,107 @@ spring-data-jpa-auditing-filter
 
 Unterstützt Spring-Data-JPA Auditing mit einem einfachen Filter-Mechanismus.
 
+.Dieses Modul
+****
+Dieses Modul ist Work-In-Progress und sollte im Laufe der Zeit aktualisiert werden. ;-)
+****
+
+In your pom.xml add the use:
+
+[source,xml]
+----
+<dependency>
+    <groupId>de.zalando</groupId>
+    <artifactId>spring-data-jpa-auditing-filter</artifactId>
+    <version>1.4.0-SNAPSHOT</version>
+</dependency>
+----
+
+In your web.xml configure the filter like this:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.5" xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+... more configuration for webapp ...
+
+    <filter>
+        <filter-name>AuditingFilter</filter-name>
+        <filter-class>de.zalando.data.jpa.auditing.servlet.filter.SpringDataJpaAuditingSupportFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuditingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>
+----
+
 spring-data-jpa-auditing-cxf
 ----------------------------
 
 Unterstützt Spring-Data-JPA Auditing mit Interceptoren für den Message-Flow.
 
+.Dieses Modul
+****
+Dieses Modul ist Work-In-Progress und sollte im Laufe der Zeit aktualisiert werden. ;-)
+****
 
-The Second Chapter
-------------------
-An example link to anchor at start of the <<X1,first sub-section>>.
-indexterm:[Second example index entry]
+In your pom.xml add the use:
 
-An example link to a bibliography entry <<taoup>>.
+[source,xml]
+----
+<dependency>
+    <groupId>de.zalando</groupId>
+    <artifactId>spring-data-jpa-auditing-cxf</artifactId>
+    <version>1.4.0-SNAPSHOT</version>
+</dependency>
+----
 
+In your cxf.xml File add the following
+[source,xml]
+----
+...
+    <bean id="auditorContextInboundInterceptor" class="de.zalando.data.jpa.auditing.cxf.AuditorAwareInboundInterceptor"/>
+    <bean id="auditorContextOutboundInterceptor" class="de.zalando.data.jpa.auditing.cxf.AuditorAwareOutboundInterceptor"/>
 
-The Third Chapter
------------------
-Book chapters are at level 1 and can contain sub-sections.
+    <!-- |
+         | Bus Configuration
+         | Copy of classpath:META-INF/zomcat-ws/cxf.xml with purchasing related extensions
+         | -->
+    <cxf:bus>
+        <cxf:properties>
+            <entry key="org.apache.cxf.logging.FaultListener">
+                <bean class="de.zalando.zomcat.cxf.ExceptionLogger"/>
+            </entry>
+        </cxf:properties>
+        <cxf:inInterceptors>
+            <!-- 
+                MAYBE MORE INBOUND INTERCEPTORS
+            -->
+            <ref bean="auditorContextInboundInterceptor"/>
+        </cxf:inInterceptors>
+        <cxf:outInterceptors>
+            <!-- 
+                MAYBE MORE OUTBOUND INTERCEPTORS 
+            -->
+            <ref bean="auditorContextOutboundInterceptor"/>
+        </cxf:outInterceptors>
+        <cxf:inFaultInterceptors>
+            <!-- CONFIGURE IN FAULT INTERCEPTORS -->
+        </cxf:inFaultInterceptors>
+        <cxf:outFaultInterceptors>
+            <!-- CONFIGURE OUT FAULT INTERCEPTORS -->
+        </cxf:outFaultInterceptors>
+    </cxf:bus>
 
+    <!-- CONFIGURED ENDPOINTS -->
+    <jaxws:endpoint id="ShippingNoticeWebService" implementor="#shippingNoticeWebService"
+                    address="/shippingNoticeWebService"/>
+...
+----
 
 :numbered!:
 
