@@ -1,11 +1,15 @@
 package de.zalando.zomcat.jobs.management.impl;
 
+import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.quartz.SchedulerConfigException;
 
@@ -174,7 +178,8 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     @Override
     public int blockForAvailableThreads() {
-        // this method is always executed by the same scheduler thread
+        // This method is always executed by the same scheduler thread,
+        // it should block until there is at least one available thread.
 
         return helper.blockForAvailableThreads();
     }
@@ -230,7 +235,8 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
         private static final Logger LOG = LoggerFactory.getLogger(ThreadPoolExecutorHelper.class);
 
-        private final Object lock = new Object();
+        private final Lock lock = new ReentrantLock();
+        private final Condition notFull = lock.newCondition();
 
         private int count = 0;
 
@@ -243,7 +249,6 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         public ThreadPoolExecutorHelper(final int corePoolSize, final int maximumPoolSize, final long keepAliveTime,
                 final long shutdownTimeout, final BlockingQueue<Runnable> workQueue,
                 final RejectedExecutionHandler handler) {
-
             super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MILLISECONDS, workQueue);
             setRejectedExecutionHandler(handler);
             this.maximumPoolSize = maximumPoolSize;
@@ -253,9 +258,12 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         @Override
         public void execute(final Runnable command) {
 
-            // increase the number of threads
-            synchronized (lock) {
-                count++;
+            // increase the number of working threads
+            lock.lock();
+            try {
+                ++count;
+            } finally {
+                lock.unlock();
             }
 
             super.execute(command);
@@ -263,41 +271,44 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
         @Override
         protected void afterExecute(final Runnable r, final Throwable t) {
+
+            // This method is invoked by the thread that executed the task.
             super.afterExecute(r, t);
 
-            synchronized (lock) {
-                if ((maximumPoolSize - count--) < 1) {
-                    lock.notifyAll();
-                }
+            lock.lock();
+            try {
+                --count;
+                notFull.signal();
+            } finally {
+                lock.unlock();
             }
         }
 
         public int blockForAvailableThreads() {
             int availableThreads;
 
-            synchronized (lock) {
+            lock.lock();
+            try {
                 availableThreads = maximumPoolSize - count;
-
                 if (availableThreads < 1) {
+
                     // if we are here, we have performance problems. The pool is to short and some tasks are waiting for
                     // available resources. We should notify this problem
-
-                    // only log once
                     LOG.warn("Maximum quartz thread pool size reached. Please increase quartz pool size");
 
-                    while (availableThreads < 1 && !isShutdown()) {
-
-                        try {
-
-                            // prevent this to lock forever, keep trying
-                            lock.wait(1000);
-                        } catch (InterruptedException e) {
-                            LOG.warn("Available threads wait interrupted", e);
+                    try {
+                        while (availableThreads < 1 && !isShutdown()) {
+                            notFull.await();
+                            availableThreads = maximumPoolSize - count;
                         }
+                    } catch (InterruptedException e) {
 
-                        availableThreads = maximumPoolSize - count;
+                        // skip await if InterruptedException is thrown
+                        LOG.warn("Available threads wait interrupted", e);
                     }
                 }
+            } finally {
+                lock.unlock();
             }
 
             return availableThreads;
@@ -308,12 +319,11 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
             super.shutdown();
 
-            synchronized (lock) {
-
-                // notify waiting threads
-                if (maximumPoolSize - count < 1) {
-                    lock.notifyAll();
-                }
+            lock.lock();
+            try {
+                notFull.signalAll();
+            } finally {
+                lock.unlock();
             }
 
             if (waitForJobsToComplete) {
@@ -332,6 +342,12 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         }
     }
 
+    /**
+     * Force the thread pool executor to create new threads instead of queuing tasks. Only queue tasks if the task is
+     * rejected.
+     *
+     * @author  pribeiro
+     */
     private static final class ScallingQueue extends LinkedBlockingQueue<Runnable> implements RejectedExecutionHandler {
 
         private static final Logger LOG = LoggerFactory.getLogger(ScallingQueue.class);
@@ -357,27 +373,50 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         }
 
         @Override
+        public boolean add(final Runnable e) {
+
+            // force the thread pool to grow and only add tasks thought the rejected execution handler
+            // According to the ThreadPoolExecutor, ff there are more than corePoolSize but less than maximumPoolSize
+            // threads running, a new thread will be created only if the queue is full
+            return false;
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends Runnable> c) {
+
+            // force the thread pool to grow and only add tasks thought the rejected execution handler
+            // According to the ThreadPoolExecutor, ff there are more than corePoolSize but less than maximumPoolSize
+            // threads running, a new thread will be created only if the queue is full
+            return false;
+        }
+
+        @Override
+        public void put(final Runnable e) throws InterruptedException {
+            throw new UnsupportedOperationException("Operation not supported");
+        }
+
+        @Override
         public void rejectedExecution(final Runnable r, final ThreadPoolExecutor executor) {
 
-            // Method afterExecute() is invoked by the thread that executed the task. In other words we are
-            // decrementing the number of worker threads but the thread is still
-            // unavailable on the thread pool.
-            // If the pool if full (poolSize == maximumPoolSize) and if one task starts running after method
-            // afterExecute() (this method notifies waiting threads), but before the previous running thread is
-            // available on the pool, the task will be rejected.
-            // In this scenario, because we know that the thread will be
-            // available on the pool in a few ms, we should add the task to the queue and delay
-            // the execution.
-
+            // This shouldn't happen very often.
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Tasks {} rejected. Retring...", r.toString());
             }
 
+            // if the task was rejected due to a shutdown, just thrown an RejectedExecutionException, we can't do
+            // anything about that
             if (executor.isShutdown()) {
                 throw new RejectedExecutionException("Task " + r.toString() + " rejected from " + executor.toString()
                         + "because thread pool is being shutdown");
             }
 
+            // method afterExecute() is invoked by the thread that executed the task, in other words, we are
+            // decrementing the number of worker threads but the thread is still unavailable on the thread pool.
+            // If the pool if full (poolSize == maximumPoolSize) and if one task starts running after method
+            // afterExecute() (this method notifies waiting threads), but before the thread returns to the pool, the
+            // task will be rejected. In this scenario, because we know that the thread will be
+            // available on the pool in a few ms, we should add the task to the queue and delay
+            // the execution.
             if (!super.offer(r)) {
                 throw new RejectedExecutionException("Task " + r.toString() + " rejected from " + executor.toString());
             }
