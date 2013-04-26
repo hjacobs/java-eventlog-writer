@@ -32,9 +32,7 @@ public class QuartzThreadPoolExecutorAdapterTest {
     public void testRunJob() throws Exception {
 
         final QuartzThreadPoolExecutorAdapter pool = new QuartzThreadPoolExecutorAdapter();
-        pool.setCorePoolSize(0);
         pool.setMaximumPoolSize(2);
-        pool.setKeepAliveTime(0);
         pool.initialize();
 
         try {
@@ -61,9 +59,7 @@ public class QuartzThreadPoolExecutorAdapterTest {
     @Test(timeout = 60000)
     public void testRunMaxJobs() throws Exception {
         final QuartzThreadPoolExecutorAdapter pool = new QuartzThreadPoolExecutorAdapter();
-        pool.setCorePoolSize(0);
         pool.setMaximumPoolSize(2);
-        pool.setKeepAliveTime(0);
         pool.initialize();
 
         final CountDownLatch sync = new CountDownLatch(2);
@@ -120,11 +116,49 @@ public class QuartzThreadPoolExecutorAdapterTest {
     }
 
     @Test(timeout = 60000)
+    public void testRunMultipleJobs() throws Exception {
+
+        final AtomicInteger counter = new AtomicInteger();
+
+        final Runnable job = new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    counter.incrementAndGet();
+
+                    // sleep to simulate a job
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    Assert.fail(e.getMessage());
+                }
+            }
+        };
+
+        final QuartzThreadPoolExecutorAdapter pool = new QuartzThreadPoolExecutorAdapter();
+        pool.setMaximumPoolSize(5);
+        pool.initialize();
+
+        final int jobs = 2000;
+
+        try {
+
+            for (int i = 0; i < jobs; i++) {
+                Assert.assertTrue(pool.blockForAvailableThreads() > 0);
+                Assert.assertTrue(pool.runInThread(job));
+            }
+
+            // Assert.assertEquals(jobs, counter.get());
+        } finally {
+            pool.shutdown(true);
+            Assert.assertEquals(jobs, counter.get());
+        }
+    }
+
+    @Test(timeout = 60000)
     public void testBlockForAvailableThreads() throws Exception {
         final QuartzThreadPoolExecutorAdapter pool = new QuartzThreadPoolExecutorAdapter();
-        pool.setCorePoolSize(0);
         pool.setMaximumPoolSize(1);
-        pool.setKeepAliveTime(0);
         pool.initialize();
 
         final Semaphore semaphore = new Semaphore(0);
@@ -144,7 +178,7 @@ public class QuartzThreadPoolExecutorAdapterTest {
                                 // blockForAvailableThreads() will be called while this method is being executed
                                 // (sleeping).
                                 // Still, if there is something wrong on the thread pool this test will eventually fail
-                                Thread.sleep(5000);
+                                Thread.sleep(2000);
                                 counter.incrementAndGet();
                             } catch (InterruptedException e) {
                                 Assert.fail(e.getMessage());
@@ -188,7 +222,6 @@ public class QuartzThreadPoolExecutorAdapterTest {
 
     private void shutdownWithTaskRunning(final boolean waitForJobsToComplete) throws Exception {
         final QuartzThreadPoolExecutorAdapter pool = new QuartzThreadPoolExecutorAdapter();
-        pool.setCorePoolSize(0);
         pool.setMaximumPoolSize(1);
         pool.setKeepAliveTime(0);
         pool.setShutdownTimeout(1);
