@@ -18,6 +18,8 @@
         <module>zomcat-jpa-eclipselink</module>
         <module>zomcat-jpa-domain</module>
         <module>spring-data-jpa-extensions</module>
+        <module>spring-data-jpa-auditing-filter</module>
+        <module>spring-data-jpa-auditing-cxf</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -120,13 +122,6 @@
         </pluginManagement>
     </build>
     <profiles>
-        <profile>
-            <id>workInProgress</id>
-            <modules>
-                <module>spring-data-jpa-auditing-filter</module>
-                <module>spring-data-jpa-auditing-cxf</module>
-            </modules>
-        </profile>
         <profile>
             <id>withPlayground</id>
             <modules>
