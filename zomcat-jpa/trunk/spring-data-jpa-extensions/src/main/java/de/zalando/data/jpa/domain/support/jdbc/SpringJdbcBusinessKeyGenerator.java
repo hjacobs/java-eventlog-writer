@@ -1,38 +1,29 @@
 package de.zalando.data.jpa.domain.support.jdbc;
 
-import java.sql.Types;
-
-import java.util.Map;
-
 import javax.sql.DataSource;
 
-import org.springframework.jdbc.core.SqlOutParameter;
-import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.object.StoredProcedure;
+import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;
-
-import com.google.common.collect.Maps;
 
 import de.zalando.data.jpa.domain.support.BusinessKeyGenerator;
 
 /**
  * Eine alternative zur SprocService-Implementierung. Klein, einfach und gut zu verstehen.
  *
- * @author  jbellmann
+ * @author      jbellmann
+ * @deprecated  this wrapper is not necessary here, use {@link StoredProcedureBusinessKeyGenerator}
  */
-public class SpringJdbcBusinessKeyGenerator implements BusinessKeyGenerator {
+@Deprecated
+public class SpringJdbcBusinessKeyGenerator implements BusinessKeyGenerator, InitializingBean {
 
-/*    @Autowired
- *  @Resource(name = "dataSourceFrontendSProc")*/
-    private DataSource dataSource;
+    protected DataSource dataSource;
 
-    private NextNumberStoredProcedure procedure;
+    private StoredProcedureBusinessKeyGenerator procedure;
 
-// @PostConstruct
-    public void init() {
+    public void afterPropertiesSet() {
         Assert.notNull(dataSource, "DataSource should never be null");
-        procedure = new NextNumberStoredProcedure(dataSource);
+        procedure = new StoredProcedureBusinessKeyGenerator(dataSource);
 
         // TODO koennen wir hier je start eine Nummer verbraten? oder muss das hier lueckenlos sein?
         // if this test is fails, something went wrong and system should halt until fixed
@@ -43,38 +34,12 @@ public class SpringJdbcBusinessKeyGenerator implements BusinessKeyGenerator {
     @Override
     public String getBusinessKeyForSelector(final String businessKeySelector) {
         Assert.notNull(businessKeySelector, "BusinessKeySelector should not be null");
-        return procedure.nextNumber(businessKeySelector);
+        return procedure.getBusinessKeyForSelector(businessKeySelector);
     }
 
-    /**
-     * Simple {@link StoredProcedure} object to 'get_next_number'.
-     *
-     * @author  jbellmann
-     */
-    private static class NextNumberStoredProcedure extends StoredProcedure {
-
-        static final String STORED_PROCEDURE_NAME = "zpu_data.get_next_number";
-        static final String TYPE_NAME = "zpu_data.number_range_type";
-        static final String IN_PARAMETER_NAME = "p_type";
-        static final String OUT_PARAMETER_NAME = "number";
-// static final Map<String, PGobject> PG_OBJECT_CACHE = Maps.newHashMap();
-
-        NextNumberStoredProcedure(final DataSource dataSource) {
-            setDataSource(dataSource);
-            setFunction(true);
-            setSql(STORED_PROCEDURE_NAME);
-            declareParameter(new SqlParameter(IN_PARAMETER_NAME, Types.OTHER));
-            declareParameter(new SqlOutParameter(OUT_PARAMETER_NAME, Types.VARCHAR));
-            compile();
-        }
-
-        String nextNumber(final String numberRangeType) {
-            Map<String, Object> input = Maps.newHashMap();
-// input.put(IN_PARAMETER_NAME, PG_OBJECT_CACHE.get(numberRangeType));
-
-            Map<String, Object> resultMap = execute(numberRangeType);
-            return (String) resultMap.get(OUT_PARAMETER_NAME);
-        }
+    public void setDataSource(final DataSource dataSource) {
+        Assert.notNull(dataSource, "DataSource has to be not null");
+        this.dataSource = dataSource;
     }
 
 }
