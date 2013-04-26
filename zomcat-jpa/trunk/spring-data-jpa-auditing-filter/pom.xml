@@ -13,7 +13,7 @@
     </organization>
     <description>Small extension to Spring-Data for Auditing</description>
     <properties>
-        <spring.data.jpa.version>1.3.0.RELEASE</spring.data.jpa.version>
+        <!-- <spring.data.jpa.version>1.3.0.RELEASE</spring.data.jpa.version> -->
     </properties>
     <dependencies>
         <dependency>

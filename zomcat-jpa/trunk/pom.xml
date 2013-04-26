@@ -25,6 +25,10 @@
         <aspectj.version>1.7.1</aspectj.version>
         <jodatime.version>2.2</jodatime.version>
         <eclipselink.version>2.4.1</eclipselink.version>
+        <spring.data.commons.version>1.5.1.RELEASE</spring.data.commons.version>
+        <!-- DO NOT UPDATE TO 1.3.1.RELEASE, breaks the entityListener -->
+        <spring.data.jpa.version>1.3.0.RELEASE</spring.data.jpa.version>
+        <querydsl.version>3.1.0</querydsl.version>
     </properties>
     <dependencyManagement>
         <dependencies>
