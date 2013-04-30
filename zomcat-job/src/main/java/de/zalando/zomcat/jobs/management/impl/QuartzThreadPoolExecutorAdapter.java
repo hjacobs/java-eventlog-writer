@@ -31,8 +31,6 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     private static final Logger LOG = LoggerFactory.getLogger(QuartzThreadPoolExecutorAdapter.class);
 
-    private final Object availableThreadsLock = new Object();
-
     private int corePoolSize = 0;
 
     private int maximumPoolSize = 50;
@@ -171,9 +169,9 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
             throw new SchedulerConfigException("Maximum thread cound must be higher than core pool size");
         }
 
-        ScallingQueue scallingQueue = new ScallingQueue();
+        ScalingQueue scalingQueue = new ScalingQueue();
         helper = new ThreadPoolExecutorHelper(corePoolSize, maximumPoolSize, keepAliveTime, shutdownTimeout,
-                scallingQueue, scallingQueue);
+                scalingQueue, scalingQueue);
     }
 
     @Override
@@ -210,9 +208,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("QuartzThreadPoolExecutorAdapter [availableThreadsLock=");
-        builder.append(availableThreadsLock);
-        builder.append(", corePoolSize=");
+        builder.append("QuartzThreadPoolExecutorAdapter [corePoolSize=");
         builder.append(corePoolSize);
         builder.append(", maximumPoolSize=");
         builder.append(maximumPoolSize);
@@ -246,7 +242,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         private final int maximumPoolSize;
         private final long shutdownTimeout;
 
-        public ThreadPoolExecutorHelper(final int corePoolSize, final int maximumPoolSize, final long keepAliveTime,
+        private ThreadPoolExecutorHelper(final int corePoolSize, final int maximumPoolSize, final long keepAliveTime,
                 final long shutdownTimeout, final BlockingQueue<Runnable> workQueue,
                 final RejectedExecutionHandler handler) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MILLISECONDS, workQueue);
@@ -294,7 +290,8 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
                     // if we are here, we have performance problems. The pool is to short and some tasks are waiting for
                     // available resources. We should notify this problem
-                    LOG.warn("Maximum quartz thread pool size reached. Please increase quartz pool size");
+                    LOG.warn("Maximum quartz thread pool size reached: {}. Please increase quartz pool size",
+                        maximumPoolSize);
 
                     try {
                         while (availableThreads < 1 && !isShutdown()) {
@@ -331,14 +328,15 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
                 try {
                     if (!super.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
                         LOG.error(
-                            "Quartz thread pool quartz timeout elapsed before termination. Some jobs might have terminated abruptly");
+                            "Quartz thread pool timeout ({} ms) elapsed before termination. Some jobs might have terminated abruptly",
+                            shutdownTimeout);
                     }
                 } catch (InterruptedException e) {
                     LOG.error("Job thread pool interrupted", e);
                 }
             }
 
-            LOG.info("Shutdown complete: {}", super.toString());
+            LOG.info("Shutdown complete: {}", this);
         }
     }
 
@@ -348,9 +346,9 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
      *
      * @author  pribeiro
      */
-    private static final class ScallingQueue extends LinkedBlockingQueue<Runnable> implements RejectedExecutionHandler {
+    private static final class ScalingQueue extends LinkedBlockingQueue<Runnable> implements RejectedExecutionHandler {
 
-        private static final Logger LOG = LoggerFactory.getLogger(ScallingQueue.class);
+        private static final Logger LOG = LoggerFactory.getLogger(ScalingQueue.class);
 
         private static final long serialVersionUID = -6338917192992076718L;
 
@@ -399,11 +397,9 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         public void rejectedExecution(final Runnable r, final ThreadPoolExecutor executor) {
 
             // This shouldn't happen very often.
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Tasks {} rejected. Retring...", r.toString());
-            }
+            LOG.debug("Task {} rejected.", r);
 
-            // if the task was rejected due to a shutdown, just thrown an RejectedExecutionException, we can't do
+            // if the task was rejected due to a shutdown, just thrown a RejectedExecutionException, we can't do
             // anything about that
             if (executor.isShutdown()) {
                 throw new RejectedExecutionException("Task " + r.toString() + " rejected from " + executor.toString()
@@ -418,6 +414,8 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
             // available on the pool in a few ms, we should add the task to the queue and delay
             // the execution.
             if (!super.offer(r)) {
+
+                // seems that the queue is full. Reject the task
                 throw new RejectedExecutionException("Task " + r.toString() + " rejected from " + executor.toString());
             }
         }
