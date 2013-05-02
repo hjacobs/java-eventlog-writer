@@ -28,9 +28,14 @@
                 <configuration>
                     <sourceDirectory>src/documentation</sourceDirectory>
                     <outputDirectory>target/documentation</outputDirectory>
-                    <backend>html</backend>
+                    <backend>html5</backend>
                     <doctype>book</doctype>
+                    <headerFooter>true</headerFooter>
+                    <sourceHighlighter>highlight.js</sourceHighlighter>
+                    <!--<sourceHighlighter>coderay</sourceHighlighter>-->
+                    <theme>riak</theme>
                     <attributes>
+                        <theme>riak</theme>
                         <stylesheet>themes/flask/flask.css</stylesheet>
                     </attributes>
                 </configuration>
@@ -53,31 +58,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <execution>
-                        <id>copy-theme</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/documentation</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/documentation</directory>
-                                    <filtering>false</filtering>
-                                    <includes>
-                                        <include>my-theme.css</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
         </plugins>
     </build>
 </project>
