@@ -15,7 +15,7 @@ Das Zomcat-JPA-Project beinhaltet einige Erweiterungen und Anpassungen um JPA be
 
 .Diese Dokumenation
 ****
-Diese Dokumentation ist Work-In-Progress und sollte im Laufe der Zeit aktualisiert werden. ;-)
+TIP: Diese Dokumentation ist Work-In-Progress und sollte im Laufe der Zeit aktualisiert werden. ;-)
 ****
 
 
@@ -70,7 +70,7 @@ zomcat-jpa-domain
 
 .Deprecated
 ****
-Dieses Modul ist als Deprecated markiert und sollte nicht mehr verwendet werden.
+WARNING: Dieses Modul ist als Deprecated markiert und sollte nicht mehr verwendet werden.
 ****
 
 Es empfiehlt sich http://www.springsource.org/spring-data/jpa[Spring-Data-JPA] zu verwenden. Passt wunderbar in unsere Umgebung und wird von
