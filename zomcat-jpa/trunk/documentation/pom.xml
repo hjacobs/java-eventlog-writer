@@ -29,14 +29,13 @@
                     <sourceDirectory>src/documentation</sourceDirectory>
                     <outputDirectory>target/documentation</outputDirectory>
                     <backend>html5</backend>
-                    <doctype>book</doctype>
+                    <doctype>article</doctype>
                     <headerFooter>true</headerFooter>
                     <sourceHighlighter>highlight.js</sourceHighlighter>
                     <!--<sourceHighlighter>coderay</sourceHighlighter>-->
-                    <theme>riak</theme>
+                    <imagesDir>target/documentation/images</imagesDir>
                     <attributes>
-                        <theme>riak</theme>
-                        <stylesheet>themes/flask/flask.css</stylesheet>
+                        <stylesheet>themes/riak.css</stylesheet>
                     </attributes>
                 </configuration>
             </plugin>
@@ -54,6 +53,50 @@
                             <tasks>
                                 <unzip src="src/documentation/asciidoc2.zip" dest="target/documentation" overwrite="true"/>
                             </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-themes</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/documentation/themes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/documentation</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>*.css</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-images</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/documentation/images</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/documentation/images</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>**/*.*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
