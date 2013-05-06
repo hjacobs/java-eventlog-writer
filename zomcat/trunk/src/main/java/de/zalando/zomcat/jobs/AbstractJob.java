@@ -153,9 +153,10 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
         notifyExecutionSetUp(context);
 
         try {
+
+            final String flowId = FlowId.peekFlowId();
             if (isLockedJob) {
-                final boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(),
-                        FlowId.peekFlowId());
+                final boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(), flowId);
 
                 // if some problem happens from now on and before the lock is released (JVM crash, etc...) the lock
                 // needs
@@ -190,7 +191,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
                 if (isLockedJob) {
 
                     // if the database is not available, the lock needs to be removed manually.
-                    lockResourceManager.releaseLock(getLockResource());
+                    lockResourceManager.releaseLock(getLockResource(), flowId);
                 }
 
                 notifyStopRunning(throwable);

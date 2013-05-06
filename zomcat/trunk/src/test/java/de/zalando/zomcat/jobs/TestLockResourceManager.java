@@ -34,9 +34,11 @@ public class TestLockResourceManager implements LockResourceManager {
     }
 
     @Override
-    public void releaseLock(final String resource) {
-        this.releaseLockResource = resource;
-        releaseLockCounter++;
+    public void releaseLock(final String resource, final String flowId) {
+        if (this.flowId != null && this.flowId.equals(flowId)) {
+            this.releaseLockResource = resource;
+            releaseLockCounter++;
+        }
     }
 
     @Override

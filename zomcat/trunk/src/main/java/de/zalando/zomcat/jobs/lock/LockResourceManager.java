@@ -9,10 +9,9 @@ public interface LockResourceManager {
      */
     boolean acquireLock(String lockingComponent, String resource, String flowId);
 
-    boolean acquireLock(final String lockingComponent, final String resource, final String flowId,
-            long expectedMaximumDuration);
+    boolean acquireLock(String lockingComponent, String resource, String flowId, long expectedMaximumDuration);
 
-    void releaseLock(String resource);
+    void releaseLock(String resource, String flowId);
 
     boolean peekLock(String resource);
 }
