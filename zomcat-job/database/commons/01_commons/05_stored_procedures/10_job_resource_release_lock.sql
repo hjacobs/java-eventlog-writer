@@ -1,5 +1,6 @@
 create or replace function zz_commons.job_resource_release_lock (
-    p_lock_resource text
+    p_lock_resource text,
+    p_flowid        text default NULL
 ) returns void as
 $BODY$
 
@@ -8,7 +9,9 @@ $BODY$
     -- $HeadURL$
 */
     delete from zz_commons.resource_lock
-    where rl_resource = $1;
+    -- Keep backwords compatibility. If the second parameter is not defined,
+    -- just remove the lock with specified resource (without flowid checking)
+    where rl_resource = $1 and ( $2 IS NULL OR rl_flowid = $2 );
 
 $BODY$
 language sql
@@ -16,5 +19,5 @@ language sql
     security definer
     cost 100;
 
-grant execute on function zz_commons.job_resource_release_lock ( text ) to zalando_api_executor;
-alter function zz_commons.job_resource_release_lock ( text ) owner to zalando;
+grant execute on function zz_commons.job_resource_release_lock ( text, text ) to zalando_api_executor;
+alter function zz_commons.job_resource_release_lock ( text, text ) owner to zalando;

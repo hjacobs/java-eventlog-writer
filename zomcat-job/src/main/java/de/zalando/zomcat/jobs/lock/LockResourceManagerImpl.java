@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import org.springframework.dao.DataAccessException;
-
 import org.springframework.stereotype.Service;
 
 import de.zalando.sprocwrapper.AbstractSProcService;
@@ -59,8 +57,8 @@ public class LockResourceManagerImpl extends AbstractSProcService<LockResourceSp
     }
 
     @Override
-    public void releaseLock(final String resource) {
-        LOG.info("Releasing lock on {}", resource);
+    public void releaseLock(final String resource, final String flowId) {
+        LOG.info("Releasing lock on {} for {}", resource, flowId);
 
         boolean retry = true;
         int retryCounter = 0;
@@ -69,12 +67,10 @@ public class LockResourceManagerImpl extends AbstractSProcService<LockResourceSp
 
         do {
             try {
-                sproc.releaseLock(resource);
+                sproc.releaseLock(resource, flowId);
                 retry = false;
-
-                // only catch data access exceptions
-                // don't try to release the lock if, for example, a NPE is thrown
-            } catch (DataAccessException e) {
+                LOG.info("Lock with resource {} and flow id {} released", resource, flowId);
+            } catch (Throwable e) {
                 retry = retryCounter++ < maxRetries;
                 if (retry) {
                     LOG.warn("Could not release job lock {}. Retrying in {} millis",

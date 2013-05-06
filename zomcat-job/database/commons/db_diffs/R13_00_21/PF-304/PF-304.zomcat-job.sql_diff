@@ -1,0 +1,11 @@
+BEGIN;
+
+  select _v.register_patch('PF-304.zomcat-job');
+
+  SET role TO zalando;
+
+  drop function zz_commons.job_resource_release_lock ( text );
+
+  \i database/commons/01_commons/05_stored_procedures/10_job_resource_release_lock.sql
+
+COMMIT;

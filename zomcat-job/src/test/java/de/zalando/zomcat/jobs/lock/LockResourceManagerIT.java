@@ -40,7 +40,7 @@ public class LockResourceManagerIT {
 
     @Before
     public void setUp() {
-        lockResourceManager.releaseLock(TEST_RESOURCE);
+        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class LockResourceManagerIT {
 
     @Test
     public void tryToUnlockUnlockedResourceTest() {
-        lockResourceManager.releaseLock(TEST_RESOURCE);
+        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class LockResourceManagerIT {
         boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
 
-        lockResourceManager.releaseLock(TEST_RESOURCE);
+        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
 
         acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
         Assert.assertTrue("should have acquired lock", acquired);
@@ -98,7 +98,7 @@ public class LockResourceManagerIT {
         // DEBUG TEST: set breakpopints 1 and 2
 
         // bp 1
-        lockResourceManager.releaseLock(TEST_RESOURCE);
+        lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
         // stop DB, run until next bp
 
         // Up to here, resource is locked on DB, DB is not reachable.
@@ -145,7 +145,7 @@ public class LockResourceManagerIT {
             }
 
             Assert.assertEquals("should have acquired exactly 1 lock", 1, acquiredLocks);
-            lockResourceManager.releaseLock(TEST_RESOURCE);
+            lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
         }
     }
 }

@@ -87,6 +87,8 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat</artifactId>
+            <!-- TODO remove hardcoded version -->
+            <version>1.2.5</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

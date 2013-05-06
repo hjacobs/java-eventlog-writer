@@ -15,7 +15,7 @@ public class TestJobToWaitForJob extends AbstractJob {
     @Override
     public void doRun(final JobExecutionContext context, final JobConfig config) throws Exception {
         LOG.info("Simulating running Job. Sleeping for 5 Seconds");
-        Thread.sleep(2000);
+        Thread.sleep(5000);
     }
 
     @Override
