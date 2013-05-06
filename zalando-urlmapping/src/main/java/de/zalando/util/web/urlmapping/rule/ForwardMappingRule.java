@@ -6,6 +6,8 @@ import static com.google.common.collect.Iterables.limit;
 import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
+import static de.zalando.util.web.urlmapping.util.Helper.getOriginalUrl;
+
 import java.io.IOException;
 
 import java.util.Iterator;
@@ -30,8 +32,8 @@ import de.zalando.util.web.urlmapping.param.Handler;
 import de.zalando.util.web.urlmapping.param.PathParamHandler;
 import de.zalando.util.web.urlmapping.param.PostProcessor;
 import de.zalando.util.web.urlmapping.param.RequestParamHandler;
+import de.zalando.util.web.urlmapping.param.UrlPostProcessor;
 import de.zalando.util.web.urlmapping.util.Delimiter;
-import de.zalando.util.web.urlmapping.util.Helper;
 
 public class ForwardMappingRule implements MappingRule {
 
@@ -41,6 +43,7 @@ public class ForwardMappingRule implements MappingRule {
     private final List<PathParamHandler> paramHandlers;
     private final List<PostProcessor> postProcessors;
     private final List<RequestParamHandler> requestParamHandlers;
+    private final List<UrlPostProcessor> urlPostProcessors;
     private final int cardinality;
     private final int handlersCount;
     private final String id;
@@ -58,6 +61,7 @@ public class ForwardMappingRule implements MappingRule {
         final Builder<RequestParamHandler> requestParamsBuilder = ImmutableList.builder();
         final Builder<PathParamHandler> pathParamsBuilder = ImmutableList.builder();
         final Builder<PostProcessor> postProcessorBuilder = ImmutableList.builder();
+        final Builder<UrlPostProcessor> urlPostProcessorBuilder = ImmutableList.builder();
         for (final Handler handler : Objects.firstNonNull(handlers, ImmutableSet.<Handler>of())) {
             if (handler instanceof RequestParamHandler) {
                 requestParamsBuilder.add((RequestParamHandler) handler);
@@ -65,13 +69,17 @@ public class ForwardMappingRule implements MappingRule {
                 pathParamsBuilder.add((PathParamHandler) handler);
             } else if (handler instanceof PostProcessor) {
                 postProcessorBuilder.add((PostProcessor) handler);
+            } else if (handler instanceof UrlPostProcessor) {
+                urlPostProcessorBuilder.add((UrlPostProcessor) handler);
             }
         }
 
         requestParamHandlers = requestParamsBuilder.build();
         paramHandlers = pathParamsBuilder.build();
         postProcessors = postProcessorBuilder.build();
-        handlersCount = requestParamHandlers.size() + paramHandlers.size() + postProcessors.size();
+        urlPostProcessors = urlPostProcessorBuilder.build();
+        handlersCount = requestParamHandlers.size() + paramHandlers.size() + postProcessors.size()
+                + urlPostProcessors.size();
 
     }
 
@@ -142,11 +150,15 @@ public class ForwardMappingRule implements MappingRule {
 
         urlBuilder.takeRemainingParametersFromOriginalMapping(context.getParameterMap());
 
-        final String internalUrl = urlBuilder.build();
+        String internalUrl = urlBuilder.build();
+
+        for (UrlPostProcessor urlPostProcessor : urlPostProcessors) {
+            internalUrl = urlPostProcessor.postProcess(internalUrl, context, mappedParameters);
+        }
+
         try {
             final HttpServletRequest request = context.getRequest();
-            MappingInfo.create(Helper.getOriginalUrl(request), internalUrl, mappedParameters, basePath).tieToRequest(
-                request);
+            MappingInfo.create(getOriginalUrl(request), internalUrl, mappedParameters, basePath).tieToRequest(request);
             request.getRequestDispatcher(internalUrl).forward(request, context.getResponse());
         } catch (final ServletException e) {
             throw new UrlMappingException("Error forwarding to " + internalUrl, e, context, this);

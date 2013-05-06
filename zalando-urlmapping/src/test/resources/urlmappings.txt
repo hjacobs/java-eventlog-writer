@@ -1632,3 +1632,9 @@ RULE:link.test.loadconcept
 RULE:link.test.testfeature
   TARGET:/searchtools/TestFeature.action
   PATH:testfeature
+
+--------------------------------------------------------------------------------
+RULE:link.springcontroller.test
+  TARGET:/foo/bar/{baz}/phleem
+  PATH:wham
+  PARAM:NAME=baz;PATHSEGMENT=1

@@ -67,6 +67,7 @@ public class RuleSetDescriptionTest {
         original.add(voucherSuccess());
         original.add(orderCancelled());
         original.add(adminLogin());
+        original.add(someStupidPath());
         original.add(recoImage());
         original.add(updater());
         return original;
@@ -113,6 +114,7 @@ public class RuleSetDescriptionTest {
         assertThat(ruleContext,
             maps("admin/login?customer=foo@foo.foo&admin=bar@bar.bar",
                 "/customer/AdminLogin.action?emailCombination=bar@bar.bar:foo@foo.foo"));
+        assertThat(ruleContext, maps("wham/bam", "/foo/bar/bam/phleem"));
 
     }
 
@@ -197,6 +199,15 @@ public class RuleSetDescriptionTest {
         cancelled.addPath("kasse/abgebrochen");
         cancelled.addPath("paiement/annule");
         cancelled.addOptionalPathParameter("id");
+        return cancelled;
+    }
+
+    private RuleSetDescription someStupidPath() {
+        final RuleSetDescription cancelled = new RuleSetDescription("link.some.stupid.path");
+        cancelled.setTargetUrl("/foo/bar/{baz}/phleem");
+        cancelled.addPath("flapp/flupp");
+        cancelled.addPath("wapp/wupp");
+        cancelled.addPathSegmentParameter("baz", 2);
         return cancelled;
     }
 

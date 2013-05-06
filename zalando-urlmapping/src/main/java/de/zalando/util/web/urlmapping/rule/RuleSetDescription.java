@@ -58,6 +58,7 @@ import de.zalando.util.web.urlmapping.param.PathParamHandlers;
 import de.zalando.util.web.urlmapping.param.PostProcessors;
 import de.zalando.util.web.urlmapping.param.RequestParamHandler;
 import de.zalando.util.web.urlmapping.param.RequestParamHandlers;
+import de.zalando.util.web.urlmapping.param.UrlPostProcessors;
 import de.zalando.util.web.urlmapping.util.Delimiter;
 import de.zalando.util.web.urlmapping.util.Helper;
 
@@ -205,6 +206,7 @@ public class RuleSetDescription {
         FIXEDVALUE,
         FIRST,
         PATHVARIABLE,
+        PATHSEGMENT,
         SEO;
 
         public static ParamKey get(final String key) {
@@ -300,6 +302,15 @@ public class RuleSetDescription {
         return this;
     }
 
+    public RuleSetDescription addPathSegmentParameter(final String variableName, final int originalOffset) {
+        final Parameter param = new Parameter();
+        param.name = variableName;
+        param.segment = originalOffset;
+        prepareParams().add(param);
+
+        return this;
+    }
+
     /**
      * Add a request parameter aggregation: multiple incoming parameters will be mapped into one outgoing parameter
      * using the specified delimiter.
@@ -367,8 +378,9 @@ public class RuleSetDescription {
         private Character delimiter;
         private String suffix;
         private String prefix;
-        private boolean optional;
         private boolean first;
+        private boolean optional;
+        private int segment = -1;
 
         public String value;
 
@@ -428,6 +440,10 @@ public class RuleSetDescription {
 
                     case SEO :
                         parameter.name = SEO;
+                        break;
+
+                    case PATHSEGMENT :
+                        parameter.segment = Integer.parseInt(value);
                         break;
 
                     case PATHVARIABLE :
@@ -502,6 +518,8 @@ public class RuleSetDescription {
         Handler toHandler() {
             if (isSeoParameter()) {
                 return PathParamHandlers.addSeoParameter(optional);
+            } else if (isSegment()) {
+                return UrlPostProcessors.pathInterpolator(name, segment);
             } else if (isVariablePathParam()) {
                 return PathParamHandlers.addPathKey(value);
             } else if (isFixedParam()) {
@@ -537,6 +555,10 @@ public class RuleSetDescription {
             }
         }
 
+        private boolean isSegment() {
+            return segment >= 0 && name != null;
+        }
+
         void serialize(final Appendable appendable) throws IOException {
             appendable.append(INDENT).append(PARAM_PREFIX);
 
@@ -550,6 +572,9 @@ public class RuleSetDescription {
                 if (optional) {
                     paramTokens.put(ParamKey.OPTIONAL, TRUE);
                 }
+            } else if (isSegment()) {
+                paramTokens.put(ParamKey.PATHSEGMENT, String.valueOf(segment));
+                paramTokens.put(ParamKey.NAME, name);
             } else if (isVariablePathParam()) {
                 paramTokens.put(ParamKey.PATHVARIABLE, value);
                 if (optional) {

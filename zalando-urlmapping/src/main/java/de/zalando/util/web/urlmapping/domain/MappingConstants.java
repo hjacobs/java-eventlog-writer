@@ -15,7 +15,7 @@ public final class MappingConstants {
         CharMatcher.inRange('a', 'z')
                    .or(CharMatcher.inRange('A', 'Z'))
                    .or(CharMatcher.inRange('0', '9'))
-                   .or(CharMatcher.anyOf("-_."))
+                   .or(CharMatcher.anyOf("-_.{}}"))
                    .precomputed();
 //J+
     public static final CharMatcher ALLOWED_PATH_CHARACTERS = ALLOWED_CHARS.or(CharMatcher.is('/')).precomputed();

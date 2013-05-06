@@ -1,9 +1,8 @@
 package de.zalando.util.web.urlmapping;
 
-import static java.util.Collections.emptySet;
-
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.util.List;
 import java.util.Queue;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 
@@ -39,7 +39,7 @@ public class MappingContext {
     }
 
     private final int numberOfSegments;
-    private final Iterable<String> originalPathItems;
+    private final List<String> originalPathItems;
     private final Queue<String> pathItems;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -55,10 +55,10 @@ public class MappingContext {
         // variables in multiple buckets
         trimmedPath = Delimiter.SLASH.matcher().trimFrom(pathFor(request));
         if (trimmedPath.isEmpty()) {
-            originalPathItems = emptySet();
+            originalPathItems = ImmutableList.of();
             pathItems = NoOpQueue.get();
         } else {
-            originalPathItems = SLASH_SPLITTER.split(trimmedPath);
+            originalPathItems = ImmutableList.copyOf(SLASH_SPLITTER.split(trimmedPath));
             this.pathItems = Lists.newLinkedList(getOriginalPathItems());
         }
 
@@ -144,7 +144,7 @@ public class MappingContext {
         return parameterMap;
     }
 
-    public Iterable<String> getOriginalPathItems() {
+    public List<String> getOriginalPathItems() {
         return originalPathItems;
     }
 

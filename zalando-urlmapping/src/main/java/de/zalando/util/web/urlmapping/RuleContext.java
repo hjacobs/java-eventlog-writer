@@ -1,6 +1,8 @@
 package de.zalando.util.web.urlmapping;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ContiguousSet.create;
+import static com.google.common.collect.DiscreteDomain.integers;
 import static com.google.common.collect.Iterables.limit;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Maps.newHashMap;
@@ -17,13 +19,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
-import com.google.common.collect.DiscreteDomains;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Ranges;
+import com.google.common.collect.Range;
 
 import de.zalando.util.web.urlmapping.domain.MappingConstants;
 import de.zalando.util.web.urlmapping.rule.MappingRule;
@@ -91,12 +92,12 @@ public class RuleContext {
 
             final Iterable<String> transformedPath;
             if (Iterables.isEmpty(pathItems)) {
-                transformedPath = ImmutableSet.<String>of();
+                transformedPath = ImmutableSet.of();
             } else {
                 transformedPath = transform(pathItems, TokenProcessor.INSTANCE);
             }
 
-            for (final Integer cardinality : Ranges.closed(min, max).asSet(DiscreteDomains.integers())) {
+            for (final Integer cardinality : create(Range.closed(min, max), integers())) {
                 RuleBucket.Builder builder;
                 if (builders.containsKey(cardinality)) {
                     builder = builders.get(cardinality);
