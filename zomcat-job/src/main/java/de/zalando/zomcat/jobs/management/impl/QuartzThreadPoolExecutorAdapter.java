@@ -47,7 +47,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     private String instanceName;
 
-    private ThreadPoolExecutorHelper helper;
+    private ThreadPoolExecutorHelper threadPoolHelper;
 
     public QuartzThreadPoolExecutorAdapter() { }
 
@@ -160,7 +160,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     @Override
     public int getPoolSize() {
-        return helper.getPoolSize();
+        return threadPoolHelper.getPoolSize();
     }
 
     @Override
@@ -170,7 +170,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         }
 
         ScalingQueue scalingQueue = new ScalingQueue();
-        helper = new ThreadPoolExecutorHelper(corePoolSize, maximumPoolSize, keepAliveTime, shutdownTimeout,
+        threadPoolHelper = new ThreadPoolExecutorHelper(corePoolSize, maximumPoolSize, keepAliveTime, shutdownTimeout,
                 scalingQueue, scalingQueue);
     }
 
@@ -179,7 +179,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         // This method is always executed by the same scheduler thread,
         // it should block until there is at least one available thread.
 
-        return helper.blockForAvailableThreads();
+        return threadPoolHelper.blockForAvailableThreads();
     }
 
     @Override
@@ -190,7 +190,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
         if (runnable != null) {
             try {
-                helper.execute(runnable);
+                threadPoolHelper.execute(runnable);
                 ran = true;
             } catch (RejectedExecutionException e) {
                 LOG.error("Could not execute job", e);
@@ -202,7 +202,7 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
 
     @Override
     public void shutdown(final boolean waitForJobsToComplete) {
-        helper.shutdown(waitForJobsToComplete);
+        threadPoolHelper.shutdown(waitForJobsToComplete);
     }
 
     @Override
@@ -220,8 +220,8 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
         builder.append(instanceId);
         builder.append(", instanceName=");
         builder.append(instanceName);
-        builder.append(", executor=");
-        builder.append(helper);
+        builder.append(", threadPoolHelper=");
+        builder.append(threadPoolHelper);
         builder.append("]");
 
         return builder.toString();
@@ -288,8 +288,8 @@ public class QuartzThreadPoolExecutorAdapter implements ThreadPool {
                 availableThreads = maximumPoolSize - count;
                 if (availableThreads < 1) {
 
-                    // if we are here, we have performance problems. The pool is to short and some tasks are waiting for
-                    // available resources. We should notify this problem
+                    // We have performance problems. The pool is too short and some tasks are waiting for
+                    // available resources. We should notify this problem!
                     LOG.warn("Maximum quartz thread pool size reached: {}. Please increase quartz pool size",
                         maximumPoolSize);
 
