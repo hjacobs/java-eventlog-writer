@@ -44,6 +44,9 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      * Logger for this class.
      */
     private static final Logger LOG = Logger.getLogger(AbstractJob.class);
+
+    private static final long DEFAULT_EXPECTED_MAXIMUM_DURATION = 60000; // 1 min.
+
     private static volatile AtomicInteger globalId = new AtomicInteger(0);
 
     private static final Pattern LOCK_RESOURCE_NAME_PATTERN = Pattern.compile("^[A-Z][A-Z_]*[A-Z]$");
@@ -156,7 +159,8 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
 
             final String flowId = FlowId.peekFlowId();
             if (isLockedJob) {
-                final boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(), flowId);
+                final boolean acquiredLock = lockResourceManager.acquireLock(getBeanName(), getLockResource(), flowId,
+                        getExpectedMaximumDuration());
 
                 // if some problem happens from now on and before the lock is released (JVM crash, etc...) the lock
                 // needs
@@ -468,10 +472,21 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
      * Identifies what resource (if any) is to be locked. Can be dynamically build using the current job execution
      * context (getJobDataMap())
      *
-     * @return  some string identifing the resource to lock on or null if no locking required
+     * @return  some string identifying the resource to lock on or null if no locking required
      */
     protected String getLockResource() {
         return null;
+    }
+
+    /**
+     * Gets the expected maximum duration.
+     *
+     * <p>Default: 60000 milliseconds
+     *
+     * @return  the expected maximum duration in milliseconds
+     */
+    protected long getExpectedMaximumDuration() {
+        return DEFAULT_EXPECTED_MAXIMUM_DURATION;
     }
 
     @Override

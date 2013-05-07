@@ -7,7 +7,7 @@ public class TestLockResourceManager implements LockResourceManager {
     private String lockingComponent;
     private String acquireLockResource;
     private String flowId;
-    private Long expectedMaximumDuration;
+    private long expectedMaximumDuration;
     private int acquireLockCounter;
 
     private String releaseLockResource;
@@ -15,11 +15,6 @@ public class TestLockResourceManager implements LockResourceManager {
 
     private String peekLockResource;
     private int peekLockCounter;
-
-    @Override
-    public boolean acquireLock(final String lockingComponent, final String resource, final String flowId) {
-        return acquireLock(lockingComponent, resource, flowId, 0);
-    }
 
     @Override
     public boolean acquireLock(final String lockingComponent, final String resource, final String flowId,
@@ -61,7 +56,7 @@ public class TestLockResourceManager implements LockResourceManager {
         return flowId;
     }
 
-    public Long getExpectedMaximumDuration() {
+    public long getExpectedMaximumDuration() {
         return expectedMaximumDuration;
     }
 

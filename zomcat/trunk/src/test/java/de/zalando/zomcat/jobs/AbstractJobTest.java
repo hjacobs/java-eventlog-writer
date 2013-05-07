@@ -88,6 +88,7 @@ public class AbstractJobTest {
         Assert.assertEquals(job.getBeanName(), lockResourceManager.getAcquireLockResource());
         Assert.assertNotNull(lockResourceManager.getFlowId());
         Assert.assertFalse(lockResourceManager.getFlowId().isEmpty());
+        Assert.assertEquals(job.getExpectedMaximumDuration(), lockResourceManager.getExpectedMaximumDuration());
         Assert.assertEquals(1, lockResourceManager.getAcquireLockCounter());
 
         Assert.assertEquals(job.getBeanName(), lockResourceManager.getReleaseLockResource());
