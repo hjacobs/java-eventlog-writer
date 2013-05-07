@@ -16,7 +16,6 @@ public class LockResourceManagerImpl extends AbstractSProcService<LockResourceSp
     implements LockResourceSprocService {
 
     private static final Logger LOG = LoggerFactory.getLogger(LockResourceManagerImpl.class);
-    private static final int DEFAULT_EXPECTED_MAXIMUM_DURATION = 1000 * 60; // 1 min.
 
     /**
      * Retry time in milliseconds.
@@ -31,11 +30,6 @@ public class LockResourceManagerImpl extends AbstractSProcService<LockResourceSp
     @Autowired
     public LockResourceManagerImpl(@Qualifier("resourceLockDataSourceProvider") final DataSourceProvider provider) {
         super(provider, LockResourceSprocService.class);
-    }
-
-    @Override
-    public boolean acquireLock(final String lockingComponent, final String resource, final String flowId) {
-        return acquireLock(lockingComponent, resource, flowId, DEFAULT_EXPECTED_MAXIMUM_DURATION);
     }
 
     /**

@@ -1,7 +1,7 @@
 package de.zalando.zomcat.jobs.lock;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -28,6 +28,7 @@ public class LockResourceManagerIT {
     private static final String FLOWID = "flowid";
     private static final String TEST_COMPONENT = "test_component";
     private static final String TEST_RESOURCE = "test_resource";
+    private static final long TEST_EXPECTED_MAXIMUM_DURATION = 60000;
 
     private static final int CONCURRENT_CLIENTS = 20;
     private static final int CLIENT_INVOCATIONS = 20;
@@ -45,17 +46,20 @@ public class LockResourceManagerIT {
 
     @Test
     public void lockFreeResourceTest() {
-        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                TEST_EXPECTED_MAXIMUM_DURATION);
         Assert.assertTrue("should have acquired lock", acquired);
 
     }
 
     @Test
     public void tryToLockLockedResourceTest() {
-        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                TEST_EXPECTED_MAXIMUM_DURATION);
         Assert.assertTrue("should have acquired lock", acquired);
 
-        final boolean notAcquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        final boolean notAcquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                TEST_EXPECTED_MAXIMUM_DURATION);
         Assert.assertFalse("should not have acquired the lock", notAcquired);
     }
 
@@ -67,12 +71,14 @@ public class LockResourceManagerIT {
     @Test
     public void unlockResourceTest() {
 
-        boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                TEST_EXPECTED_MAXIMUM_DURATION);
         Assert.assertTrue("should have acquired lock", acquired);
 
         lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
 
-        acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                TEST_EXPECTED_MAXIMUM_DURATION);
         Assert.assertTrue("should have acquired lock", acquired);
     }
 
@@ -82,7 +88,8 @@ public class LockResourceManagerIT {
         boolean peeked = lockResourceManager.peekLock(TEST_RESOURCE);
         Assert.assertFalse("should not be locked.", peeked);
 
-        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                TEST_EXPECTED_MAXIMUM_DURATION);
         Assert.assertTrue("should have acquired lock", acquired);
 
         peeked = lockResourceManager.peekLock(TEST_RESOURCE);
@@ -92,7 +99,8 @@ public class LockResourceManagerIT {
     @Test
     public void testReconnect() {
 
-        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+        final boolean acquired = lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                TEST_EXPECTED_MAXIMUM_DURATION);
         Assert.assertTrue("should have acquired lock", acquired);
 
         // DEBUG TEST: set breakpopints 1 and 2
@@ -121,13 +129,14 @@ public class LockResourceManagerIT {
 
         ExecutorService executorService = Executors.newFixedThreadPool(CONCURRENT_CLIENTS);
 
-        Collection<Callable<Boolean>> callableCollection = new ArrayList<Callable<Boolean>>(CONCURRENT_CLIENTS);
+        Collection<Callable<Boolean>> callableCollection = new LinkedList<Callable<Boolean>>();
         for (int i = 0; i < CONCURRENT_CLIENTS; i++) {
             callableCollection.add(new Callable<Boolean>() {
 
                     @Override
                     public Boolean call() throws Exception {
-                        return lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID);
+                        return lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                                TEST_EXPECTED_MAXIMUM_DURATION);
                     }
                 });
         }
