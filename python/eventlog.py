@@ -4,6 +4,7 @@
 __all__ = ['register', 'log']
 
 import logging
+import logging.handlers
 import os
 import re
 
@@ -33,12 +34,12 @@ def _init(log_handler=None, layout_handler=None):
 
     event_log = logging.getLogger('eventlog')
     event_log.setLevel(logging.INFO)
-    event_log_file_handler = logging.FileHandler(path + 'eventlog.log')
+    event_log_file_handler = logging.handlers.TimedRotatingFileHandler(path + 'eventlog.log', when='midnight')
     event_log_file_handler.setLevel(logging.INFO)
 
     event_log_layout = logging.getLogger('eventlog-layout')
     event_log_layout.setLevel(logging.INFO)
-    event_layout_file_handler = logging.FileHandler(path + 'eventlog.layout')
+    event_layout_file_handler = logging.handlers.TimedRotatingFileHandler(path + 'eventlog.layout', when='midnight')
     event_layout_file_handler.setLevel(logging.INFO)
 
     formatter = logging.Formatter('%(asctime)s %(message)s')
@@ -58,39 +59,35 @@ def _init(log_handler=None, layout_handler=None):
 def register(e_id, name, *args):
     ''' Registers new event type. Important: order of events matters, later the events will be logged in the order
     provided in register function. Example:
-        register(6201, 'SOME_PAYMENT', 'first', 'second', 'third')
+        register(0x62001, 'SOME_PAYMENT', 'first', 'second', 'third')
         # or if we keep events in a data structure for later use/reuse
         events = ['first', 'second', 'third']
-        register(6201, 'SOME_PAYMENT', *events)
+        register(0x62001, 'SOME_PAYMENT', *events)
     '''
 
     if event_log is None or event_log_layout is None:
         _init()
 
-    if isinstance(e_id, int):
-        if name_pattern.match(name):
-            if e_id not in event_types:
-                if all(map(field_pattern.match, args)):
-                    event_log_layout.info('{0:x}\t{1!s}'.format(e_id, name) + ''.join('\t{}' for i in
-                                          range(len(args))).format(*args))
-                    event_types[e_id] = args
-                else:
-                    raise EventlogError('Event field names must be camel case with first letter lower case')
-            else:
-                raise EventlogError('Event with id {0!s} is already registered'.format(e_id))
-        else:
-            raise EventlogError('Event names must be UPPERCASE_WITH_UNDERSCORES')
-    else:
+    if not isinstance(e_id, int):
         raise EventlogError('Invalid or missing event id')
+    if not name_pattern.match(name):
+        raise EventlogError('Event names must be UPPERCASE_WITH_UNDERSCORES')
+    if e_id in event_types:
+        raise EventlogError('Event with id {0!s} is already registered'.format(e_id))
+    if not all(map(field_pattern.match, args)):
+        raise EventlogError('Event field names must be camel case with first letter lower case')
+
+    event_log_layout.info('{0:x}\t{1!s}'.format(e_id, name) + ''.join('\t{}' for i in range(len(args))).format(*args))
+    event_types[e_id] = args
 
 
 def log(e_id, **kwargs):
     ''' Logs events with given id. The order of keyword arguments will be determined by the order set while registering
     given event type. In other words, it doesn't matter here. Example:
-        log(6201, first='PAYMENT', third='DE', second=23.4)
+        log(0x62001, first='PAYMENT', third='DE', second=23.4)
         # or if we keep events in a data structure for later use/reuse
         events = { 'first': 'PAYMENT', 'third': 'DE', 'second': 23.4 }
-        log(6201, **events)
+        log(0x62001, **events)
     '''
 
     if event_log is None or event_log_layout is None:

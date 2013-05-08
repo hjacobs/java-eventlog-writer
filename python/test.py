@@ -41,8 +41,8 @@ class TestEventlog(unittest.TestCase):
         layout_handler = StreamHandler(layout_stream)
         _init(log_handler, layout_handler)
 
-        register(e_id, 'EVENT_NAME', 'valid', 'alsoValid')
-        log(e_id, also_valid='second', valid='first')
+        register(e_id, 'EVENT_NAME', 'valid', 'key')
+        log(e_id, key='second', valid='first')
 
         layout = split('\s+', layout_stream.getvalue().strip())
         eventlog = split('\s+', log_stream.getvalue().strip())
