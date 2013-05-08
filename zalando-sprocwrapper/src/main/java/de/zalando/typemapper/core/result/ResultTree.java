@@ -5,12 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResultTree implements DbResultNode {
 
     private Map<String, DbResultNode> children = new HashMap<String, DbResultNode>();
-    private static final Logger LOG = Logger.getLogger(ResultTree.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectResultNode.class);
 
     @Override
     public DbResultNodeType getNodeType() {

@@ -1,10 +1,11 @@
 package de.zalando.typemapper.core.fieldMapper;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ShortFieldMapper implements FieldMapper {
 
-    private static final Logger LOG = Logger.getLogger(ShortFieldMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ShortFieldMapper.class);
 
     @Override
     public Object mapField(final String string, final Class clazz) {
@@ -15,7 +16,7 @@ public class ShortFieldMapper implements FieldMapper {
         try {
             return Short.parseShort(string);
         } catch (NumberFormatException e) {
-            LOG.error("Could not convert " + string + " to short.", e);
+            LOG.error("Could not convert {} to short.", string, e);
         }
 
         return null;

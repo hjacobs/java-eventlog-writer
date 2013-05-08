@@ -11,15 +11,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.util.StringUtils;
 
 public class DbTypeRegister {
 
-    private static final Logger LOG = Logger.getLogger(DbTypeRegister.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DbTypeRegister.class);
 
     private static Map<String, DbTypeRegister> registers = null;
+    private static Map<String, DbType> dbTypeCache = new HashMap<>();
 
     private Map<String, DbType> types = null;
     private Map<String, List<String>> typeNameToFQN = null;
@@ -136,25 +138,31 @@ public class DbTypeRegister {
 
     public static DbType getDbType(final String name, final Connection connection) throws SQLException {
         final Map<String, DbTypeRegister> registry = initRegistry("default", connection);
-
-        for (final DbTypeRegister register : registry.values()) {
-            final List<String> list = register.typeNameToFQN.get(name);
-            if (list != null) {
-                if (list.size() == 1) {
-                    return register.types.get(list.get(0));
-                } else {
-                    final String fqName = SearchPathSchemaFilter.filter(list, register.searchPath);
-                    if (fqName != null) {
-                        final DbType result = register.types.get(fqName);
-                        if (result != null) {
-                            return result;
+        DbType dbType = dbTypeCache.get(name);
+        if (dbType == null) {
+            for (final DbTypeRegister register : registry.values()) {
+                final List<String> list = register.typeNameToFQN.get(name);
+                if (list != null) {
+                    if (list.size() == 1) {
+                        dbType = register.types.get(list.get(0));
+                        dbTypeCache.put(name, dbType);
+                        break;
+                    } else {
+                        final String fqName = SearchPathSchemaFilter.filter(list, register.searchPath);
+                        if (fqName != null) {
+                            final DbType result = register.types.get(fqName);
+                            if (result != null) {
+                                dbType = result;
+                                dbTypeCache.put(name, dbType);
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
 
-        return null;
+        return dbType;
     }
 
     public static synchronized Map<String, DbTypeRegister> initRegistry(final String name, final Connection connection)
@@ -168,8 +176,8 @@ public class DbTypeRegister {
             registers.put(name, register);
 
             final String searchPath = StringUtils.arrayToDelimitedString(register.getSearchPath().toArray(), ", ");
-            LOG.info("Initialized type register '" + name + "' with search path '" + searchPath + "' and "
-                    + register.getTypes().size() + " types");
+            LOG.info("Initialized type register '{}' with search path '{}' and {} types",
+                new Object[] {name, searchPath, register.getTypes().size()});
         }
 
         return registers;
@@ -180,6 +188,7 @@ public class DbTypeRegister {
             registers = new HashMap<String, DbTypeRegister>();
         }
 
+        dbTypeCache.clear();
         registers.put("default", new DbTypeRegister(connection));
     }
 }

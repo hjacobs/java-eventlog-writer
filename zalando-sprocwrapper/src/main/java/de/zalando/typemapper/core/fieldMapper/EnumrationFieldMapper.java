@@ -1,10 +1,11 @@
 package de.zalando.typemapper.core.fieldMapper;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EnumrationFieldMapper implements FieldMapper {
 
-    private static final Logger LOG = Logger.getLogger(EnumrationFieldMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EnumrationFieldMapper.class);
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -14,7 +15,7 @@ public class EnumrationFieldMapper implements FieldMapper {
         }
 
         if (clazz.getEnumConstants() == null) {
-            LOG.warn(clazz + " is not an enum");
+            LOG.warn("{} is not an enum", clazz);
             return null;
         }
 
@@ -27,7 +28,7 @@ public class EnumrationFieldMapper implements FieldMapper {
                 }
             }
 
-            LOG.warn("Could not find enum in " + clazz + " with ordinal " + string);
+            LOG.warn("Could not find enum in {} with ordinal {}", clazz, string);
         } catch (NumberFormatException e) {
             for (Enum en : enumConstants) {
                 if (en.name().equals(string)) {
@@ -35,7 +36,7 @@ public class EnumrationFieldMapper implements FieldMapper {
                 }
             }
 
-            LOG.warn("Could not find enum in " + clazz + " with name " + string);
+            LOG.warn("Could not find enum in {} with name {}", clazz, string);
         }
 
         return null;

@@ -60,7 +60,6 @@ public class PgTypeHelper {
         m.put("varchar", Types.VARCHAR);
         m.put("text", Types.VARCHAR);
         m.put("name", Types.VARCHAR);
-        m.put("bytea", Types.BINARY);
         m.put("bool", Types.BOOLEAN);
         m.put("bit", Types.BIT);
         m.put("date", Types.DATE);
@@ -498,7 +497,13 @@ public class PgTypeHelper {
         } else if (clazz.isEnum()) {
             sb.append(((Enum<?>) o).name());
         } else if (o instanceof Date) {
-            final Timestamp tmpd = new Timestamp(((Date) o).getTime());
+            Timestamp tmpd = null;
+            if (o instanceof Timestamp) {
+                tmpd = (Timestamp) o;
+            } else {
+                tmpd = new Timestamp(((Date) o).getTime());
+            }
+
             if (connection instanceof BaseConnection) {
 
                 // if we do have a valid postgresql connection use this one:

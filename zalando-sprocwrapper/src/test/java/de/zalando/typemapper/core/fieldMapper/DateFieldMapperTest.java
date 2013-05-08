@@ -21,10 +21,11 @@ public class DateFieldMapperTest {
 
     @DataPoints
     public static final String[][] DATES_RESULTS = {
-        {"2011-11-11 11:11:11", "2011-11-11 11:11:11+0100"},
-        {"2011-11-11", "2011-11-11 00:00:00+0100"},
-        {"2011-11-11 11:11:11 +02:00", "2011-11-11 10:11:11+0100"},
-        {"2011-11-11 11:11:11 -02:00", "2011-11-11 14:11:11+0100"}
+        {"2011-11-11 11:11:11", "2011-11-11 11:11:11.000+0100"},
+        {"2011-11-11", "2011-11-11 00:00:00.000+0100"},
+        {"2011-11-11 11:11:11 +02:00", "2011-11-11 10:11:11.000+0100"},
+        {"2011-11-11 11:11:11 -02:00", "2011-11-11 14:11:11.000+0100"},
+        {"2011-11-11 11:11:11.123 -02:00", "2011-11-11 14:11:11.123+0100"}
     };
 
     @DataPoints
@@ -38,6 +39,6 @@ public class DateFieldMapperTest {
         assertNotNull(result);
         assertTrue(clazz.isAssignableFrom(result.getClass()));
 
-        assertEquals(string[1], new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ", Locale.GERMANY).format(result));
+        assertEquals(string[1], new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ", Locale.GERMANY).format(result));
     }
 }

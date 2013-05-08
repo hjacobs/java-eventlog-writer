@@ -4,7 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.zalando.typemapper.core.Mapping;
 import de.zalando.typemapper.core.result.ArrayResultNode;
@@ -15,7 +16,7 @@ import de.zalando.typemapper.exception.NotsupportedTypeException;
 
 public class ObjectFieldMapper {
 
-    private static final Logger LOG = Logger.getLogger(ObjectFieldMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectFieldMapper.class);
 
     @SuppressWarnings("unchecked")
     public static final Object mapField(@SuppressWarnings("rawtypes") final Class clazz, final ObjectResultNode node)
@@ -39,7 +40,7 @@ public class ObjectFieldMapper {
             for (final Mapping mapping : mappings) {
                 final DbResultNode currentNode = node.getChildByName(mapping.getName());
                 if (currentNode == null) {
-                    LOG.warn("Could not find value of mapping: " + mapping.getName());
+                    LOG.warn("Could not find value of mapping: {}", mapping.getName());
                     continue;
                 }
 
@@ -54,7 +55,8 @@ public class ObjectFieldMapper {
                             ArrayFieldMapper.mapField(mapping.getField(), (ArrayResultNode) currentNode));
                     }
                 } catch (final Exception e) {
-                    LOG.error("Failed to map property " + mapping.getName() + " of class " + clazz.getSimpleName(), e);
+                    LOG.error("Failed to map property {} of class {}",
+                        new Object[] {mapping.getName(), clazz.getSimpleName(), e});
                 }
             }
         }

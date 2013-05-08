@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.zalando.typemapper.core.db.DbType;
 import de.zalando.typemapper.core.db.DbTypeField;
@@ -16,11 +19,12 @@ import de.zalando.typemapper.parser.postgres.ParseUtils;
 
 public class ObjectResultNode implements DbResultNode {
 
-    private static final Logger LOG = Logger.getLogger(ObjectResultNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectResultNode.class);
 
     private String name;
     private String type;
     private List<DbResultNode> children;
+    private Map<String, DbResultNode> nodeMap = new HashMap<>();
 
     public ObjectResultNode(final String value, final String name, final String typeName, final Connection connection)
         throws SQLException {
@@ -53,7 +57,7 @@ public class ObjectResultNode implements DbResultNode {
             final DbTypeField fieldDef = dbType.getFieldByPos(i);
             DbResultNode node = null;
             if (fieldDef == null) {
-                LOG.error("Could not find field in " + dbType + " for pos " + i);
+                LOG.error("Could not find field in {} for pos ", dbType, i);
                 continue;
             }
 
@@ -103,13 +107,18 @@ public class ObjectResultNode implements DbResultNode {
 
     @Override
     public DbResultNode getChildByName(final String name) {
-        for (final DbResultNode node : getChildren()) {
-            if (node.getName().equals(name)) {
-                return node;
+        DbResultNode resultNode = nodeMap.get(name);
+        if (resultNode == null) {
+            for (final DbResultNode node : getChildren()) {
+                if (node.getName().equals(name)) {
+                    resultNode = node;
+                    nodeMap.put(name, resultNode);
+                    break;
+                }
             }
         }
 
-        return null;
+        return resultNode;
     }
 
     @Override

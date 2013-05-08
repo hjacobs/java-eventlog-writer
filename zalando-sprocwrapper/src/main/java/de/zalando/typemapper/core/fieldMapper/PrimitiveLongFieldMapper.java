@@ -1,10 +1,11 @@
 package de.zalando.typemapper.core.fieldMapper;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PrimitiveLongFieldMapper implements FieldMapper {
 
-    private static final Logger LOG = Logger.getLogger(PrimitiveLongFieldMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrimitiveLongFieldMapper.class);
 
     @Override
     public Object mapField(final String string, final Class clazz) {
@@ -15,7 +16,7 @@ public class PrimitiveLongFieldMapper implements FieldMapper {
         try {
             return Long.parseLong(string);
         } catch (NumberFormatException e) {
-            LOG.error("Could not convert " + string + " to long.");
+            LOG.error("Could not convert {} to long.", string, e);
         }
 
         return new Long(0);

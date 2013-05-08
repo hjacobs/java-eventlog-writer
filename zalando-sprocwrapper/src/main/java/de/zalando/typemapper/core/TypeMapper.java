@@ -5,11 +5,12 @@ import java.sql.SQLException;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import org.postgresql.jdbc4.Jdbc4Array;
 
 import org.postgresql.util.PGobject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
@@ -29,7 +30,7 @@ import de.zalando.typemapper.parser.postgres.ParseUtils;
 
 public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
 
-    private static final Logger LOG = Logger.getLogger(TypeMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TypeMapper.class);
 
     private final Class<ITEM> resultClass;
     private final List<Mapping> mappings;
@@ -58,7 +59,7 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
     }
 
     private ResultTree extractResultTree(final ResultSet set) throws SQLException {
-        LOG.debug("Extracting result tree");
+        LOG.trace("Extracting result tree");
 
         final ResultTree tree = new ResultTree();
         int i = 1;
@@ -70,7 +71,7 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                 obj = set.getObject(i);
                 name = set.getMetaData().getColumnName(i);
             } catch (final SQLException e) {
-                LOG.debug("End of result set reached");
+                LOG.trace("End of result set reached");
                 break;
             }
 
@@ -123,9 +124,7 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
             i++;
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Extracted ResultTree: " + tree);
-        }
+        LOG.trace("Extracted ResultTree: {}", tree);
 
         return tree;
     }
@@ -138,8 +137,8 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
 
                     // this may be okay - if any return value is NULL, we will reach this path.
                     // to classify and mark this as an error, we need more information.
-                    LOG.debug("Could not map property " + mapping.getName() + " of class " + resultClass
-                            .getSimpleName() + ": field not in result tree");
+                    LOG.trace("Could not map property {} of class {}: field not in result tree, field may be nullable.",
+                        mapping.getName(), resultClass.getSimpleName());
                     continue;
                 }
 
@@ -157,8 +156,8 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                     mapping.map(result, value);
                 }
             } catch (final Exception e) {
-                LOG.error("Could not map property " + mapping.getName() + " of class " + resultClass.getSimpleName(),
-                    e);
+                LOG.error("Could not map property {} of class {}",
+                    new Object[] {mapping.getName(), resultClass.getSimpleName(), e});
             }
         }
     }

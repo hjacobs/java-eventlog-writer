@@ -26,6 +26,9 @@ public class Mapping {
     private final Field field;
     private final boolean embed;
     private final Field embedField;
+    private FieldMapper fieldMapper;
+    private Map<Field, Method> setter = new HashMap<>();
+
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<Mapping>> cache = new HashMap<Class, List<Mapping>>();
 
@@ -111,12 +114,19 @@ public class Mapping {
     }
 
     public Method getSetter(final Field field) {
-        final String setterName = "set" + capitalize(field.getName());
-        try {
-            return field.getDeclaringClass().getDeclaredMethod(setterName, field.getType());
-        } catch (final Exception e) {
-            return null;
+        Method method = setter.get(field);
+
+        if (method == null) {
+            final String setterName = "set" + capitalize(field.getName());
+            try {
+                method = field.getDeclaringClass().getDeclaredMethod(setterName, field.getType());
+                setter.put(field, method);
+            } catch (final Exception e) {
+                // ignore and return null
+            }
         }
+
+        return method;
     }
 
     public Method getSetter() {
@@ -208,19 +218,22 @@ public class Mapping {
 
     public FieldMapper getFieldMapper() throws NotsupportedTypeException, InstantiationException,
         IllegalAccessException {
-        final DatabaseFieldDescriptor databaseFieldDescriptor = getDatabaseFieldDescriptor(field);
-        if ((databaseFieldDescriptor != null) && (databaseFieldDescriptor.getTransformer() != null)) {
-            if (!AnyTransformer.class.equals(getValueTransformer())) {
-                return new ValueTransformerFieldMapper(getValueTransformer());
+        if (fieldMapper == null) {
+            final DatabaseFieldDescriptor databaseFieldDescriptor = getDatabaseFieldDescriptor(field);
+            if ((databaseFieldDescriptor != null) && (databaseFieldDescriptor.getTransformer() != null)) {
+                if (!AnyTransformer.class.equals(getValueTransformer())) {
+                    fieldMapper = new ValueTransformerFieldMapper(getValueTransformer());
+                    return fieldMapper;
+                }
+            }
+
+            fieldMapper = FieldMapperRegister.getMapperForClass(getFieldClass());
+            if (fieldMapper == null) {
+                throw new NotsupportedTypeException("Could not find mapper for type " + getFieldClass());
             }
         }
 
-        final FieldMapper mapper = FieldMapperRegister.getMapperForClass(getFieldClass());
-        if (mapper == null) {
-            throw new NotsupportedTypeException("Could not find mapper for type " + getFieldClass());
-        }
-
-        return mapper;
+        return fieldMapper;
     }
 
     public void map(final Object target, final Object value) throws IllegalArgumentException, IllegalAccessException,

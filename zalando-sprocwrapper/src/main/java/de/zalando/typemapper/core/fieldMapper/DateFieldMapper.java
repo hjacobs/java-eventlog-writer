@@ -4,13 +4,14 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import org.apache.log4j.Logger;
-
 import org.postgresql.jdbc2.PostgresJDBCDriverReusedTimestampUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DateFieldMapper implements FieldMapper {
 
-    private static final Logger LOG = Logger.getLogger(DateFieldMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DateFieldMapper.class);
     private static PostgresJDBCDriverReusedTimestampUtils postgresJDBCDriverReusedTimestampUtils =
         new PostgresJDBCDriverReusedTimestampUtils();
 
@@ -25,11 +26,11 @@ public class DateFieldMapper implements FieldMapper {
         try {
             date = postgresJDBCDriverReusedTimestampUtils.toTimestamp(null, string);
         } catch (final SQLException e) {
-            LOG.error("Invalid date/time string: " + string, e);
+            LOG.error("Invalid date/time string: {}", string, e);
         }
 
         if (date == null) {
-            LOG.error("Could not parse date: " + string);
+            LOG.error("Could not parse date: {}", string);
             return null;
         }
 

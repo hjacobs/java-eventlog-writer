@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import de.zalando.sprocwrapper.globalvaluetransformer.GlobalValueTransformerLoader;
 
 import de.zalando.typemapper.core.ValueTransformer;
@@ -21,8 +19,6 @@ import de.zalando.typemapper.core.ValueTransformer;
  * @author  jmussler
  */
 class StoredProcedureParameter {
-
-    protected static final Logger LOG = Logger.getLogger(StoredProcedureParameter.class);
 
     protected static final Map<Class<?>, Integer> SQL_MAPPING = new HashMap<Class<?>, Integer>();
 

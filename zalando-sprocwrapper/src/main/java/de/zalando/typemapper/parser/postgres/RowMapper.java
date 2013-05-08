@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.zalando.typemapper.parser.exception.RowParserException;
 
@@ -17,7 +18,7 @@ public class RowMapper {
     /**
      * Logger for this class.
      */
-    private static final Logger LOG = Logger.getLogger(RowMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RowMapper.class);
 
     /**
      * @param   rs
@@ -73,7 +74,7 @@ public class RowMapper {
                     element.setRowList(resultList);
                     elements.add(element);
                 } catch (Exception e) {
-                    LOG.error("Problem parsing received ROW value [" + s + "]: " + e.getMessage(), e);
+                    LOG.error("Problem parsing received ROW value [{}]: {}", new Object[] {s, e.getMessage(), e});
                 }
             }
 
