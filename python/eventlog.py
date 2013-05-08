@@ -7,12 +7,24 @@ import logging
 import logging.handlers
 import os
 import re
+import string
 
 event_log = None
 event_log_layout = None
 event_types = {}
 field_pattern = re.compile('^[a-z][a-zA-Z0-9]*$')
 name_pattern = re.compile(r'^[A-Z0-9]+(:?_?[A-Z0-9])*$')
+
+
+class EscapeFormatter(string.Formatter):
+
+    def convert_field(self, value, conversion):
+        if conversion == 'e':
+            return value.encode('string-escape')
+        return super(EscapeFormatter, self).convert_field(value, conversion)
+
+
+formatter = EscapeFormatter()
 
 
 class EventlogError(Exception):
@@ -96,8 +108,9 @@ def log(e_id, **kwargs):
     # flow id placeholder
     flow_id = ' '
     if e_id in event_types:
-        event_log.info('{0:x} {1}'.format(e_id, flow_id) + ''.join('\t{' + k + '}' for k in
-                       event_types[e_id]).format(**kwargs))
+        # filter out event types that were registered, but are not in keyword args, then escape tabs and newlines
+        event_log.info('{0:x} {1}'.format(e_id, flow_id) + formatter.format(''.join('\t{' + k + '!e}' for k in
+                       filter(lambda e: e in kwargs, event_types[e_id])), **kwargs))
     else:
         raise EventlogError('Event with id {0!s} is not registered. Did you forget to call register?'.format(e_id))
 
