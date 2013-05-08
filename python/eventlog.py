@@ -20,7 +20,7 @@ class EscapeFormatter(string.Formatter):
 
     def convert_field(self, value, conversion):
         if conversion == 'e':
-            return value.encode('string-escape')
+            return ('null' if value is None else value.encode('string-escape'))
         return super(EscapeFormatter, self).convert_field(value, conversion)
 
 

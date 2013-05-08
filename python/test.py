@@ -101,6 +101,22 @@ class TestEventlog(unittest.TestCase):
 
         self.assertEquals('contains\\nnewline', eventlog[3], 'Should have only one value (2)')
 
+    def test_none_values(self):
+        e_id = 12348
+        log_stream = cStringIO.StringIO()
+        layout_stream = cStringIO.StringIO()
+        log_handler = StreamHandler(log_stream)
+        layout_handler = StreamHandler(layout_stream)
+        _init(log_handler, layout_handler)
+
+        register(e_id, 'EVENT_NAME', 'key')
+        log(e_id, key=None)
+
+        eventlog = split('\s+', log_stream.getvalue().strip())
+
+        self.assertEquals(4, len(eventlog), 'Should have only four entries')
+        self.assertEquals('null', eventlog[3], 'Should convert None to null')
+
 
 if __name__ == '__main__':
     unittest.main()
