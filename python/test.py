@@ -42,7 +42,7 @@ class TestEventlog(unittest.TestCase):
         _init(log_handler, layout_handler)
 
         register(e_id, 'EVENT_NAME', 'valid', 'key')
-        log(e_id, key='second', valid='first')
+        log(e_id, key=2, valid='first')
 
         layout = split('\s+', layout_stream.getvalue().strip())
         eventlog = split('\s+', log_stream.getvalue().strip())
@@ -50,7 +50,7 @@ class TestEventlog(unittest.TestCase):
         self.assertEqual('{0:x}'.format(e_id), layout[2], 'Should have hex id in layout')
         self.assertEqual('{0:x}'.format(e_id), eventlog[2], 'Should have hex id in eventlog')
         self.assertEquals('first', eventlog[3], 'Should maintain registered order (1)')
-        self.assertEquals('second', eventlog[4], 'Should maintain registered order (2)')
+        self.assertEquals('2', eventlog[4], 'Should maintain registered order (2)')
 
     def test_less_arguments(self):
         e_id = 12346
