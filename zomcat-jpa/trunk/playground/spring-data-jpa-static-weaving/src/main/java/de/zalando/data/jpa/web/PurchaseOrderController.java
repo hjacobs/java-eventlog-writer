@@ -1,5 +1,7 @@
 package de.zalando.data.jpa.web;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -81,6 +84,24 @@ public class PurchaseOrderController {
         }
 
         return result;
+    }
+
+    @RequestMapping(value = "/replaceAddress/{businesskey}", method = RequestMethod.PUT)
+    @ResponseBody
+    public void replaceAddress(@PathVariable final String businesskey,
+            @RequestBody final InvoiceAddress invoiceAddress) {
+        final PurchaseOrder purchaseOrder = checkNotNull(purchaseOrderRepository.findByBusinessKey(businesskey),
+                "Purchase order with businesskey {} not found", businesskey);
+
+        LOG.info("Replace existing invoice address ({}) of purchase order {} with new one ({})...",
+            new Object[] {purchaseOrder.getInvoiceAddress(), purchaseOrder.getBusinessKey(), invoiceAddress});
+
+        purchaseOrder.setInvoiceAddress(invoiceAddress);
+        purchaseOrder.getAllInvoiceAddresses().add(invoiceAddress);
+
+        purchaseOrderRepository.saveAndFlush(purchaseOrder);
+
+        LOG.info("... successfully replaced address.");
     }
 
 }

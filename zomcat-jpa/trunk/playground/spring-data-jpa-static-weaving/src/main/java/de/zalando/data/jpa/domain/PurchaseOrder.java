@@ -1,5 +1,7 @@
 package de.zalando.data.jpa.domain;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.io.Serializable;
 
 import java.util.List;
@@ -18,7 +20,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 import de.zalando.data.annotation.BusinessKey;
 
@@ -36,13 +37,13 @@ public class PurchaseOrder implements Serializable {
     private String businessKey;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PurchaseOrderPosition> positions = Lists.newArrayList();
+    private List<PurchaseOrderPosition> positions = newArrayList();
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumn(name = "po_invoice_address_id")
     private InvoiceAddress invoiceAddress;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(
         name = "purchase_order_invoice_address", joinColumns = @JoinColumn(name = "poia_purchase_order_id"),
         inverseJoinColumns = @JoinColumn(name = "poia_invoice_address_id")
@@ -70,6 +71,10 @@ public class PurchaseOrder implements Serializable {
     }
 
     public List<InvoiceAddress> getAllInvoiceAddresses() {
+        if (allInvoiceAddresses == null) {
+            allInvoiceAddresses = newArrayList();
+        }
+
         return allInvoiceAddresses;
     }
 

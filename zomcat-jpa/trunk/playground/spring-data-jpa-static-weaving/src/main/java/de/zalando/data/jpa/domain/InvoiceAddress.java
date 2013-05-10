@@ -80,4 +80,48 @@ public class InvoiceAddress implements Serializable {
                       .toString();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        InvoiceAddress that = (InvoiceAddress) o;
+
+        if (city != null ? !city.equals(that.city) : that.city != null) {
+            return false;
+        }
+
+        if (firstname != null ? !firstname.equals(that.firstname) : that.firstname != null) {
+            return false;
+        }
+
+        if (lastname != null ? !lastname.equals(that.lastname) : that.lastname != null) {
+            return false;
+        }
+
+        if (postcode != null ? !postcode.equals(that.postcode) : that.postcode != null) {
+            return false;
+        }
+
+        if (street != null ? !street.equals(that.street) : that.street != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = firstname != null ? firstname.hashCode() : 0;
+        result = 31 * result + (lastname != null ? lastname.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        result = 31 * result + (postcode != null ? postcode.hashCode() : 0);
+        result = 31 * result + (street != null ? street.hashCode() : 0);
+        return result;
+    }
 }
