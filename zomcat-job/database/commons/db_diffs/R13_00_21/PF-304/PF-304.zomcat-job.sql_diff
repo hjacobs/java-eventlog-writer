@@ -4,6 +4,8 @@ BEGIN;
 
   SET role TO zalando;
 
+  -- as the locking structures do not exist on all the databases, run this DB-DIFF everywhere where it runs (possible with --parallel switch)
+
   drop function zz_commons.job_resource_release_lock ( text );
 
   \i database/commons/01_commons/05_stored_procedures/10_job_resource_release_lock.sql
