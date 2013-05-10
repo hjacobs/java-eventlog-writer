@@ -11,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -33,12 +35,19 @@ public class PurchaseOrder implements Serializable {
     @BusinessKey("UUID")
     private String businessKey;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PurchaseOrderPosition> positions = Lists.newArrayList();
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "po_invoice_address_id")
     private InvoiceAddress invoiceAddress;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "purchase_order_invoice_address", joinColumns = @JoinColumn(name = "poia_purchase_order_id"),
+        inverseJoinColumns = @JoinColumn(name = "poia_invoice_address_id")
+    )
+    private List<InvoiceAddress> allInvoiceAddresses;
 
     public String getBusinessKey() {
         return businessKey;
@@ -58,6 +67,14 @@ public class PurchaseOrder implements Serializable {
 
     public void setInvoiceAddress(final InvoiceAddress invoiceAddress) {
         this.invoiceAddress = invoiceAddress;
+    }
+
+    public List<InvoiceAddress> getAllInvoiceAddresses() {
+        return allInvoiceAddresses;
+    }
+
+    public void setAllInvoiceAddresses(final List<InvoiceAddress> allInvoiceAddresses) {
+        this.allInvoiceAddresses = allInvoiceAddresses;
     }
 
     public Integer getId() {
