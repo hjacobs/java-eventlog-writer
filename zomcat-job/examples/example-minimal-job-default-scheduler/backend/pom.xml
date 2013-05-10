@@ -36,37 +36,4 @@
             <artifactId>log4j</artifactId>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>external-test</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-             <plugins>
-               <plugin>
-                   <groupId>org.apache.maven.plugins</groupId>
-                   <artifactId>maven-failsafe-plugin</artifactId>
-                   <executions>
-                       <execution>
-                            <goals>
-                                <goal>verify</goal>
-                                <goal>integration-test</goal>
-                            </goals>
-                       </execution>
-                   </executions>
-                   <configuration>
-                       <excludes>
-                         <exclude>**/*Test.java</exclude>
-                         <exclude>**/*IT.java</exclude>
-                      </excludes>
-                      <includes>
-                        <include>**/*ET.java</include>
-                      </includes>
-                  </configuration>
-               </plugin>
-              </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
