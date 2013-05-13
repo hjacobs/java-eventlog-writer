@@ -17,7 +17,6 @@
     </organization>
     <properties>
         <test.src.dir>src/test/java</test.src.dir>
-        <project.build_env.external_test>true</project.build_env.external_test>
     </properties>
     <dependencies>
         <dependency>
