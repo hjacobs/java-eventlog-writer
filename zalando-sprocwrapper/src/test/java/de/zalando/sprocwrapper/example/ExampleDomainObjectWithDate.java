@@ -1,5 +1,7 @@
 package de.zalando.sprocwrapper.example;
 
+import java.sql.Timestamp;
+
 import java.util.Date;
 
 import de.zalando.typemapper.annotations.DatabaseField;
@@ -15,7 +17,7 @@ public class ExampleDomainObjectWithDate {
     public Date myDate;
 
     @DatabaseField
-    public Date myTimestamp;
+    public Timestamp myTimestamp;
 
     public Date getMyDate() {
         return myDate;
@@ -25,11 +27,11 @@ public class ExampleDomainObjectWithDate {
         this.myDate = myDate;
     }
 
-    public Date getMyTimestamp() {
+    public Timestamp getMyTimestamp() {
         return myTimestamp;
     }
 
-    public void setMyTimestamp(final Date myTimestamp) {
+    public void setMyTimestamp(final Timestamp myTimestamp) {
         this.myTimestamp = myTimestamp;
     }
 

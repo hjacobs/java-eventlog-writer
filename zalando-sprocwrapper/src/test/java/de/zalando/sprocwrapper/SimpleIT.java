@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import java.text.SimpleDateFormat;
 
@@ -56,6 +57,8 @@ import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
+
+import de.zalando.typemapper.parser.DateTimeUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
@@ -382,10 +385,11 @@ public class SimpleIT {
         result = exampleSProcService.createOrUpdateObjectWithDate(obj);
         assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d)), result);
 
-        obj.setMyTimestamp(d);
+        final Timestamp t = new Timestamp(System.currentTimeMillis());
+        t.setNanos(123456789);
+        obj.setMyTimestamp(t);
         result = exampleSProcService.createOrUpdateObjectWithDate(obj);
-        assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d))
-                + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(d)), result);
+        assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d)) + DateTimeUtil.format(t), result);
     }
 
     @Test
