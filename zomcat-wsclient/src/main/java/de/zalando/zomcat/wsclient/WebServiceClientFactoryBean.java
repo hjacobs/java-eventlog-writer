@@ -16,6 +16,8 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.google.common.base.Preconditions;
+
 import de.zalando.zomcat.appconfig.BaseApplicationConfig;
 
 /**
@@ -46,7 +48,13 @@ public abstract class WebServiceClientFactoryBean<WS> implements FactoryBean<WS>
     @Override
     @SuppressWarnings("unchecked")
     public WS getObject() throws Exception {
-        final ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+
+        // applicationConfig is annotated as required, so if we are here, applicationConfig is not null.
+        // Just check if config is available
+        Preconditions.checkNotNull(applicationConfig.getConfig(),
+            "Configuration is not available on 'applicationConfig' bean (applicationConfig.getConfig() returns null). "
+                + "Please check your context and make sure that you are using the correct "
+                + "'applicationConfig' bean and that Configuration is correctly configured.");
 
         final Class<WS> clazz = getWebServiceClass();
         if (!clazz.getSimpleName().endsWith("WebService")) {
@@ -56,6 +64,7 @@ public abstract class WebServiceClientFactoryBean<WS> implements FactoryBean<WS>
                     + clazz.getSimpleName());
         }
 
+        final ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.setServiceClass(clazz);
         factory.setAddress(getWebServiceUrl().toExternalForm());
 
