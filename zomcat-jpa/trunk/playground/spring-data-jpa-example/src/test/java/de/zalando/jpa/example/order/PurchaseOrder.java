@@ -30,11 +30,14 @@ import de.zalando.data.annotation.BusinessKey;
 
 @Entity
 @Table(name = "purchase_order")
-// @SequenceGenerator(name = "purchase_order_id_seq", sequenceName = "purchase_order_po_id_seq", allocationSize = 1)
+// @SequenceGenerator(name = "purchase_order_id_seq", sequenceName =
+// "purchase_order_po_id_seq", allocationSize = 1)
 public class PurchaseOrder {
 
     @Id
-// @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchase_order_id_seq")
+
+    // @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
+    // "purchase_order_id_seq")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
@@ -68,6 +71,8 @@ public class PurchaseOrder {
 
     @OneToOne
     private Address address;
+
+    private boolean ordered;
 
     public String getBrandCode() {
         return brandCode;
@@ -124,6 +129,14 @@ public class PurchaseOrder {
     public void setAddress(final Address address) {
         this.address = address;
         this.address.setPurchaseOrder(this);
+    }
+
+    public boolean isOrdered() {
+        return ordered;
+    }
+
+    public void setOrdered(final boolean ordered) {
+        this.ordered = ordered;
     }
 
     @Override
