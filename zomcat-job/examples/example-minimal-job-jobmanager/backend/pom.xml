@@ -17,9 +17,14 @@
     </organization>
     <properties>
         <test.src.dir>src/test/java</test.src.dir>
-    <sonar.language>java</sonar.language>
-    <!--  Feed Sonar with the JaCoCo integration tests coverage report (that you have previously generated) -->
-    <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.itReportPath>
+        <!-- Sonar -->
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <!-- The destination file for the code coverage report has to be set to the same value
+             in the parent pom and in each module pom. Then JaCoCo will add up information in
+             the same report, so that, it will give the cross-module code coverage. -->
+        <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.itReportPath>
+        <sonar.language>java</sonar.language>
     </properties>
     <build>
         <plugins>
