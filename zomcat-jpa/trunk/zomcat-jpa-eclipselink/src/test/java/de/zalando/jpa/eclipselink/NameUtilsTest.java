@@ -40,6 +40,8 @@ public class NameUtilsTest {
     @Test
     public void buildBooleanFieldNames() {
         Assert.assertEquals("poh_is_ordered", NameUtils.buildBooleanFieldName("purchase_order_head", "ordered"));
+
+        // this is ugly style, but seen in current projects
         Assert.assertEquals("poh_is_ordered", NameUtils.buildBooleanFieldName("purchase_order_head", "isOrdered"));
         Assert.assertEquals("poh_is_ordered", NameUtils.buildBooleanFieldName("purchase_order_head", "isordered"));
     }
