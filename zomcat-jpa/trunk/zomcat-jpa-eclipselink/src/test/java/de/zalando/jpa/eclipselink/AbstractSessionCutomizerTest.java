@@ -25,12 +25,17 @@ public abstract class AbstractSessionCutomizerTest {
         SessionCustomizer defaultSessionCustomizer = getSessionCustomizer();
 
         DatabaseField field = new DatabaseField();
+
 // field.se
 
         DirectToFieldMapping mapping = new DirectToFieldMapping();
         mapping.setAttributeName("brandCode");
         mapping.setField(field);
         mapping.setAttributeClassification(String.class);
+
+        ClassDescriptor classDescriptor = new ClassDescriptor();
+        classDescriptor.setJavaClass(String.class);
+        mapping.setDescriptor(classDescriptor);
 
         Vector mappings = new Vector();
         mappings.add(mapping);
