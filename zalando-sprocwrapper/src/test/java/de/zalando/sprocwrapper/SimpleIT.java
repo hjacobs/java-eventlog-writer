@@ -104,6 +104,13 @@ public class SimpleIT {
     }
 
     @Test
+    public void testMicroSecondTimestamp() throws SQLException {
+        java.sql.Timestamp t = exampleSProcService.getMicorsecondTimestamp();
+        assertEquals(t.getNanos(), 123456000);
+        System.out.println(t);
+    }
+
+    @Test
     public void testGlobalTransformer() throws SQLException {
 
         // test void result

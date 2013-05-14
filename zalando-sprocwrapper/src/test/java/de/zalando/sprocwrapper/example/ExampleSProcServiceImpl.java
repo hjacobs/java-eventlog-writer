@@ -1,6 +1,8 @@
 
 package de.zalando.sprocwrapper.example;
 
+import java.sql.Timestamp;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -329,5 +331,10 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     @Override
     public DateTime testGlobalTransformer6(final DateTime dateTime) {
         return sproc.testGlobalTransformer6(dateTime);
+    }
+
+    @Override
+    public Timestamp getMicorsecondTimestamp() {
+        return sproc.getMicorsecondTimestamp();
     }
 }

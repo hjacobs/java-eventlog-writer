@@ -162,6 +162,9 @@ public interface ExampleSProcService {
     @SProcCall(sql = "SELECT 'a','b',null")
     ExampleDomainObjectWithInnerObject getObjectWithNull();
 
+    @SProcCall(sql = "SELECT '2013-04-05 11:12:13.123456'::timestamp")
+    java.sql.Timestamp getMicorsecondTimestamp();
+
     @SProcCall
     ExampleDomainObjectWithSimpleTransformer testSimpleTransformer(
             @SProcParam ExampleDomainObjectWithSimpleTransformer exampleDomainObjectWithSimpleTransformer);

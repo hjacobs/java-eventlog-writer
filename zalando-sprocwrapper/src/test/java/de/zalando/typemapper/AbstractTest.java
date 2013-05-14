@@ -150,6 +150,10 @@ public abstract class AbstractTest {
     public void tearDown() throws SQLException {
         execute("DROP SCHEMA IF EXISTS tmp CASCADE;");
         execute("DROP SCHEMA IF EXISTS tmp2 CASCADE;");
+
+        if (connection != null) {
+            connection.close();
+        }
     }
 
 }
