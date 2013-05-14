@@ -18,7 +18,13 @@ public class DirectToFieldMappingColumnNameCustomizer extends AbstractColumnName
     @Override
     public void customizeColumnName(final String tableName, final DirectToFieldMapping databaseMapping,
             final Session session) {
-        final String newFieldName = NameUtils.buildFieldName(tableName, databaseMapping.getAttributeName());
+        String newFieldName = null;
+        if (Boolean.class.equals(databaseMapping.getAttributeClassification())) {
+            newFieldName = NameUtils.buildBooleanFieldName(tableName, databaseMapping.getAttributeName());
+        } else {
+            newFieldName = NameUtils.buildFieldName(tableName, databaseMapping.getAttributeName());
+        }
+
         databaseMapping.getField().setName(newFieldName);
         session.getSessionLog().log(SessionLog.FINE, "set new field-name to {0}", new Object[] {newFieldName}, false);
     }

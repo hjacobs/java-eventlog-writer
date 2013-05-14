@@ -36,4 +36,11 @@ public class NameUtilsTest {
             NameUtils.buildFieldName("purchase_order_head", "supplierDocumentNumber"));
         Assert.assertEquals("poh_order_date", NameUtils.buildFieldName("purchase_order_head", "orderDate"));
     }
+
+    @Test
+    public void buildBooleanFieldNames() {
+        Assert.assertEquals("poh_is_ordered", NameUtils.buildBooleanFieldName("purchase_order_head", "ordered"));
+        Assert.assertEquals("poh_is_ordered", NameUtils.buildBooleanFieldName("purchase_order_head", "isOrdered"));
+        Assert.assertEquals("poh_is_ordered", NameUtils.buildBooleanFieldName("purchase_order_head", "isordered"));
+    }
 }

@@ -25,6 +25,14 @@ public final class NameUtils {
         return iconizeTableName(tableName) + "_" + camelCaseToUnderscore(attributeName);
     }
 
+    public static String buildBooleanFieldName(final String tableName, String attributeName) {
+        if (attributeName.toLowerCase().startsWith("is")) {
+            attributeName = attributeName.substring(2);
+        }
+
+        return iconizeTableName(tableName) + "_is_" + camelCaseToUnderscore(attributeName);
+    }
+
     /**
      * @param   name
      *

@@ -30,4 +30,18 @@ public class DirectToFieldMappingColumnNameCustomizerTest {
         Mockito.verify(dataBaseField).setName(eq("poh_order_status"));
     }
 
+    @Test
+    public void booleanCustomizationStartsWithIsPrefix() {
+        DirectToFieldMapping mapping = Mockito.mock(DirectToFieldMapping.class);
+        DatabaseField dataBaseField = Mockito.mock(DatabaseField.class);
+        Mockito.when(mapping.getField()).thenReturn(dataBaseField);
+        Mockito.when(mapping.getAttributeName()).thenReturn("ordered");
+        Mockito.when(mapping.getAttributeClassification()).thenReturn(Boolean.class);
+
+        // invoke
+        customizer.customizeColumnName("purchase_order_head", mapping, MockSessionCreator.create());
+
+        //
+        Mockito.verify(dataBaseField).setName(eq("poh_is_ordered"));
+    }
 }
