@@ -9,7 +9,7 @@
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-job-monitor-backend</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
     <name>Job Monitor Backend</name>
     <description>Job monitor (jobs.monitor servlet) backend</description>
     <organization>
@@ -22,6 +22,7 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat</artifactId>
+            <version>1.2.7</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
