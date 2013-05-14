@@ -92,6 +92,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     private JobConfigSource jobConfigSource;
 
     public synchronized SortedMap<String, JobTypeStatusBean> getJobs() {
+
         if (jobs.isEmpty()) {
             if (!isJobManagerAvailable()) {
                 for (final Class<? extends RunningWorker> runningWorkerClass : getRunningWorkerImplementations()) {
@@ -161,9 +162,17 @@ public class JobsStatusBean implements JobsStatusMBean {
 
                 }
             }
+
+        } else { // refresh config every JOB_CONFIG_REFRES_INTERVAL_IN_MINUTES
+            try {
+                refreshJobConfig();
+            } catch (final Exception e) {
+                LOG.error("Got exception while check expired jobs: [{}]", e.getMessage(), e);
+            }
         }
 
         return jobs;
+
     }
 
     private Set<Class<? extends AbstractJob>> getRunningWorkerImplementations() {
