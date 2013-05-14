@@ -17,6 +17,9 @@
     </organization>
     <properties>
         <test.src.dir>src/test/java</test.src.dir>
+    <sonar.language>java</sonar.language>
+    <!--  Feed Sonar with the JaCoCo integration tests coverage report (that you have previously generated) -->
+    <sonar.jacoco.itReportPath>${project.basedir}/target/failsafe-reports/</sonar.jacoco.itReportPath>
     </properties>
     <build>
         <plugins>
