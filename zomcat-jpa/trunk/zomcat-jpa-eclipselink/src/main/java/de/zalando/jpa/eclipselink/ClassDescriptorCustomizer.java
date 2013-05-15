@@ -4,8 +4,8 @@ import org.eclipse.persistence.descriptors.ClassDescriptor;
 import org.eclipse.persistence.sessions.Session;
 
 /**
- * Defines an {@link ClassDescriptorCustomizer}. With an {@link ClassDescriptor} we can customize field-and
- * association-mappings for one class/entity/type.
+ * Defines an {@link ClassDescriptorCustomizer}.<br/>
+ * With an {@link ClassDescriptor} we can customize field-and association-mappings for one class/entity/type.
  *
  * @author  jbellmann
  */

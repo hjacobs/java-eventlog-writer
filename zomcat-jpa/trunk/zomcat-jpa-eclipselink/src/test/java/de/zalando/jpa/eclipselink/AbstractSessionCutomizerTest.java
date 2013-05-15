@@ -34,7 +34,7 @@ public abstract class AbstractSessionCutomizerTest {
         mapping.setAttributeClassification(String.class);
 
         ClassDescriptor classDescriptor = new ClassDescriptor();
-        classDescriptor.setJavaClass(String.class);
+        classDescriptor.setJavaClass(AttributeHolderBean.class);
         mapping.setDescriptor(classDescriptor);
 
         Vector mappings = new Vector();

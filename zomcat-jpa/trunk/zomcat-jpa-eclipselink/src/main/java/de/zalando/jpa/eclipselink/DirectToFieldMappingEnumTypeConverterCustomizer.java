@@ -1,6 +1,5 @@
 package de.zalando.jpa.eclipselink;
 
-import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DirectToFieldMapping;
 import org.eclipse.persistence.mappings.converters.EnumTypeConverter;
 import org.eclipse.persistence.sessions.Session;
@@ -22,8 +21,8 @@ public class DirectToFieldMappingEnumTypeConverterCustomizer extends AbstractCon
             final EnumTypeConverter eclipseConverter = (EnumTypeConverter) databaseMapping.getConverter();
             final Class enumClazz = eclipseConverter.getEnumClass();
 
-            session.getSessionLog().log(SessionLog.FINE, "Set enum-converter to field {0} with class {1}",
-                new Object[] {databaseMapping.getField().getName(), enumClazz.getName()}, false);
+            logFine(session, "Set enum-converter to field {0} with class {1}", databaseMapping.getField().getName(),
+                enumClazz.getName());
 
             databaseMapping.setConverter(new de.zalando.jpa.eclipselink.EnumTypeConverter(enumClazz,
                     databaseMapping.getField().getColumnDefinition()));

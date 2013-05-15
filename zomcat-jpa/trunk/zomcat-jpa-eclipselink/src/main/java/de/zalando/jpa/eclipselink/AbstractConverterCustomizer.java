@@ -7,7 +7,8 @@ import org.eclipse.persistence.mappings.DatabaseMapping;
  *
  * @author  jbellmann
  */
-public abstract class AbstractConverterCustomizer<T extends DatabaseMapping> implements ConverterCustomizer<T> {
+public abstract class AbstractConverterCustomizer<T extends DatabaseMapping> extends AbstractCustomizer
+    implements ConverterCustomizer<T> {
 
     private final Class<T> supportedDatabaseMapping;
 

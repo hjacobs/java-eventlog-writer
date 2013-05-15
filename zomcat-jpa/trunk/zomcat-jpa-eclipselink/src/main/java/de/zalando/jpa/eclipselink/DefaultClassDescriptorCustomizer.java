@@ -14,7 +14,7 @@ import com.google.common.collect.Maps;
 /**
  * @author  jbellmann
  */
-public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomizer {
+public class DefaultClassDescriptorCustomizer extends AbstractCustomizer implements ClassDescriptorCustomizer {
 
 // private static final Logger LOG = LoggerFactory.getLogger(DefaultClassDescriptorCustomizer.class);
 
@@ -34,16 +34,38 @@ public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomiz
     public void customize(final ClassDescriptor clazzDescriptor, final Session session) {
         this.sessionLog = session.getSessionLog();
         Preconditions.checkNotNull(this.sessionLog, "SessionLog should never be null");
+        logFine(session, "----  Customize for entity {0} ----\n", clazzDescriptor.getJavaClassName());
         for (DatabaseMapping databaseMapping : clazzDescriptor.getMappings()) {
+            logFine(session, "Field : {0}", databaseMapping.getAttributeName());
 
             // columnNames
             ColumnNameCustomizer<DatabaseMapping> columnNameCustomizer = getColumnNameCustomizer(databaseMapping);
+
+            if (isNoOpCustomizer(columnNameCustomizer)) {
+                logFinest(session, "No ColumnNameCustomizer found for {0}", databaseMapping.getClass().getName());
+            }
+
             columnNameCustomizer.customizeColumnName(clazzDescriptor.getTableName(), databaseMapping, session);
 
             // converter
             ConverterCustomizer<DatabaseMapping> converterCustomizer = getConverterCustomizer(databaseMapping);
+            if (isNoOpCustomizer(converterCustomizer)) {
+                logFinest(session, "No ConverterCustomizer found for {0}", databaseMapping.getClass().getName());
+            }
+
             converterCustomizer.customizeConverter(databaseMapping, session);
+
         }
+
+        logFine(session, "----  Entity {0} customized  ----\n", clazzDescriptor.getJavaClassName());
+    }
+
+    protected boolean isNoOpCustomizer(final ColumnNameCustomizer<DatabaseMapping> columnNameCustomizer) {
+        return columnNameCustomizer.getClass().isAssignableFrom(NOOPCOLUMNNAMECUSTOMIZER.getClass());
+    }
+
+    protected boolean isNoOpCustomizer(final ConverterCustomizer<DatabaseMapping> converterCustomizer) {
+        return converterCustomizer.getClass().isAssignableFrom(NoOpConverterCustomizer.class);
     }
 
     protected ConverterCustomizer<DatabaseMapping> getConverterCustomizer(final DatabaseMapping databaseMapping) {
@@ -59,8 +81,6 @@ public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomiz
         ColumnNameCustomizer<DatabaseMapping> customizer = COLUMN_NAME_CUSTOMIZER_REGISTRY.get(
                 databaseMapping.getClass());
         if (customizer == null) {
-            sessionLog.log(SessionLog.FINE, "No ColumnNameCustomizer found for {0}, return NoOpColumnNameCustomizer",
-                new Object[] {databaseMapping.getClass().getName()}, false);
             return NOOPCOLUMNNAMECUSTOMIZER;
         } else {
             return customizer;
@@ -77,6 +97,7 @@ public class DefaultClassDescriptorCustomizer implements ClassDescriptorCustomiz
         CONVERTER_CUSTOMIZER_REGISTRY.put(converterCustomizer.supportedDatabaseMapping(), converterCustomizer);
     }
 
+    @Deprecated
     @VisibleForTesting
     protected void setSessionLog(final SessionLog sessionLog) {
         this.sessionLog = sessionLog;

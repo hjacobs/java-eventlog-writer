@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -72,7 +73,15 @@ public class PurchaseOrder {
     @OneToOne
     private Address address;
 
+    private String fieldWithoutAnnotation;
+
+    @Column(name = "field_with_annotation")
+    private String fieldwithannotation;
+
     private boolean ordered;
+
+    @Column(name = "is_canceled")
+    private boolean canceled;
 
     public String getBrandCode() {
         return brandCode;
@@ -137,6 +146,22 @@ public class PurchaseOrder {
 
     public void setOrdered(final boolean ordered) {
         this.ordered = ordered;
+    }
+
+    public String getFieldWithoutAnnotation() {
+        return fieldWithoutAnnotation;
+    }
+
+    public void setFieldWithoutAnnotation(final String fieldWithoutAnnotation) {
+        this.fieldWithoutAnnotation = fieldWithoutAnnotation;
+    }
+
+    public String getFieldwithannotation() {
+        return fieldwithannotation;
+    }
+
+    public void setFieldwithannotation(final String fieldwithannotation) {
+        this.fieldwithannotation = fieldwithannotation;
     }
 
     @Override
