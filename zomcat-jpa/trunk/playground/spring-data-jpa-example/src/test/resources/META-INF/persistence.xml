@@ -15,7 +15,7 @@
             <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.DefaultZomcatSessionCustomizer"/>
             <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.PostgresZomcatSessionCustomizer"/>-->
             <!-- custom SessionLog implementation to use apache commons logging 1.1 API (so log4J) -->
-            <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Log4jSessionLog"/>
+            <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
             <property name="eclipselink.logging.timestamp" value="false"/>
             <property name="eclipselink.logging.session" value="false"/>
             <property name="eclipselink.logging.connection" value="false"/>
