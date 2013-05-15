@@ -54,7 +54,7 @@ public abstract class AbstractSessionCutomizerTest {
         project.setDatasourceLogin(login);
 
         Session session = new DatabaseSessionImpl(project);
-        session.setSessionLog(new Log4jSessionLog());
+        session.setSessionLog(new Slf4jSessionLog());
 
         //
         defaultSessionCustomizer.customize(session);
