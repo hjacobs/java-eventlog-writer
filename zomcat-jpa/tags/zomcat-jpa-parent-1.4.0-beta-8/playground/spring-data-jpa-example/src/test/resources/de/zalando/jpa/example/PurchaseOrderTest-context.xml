@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+    xmlns:zjpa="http://www.zalando.de/schema/data/jpa" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.zalando.de/schema/data/jpa http://www.zalando.de/schema/data/jpa/spring-zjpa-1.0.xsd">
+    <import resource="classpath:/infrastructure.xml"/>
+    <zjpa:businesskey businesskey-generator-ref="businessKeyGeneratorStub"/>
+    <bean id="businessKeyGeneratorStub" class="de.zalando.jpa.example.order.BusinessKeyGeneratorStub"/>
+    <jpa:auditing auditor-aware-ref="auditorAwareStub"/>
+    <bean id="auditorAwareStub" class="de.zalando.jpa.example.order.AuditorAwareStub"/>
+    <jpa:repositories base-package="de.zalando.jpa.example.order"/>
+</beans>
