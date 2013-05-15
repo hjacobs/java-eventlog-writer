@@ -3,7 +3,7 @@
     <parent>
         <artifactId>zomcat-jpa-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>1.4.0-beta-8</version>
+        <version>1.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando</groupId>
@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat JPA EclipseLink Support</name>
     <description>Zomcat JPA EclipseLink Support Classes</description>
-    <version>1.4.0-beta-8</version>
+    <version>1.4.0-SNAPSHOT</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
