@@ -76,22 +76,6 @@ public class DirectToFieldMappingColumnNameCustomizer extends AbstractColumnName
         }
     }
 
-    /**
-     * Returns the Type of an attribute.
-     *
-     * @param   databaseMapping
-     *
-     * @return  type of the attribute or null if no field exist with that name
-     */
-    protected Class<?> getAttributeTypeViaReflection(final DirectToFieldMapping databaseMapping) {
-        final String attributeName = databaseMapping.getAttributeName();
-        final Class<?> relationJavaClass = databaseMapping.getDescriptor().getJavaClass();
-
-        final Field field = ReflectionUtils.findField(relationJavaClass, attributeName);
-
-        return field != null ? field.getType() : null;
-    }
-
     protected String getColumnAnnotationNameValue(final Field field) {
         String result = "";
         Column columnAnnotation = field.getAnnotation(Column.class);
@@ -114,6 +98,11 @@ public class DirectToFieldMappingColumnNameCustomizer extends AbstractColumnName
         return new AttributeInfo(fieldType, nameValueExist);
     }
 
+    /**
+     * Simple Value-Object.
+     *
+     * @author  jbellmann
+     */
     static class AttributeInfo {
 
         private final Class<?> attributeType;
