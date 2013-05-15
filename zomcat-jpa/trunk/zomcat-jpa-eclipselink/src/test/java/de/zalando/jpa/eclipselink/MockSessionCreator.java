@@ -8,7 +8,7 @@ import org.mockito.Mockito;
 public class MockSessionCreator {
 
     public static Session create() {
-        SessionLog log = new Log4jSessionLog();
+        SessionLog log = new Slf4jSessionLog();
         Session session = Mockito.mock(Session.class);
         Mockito.when(session.getSessionLog()).thenReturn(log);
 

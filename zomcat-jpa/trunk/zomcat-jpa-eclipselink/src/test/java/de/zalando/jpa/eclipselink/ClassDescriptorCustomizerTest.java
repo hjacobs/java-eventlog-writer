@@ -18,8 +18,6 @@ public class ClassDescriptorCustomizerTest {
     public void testNoOpColumnNameCustomizer() {
         DefaultClassDescriptorCustomizer clazzDescriptorCustomizer = new DefaultClassDescriptorCustomizer();
 
-        clazzDescriptorCustomizer.setSessionLog(MockSessionCreator.create().getSessionLog());
-
         ColumnNameCustomizer<DatabaseMapping> result = clazzDescriptorCustomizer.getColumnNameCustomizer(
                 new XMLInverseReferenceMapping());
 

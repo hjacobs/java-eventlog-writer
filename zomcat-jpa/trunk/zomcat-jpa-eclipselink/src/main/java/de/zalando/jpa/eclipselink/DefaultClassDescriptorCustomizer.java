@@ -3,22 +3,15 @@ package de.zalando.jpa.eclipselink;
 import java.util.Map;
 
 import org.eclipse.persistence.descriptors.ClassDescriptor;
-import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.sessions.Session;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 /**
  * @author  jbellmann
  */
 public class DefaultClassDescriptorCustomizer extends AbstractCustomizer implements ClassDescriptorCustomizer {
-
-// private static final Logger LOG = LoggerFactory.getLogger(DefaultClassDescriptorCustomizer.class);
-
-    private SessionLog sessionLog = null;
 
     private static final Map<Class<DatabaseMapping>, ColumnNameCustomizer<DatabaseMapping>> COLUMN_NAME_CUSTOMIZER_REGISTRY =
         Maps.newConcurrentMap();
@@ -32,8 +25,6 @@ public class DefaultClassDescriptorCustomizer extends AbstractCustomizer impleme
 
     @Override
     public void customize(final ClassDescriptor clazzDescriptor, final Session session) {
-        this.sessionLog = session.getSessionLog();
-        Preconditions.checkNotNull(this.sessionLog, "SessionLog should never be null");
         logFine(session, "----  Customize for entity {0} ----\n", clazzDescriptor.getJavaClassName());
         for (DatabaseMapping databaseMapping : clazzDescriptor.getMappings()) {
             logFine(session, "Field : {0}", databaseMapping.getAttributeName());
@@ -87,20 +78,16 @@ public class DefaultClassDescriptorCustomizer extends AbstractCustomizer impleme
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void registerColumnNameCustomizer(final ColumnNameCustomizer columnNameCustomizer) {
         COLUMN_NAME_CUSTOMIZER_REGISTRY.put(columnNameCustomizer.supportedDatabaseMapping(), columnNameCustomizer);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void registerConverterCustomizer(final ConverterCustomizer converterCustomizer) {
         CONVERTER_CUSTOMIZER_REGISTRY.put(converterCustomizer.supportedDatabaseMapping(), converterCustomizer);
-    }
-
-    @Deprecated
-    @VisibleForTesting
-    protected void setSessionLog(final SessionLog sessionLog) {
-        this.sessionLog = sessionLog;
     }
 
 }

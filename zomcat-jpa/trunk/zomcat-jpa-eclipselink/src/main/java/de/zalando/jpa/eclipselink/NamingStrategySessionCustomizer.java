@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 
+@Deprecated
 public class NamingStrategySessionCustomizer implements SessionCustomizer {
     private static Logger LOG = LoggerFactory.getLogger(NamingStrategySessionCustomizer.class);
 
