@@ -24,6 +24,7 @@
              in the parent pom and in each module pom. Then JaCoCo will add up information in
              the same report, so that, it will give the cross-module code coverage. -->
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.reportPath>
+        <sonar.jacoco.jar>/tmp/jacocoagent6624924096790863058.jar</sonar.jacoco.jar>
         <sonar.language>java</sonar.language>
     </properties>
     <build>
@@ -152,6 +153,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
+                            <argLine>-javaagent:${sonar.jacoco.jar}=destfile=${sonar.jacoco.reportPath},append=false,includes=com.*</argLine>
                             <systemPropertyVariables>
                                 <frontend.sproc.datasource.username>zalando_api</frontend.sproc.datasource.username>
                                 <frontend.sproc.datasource.password>zalando_api</frontend.sproc.datasource.password>
