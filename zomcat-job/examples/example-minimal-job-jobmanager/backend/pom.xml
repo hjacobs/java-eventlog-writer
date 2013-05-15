@@ -156,7 +156,7 @@
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <configuration>
-                            <includes>*IT.java</includes>
+                            <includes>**/*IT.java</includes>
                         </configuration>
                         <executions>
                             <execution>
