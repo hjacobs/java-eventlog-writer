@@ -23,7 +23,7 @@
         <!-- The destination file for the code coverage report has to be set to the same value
              in the parent pom and in each module pom. Then JaCoCo will add up information in
              the same report, so that, it will give the cross-module code coverage. -->
-        <sonar.jacoco.reportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.reportPath>
+        <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <sonar.language>java</sonar.language>
     </properties>
     <build>
@@ -37,7 +37,6 @@
                          in the parent pom and in each module pom. Then JaCoCo will add up information in
                          the same report, so that, it will give the cross-module code coverage. -->
                     <destFile>${project.basedir}/target/jacoco-it.exec</destFile>
-                    <includes>**/*IT.java</includes>
                 </configuration>
                 <executions>
                     <execution>
@@ -45,6 +44,10 @@
                         <configuration>
                             <skip>true</skip>
                         </configuration>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -148,6 +151,22 @@
                         <configuration>
                             <skipTests>${unit.test.skip}</skipTests>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <configuration>
+                            <includes>*IT.java</includes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
