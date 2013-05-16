@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat WS-Client</name>
     <description>Zomcat Webservice/CXF Client Support Classes (e.g. WebServiceClientFactoryBean), to be used in *-client artifacts.</description>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
