@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 __all__ = ['register', 'log']
@@ -109,7 +109,7 @@ def log(e_id, **kwargs):
     flow_id = ' '
     if e_id in event_types:
         # filter out event types that were registered, but are not in keyword args, then escape tabs and newlines
-        event_log.info('{0:x} {1}'.format(e_id, flow_id) + formatter.format(''.join('\t{' + k + '!e}' for k in
+        event_log.info('{1} {0:x}'.format(e_id, flow_id) + formatter.format(''.join('\t{' + k + '!e}' for k in
                        filter(lambda e: e in kwargs, event_types[e_id])), **kwargs))
     else:
         raise EventlogError('Event with id {0!s} is not registered. Did you forget to call register?'.format(e_id))
