@@ -12,5 +12,5 @@ interface DatabaseMappingLogger<T extends DatabaseMapping> {
 
     void logDatabaseMapping(T databaseMapping, Session session);
 
-    Class<? extends DatabaseMapping> getMappingType();
+    Class<T> getMappingType();
 }

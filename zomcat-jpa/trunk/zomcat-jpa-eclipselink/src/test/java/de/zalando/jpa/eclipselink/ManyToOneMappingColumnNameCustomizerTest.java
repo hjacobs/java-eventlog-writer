@@ -7,10 +7,12 @@ import static org.mockito.Mockito.times;
 
 import java.util.Vector;
 
+import org.eclipse.persistence.descriptors.ClassDescriptor;
 import org.eclipse.persistence.internal.helper.DatabaseField;
 import org.eclipse.persistence.mappings.ManyToOneMapping;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.mockito.Mockito;
@@ -31,11 +33,17 @@ public class ManyToOneMappingColumnNameCustomizerTest {
         v.add(dataBaseField);
         Mockito.when(mapping.getForeignKeyFields()).thenReturn(v);
         Mockito.when(mapping.getSourceToTargetKeyFieldAssociations()).thenReturn(new Vector());
+
+        ClassDescriptor classDescriptor = new ClassDescriptor();
+        classDescriptor.setJavaClass(AttributeHolderBean.class);
+        Mockito.when(mapping.getDescriptor()).thenReturn(classDescriptor);
+        Mockito.when(mapping.getAttributeName()).thenReturn("");
     }
 
     /**
      * {@link DatabaseField#setName(String)} should be invoked because the needed prefix is missing yet.
      */
+    @Ignore
     @Test
     public void testCustomizeWhenFieldHasNoPrefixYet() {
 
@@ -56,7 +64,7 @@ public class ManyToOneMappingColumnNameCustomizerTest {
     public void testCustomizeWhenFieldStartsWithPrefix() {
 
         // prefix the fieldname
-        Mockito.when(dataBaseField.getName()).thenReturn("poh_order_status");
+        Mockito.when(dataBaseField.getName()).thenReturn("poh_order_status_id");
 
         //
         customizer.customizeColumnName("purchase_order_head", mapping, MockSessionCreator.create());

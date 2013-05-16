@@ -1,6 +1,7 @@
 package de.zalando.jpa.eclipselink;
 
 import javax.persistence.Column;
+import javax.persistence.ManyToOne;
 
 /**
  * Just for Testing.
@@ -22,5 +23,8 @@ public class AttributeHolderBean {
     private String fieldwithannotation;
 
     private String brandCode;
+
+    @ManyToOne
+    private String purchaseOrderStatus;
 
 }
