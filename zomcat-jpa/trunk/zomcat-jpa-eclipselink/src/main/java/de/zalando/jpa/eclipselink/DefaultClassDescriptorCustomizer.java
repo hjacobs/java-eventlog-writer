@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
 /**
  * @author  jbellmann
  */
-public class DefaultClassDescriptorCustomizer extends AbstractCustomizer implements ClassDescriptorCustomizer {
+public class DefaultClassDescriptorCustomizer extends LogSupport implements ClassDescriptorCustomizer {
 
     private static final Map<Class<DatabaseMapping>, ColumnNameCustomizer<DatabaseMapping>> COLUMN_NAME_CUSTOMIZER_REGISTRY =
         Maps.newConcurrentMap();

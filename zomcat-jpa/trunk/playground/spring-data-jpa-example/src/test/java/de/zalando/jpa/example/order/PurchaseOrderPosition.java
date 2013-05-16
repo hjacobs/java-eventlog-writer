@@ -7,7 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -37,7 +36,7 @@ public class PurchaseOrderPosition implements Serializable {
     private String comment = "Comment";
 
     @NotNull
-    @JoinColumn(name = "po_id")
+// @JoinColumn(name = "purchase_order_id")
     @ManyToOne(cascade = CascadeType.REFRESH)
     private PurchaseOrder purchaseOrder;
 

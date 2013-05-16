@@ -3,7 +3,6 @@ package de.zalando.jpa.eclipselink;
 import java.util.Vector;
 
 import org.eclipse.persistence.internal.helper.DatabaseField;
-import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.Association;
 import org.eclipse.persistence.mappings.ManyToOneMapping;
 import org.eclipse.persistence.sessions.Session;
@@ -21,23 +20,31 @@ public class ManyToOneMappingColumnNameCustomizer extends AbstractColumnNameCust
     @Override
     public void customizeColumnName(final String tableName, final ManyToOneMapping databaseMapping,
             final Session session) {
+
+        logDatabaseMapping(databaseMapping, session);
+
+        EntityFieldInspector<?> entityFieldInspector = new JoinColumnFieldInspector(super.getFieldInspector(
+                    databaseMapping).getField());
         for (final DatabaseField foreignKeyField : databaseMapping.getForeignKeyFields()) {
             String prefix = NameUtils.iconizeTableName(tableName) + "_";
-            if (!foreignKeyField.getName().startsWith(prefix)) {
-                String newFieldName = prefix + foreignKeyField.getName();
-                foreignKeyField.setName(newFieldName);
-                session.getSessionLog().log(SessionLog.FINE, "ForeignKeyField-Name was set to {0}",
-                    new Object[] {newFieldName}, false);
-            }
+            if (!foreignKeyField.getName().startsWith(prefix) && !(entityFieldInspector.isNameValueSet())) {
 
-// foreignKeyField.setName(getIconizedTableName(tableName) + "_" + foreignKeyField.getName());
+                String newFieldName = NameUtils.buildFieldName(tableName, databaseMapping.getAttributeName()) + "_id";
+
+                foreignKeyField.setName(newFieldName);
+                logFine(session, "ForeignKeyField-Name was set to {0}", foreignKeyField.getName());
+
+            } else if (!foreignKeyField.getName().startsWith(prefix) && entityFieldInspector.isNameValueSet()) {
+
+                String newFieldName = NameUtils.buildFieldName(tableName, foreignKeyField.getName());
+                foreignKeyField.setName(newFieldName);
+                logFine(session, "ForeignKeyField-Name was set to {0}", foreignKeyField.getName());
+            }
         }
 
         Vector<Association> associations = databaseMapping.getSourceToTargetKeyFieldAssociations();
         for (Association ass : associations) {
-            session.getSessionLog().log(SessionLog.FINE,
-                "---------------------" + tableName + "      " + ass.getKey().toString()
-                    + "---------------------------", false);
+            logFine(session, "--" + tableName + "  --  " + ass.getKey().toString() + "----");
         }
 
     }

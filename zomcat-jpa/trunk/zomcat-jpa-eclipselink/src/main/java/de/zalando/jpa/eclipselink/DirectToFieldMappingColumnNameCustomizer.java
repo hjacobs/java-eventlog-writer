@@ -1,10 +1,10 @@
 package de.zalando.jpa.eclipselink;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import javax.persistence.Column;
 
-import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.persistence.mappings.DirectToFieldMapping;
 import org.eclipse.persistence.sessions.Session;
 
@@ -25,26 +25,18 @@ public class DirectToFieldMappingColumnNameCustomizer extends AbstractColumnName
     public void customizeColumnName(final String tableName, final DirectToFieldMapping databaseMapping,
             final Session session) {
 
+        logDatabaseMapping(databaseMapping, session);
+
         String newFieldName = null;
-
-        logFine(session, "\tmapping.attributeName : {0}", databaseMapping.getAttributeName());
-        logFine(session, "\tmapping.attributeClassification: {0}", databaseMapping.getAttributeClassification());
-        logFine(session, "\tmapping.field.name : {0}", databaseMapping.getField().getName());
-        logFine(session, "\tmapping.field.sqlType : {0}", databaseMapping.getField().getSqlType());
-        logFine(session, "\tmapping.field.typeName: {0}", databaseMapping.getField().getTypeName());
-        logFine(session, "\tmapping.field.columnDefinition : {0}", databaseMapping.getField().getColumnDefinition());
-        logFine(session, "\tmapping.fieldClassfication : {0}", databaseMapping.getFieldClassification());
-        logFine(session, "\tmapping.field.sqlType : {0}", databaseMapping.getField().getSqlType());
-
-        final AttributeInfo attributeInfo = getAttributeInfoViaReflection(databaseMapping);
-        if (shouldCreateBooleanFieldName(attributeInfo)) {
+        EntityFieldInspector<?> entityFieldInspector = getFieldInspector(databaseMapping);
+        if (shouldCreateBooleanFieldName(entityFieldInspector)) {
 
             newFieldName = NameUtils.buildBooleanFieldName(tableName, databaseMapping.getAttributeName());
-        } else if (!attributeInfo.isColumnAnnotationNameValueSet()) {
+        } else if (!entityFieldInspector.isNameValueSet()) {
 
             // default
             newFieldName = NameUtils.buildFieldName(tableName, databaseMapping.getAttributeName());
-        } else if (attributeInfo.isColumnAnnotationNameValueSet()) {
+        } else if (entityFieldInspector.isNameValueSet()) {
 
             // column-annotation name value is set
             newFieldName = NameUtils.buildFieldName(tableName, databaseMapping.getField().getName());
@@ -55,18 +47,10 @@ public class DirectToFieldMappingColumnNameCustomizer extends AbstractColumnName
 
     }
 
-    protected void logFine(final Session session, final String message, final Object... args) {
-        session.getSessionLog().log(SessionLog.FINE, message, args, false);
-    }
-
-    protected void logFine(final Session session, final String message) {
-        logFine(session, message, new Object[] {});
-    }
-
-    protected boolean shouldCreateBooleanFieldName(final AttributeInfo attributeInfo) {
-        if (Boolean.class.equals(attributeInfo.getAttributeType())
-                || boolean.class.equals(attributeInfo.getAttributeType())) {
-            if (attributeInfo.isColumnAnnotationNameValueSet()) {
+    protected boolean shouldCreateBooleanFieldName(final EntityFieldInspector<?> entityFieldInspector) {
+        if (Boolean.class.equals(entityFieldInspector.getFieldType())
+                || boolean.class.equals(entityFieldInspector.getFieldType())) {
+            if (entityFieldInspector.isNameValueSet()) {
                 return false;
             } else {
                 return true;
@@ -86,46 +70,12 @@ public class DirectToFieldMappingColumnNameCustomizer extends AbstractColumnName
         return result;
     }
 
-    protected AttributeInfo getAttributeInfoViaReflection(final DirectToFieldMapping databaseMapping) {
-
+    protected EntityFieldInspector<? extends Annotation> getFieldInspector(final DirectToFieldMapping databaseMapping) {
         final String attributeName = databaseMapping.getAttributeName();
-        final Class<?> relationJavaClass = databaseMapping.getDescriptor().getJavaClass();
+        final Class<?> entityClass = databaseMapping.getDescriptor().getJavaClass();
 
-        final Field field = ReflectionUtils.findField(relationJavaClass, attributeName);
-        final Class<?> fieldType = field.getType();
-        final boolean nameValueExist = "".equals(getColumnAnnotationNameValue(field)) ? false : true;
-
-        return new AttributeInfo(fieldType, nameValueExist);
+        final Field field = ReflectionUtils.findField(entityClass, attributeName);
+        return new ColumnFieldInspector(field);
     }
 
-    /**
-     * Simple Value-Object.
-     *
-     * @author  jbellmann
-     */
-    static class AttributeInfo {
-
-        private final Class<?> attributeType;
-        private final boolean columnAnnotationNameValueSet;
-
-        AttributeInfo(final Class<?> attributeType, final boolean columnAnnotationNameValueSet) {
-            this.attributeType = attributeType;
-            this.columnAnnotationNameValueSet = columnAnnotationNameValueSet;
-        }
-
-        /**
-         * @return  the type of the attibute
-         */
-        Class<?> getAttributeType() {
-            return attributeType;
-        }
-
-        /**
-         * @return  true if the attribute is annotated with {@link Column} and {@link Column#name} is not null or empty.
-         */
-        boolean isColumnAnnotationNameValueSet() {
-            return columnAnnotationNameValueSet;
-        }
-
-    }
 }

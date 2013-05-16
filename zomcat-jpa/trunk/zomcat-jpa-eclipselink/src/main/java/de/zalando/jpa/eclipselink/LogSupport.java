@@ -8,7 +8,7 @@ import org.eclipse.persistence.sessions.Session;
  *
  * @author  jbellmann
  */
-public abstract class AbstractCustomizer {
+public abstract class LogSupport {
 
     protected void logFinest(final Session session, final String message, final Object... args) {
         session.getSessionLog().log(SessionLog.FINEST, message, args, false);

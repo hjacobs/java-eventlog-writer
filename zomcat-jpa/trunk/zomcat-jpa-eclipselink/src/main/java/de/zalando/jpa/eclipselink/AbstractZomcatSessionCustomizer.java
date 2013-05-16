@@ -9,7 +9,7 @@ import org.eclipse.persistence.sessions.Session;
 /**
  * @author  jbellmann
  */
-public abstract class AbstractZomcatSessionCustomizer extends AbstractCustomizer implements SessionCustomizer {
+public abstract class AbstractZomcatSessionCustomizer extends LogSupport implements SessionCustomizer {
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -18,6 +18,7 @@ public abstract class AbstractZomcatSessionCustomizer extends AbstractCustomizer
 
         Map<Class, ClassDescriptor> clazzDescriptors = session.getDescriptors();
         for (Map.Entry<Class, ClassDescriptor> descriptorEntry : clazzDescriptors.entrySet()) {
+
             getClassDescriptorCustomizer().customize(descriptorEntry.getValue(), session);
         }
 

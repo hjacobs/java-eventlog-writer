@@ -6,7 +6,7 @@ import org.eclipse.persistence.sessions.Session;
 /**
  * @author  jbellmann
  */
-public class NoOpConverterCustomizer extends AbstractCustomizer implements ConverterCustomizer<DatabaseMapping> {
+public class NoOpConverterCustomizer extends LogSupport implements ConverterCustomizer<DatabaseMapping> {
 
     @Override
     public void customizeConverter(final DatabaseMapping databaseMapping, final Session session) {
