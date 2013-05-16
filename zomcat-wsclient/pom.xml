@@ -3,7 +3,7 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>2.0.63</version>
+        <version>2.0.66</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando</groupId>
@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat WS-Client</name>
     <description>Zomcat Webservice/CXF Client Support Classes (e.g. WebServiceClientFactoryBean), to be used in *-client artifacts.</description>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -37,6 +37,10 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
         </dependency>
     </dependencies>
 </project>
