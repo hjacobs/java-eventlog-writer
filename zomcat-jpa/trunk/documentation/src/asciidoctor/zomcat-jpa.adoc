@@ -8,14 +8,23 @@ v1.4.0-SNAPSHOT, 2013
 :numbered:
 
 
-image::http://10.111.151.89:10080/jenkins/job/ZOMCAT_JPA_MVN_3/badge/icon[link="http://10.111.151.89:10080/jenkins/job/ZOMCAT_JPA_MVN_3/badge/icon"]
 
-
-Das Zomcat-JPA-Project beinhaltet einige Erweiterungen und Anpassungen um JPA bei Zalando zu verwenden.
 
 .Diese Dokumenation
 ****
 TIP: Diese Dokumentation ist Work-In-Progress und sollte im Laufe der Zeit aktualisiert werden. ;-)
+****
+
+image::http://10.58.119.13:120080/jenkins/job/ZOMCAT_JPA_MVN_3/badge/icon[link="http://10.58.119.13:120080/jenkins/job/ZOMCAT_JPA_MVN_3/badge/icon"]
+
+Was ist Zomcat-JPA?
+------------------
+
+Das Zomcat-JPA-Project beinhaltet einige Erweiterungen und Anpassungen um JPA bei Zalando zu verwenden.
+
+.Keine weitere JPA-Implementierung
+****
+WARNING: Zomcat-JPA ist keine weitere Implementierung des JPA-Standards. (Dies Frage kam bereits :-)   )
 ****
 
 
@@ -37,16 +46,20 @@ von Tabellen und Spalten.
         <class>de.zalando.jpa.example.order.PurchaseOrder</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
-            <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-            <property name="eclipselink.weaving" value="false" />
+
             <!-- Customizer for Zalando Tabellen- und Spalten-Namen -->
             <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.DefaultZomcatSessionCustomizer"/>
             <!-- Use special EnumConverter to work with Progress -->
             <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.PostgresZomcatSessionCustomizer"/>-->
             <!-- Custom SessionLog implementation to use SLF4J -->
             <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
+
+
+            <!-- NORMAL ECLIPSELINK-CONFIGURATION -->
+            <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
+            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+            <property name="eclipselink.weaving" value="false" />
             <property name="eclipselink.logging.timestamp" value="false"/>
             <property name="eclipselink.logging.session" value="false"/>
             <property name="eclipselink.logging.connection" value="false"/>
