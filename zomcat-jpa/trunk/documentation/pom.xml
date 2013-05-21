@@ -32,7 +32,6 @@
                     <doctype>article</doctype>
                     <headerFooter>true</headerFooter>
                     <sourceHighlighter>highlight.js</sourceHighlighter>
-                    <!--<sourceHighlighter>coderay</sourceHighlighter>-->
                     <imagesDir>target/documentation/images</imagesDir>
                     <attributes>
                         <stylesdir>./themes</stylesdir>
@@ -42,62 +41,26 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
                 <executions>
                     <execution>
-                        <id>unpack-styles</id>
-                        <phase>generate-resources</phase>
+                        <id>unpack</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>unpack</goal>
                         </goals>
                         <configuration>
-                            <tasks>
-                                <unzip src="src/documentation/asciidoc2.zip" dest="target/documentation" overwrite="true"/>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <execution>
-                        <id>copy-themes</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/documentation/themes</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/documentation</directory>
-                                    <filtering>false</filtering>
-                                    <includes>
-                                        <include>*.css</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-images</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/documentation/images</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/documentation/images</directory>
-                                    <filtering>false</filtering>
-                                    <includes>
-                                        <include>**/*.*</include>
-                                    </includes>
-                                </resource>
-                            </resources>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>de.zalando</groupId>
+                                    <artifactId>asciidoctor-resources</artifactId>
+                                    <version>0.1.0-jb</version>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/documentation</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
