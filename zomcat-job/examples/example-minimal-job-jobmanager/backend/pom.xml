@@ -160,7 +160,7 @@
             <id>integration-test</id>
             <properties>
                 <test.db.name>local_example_db</test.db.name>
-                <unit.test.skip>false</unit.test.skip>
+                <unit.test.skip>true</unit.test.skip>
                 <test.src.dir>src/test/java</test.src.dir>
             </properties>
             <build>
@@ -169,7 +169,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <skipTests>${unit.test.skip}</skipTests>
+                            <skipTests>false</skipTests>
                         </configuration>
                     </plugin>
                     <plugin>
