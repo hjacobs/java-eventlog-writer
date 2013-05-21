@@ -42,7 +42,7 @@
                     <execution>
                         <id>integration-test</id>
                         <configuration>
-                            <skip>true</skip>
+                            <skip>false</skip>
                         </configuration>
                         <phase>integration-test</phase>
                         <goals>
@@ -157,7 +157,7 @@
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <executions>
                         <execution>
-                            <id>pre-test</id>
+                            <id>verify</id>
                             <goals>
                                 <goal>prepare-agent</goal>
                             </goals>
