@@ -37,15 +37,12 @@
     </xsd:simpleType>
 
 
-
     <xsd:element name="skuid">
         <xsd:annotation>
             <xsd:appinfo>
                 <tool:annotation>
-                    <tool:exports
-                        type="de.zalando.production.jpa.support.SkuIdEntityListener" />
-                    <tool:exports
-                        type="de.zalando.production.jpa.support.SkuIdHandler" />
+                    <tool:exports type="de.zalando.data.jpa.domain.support.SkuIdEntityListener" />
+                    <tool:exports type="de.zalando.data.jpa.domain.support.SkuIdHandler" />
                 </tool:annotation>
             </xsd:appinfo>
         </xsd:annotation>
@@ -58,8 +55,7 @@
         <xsd:annotation>
             <xsd:appinfo>
                 <tool:annotation kind="ref">
-                    <tool:assignable-to
-                        type="de.zalando.production.jpa.support.SkuIdGenerator" />
+                    <tool:assignable-to type="de.zalando.data.jpa.domain.support.SkuIdGenerator" />
                 </tool:annotation>
             </xsd:appinfo>
         </xsd:annotation>

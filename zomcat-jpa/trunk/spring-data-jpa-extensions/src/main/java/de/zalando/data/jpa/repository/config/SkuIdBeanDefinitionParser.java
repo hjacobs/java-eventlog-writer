@@ -12,8 +12,9 @@ import org.w3c.dom.Element;
 
 public class SkuIdBeanDefinitionParser implements BeanDefinitionParser {
 
-    static final String KEY_ENTITY_LISTENER_CLASS_NAME = "de.zalando.production.jpa.support.SkuIdEntityListener";
-    private static final String KEY_BFPP_CLASS_NAME = "de.zalando.production.jpa.support.SkuIdBeanFactoryPostProcessor";
+    static final String KEY_ENTITY_LISTENER_CLASS_NAME = "de.zalando.data.jpa.domain.support.SkuIdEntityListener";
+    private static final String KEY_BFPP_CLASS_NAME =
+        "de.zalando.data.jpa.domain.support.SkuIdBeanFactoryPostProcessor";
 
     private final BeanDefinitionParser skuIdHandlerParser = new SkuIdHandlerBeanDefinitionParser();
 
