@@ -166,6 +166,7 @@
                                 <id>integration-test</id>
                                 <phase>integration-test</phase>
                                 <goals>
+                                    <goal>prepare-agent</goal>
                                     <goal>report</goal>
                                 </goals>
                             </execution>
