@@ -42,7 +42,7 @@
                     <execution>
                         <id>integration-test</id>
                         <configuration>
-                            <skip>true</skip>
+                            <skip>false</skip>
                         </configuration>
                         <phase>integration-test</phase>
                         <goals>
