@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns="http://www.zalando.de/schema/data/jpa"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tool="http://www.springframework.org/schema/tool"
+    xmlns:context="http://www.springframework.org/schema/context"
+    targetNamespace="http://www.zalando.de/schema/data/jpa"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/tool" />
+    <xsd:import namespace="http://www.springframework.org/schema/context" />
+
+    <xsd:element name="businesskey">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <tool:annotation>
+                    <tool:exports
+                        type="de.zalando.data.jpa.domain.support.BusinessKeyEntityListener" />
+                    <tool:exports
+                        type="de.zalando.data.jpa.domain.support.BusinessKeyHandler" />
+                </tool:annotation>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:attribute name="businesskey-generator-ref" />
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:simpleType name="businesskey-generator-ref">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <tool:annotation kind="ref">
+                    <tool:assignable-to
+                        type="de.zalando.data.jpa.domain.support.BusinessKeyGenerator" />
+                </tool:annotation>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:union memberTypes="xsd:string" />
+    </xsd:simpleType>
+
+
+
+    <xsd:element name="skuid">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <tool:annotation>
+                    <tool:exports
+                        type="de.zalando.production.jpa.support.SkuIdEntityListener" />
+                    <tool:exports
+                        type="de.zalando.production.jpa.support.SkuIdHandler" />
+                </tool:annotation>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:attribute name="skuid-generator-ref" />
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:simpleType name="skuid-generator-ref">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <tool:annotation kind="ref">
+                    <tool:assignable-to
+                        type="de.zalando.production.jpa.support.SkuIdGenerator" />
+                </tool:annotation>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:union memberTypes="xsd:string" />
+    </xsd:simpleType>
+</xsd:schema>
