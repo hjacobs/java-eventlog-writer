@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 import de.zalando.data.annotation.BusinessKey;
 
 @Entity
-@Table(name = "purchase_order")
+@Table(name = "purchase_order", schema = "zzj_data")
 // @SequenceGenerator(name = "purchase_order_id_seq", sequenceName =
 // "purchase_order_po_id_seq", allocationSize = 1)
 public class PurchaseOrder {

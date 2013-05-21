@@ -22,7 +22,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import com.google.common.base.Objects;
 
 @Entity
-@Table(name = "purchase_order_address")
+@Table(name = "purchase_order_address", schema = "zzj_data")
 public class Address {
 
     @Id

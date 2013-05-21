@@ -17,7 +17,7 @@ import com.google.common.base.Objects;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(name = "purchase_order_position")
+@Table(name = "purchase_order_position", schema = "zzj_data")
 // @SequenceGenerator(
 // name = "purchase_order_position_id_seq", sequenceName = "purchase_order_pos_id_seq", allocationSize = 1
 // )
@@ -31,7 +31,7 @@ public class PurchaseOrderPosition implements Serializable {
     @Version
     private Integer version;
 
-    private long quanity = 5;
+    private long quantity = 5;
 
     private String comment = "Comment";
 
@@ -46,12 +46,12 @@ public class PurchaseOrderPosition implements Serializable {
         this.purchaseOrder = po;
     }
 
-    public long getQuanity() {
-        return quanity;
+    public long getQuantity() {
+        return quantity;
     }
 
-    public void setQuanity(final long quanity) {
-        this.quanity = quanity;
+    public void setQuantity(final long quantity) {
+        this.quantity = quantity;
     }
 
     public String getComment() {
