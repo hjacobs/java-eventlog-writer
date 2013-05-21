@@ -3,27 +3,14 @@ package de.zalando.jpa.eclipselink;
 /**
  * @author  jbellmann
  */
-public class PostgresZomcatSessionCustomizer extends AbstractZomcatSessionCustomizer {
-
-    private final ClassDescriptorCustomizer clazzDescriptorCustomizer;
+public class PostgresZomcatSessionCustomizer extends DefaultZomcatSessionCustomizer {
 
     public PostgresZomcatSessionCustomizer() {
-        clazzDescriptorCustomizer = new DefaultClassDescriptorCustomizer();
+        super();
 
-        // columnNames
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToOneMappingColumnNameCustomizer());
-
-        // converter
-        clazzDescriptorCustomizer.registerConverterCustomizer(new DirectToFieldMappingEnumTypeConverterCustomizer());
-    }
-
-    @Override
-    ClassDescriptorCustomizer getClassDescriptorCustomizer() {
-
-        return this.clazzDescriptorCustomizer;
+        // converter for enums
+        getClassDescriptorCustomizer().registerConverterCustomizer(
+            new DirectToFieldMappingEnumTypeConverterCustomizer());
     }
 
 }
