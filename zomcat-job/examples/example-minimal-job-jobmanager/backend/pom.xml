@@ -38,6 +38,7 @@
                          the same report, so that, it will give the cross-module code coverage. -->
                     <destFile>${project.basedir}/target/jacoco-it.exec</destFile>
                     <dataFile>${project.basedir}/target/jacoco-it.exec</dataFile>
+                    <propertyName>failsafe.argLine</propertyName>
                 </configuration>
                 <executions>
                     <execution>
@@ -179,6 +180,7 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                                 <reportsDirectory>${project.basedir}/target/surefire-reports</reportsDirectory>
+                                <argLine>${failsafe.argLine}</argLine>
                             <systemPropertyVariables>
                                 <frontend.sproc.datasource.username>zalando_api</frontend.sproc.datasource.username>
                                 <frontend.sproc.datasource.password>zalando_api</frontend.sproc.datasource.password>
