@@ -220,6 +220,7 @@
                     </aspectLibraries>
                     <includes>
                         <include>**/domain/support/BusinessKeyEntityListener.java</include>
+                        <include>**/domain/support/SkuIdEntityListener.java</include>
                     </includes>
                     <source>${targetJdk}</source>
                     <target>${targetJdk}</target>
