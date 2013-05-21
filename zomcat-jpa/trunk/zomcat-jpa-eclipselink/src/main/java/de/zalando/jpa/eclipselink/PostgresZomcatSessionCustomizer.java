@@ -14,6 +14,7 @@ public class PostgresZomcatSessionCustomizer extends AbstractZomcatSessionCustom
         clazzDescriptorCustomizer.registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
         clazzDescriptorCustomizer.registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
         clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
+        clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToOneMappingColumnNameCustomizer());
 
         // converter
         clazzDescriptorCustomizer.registerConverterCustomizer(new DirectToFieldMappingEnumTypeConverterCustomizer());

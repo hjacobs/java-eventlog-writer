@@ -21,6 +21,7 @@ public class DefaultZomcatSessionCustomizer extends AbstractZomcatSessionCustomi
         clazzDescriptorCustomizer.registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
         clazzDescriptorCustomizer.registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
         clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
+        clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToOneMappingColumnNameCustomizer());
     }
 
     @Override
