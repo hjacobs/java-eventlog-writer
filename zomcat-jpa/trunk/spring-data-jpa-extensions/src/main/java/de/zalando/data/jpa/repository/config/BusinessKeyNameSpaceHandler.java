@@ -7,10 +7,11 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  *
  * @author  jbellmann
  */
+@Deprecated
 public class BusinessKeyNameSpaceHandler extends NamespaceHandlerSupport {
 
     public void init() {
-        registerBeanDefinitionParser("businesskey", new BusinessKeyBeanDefinitionParser());
+// registerBeanDefinitionParser("businesskey", new BusinessKeyBeanDefinitionParser());
     }
 
 }

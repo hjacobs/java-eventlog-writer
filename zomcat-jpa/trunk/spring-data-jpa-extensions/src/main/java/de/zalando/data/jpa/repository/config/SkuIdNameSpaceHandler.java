@@ -7,10 +7,11 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  *
  * @author  jbellmann
  */
+@Deprecated
 public class SkuIdNameSpaceHandler extends NamespaceHandlerSupport {
 
     public void init() {
-        registerBeanDefinitionParser("skuid", new SkuIdBeanDefinitionParser());
+// registerBeanDefinitionParser("skuid", new SkuIdBeanDefinitionParser());
     }
 
 }
