@@ -180,6 +180,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
+                                <reportsDirectory>${project.basedir}/target/surefire-reports</reportsDirectory>
                             <systemPropertyVariables>
                                 <frontend.sproc.datasource.username>zalando_api</frontend.sproc.datasource.username>
                                 <frontend.sproc.datasource.password>zalando_api</frontend.sproc.datasource.password>
