@@ -15,7 +15,7 @@
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>0.1.3-SNAPSHOT</version>
+                <version>0.1.2.1</version>
                 <executions>
                     <execution>
                         <id>render-asciidoc</id>
@@ -35,7 +35,8 @@
                     <!--<sourceHighlighter>coderay</sourceHighlighter>-->
                     <imagesDir>target/documentation/images</imagesDir>
                     <attributes>
-                        <stylesheet>themes/riak.css</stylesheet>
+                        <stylesdir>./themes</stylesdir>
+                        <stylesheet>golo.css</stylesheet>
                     </attributes>
                 </configuration>
             </plugin>
