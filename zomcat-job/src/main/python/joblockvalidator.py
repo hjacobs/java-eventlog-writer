@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import logging
@@ -9,11 +9,24 @@ import re
 import os
 from multiprocessing import Pool
 
-from Crypto import Random
+FAST_LOCK_CHECK = 'resource'
+ACQUIRE_LOCK_REGEX = re.compile(r'.*acquired resource lock for job; job will start')
+RELEASE_LOCK_REGEX = re.compile(r'.*Lock with resource ([^\s]+) and flow id ([^\s]+) released')
 
-FAST_LOCK_CHECK = 'lock'
-ACQUIRE_LOCK_REGEX = re.compile(r'.*Acquiring lock on ([^ ]+) for ([^ ]).*')
-RELEASE_LOCK_REGEX = re.compile(r'.*Releasing lock on ([^\s]+)')
+LOCK_THRESHOLD = 15
+
+
+class KeyboardInterruptError(Exception):
+
+    pass
+
+
+def parse_timestamp(line):
+    return datetime.datetime.strptime(line[:23], '%Y-%m-%d %H:%M:%S,%f')
+
+
+def parse_flowid(line):
+    return line[24:46]
 
 
 def group_resources_with_interrupt(log_file):
@@ -29,35 +42,33 @@ def group_resources(log_file):
         raise IOError('File not found'.format(log_file))
 
     resources = collections.defaultdict(list)
-    last_acquired_resource = collections.defaultdict()
+    acquired_locks_flowid = collections.defaultdict()
 
     with open(log_file) as file:
         for line in file:
             if FAST_LOCK_CHECK in line:
                 match = ACQUIRE_LOCK_REGEX.search(line)
                 if match:
-                    resource = match.group(1)
-                    resource_interval = last_acquired_resource.get(resource, None)
-                    if resource_interval:
-                        logging.debug('Lock %s acquired without success: %s', resource, resource_interval)
-                    last_acquired_resource[resource] = parse_timestamp(line[:23])
+                    acquired_locks_flowid[parse_flowid(line)] = parse_timestamp(line)
                 else:
                     match = RELEASE_LOCK_REGEX.search(line)
                     if match:
                         resource = match.group(1)
-                        ts = parse_timestamp(line[:23])
-                        resource_interval = last_acquired_resource.pop(resource, None)
-                        if resource_interval:
-                            resources[resource].append((resource_interval, ts))
+                        flowid = match.group(2)
+                        ts = parse_timestamp(line)
+                        acquire_ts = acquired_locks_flowid.pop(flowid, None)
+                        if acquire_ts:
+                            resources[resource].append((acquire_ts, ts))
+
+                            delta = (ts - acquire_ts).seconds / 60
+                            if delta > LOCK_THRESHOLD:
+                                logging.warn('%s: Lock %s with flowid %s acquired at %s until %s (%s minutes)',
+                                             log_file, resource, flowid, acquire_ts, ts, delta)
                         else:
-                            logging.error('Lock %s released without being acquired or just overlaps another one %s',
-                                          resource, ts)
+                            logging.error('%s: Lock %s released without being acquired or just overlaps another one on file: %s. Time: %s'
+                                          , log_file, resource, log_file, ts)
 
     return log_file, resources
-
-
-def parse_timestamp(ts):
-    return datetime.datetime.strptime(ts, '%Y-%m-%d %H:%M:%S,%f')
 
 
 def check_resource_intersections(results):
@@ -105,7 +116,7 @@ def binary_interval_search(sorted_list, interval):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Finds overlapping jobs')
+    parser = argparse.ArgumentParser(description='Validates job locking')
     parser.add_argument('log_files', metavar='FILE', nargs='+', help='Log files')
     parser.add_argument('--verbose', action='store_true', help='Log debug configuration')
 
