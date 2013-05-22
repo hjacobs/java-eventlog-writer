@@ -3,7 +3,7 @@
     <parent>
         <artifactId>zalando-parent</artifactId>
         <groupId>de.zalando</groupId>
-        <version>2.0.65</version>
+        <version>2.0.63</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.zalando.mentoring.example</groupId>
@@ -24,7 +24,6 @@
              in the parent pom and in each module pom. Then JaCoCo will add up information in
              the same report, so that, it will give the cross-module code coverage. -->
         <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.language>java</sonar.language>
     </properties>
     <build>
@@ -33,40 +32,22 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.6.2.201302030002</version>
+                <configuration>
+                    <!-- The destination file for the code coverage report has to be set to the same value
+                         in the parent pom and in each module pom. Then JaCoCo will add up information in
+                         the same report, so that, it will give the cross-module code coverage. -->
+                    <destFile>${project.basedir}/target/jacoco-it.exec</destFile>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>pre-unit-test</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>post-unit-test</id>
-                        <phase>test</phase>
+                        <id>integration-test</id>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>pre-integration-test</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <destFile>${project.basedir}/target/jacoco-it.exec</destFile>
-                            <propertyName>failsafe.argLine</propertyName>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>post-integration-test</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.basedir}/target/jacoco-it.exec</dataFile>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -168,24 +149,23 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <skipTests>true</skipTests>
+                            <skipTests>${unit.test.skip}</skipTests>
                         </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <executions>
-                        <execution>
-                            <id>verify</id>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                        </execution>
                             <execution>
-                                <id>integration-test</id>
-                                <phase>integration-test</phase>
+                                <id>pre-test</id>
                                 <goals>
                                     <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>integration-test</id>
+                                <phase>test</phase>
+                                <goals>
                                     <goal>report</goal>
                                 </goals>
                             </execution>
@@ -256,16 +236,16 @@
                                     <goal>execute</goal>
                                 </goals>
                                 <configuration>
-                                        <delimiterType>row</delimiterType>
-                                        <keepFormat>true</keepFormat>
-                                        <orderFile>ascending</orderFile>
-                                        <fileset>
-                                            <basedir>${basedir}</basedir>
-                                            <includes>
-                                                <include>database/00_it_schema_cleanup.sql</include>
-                                            </includes>
-                                        </fileset>
-                                    </configuration>
+                                    <delimiterType>row</delimiterType>
+                                    <keepFormat>true</keepFormat>
+                                    <orderFile>ascending</orderFile>
+                                    <fileset>
+                                        <basedir>${basedir}</basedir>
+                                        <includes>
+                                            <include>database/00_it_schema_cleanup.sql</include>
+                                        </includes>
+                                    </fileset>
+                                </configuration>
                             </execution>
                             <execution>
                                 <id>create-data</id>
