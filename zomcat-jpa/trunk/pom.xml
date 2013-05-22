@@ -23,7 +23,7 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>3.2.2.RELEASE</spring.version>
+        <spring.version>3.2.3.RELEASE</spring.version>
         <aspectj.version>1.7.1</aspectj.version>
         <jodatime.version>2.2</jodatime.version>
         <eclipselink.version>2.4.1</eclipselink.version>
