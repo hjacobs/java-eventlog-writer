@@ -6,8 +6,8 @@ import org.junit.runner.RunWith;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 
+import org.springframework.data.jpa.auditing.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import org.springframework.test.annotation.Rollback;
@@ -39,63 +39,7 @@ public class PurchaseOrderTest extends AbstractPurchaseOrderTestSupport {
     @Configuration
     @Import({ JpaConfig.class, DataSourceConfig.class })
     @EnableJpaRepositories("de.zalando.jpa.example.order")
-    @ImportResource("classpath:/enableAuditing.xml")
+    @EnableJpaAuditing
+// @ImportResource("classpath:/enableAuditing.xml")
     static class TestConfig { }
-
-/*    private static final Logger LOG = LoggerFactory.getLogger(PurchaseOrderTest.class);
- *
- *  @Autowired
- *  private PurchaseOrderRepository purchaseOrderRepository;
- *
- *  @Test
- *  @Rollback(false)
- *  public void testSavePurchaseOrder() {
- *      PurchaseOrder order = new PurchaseOrder();
- *      order.setOrderStatus(OrderStatus.ORDERED);
- *      order.setBrandCode("BRANDCODE_A");
- *      purchaseOrderRepository.saveAndFlush(order);
- *
- *      Assert.assertNotNull(order.getBusinessKey());
- *      Assert.assertNotNull(order.getBrandCode());
- *      Assert.assertNotNull(order.getCreatedBy());
- *      Assert.assertNotNull(order.getModifiedBy());
- *      Assert.assertNotNull(order.getCreationDate());
- *      Assert.assertNotNull(order.getModificationDate());
- *
- *      LOG.info("PurchaseOrder to save on commit : {}", order);
- *
- *      order.getPositions().add(new PurchaseOrderPosition(order));
- *      order.getPositions().add(new PurchaseOrderPosition(order));
- *
- *      order.setAddress(new Address());
- *
- *      purchaseOrderRepository.saveAndFlush(order);
- *      LOG.info("PurchaseOrder to save with Postions : {}", order);
- *
- *      for (PurchaseOrderPosition pos : order.getPositions()) {
- *          LOG.info("Saved Position : {}", pos.toString());
- *      }
- *
- *      LOG.info("PurchaseOrder to save with Postions : {}", order);
- *      LOG.info("Address : {}", order.getAddress());
- *
- *      LOG.info("---- NOW DELETE THE FIRST ----------");
- *      order.getPositions().remove(0);
- *      purchaseOrderRepository.saveAndFlush(order);
- *
- *      LOG.info("---- AFTER DELETE ----------");
- *      for (PurchaseOrderPosition pos : order.getPositions()) {
- *          LOG.info("Saved Position : {}", pos.toString());
- *      }
- *
- *      LOG.info("PurchaseOrder to save with Postions : {}", order);
- *      LOG.info("Address : {}", order.getAddress());
- *
- *  }
- *
- *  @Configuration
- *  @Import({ JpaConfig.class, DataSourceConfig.class })
- *  @EnableJpaRepositories("de.zalando.jpa.example.order")
- *  @ImportResource("classpath:/enableAuditing.xml")
- *  static class TestConfig { }*/
 }
