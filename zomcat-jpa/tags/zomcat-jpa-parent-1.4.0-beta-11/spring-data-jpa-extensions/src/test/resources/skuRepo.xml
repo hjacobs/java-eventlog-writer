@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:zjpa="http://www.zalando.de/schema/production/jpa"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+    xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.zalando.de/schema/data/jpa http://www.zalando.de/schema/data/jpa/spring-zjpa-1.0.xsd">
+
+    <zjpa:skuid skuid-generator-ref="skuidGenerator" />
+
+    <beans profile="HSQL">
+        <jdbc:embedded-database id="dataSource" type="HSQL">
+            <jdbc:script location="schema_hsql.sql" />
+            <jdbc:script location="sequence_hsql.sql" />
+        </jdbc:embedded-database>
+        <bean id="skuidGenerator" class="de.zalando.production.jpa.support.jdbc.SequenceSkuIdGenerator">
+            <property name="dataSource" ref="dataSource" />
+            <property name="databasePlatform" value="HSQL" />
+        </bean>
+    </beans>
+
+    <beans profile="POSTGRES">
+        <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource">
+            <property name="username" value="postgres" />
+            <property name="password" value="postgres" />
+            <property name="jdbcUrl" value="jdbc:postgresql://localhost:5432/local_production_db" />
+            <property name="driverClass" value="org.postgresql.Driver" />
+            <property name="initSQL"
+                value="SET search_path to zprod_data, zprod_api, public;" />
+        </bean>
+        <bean id="skuidGenerator" class="de.zalando.production.jpa.support.jdbc.SequenceSkuIdGenerator">
+            <property name="dataSource" ref="dataSource" />
+            <property name="databasePlatform" value="POSTGRES" />
+        </bean>
+    </beans>
+</beans>
