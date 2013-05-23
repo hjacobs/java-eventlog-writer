@@ -84,7 +84,7 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
     /**
      * Date Formatter Pattern used in Logging (Next Trigger Fire Date).
      */
-    private static final transient String DATE_FORMATTER_PATTERN = "yyyy-MM-dd HH:mm:SS";
+    private static final transient String DATE_FORMATTER_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * Simple Quartz Listener name.
