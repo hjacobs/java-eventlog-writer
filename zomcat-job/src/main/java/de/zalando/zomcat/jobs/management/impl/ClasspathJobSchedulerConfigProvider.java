@@ -64,9 +64,6 @@ public final class ClasspathJobSchedulerConfigProvider extends AbstractJobSchedu
         final String startDelay = cols[3];
         final Map<String, String> jobData = getJobData(cols, 5);
 
-        /*LOG.info("Configured [{}] to run every [{}] with start delay [{}]",
-         *  new Object[] {className, repeatInterval, startDelay});
-         */
         final JobConfig jobConfig = jobConfigSource.getJobConfig((Job) Class.forName(className).newInstance());
         return new JobSchedulingConfiguration(getMillis(startDelay), getMillis(repeatInterval), className, null,
                 jobData, jobConfig);
@@ -87,10 +84,9 @@ public final class ClasspathJobSchedulerConfigProvider extends AbstractJobSchedu
         final String cronExpression = StringUtils.join(Arrays.copyOfRange(cols, 1, 7), " ");
         final Map<String, String> jobData = getJobData(cols, 8);
 
-        /*
-         * LOG.info("Configured [{}] to run at [{}]", new Object[] {className, cronExpression});
-         */
-        return new JobSchedulingConfiguration(cronExpression, className, null, jobData);
+        // ZEOS-17539 - create a JobConfig instance exactly the same way it is being done for Simple Jobs
+        final JobConfig jobConfig = jobConfigSource.getJobConfig((Job) Class.forName(className).newInstance());
+        return new JobSchedulingConfiguration(cronExpression, className, null, jobData, jobConfig);
     }
 
     private JobSchedulingConfiguration createScheduler(final String[] cols) throws Exception {

@@ -402,6 +402,9 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
                 ((SimpleTrigger) quartzTrigger).setStartTime(new Date(
                         System.currentTimeMillis() + jobSchedulingConfig.getStartDelayMillis()));
                 ((SimpleTrigger) quartzTrigger).setRepeatInterval(jobSchedulingConfig.getIntervalMillis());
+
+                // ZEOS-17539 - make sure the SimpleTrigger defines infinite repetition for the Trigger
+                ((SimpleTrigger) quartzTrigger).setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
                 break;
 
             default :
