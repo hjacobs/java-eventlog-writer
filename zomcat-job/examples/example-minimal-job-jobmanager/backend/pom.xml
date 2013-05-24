@@ -34,17 +34,6 @@
                 <version>0.6.2.201302030002</version>
                 <executions>
                     <execution>
-                        <id>pre-unit-test</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>post-unit-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
                     </execution>
                     <execution>
                         <id>pre-integration-test</id>
