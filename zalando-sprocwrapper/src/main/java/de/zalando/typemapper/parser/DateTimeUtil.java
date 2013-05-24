@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class DateTimeUtil {
 
-    public static final String FORMAT_PATTERN = "yyyy-MM-dd k:m:s.SSS";
+    public static final String FORMAT_PATTERN = "yyyy-MM-dd kk:mm:ss.SSS";
 
     public static Date parse(final String ds) {
 
