@@ -468,7 +468,9 @@ public class PgTypeHelper {
         final ValueTransformer valueTransformer = GlobalValueTransformerRegistry.getValueTransformerForClass(clazz);
         if (valueTransformer != null) {
             o = valueTransformer.marshalToDb(o);
-            return toPgString(o, connection);
+            if (o == null || o.getClass() != clazz) {
+                return toPgString(o, connection);
+            }
         }
 
         if (clazz == Boolean.TYPE || clazz == Boolean.class) {
