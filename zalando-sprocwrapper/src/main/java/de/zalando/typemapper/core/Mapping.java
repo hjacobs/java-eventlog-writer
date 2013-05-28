@@ -7,10 +7,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import de.zalando.typemapper.annotations.Embed;
 import de.zalando.typemapper.core.fieldMapper.AnyTransformer;
@@ -18,6 +18,7 @@ import de.zalando.typemapper.core.fieldMapper.FieldMapper;
 import de.zalando.typemapper.core.fieldMapper.FieldMapperRegister;
 import de.zalando.typemapper.core.fieldMapper.ValueTransformerFieldMapper;
 import de.zalando.typemapper.exception.NotsupportedTypeException;
+import de.zalando.typemapper.postgres.PgTypeHelper;
 
 public class Mapping {
 
@@ -27,10 +28,9 @@ public class Mapping {
     private final boolean embed;
     private final Field embedField;
     private FieldMapper fieldMapper;
-    private Map<Field, Method> setter = new HashMap<>();
+    private Map<Field, Method> setter = new ConcurrentHashMap<>();
 
-    @SuppressWarnings("rawtypes")
-    private static final Map<Class, List<Mapping>> cache = new HashMap<Class, List<Mapping>>();
+    private static final Map<Class, List<Mapping>> cache = new ConcurrentHashMap<>();
 
     public static List<Mapping> getMappingsForClass(@SuppressWarnings("rawtypes") final Class clazz) {
         List<Mapping> result = cache.get(clazz);
@@ -167,49 +167,7 @@ public class Mapping {
             return annotationName;
         }
 
-        return camelCaseToUnderScore(field.getName());
-    }
-
-    /**
-     * stolen from commons StringUtils.splitByCharacterTypeCamelCase.
-     *
-     * @param   str
-     *
-     * @return
-     */
-    private static String camelCaseToUnderScore(final String str) {
-        final StringBuilder result = new StringBuilder();
-        final char[] c = str.toCharArray();
-        int tokenStart = 0;
-        int currentType = Character.getType(c[tokenStart]);
-        for (int pos = tokenStart + 1; pos < c.length; pos++) {
-            final int type = Character.getType(c[pos]);
-            if (type == currentType) {
-                continue;
-            }
-
-            if ((type == Character.LOWERCASE_LETTER) && (currentType == Character.UPPERCASE_LETTER)) {
-                final int newTokenStart = pos - 1;
-                if (newTokenStart != tokenStart) {
-                    if (result.length() > 0) {
-                        result.append('_');
-                    }
-
-                    result.append((new String(c, tokenStart, newTokenStart - tokenStart)).toLowerCase());
-                    tokenStart = newTokenStart;
-                }
-            }
-
-            currentType = type;
-        }
-
-        final String remainingToken = new String(c, tokenStart, c.length - tokenStart);
-        if ((result.length() > 0) && !remainingToken.isEmpty()) {
-            result.append('_');
-        }
-
-        result.append(remainingToken.toLowerCase());
-        return result.toString();
+        return PgTypeHelper.camelCaseToUnderScore(field.getName());
     }
 
     public Field getField() {

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.Column;
 
@@ -42,6 +43,9 @@ import de.zalando.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
 public class PgTypeHelper {
 
     private static final Map<String, Integer> pgGenericTypeNameToSQLTypeMap;
+    private static final Map<Field, DatabaseFieldDescriptor> fieldToDataBaseFieldDescriptorMap = Collections
+            .synchronizedMap(new HashMap<Field, DatabaseFieldDescriptor>());
+    private static Map<String, String> camelCaseToUnderscoreMap = new ConcurrentHashMap<>();
 
     private static final PostgresJDBCDriverReusedTimestampUtils postgresJDBCDriverReusedTimestampUtils =
         new PostgresJDBCDriverReusedTimestampUtils();
@@ -149,46 +153,53 @@ public class PgTypeHelper {
     }
 
     public static String camelCaseToUnderScore(final String camelCaseName) {
-
         if (camelCaseName == null) {
             throw new NullPointerException();
         }
 
-        final int length = camelCaseName.length();
-        final StringBuilder r = new StringBuilder(length * 2);
+        String ret = camelCaseToUnderscoreMap.get(camelCaseName);
 
-        // myFieldName -> my_field_name
-        // MyFileName -> my_field_name
-        // MyFILEName -> my_file_name
-        // too lazy to write a small automata here... so quick and dirty by now
-        boolean wasUpper = false;
-        for (int i = 0; i < length; i++) {
-            char ch = camelCaseName.charAt(i);
+        if (ret == null) {
 
-            if (Character.isUpperCase(ch)) {
-                if (i > 0) {
-                    if ((!wasUpper) && (ch != '_')) {
-                        r.append('_');
+            final int length = camelCaseName.length();
+            final StringBuilder r = new StringBuilder(length * 2);
+
+            // myFieldName -> my_field_name
+            // MyFileName -> my_field_name
+            // MyFILEName -> my_file_name
+            // too lazy to write a small automata here... so quick and dirty by now
+            boolean wasUpper = false;
+            for (int i = 0; i < length; i++) {
+                char ch = camelCaseName.charAt(i);
+
+                if (Character.isUpperCase(ch)) {
+                    if (i > 0) {
+                        if ((!wasUpper) && (ch != '_')) {
+                            r.append('_');
+                        }
                     }
+
+                    ch = Character.toLowerCase(ch);
+                    wasUpper = true;
+                } else {
+                    if (wasUpper) {
+                        final int p = r.length() - 2;
+                        if (p > 1 && r.charAt(p) != '_') {
+                            r.insert(p, '_');
+                        }
+                    }
+
+                    wasUpper = false;
                 }
 
-                ch = Character.toLowerCase(ch);
-                wasUpper = true;
-            } else {
-                if (wasUpper) {
-                    final int p = r.length() - 2;
-                    if (p > 1 && r.charAt(p) != '_') {
-                        r.insert(p, '_');
-                    }
-                }
-
-                wasUpper = false;
+                r.append(ch);
             }
 
-            r.append(ch);
+            ret = r.toString();
+            camelCaseToUnderscoreMap.put(camelCaseName, ret);
         }
 
-        return r.toString();
+        return ret;
     }
 
     public static final class PgTypeDataHolder {
@@ -401,26 +412,35 @@ public class PgTypeHelper {
      *          {@link javax.persistence.Column}
      */
     public static DatabaseFieldDescriptor getDatabaseFieldDescriptor(final Field field) {
+        DatabaseFieldDescriptor databaseFieldDescriptor = fieldToDataBaseFieldDescriptorMap.get(field);
+        if (databaseFieldDescriptor == null) {
 
-        // use the deprecated as well. remove later:
-        com.typemapper.annotations.DatabaseField deprecatedDatabaseField = field.getAnnotation(
-                com.typemapper.annotations.DatabaseField.class);
-        if (deprecatedDatabaseField != null) {
-            return new DatabaseFieldDescriptor(deprecatedDatabaseField);
+            boolean stop = false;
+
+            // use the deprecated as well. remove later:
+            com.typemapper.annotations.DatabaseField deprecatedDatabaseField = field.getAnnotation(
+                    com.typemapper.annotations.DatabaseField.class);
+            if (deprecatedDatabaseField != null) {
+                databaseFieldDescriptor = new DatabaseFieldDescriptor(deprecatedDatabaseField);
+                stop = true;
+            }
+
+            DatabaseField databaseField = field.getAnnotation(DatabaseField.class);
+            if (stop == false && databaseField != null) {
+                databaseFieldDescriptor = new DatabaseFieldDescriptor(databaseField);
+                stop = true;
+            }
+
+            // do we have a column definition?
+            final Column column = field.getAnnotation(Column.class);
+            if (stop == false && column != null) {
+                databaseFieldDescriptor = new DatabaseFieldDescriptor(column);
+            }
+
+            fieldToDataBaseFieldDescriptorMap.put(field, databaseFieldDescriptor);
         }
 
-        DatabaseField databaseField = field.getAnnotation(DatabaseField.class);
-        if (databaseField != null) {
-            return new DatabaseFieldDescriptor(databaseField);
-        }
-
-        // do we have a column definition?
-        final Column column = field.getAnnotation(Column.class);
-        if (column != null) {
-            return new DatabaseFieldDescriptor(column);
-        }
-
-        return null;
+        return databaseFieldDescriptor;
     }
 
     private static Object applyTransformer(final Field f, final DatabaseFieldDescriptor databaseFieldDescriptor,

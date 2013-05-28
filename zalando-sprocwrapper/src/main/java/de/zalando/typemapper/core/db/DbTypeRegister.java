@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ public class DbTypeRegister {
     private static final Logger LOG = LoggerFactory.getLogger(DbTypeRegister.class);
 
     private static Map<String, DbTypeRegister> registers = null;
-    private static Map<String, DbType> dbTypeCache = new HashMap<>();
+    private static Map<String, DbType> dbTypeCache = new ConcurrentHashMap<>();
 
     private Map<String, DbType> types = null;
     private Map<String, List<String>> typeNameToFQN = null;
