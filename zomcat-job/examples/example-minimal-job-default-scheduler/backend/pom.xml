@@ -17,7 +17,60 @@
     </organization>
     <properties>
         <test.src.dir>src/test/java</test.src.dir>
+        <!-- Sonar -->
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <!-- The destination file for the code coverage report has to be set to the same value
+             in the parent pom and in each module pom. Then JaCoCo will add up information in
+             the same report, so that, it will give the cross-module code coverage. -->
+        <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <sonar.language>java</sonar.language>
+        <!-- Sonar -->
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <!-- The destination file for the code coverage report has to be set to the same value
+        in the parent pom and in each module pom. Then JaCoCo will add up information in
+        the same report, so that, it will give the cross-module code coverage. -->
+        <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
+        <!--<sonar.surefire.reportsPath>${project.basedir}/target/surefire-reports</sonar.surefire.reportsPath>-->
+        <sonar.language>java</sonar.language>
     </properties>
+        <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.6.2.201302030002</version>
+                <executions>
+                    <execution>
+                      <id>pre-integration-test</id>
+                      <phase>pre-integration-test</phase>
+                      <goals>
+                         <goal>prepare-agent</goal>
+                         </goals>
+                      <configuration>
+                         <destFile>${project.basedir}/target/jacoco-it.exec</destFile>
+                         <propertyName>failsafe.argLine</propertyName>
+                      </configuration>
+                    </execution>
+                    <execution>
+                      <id>post-integration-test</id>
+                      <phase>post-integration-test</phase>
+                      <goals>
+                         <goal>report</goal>
+                         </goals>
+                      <configuration>
+                         <dataFile>${project.basedir}/target/jacoco-it.exec</dataFile>
+                      </configuration>
+                    </execution>
+                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+         </plugins>
+    </build>
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
@@ -36,4 +89,125 @@
             <artifactId>log4j</artifactId>
         </dependency>
     </dependencies>
+        <profiles>
+        <profile>
+            <id>development</id>
+            <properties>
+                <!-- Skip unit tests for local development -->
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>integration-test</id>
+            <properties>
+                <test.db.name>local_user_db</test.db.name>
+                <jmeter-version>2.3.4</jmeter-version>
+                <jmeter.home>${project.build.directory}/jakarta-jmeter-${jmeter-version}</jmeter.home>
+                <jacoco.agent.version>0.5.1.20110327142208</jacoco.agent.version>
+                <jacoco.agent.path>${project.build.directory}/jacocoagent-${jacoco.agent.version}.jar</jacoco.agent.path>
+                <jacoco.file.path>${project.build.directory}/jacoco/jacoco.exec</jacoco.file.path>
+                <unit.test.skip>false</unit.test.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-jacocoagent</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.jacoco</groupId>
+                                            <artifactId>jacocoagent</artifactId>
+                                            <version>${jacoco.agent.version}</version>
+                                            <type>jar</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>integration-test</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skipTests>${unit.test.skip}</skipTests>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <reportsDirectory>${project.basedir}/target/failsafe-reports</reportsDirectory>
+                            <argLine>${failsafe.argLine}</argLine>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                   </plugins>
+            </build>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-report-plugin</artifactId>
+                        <reportSets>
+                            <reportSet>
+                                <id>integration-tests</id>
+                                <reports>
+                                    <report>report-only</report>
+                                </reports>
+                                <configuration>
+                                    <outputName>failsafe-report</outputName>
+                                    <reportsDirectories>
+                                        <reportsDirectory>target/failsafe-reports</reportsDirectory>
+                                    </reportsDirectories>
+                                </configuration>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
+      </profiles>
 </project>
