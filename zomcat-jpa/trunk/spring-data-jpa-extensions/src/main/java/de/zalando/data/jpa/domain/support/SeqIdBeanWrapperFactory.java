@@ -6,14 +6,14 @@ import org.springframework.core.annotation.AnnotationUtils;
 
 import org.springframework.data.util.ReflectionUtils;
 
-import de.zalando.data.annotation.SkuId;
+import de.zalando.data.annotation.SeqId;
 
 /**
  * @author  jbellmann
  */
-public class SkuIdBeanWrapperFactory {
+public class SeqIdBeanWrapperFactory {
 
-    SkuIdBeanWrapper getBeanWrapperFor(final Object source) {
+    SeqIdBeanWrapper getBeanWrapperFor(final Object source) {
 
         if (source == null) {
             return null;
@@ -28,7 +28,7 @@ public class SkuIdBeanWrapperFactory {
         return null;
     }
 
-    static class ReflectionKeyableBeanWrapper implements SkuIdBeanWrapper {
+    static class ReflectionKeyableBeanWrapper implements SeqIdBeanWrapper {
 
         private final Object source;
         private final AnnotationSkuIdMetadata metadata;
@@ -40,13 +40,13 @@ public class SkuIdBeanWrapperFactory {
 
         @Override
         public String getSequenceName() {
-            SkuId keyAnnotation = this.metadata.getSkuIdField().getAnnotation(SkuId.class);
+            SeqId keyAnnotation = this.metadata.getSkuIdField().getAnnotation(SeqId.class);
             return (String) AnnotationUtils.getValue(keyAnnotation, "value");
         }
 
         @Override
         public boolean negateSku() {
-            SkuId keyAnnotation = this.metadata.getSkuIdField().getAnnotation(SkuId.class);
+            SeqId keyAnnotation = this.metadata.getSkuIdField().getAnnotation(SeqId.class);
             return (boolean) AnnotationUtils.getValue(keyAnnotation, "negate");
         }
 

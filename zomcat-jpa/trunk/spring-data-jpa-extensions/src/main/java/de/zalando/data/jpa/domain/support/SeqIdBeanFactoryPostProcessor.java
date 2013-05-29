@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author  jbellmann
  */
-public class SkuIdBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+public class SeqIdBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
     static final String BEAN_CONFIGURER_ASPECT_BEAN_NAME =
         "org.springframework.context.config.internalBeanConfigurerAspect";
@@ -42,7 +42,7 @@ public class SkuIdBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
         }
 
         for (String beanName
-                : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, SkuIdGenerator.class, true, false)) {
+                : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, SeqIdGenerator.class, true, false)) {
             BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
             definition.setLazyInit(true);
         }

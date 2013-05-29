@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import de.zalando.data.annotation.SkuId;
+import de.zalando.data.annotation.SeqId;
 
 /**
  * Author: clohmann Date: 06.05.13 Time: 18:17
@@ -14,6 +14,6 @@ import de.zalando.data.annotation.SkuId;
 public class ArticleSimple {
 
     @Id
-    @SkuId(value = "zprod_data.article_simple_id_seq", negate = true)
+    @SeqId(value = "zprod_data.article_simple_id_seq", negate = true)
     Long id;
 }

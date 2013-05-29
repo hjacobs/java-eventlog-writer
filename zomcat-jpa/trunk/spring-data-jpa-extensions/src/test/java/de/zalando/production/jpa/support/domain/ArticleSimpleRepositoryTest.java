@@ -20,8 +20,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import de.zalando.data.jpa.domain.support.SkuIdGenerator;
-import de.zalando.data.jpa.domain.support.SkuIdHandler;
+import de.zalando.data.jpa.domain.support.SeqIdGenerator;
+import de.zalando.data.jpa.domain.support.SeqIdHandler;
 
 import de.zalando.production.jpa.config.JpaConfig;
 
@@ -41,10 +41,10 @@ public class ArticleSimpleRepositoryTest {
     private ArticleSimpleRepository articleSimpleRepository;
 
     @Autowired
-    private SkuIdHandler skuIdHandler;
+    private SeqIdHandler skuIdHandler;
 
     @Autowired
-    private SkuIdGenerator skuIdGenerator;
+    private SeqIdGenerator skuIdGenerator;
 
     @Before
     public void setUp() {

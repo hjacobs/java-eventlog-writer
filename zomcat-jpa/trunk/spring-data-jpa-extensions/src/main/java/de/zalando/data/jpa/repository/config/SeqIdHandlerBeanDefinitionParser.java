@@ -11,21 +11,21 @@ import org.springframework.util.StringUtils;
 
 import org.w3c.dom.Element;
 
-import de.zalando.data.jpa.domain.support.SkuIdHandler;
+import de.zalando.data.jpa.domain.support.SeqIdHandler;
 
 /**
- * {@link org.springframework.beans.factory.xml.BeanDefinitionParser} that parses and {@link SkuIdHandler}
+ * {@link org.springframework.beans.factory.xml.BeanDefinitionParser} that parses and {@link SeqIdHandler}
  * {@link org.springframework.beans.factory.config.BeanDefinition}.
  *
  * @author  Joerg Bellmann
  */
-public class SkuIdHandlerBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+public class SeqIdHandlerBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-    private static final String SKU_ID_GENERATOR_REF = "skuid-generator-ref";
+    private static final String SEQ_ID_GENERATOR_REF = "seqid-generator-ref";
 
     @Override
     protected Class<?> getBeanClass(final Element element) {
-        return SkuIdHandler.class;
+        return SeqIdHandler.class;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class SkuIdHandlerBeanDefinitionParser extends AbstractSingleBeanDefiniti
     @Override
     protected void doParse(final Element element, final BeanDefinitionBuilder builder) {
 
-        String keyGeneratorRef = element.getAttribute(SKU_ID_GENERATOR_REF);
+        String keyGeneratorRef = element.getAttribute(SEQ_ID_GENERATOR_REF);
         if (StringUtils.hasText(keyGeneratorRef)) {
             builder.addPropertyValue("keyGenerator", createLazyInitTargetSourceBeanDefinition(keyGeneratorRef));
         }

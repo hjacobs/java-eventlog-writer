@@ -19,7 +19,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import de.zalando.data.jpa.domain.support.jdbc.SequenceSkuIdGenerator;
+import de.zalando.data.jpa.domain.support.jdbc.SequenceIdGenerator;
 
 /**
  * Author: clohmann Date: 06.05.13 Time: 17:50
@@ -38,8 +38,8 @@ public class SequenceSkuIdGeneratorTest {
 
     @Test
     public void testGetSkuId() throws Exception {
-        SequenceSkuIdGenerator generator = new SequenceSkuIdGenerator(dataSource);
-        generator.getSkuId("zprod_data.article_simple_id_seq", false);
+        SequenceIdGenerator generator = new SequenceIdGenerator(dataSource);
+        generator.getSeqId("zprod_data.article_simple_id_seq", false);
     }
 
     @Configuration

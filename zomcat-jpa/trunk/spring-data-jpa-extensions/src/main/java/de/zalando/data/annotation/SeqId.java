@@ -9,13 +9,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a member of an Entity as SkuId.
+ * Marks a member of an Entity as SeqId.
  *
  * @author  jbellmann
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {FIELD, METHOD, ANNOTATION_TYPE})
-public @interface SkuId {
+public @interface SeqId {
 
     /**
      * @return  the sequenceName to be used for generation

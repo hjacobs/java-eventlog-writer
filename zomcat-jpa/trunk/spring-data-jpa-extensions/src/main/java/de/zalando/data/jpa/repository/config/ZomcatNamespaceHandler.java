@@ -13,7 +13,7 @@ public class ZomcatNamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
 
         registerBeanDefinitionParser("businesskey", new BusinessKeyBeanDefinitionParser());
-        registerBeanDefinitionParser("skuid", new SkuIdBeanDefinitionParser());
+        registerBeanDefinitionParser("seqid", new SeqIdBeanDefinitionParser());
     }
 
 }

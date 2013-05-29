@@ -5,7 +5,7 @@ package de.zalando.data.jpa.domain.support;
  *
  * @author  jbellmann
  */
-public interface SkuIdBeanWrapper {
+public interface SeqIdBeanWrapper {
 
     String getSequenceName();
 

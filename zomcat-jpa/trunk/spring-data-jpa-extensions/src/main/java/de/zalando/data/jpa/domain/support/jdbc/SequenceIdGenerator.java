@@ -15,12 +15,12 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Maps;
 
-import de.zalando.data.jpa.domain.support.SkuIdGenerator;
+import de.zalando.data.jpa.domain.support.SeqIdGenerator;
 
 /**
  * Author: clohmann Date: 06.05.13 Time: 17:28
  */
-public class SequenceSkuIdGenerator implements InitializingBean, SkuIdGenerator {
+public class SequenceIdGenerator implements InitializingBean, SeqIdGenerator {
 
     public static final String HSQL_DATABASE_PLATFORM = "HSQL";
     public static final String POSTGRES_DATABASE_PLATFORM = "POSTGRES";
@@ -34,14 +34,14 @@ public class SequenceSkuIdGenerator implements InitializingBean, SkuIdGenerator 
 
     static final Map<String, AbstractSequenceMaxValueIncrementer> INCREMENTER_CACHE = Maps.newConcurrentMap();
 
-    public SequenceSkuIdGenerator(final DataSource dataSource) {
+    public SequenceIdGenerator(final DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public SequenceSkuIdGenerator() { }
+    public SequenceIdGenerator() { }
 
     @Override
-    public Number getSkuId(final String sequenceName, final boolean negateSku) {
+    public Number getSeqId(final String sequenceName, final boolean negateSku) {
         long nextValue = getIncrementerFromCache(sequenceName).nextLongValue();
         if (negateSku) {
 

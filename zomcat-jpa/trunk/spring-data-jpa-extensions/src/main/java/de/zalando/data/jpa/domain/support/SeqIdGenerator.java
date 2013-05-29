@@ -5,8 +5,8 @@ package de.zalando.data.jpa.domain.support;
  *
  * @author  jbellmann
  */
-public interface SkuIdGenerator {
+public interface SeqIdGenerator {
 
-    Number getSkuId(String sequenceName, boolean negate);
+    Number getSeqId(String sequenceName, boolean negate);
 
 }

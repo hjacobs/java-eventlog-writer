@@ -10,23 +10,23 @@ import org.springframework.beans.factory.xml.ParserContext;
 
 import org.w3c.dom.Element;
 
-public class SkuIdBeanDefinitionParser implements BeanDefinitionParser {
+public class SeqIdBeanDefinitionParser implements BeanDefinitionParser {
 
-    static final String KEY_ENTITY_LISTENER_CLASS_NAME = "de.zalando.data.jpa.domain.support.SkuIdEntityListener";
+    static final String KEY_ENTITY_LISTENER_CLASS_NAME = "de.zalando.data.jpa.domain.support.SeqIdEntityListener";
     private static final String KEY_BFPP_CLASS_NAME =
-        "de.zalando.data.jpa.domain.support.SkuIdBeanFactoryPostProcessor";
+        "de.zalando.data.jpa.domain.support.SeqIdBeanFactoryPostProcessor";
 
-    private final BeanDefinitionParser skuIdHandlerParser = new SkuIdHandlerBeanDefinitionParser();
+    private final BeanDefinitionParser seqIdHandlerParser = new SeqIdHandlerBeanDefinitionParser();
 
     public BeanDefinition parse(final Element element, final ParserContext parser) {
 
         new SpringConfiguredBeanDefinitionParser().parse(element, parser);
 
-        BeanDefinition keyHandlerDefinition = skuIdHandlerParser.parse(element, parser);
+        BeanDefinition keyHandlerDefinition = seqIdHandlerParser.parse(element, parser);
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(KEY_ENTITY_LISTENER_CLASS_NAME);
 
-        builder.addPropertyValue("skuIdHandler", keyHandlerDefinition);
+        builder.addPropertyValue("seqIdHandler", keyHandlerDefinition);
         builder.setScope("prototype");
 
         registerInfrastructureBeanWithId(builder.getRawBeanDefinition(), KEY_ENTITY_LISTENER_CLASS_NAME, parser,

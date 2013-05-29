@@ -18,24 +18,24 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @author  Joerg Bellmann
  */
 @Configurable
-public class SkuIdEntityListener<T> {
+public class SeqIdEntityListener<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SkuIdEntityListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SeqIdEntityListener.class);
 
-    private SkuIdHandler<T> skuIdHandler;
+    private SeqIdHandler<T> seqIdHandler;
 
-    public SkuIdEntityListener() {
+    public SeqIdEntityListener() {
         LOG.debug("SkuIdEntityListner created");
     }
 
-    public void setSkuIdHandler(final SkuIdHandler<T> keyHandler) {
-        this.skuIdHandler = keyHandler;
+    public void setSkuIdHandler(final SeqIdHandler<T> keyHandler) {
+        this.seqIdHandler = keyHandler;
     }
 
     @PrePersist
     public void touchForCreate(final Object target) {
-        if (skuIdHandler != null) {
-            skuIdHandler.markCreated(target);
+        if (seqIdHandler != null) {
+            seqIdHandler.markCreated(target);
         }
     }
 

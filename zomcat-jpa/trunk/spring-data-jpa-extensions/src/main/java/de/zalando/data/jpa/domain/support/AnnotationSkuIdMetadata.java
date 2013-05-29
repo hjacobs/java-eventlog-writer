@@ -10,7 +10,7 @@ import org.springframework.data.util.ReflectionUtils.AnnotationFieldFilter;
 
 import org.springframework.util.Assert;
 
-import de.zalando.data.annotation.SkuId;
+import de.zalando.data.annotation.SeqId;
 
 /**
  * Metadata for an entity class. Holds information to apply the skuid or not. Internally cached.
@@ -19,7 +19,7 @@ import de.zalando.data.annotation.SkuId;
  */
 final class AnnotationSkuIdMetadata {
 
-    private static final AnnotationFieldFilter SKU_ID_FILTER = new AnnotationFieldFilter(SkuId.class);
+    private static final AnnotationFieldFilter SKU_ID_FILTER = new AnnotationFieldFilter(SeqId.class);
 
     private static final Map<Class<?>, AnnotationSkuIdMetadata> METADATACACHE =
         new ConcurrentHashMap<Class<?>, AnnotationSkuIdMetadata>();
