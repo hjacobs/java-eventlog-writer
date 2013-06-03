@@ -24,8 +24,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.typemapper</groupId>
-            <artifactId>sproc-spring-mapper</artifactId>
+            <groupId>de.zalando</groupId>
+            <artifactId>zalando-sprocwrapper</artifactId>
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
