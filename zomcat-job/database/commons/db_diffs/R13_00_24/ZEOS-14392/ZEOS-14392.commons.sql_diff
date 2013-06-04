@@ -2,6 +2,8 @@ BEGIN;
 
 select _v.register_patch('ZEOS-14392.commons');
 
+SET ROLE TO zalando;
+
 drop function if exists zz_commons.job_resource_acquire_lock(text, text, text, bigint);
 drop function if exists zz_commons.job_resource_peek_lock(text);
 drop function if exists zz_commons.job_resource_release_lock(text, text);
@@ -14,5 +16,6 @@ drop table if exists zz_commons.resource_lock;
 \i database/commons/01_commons/05_stored_procedures/10_job_resource_peek_lock.sql
 \i database/commons/01_commons/05_stored_procedures/10_job_resource_release_lock.sql
 
+RESET ROLE;
 
 COMMIT;
