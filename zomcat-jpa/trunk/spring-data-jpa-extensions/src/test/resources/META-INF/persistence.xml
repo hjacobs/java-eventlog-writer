@@ -5,6 +5,7 @@
     <persistence-unit name="default">
         <class>de.zalando.data.jpa.domain.sample.BusinessKeyAwareProduct</class>
         <class>de.zalando.data.jpa.domain.sample.AnnotatedProduct</class>
+        <class>de.zalando.production.jpa.support.domain.ArticleSimple</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.weaving" value="false" />

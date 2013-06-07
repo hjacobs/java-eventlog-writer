@@ -19,14 +19,14 @@ public class SeqIdHandler<T> implements InitializingBean {
     private final SeqIdBeanWrapperFactory factory = new SeqIdBeanWrapperFactory();
     private SeqIdGenerator seqIdGenerator;
 
-    public void setKeyGenerator(final SeqIdGenerator skuIdGenerator) {
-        Assert.notNull(skuIdGenerator);
-        this.seqIdGenerator = skuIdGenerator;
+    public void setKeyGenerator(final SeqIdGenerator seqIdGenerator) {
+        Assert.notNull(seqIdGenerator);
+        this.seqIdGenerator = seqIdGenerator;
     }
 
     public void afterPropertiesSet() throws Exception {
         if (seqIdGenerator == null) {
-            LOGGER.debug("No SkuIdGenerator set! Id will not be applied!");
+            LOGGER.debug("No SeqIdGenerator set! Id will not be applied!");
         }
     }
 

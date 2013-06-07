@@ -25,10 +25,10 @@ public class SeqIdEntityListener<T> {
     private SeqIdHandler<T> seqIdHandler;
 
     public SeqIdEntityListener() {
-        LOG.debug("SkuIdEntityListner created");
+        LOG.debug("SeqIdEntityListner created");
     }
 
-    public void setSkuIdHandler(final SeqIdHandler<T> keyHandler) {
+    public void setSeqIdHandler(final SeqIdHandler<T> keyHandler) {
         this.seqIdHandler = keyHandler;
     }
 

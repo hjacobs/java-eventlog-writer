@@ -53,7 +53,7 @@ public class JpaConfig {
             vendorAdapter.setShowSql(true);
 
             LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-            factory.setPersistenceUnitName("persistenceUnit");
+            factory.setPersistenceUnitName("default");
             factory.setJpaVendorAdapter(vendorAdapter);
             factory.setPackagesToScan("de.zalando.production.jpa.support.domain");
             factory.setDataSource(dataSource);
