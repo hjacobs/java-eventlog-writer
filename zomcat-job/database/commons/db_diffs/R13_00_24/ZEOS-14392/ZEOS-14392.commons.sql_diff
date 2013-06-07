@@ -1,16 +1,15 @@
+SET ROLE TO zalando;
+
+--create table if not existing (run with STOP_ON_ERROR=0)
+\i database/commons/01_commons/04_tables/10_resource_lock.sql
+
 BEGIN;
 
 select _v.register_patch('ZEOS-14392.commons');
 
-SET ROLE TO zalando;
-
 drop function if exists zz_commons.job_resource_acquire_lock(text, text, text, bigint);
 drop function if exists zz_commons.job_resource_peek_lock(text);
 drop function if exists zz_commons.job_resource_release_lock(text, text);
-
-drop table if exists zz_commons.resource_lock;
-
-\i database/commons/01_commons/04_tables/10_resource_lock.sql
 
 \i database/commons/01_commons/05_stored_procedures/10_job_resource_acquire_lock.sql
 \i database/commons/01_commons/05_stored_procedures/10_job_resource_peek_lock.sql
