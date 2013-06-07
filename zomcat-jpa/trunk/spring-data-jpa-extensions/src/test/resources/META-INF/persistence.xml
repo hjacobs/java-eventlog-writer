@@ -6,5 +6,8 @@
         <class>de.zalando.data.jpa.domain.sample.BusinessKeyAwareProduct</class>
         <class>de.zalando.data.jpa.domain.sample.AnnotatedProduct</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <properties>
+            <property name="eclipselink.weaving" value="false" />
+        </properties>
     </persistence-unit>
 </persistence>
