@@ -27,6 +27,12 @@ Das Zomcat-JPA-Project beinhaltet einige Erweiterungen und Anpassungen um JPA be
 WARNING: Zomcat-JPA ist keine weitere Implementierung des JPA-Standards. (Dies Frage kam bereits :-)   )
 ****
 
+Unverständliche Fehlermeldungen
+-------------------------------
+
+****
+WARNING Konstanze trägt was ein
+****
 
 zomcat-jpa-eclipselink
 ----------------------
