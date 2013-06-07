@@ -5,14 +5,12 @@ import static com.google.common.base.Preconditions.checkState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-
 import de.zalando.appconfig.ConfigCtx;
 import de.zalando.appconfig.Configuration;
 
 import de.zalando.domain.Environment;
 
-import de.zalando.zomcat.SystemConstants;
+import de.zalando.zomcat.configuration.AppInstanceContextProvider;
 
 /**
  * @author  hjacobs
@@ -23,6 +21,7 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
     protected static final String APPLICATION_ENVIRONMENT = "application.environment";
 
     protected transient Configuration config;
+    private transient AppInstanceContextProvider appInstanceContextProvider;
 
     @Override
     public Configuration getConfig() {
@@ -33,32 +32,23 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
         this.config = config;
     }
 
-    @Override
-    public String getAppInstanceKey() {
-
-        final String key = SystemConstants.SYSTEM_PROPERTY_APP_INSTANCE_KEY;
-
-        String appInstanceKey = System.getProperty(key);
-
-        if (appInstanceKey == null) {
-
-            final String defaultValue = SystemConstants.SYSTEM_NAME_FOR_LOCAL_INSTANCE;
-
-            final String exclamation = Strings.repeat("!", 120);
-            final StringBuilder builder = new StringBuilder(300);
-            builder.append('\n').append(exclamation);
-            builder.append("\nNo App Instance Key found, setting " + key + " = " + defaultValue);
-            builder.append('\n').append(exclamation);
-            LOG.error(builder.toString());
-
-            System.setProperty(key, defaultValue);
-
-            appInstanceKey = defaultValue;
-
+    /**
+     * Returns context information about the running instance like version, project name etc. Does not work locally or
+     * in tests, since it's using the MANIFEST.MF file from classpath
+     *
+     * @return  AppInstanceContextProvider
+     */
+    public AppInstanceContextProvider getAppInstanceContext() {
+        if (appInstanceContextProvider == null) {
+            appInstanceContextProvider = AppInstanceContextProvider.fromSpringWebApplicationContext();
         }
 
-        return appInstanceKey;
+        return appInstanceContextProvider;
+    }
 
+    @Override
+    public String getAppInstanceKey() {
+        return getAppInstanceContext().getAppInstanceKey();
     }
 
     /**
@@ -69,6 +59,11 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
      */
     @Override
     public Environment getEnvironment() {
+
+        final Environment environmentFromManifest = getAppInstanceContext().getEnvironment();
+        if (environmentFromManifest != null) {
+            return environmentFromManifest;
+        }
 
         final String environment = config.getStringConfig(BaseApplicationConfigImpl.APPLICATION_ENVIRONMENT);
         checkState(environment != null, "no application.environment found");
