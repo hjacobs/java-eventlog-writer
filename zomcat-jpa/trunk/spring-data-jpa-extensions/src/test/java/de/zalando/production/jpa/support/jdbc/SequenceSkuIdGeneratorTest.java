@@ -39,6 +39,7 @@ public class SequenceSkuIdGeneratorTest {
     @Test
     public void testGetSkuId() throws Exception {
         SequenceIdGenerator generator = new SequenceIdGenerator(dataSource);
+        generator.setDatabasePlatform(SequenceIdGenerator.HSQL_DATABASE_PLATFORM);
         generator.getSeqId("zprod_data.article_simple_id_seq", false);
     }
 
