@@ -26,8 +26,8 @@ public class SpringDataJpaAuditingSupportFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpringDataJpaAuditingSupportFilter.class);
 
-    private static final String DEFAULT_HEADER_NAME = "X-USERNAME";
-    private static final String DEFAULT_AUDITOR = "auditor@zalando.de";
+    protected static String DEFAULT_HEADER_NAME = "X-USERNAME";
+    protected static String DEFAULT_AUDITOR = "auditor@zalando.de";
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
@@ -38,16 +38,20 @@ public class SpringDataJpaAuditingSupportFilter implements Filter {
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
         throws IOException, ServletException {
 
-        HttpServletRequest servletRequest = (HttpServletRequest) request;
+        final HttpServletRequest servletRequest = (HttpServletRequest) request;
 
-        String auditorHeaderValue = servletRequest.getHeader(DEFAULT_HEADER_NAME);
+        String auditorHeaderValue = servletRequest.getHeader(getDefaultHeaderName());
 
         // TODO, if this happen, should we raise an exception,should we make it
         // configurable ?
         if (auditorHeaderValue == null) {
-            auditorHeaderValue = DEFAULT_AUDITOR;
+            auditorHeaderValue = getDefaultAuditor();
+
+            // siehe monitoringfilter
             LOG.warn("No Value for Header-Key '{}' found! Set default auditor to AuditorContextHolder: '{}'",
                 DEFAULT_HEADER_NAME, DEFAULT_AUDITOR);
+        } else {
+            auditorHeaderValue = performHeaderValue(auditorHeaderValue);
         }
 
         AuditorContextHolder.getContext().setAuditor(auditorHeaderValue);
@@ -64,9 +68,37 @@ public class SpringDataJpaAuditingSupportFilter implements Filter {
 
     }
 
+    /**
+     * Implement this, if you have to modify the plain value from the header.
+     *
+     * @param   auditorHeaderValue
+     *
+     * @return
+     */
+    protected String performHeaderValue(final String auditorHeaderValue) {
+        return auditorHeaderValue;
+    }
+
     @Override
     public void destroy() {
         // there is nothing to do
     }
 
+    /**
+     * Override this.
+     *
+     * @return
+     */
+    protected String getDefaultAuditor() {
+        return DEFAULT_AUDITOR;
+    }
+
+    /**
+     * Override this.
+     *
+     * @return
+     */
+    protected String getDefaultHeaderName() {
+        return DEFAULT_HEADER_NAME;
+    }
 }
