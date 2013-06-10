@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 import de.zalando.domain.Environment;
@@ -123,9 +124,11 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
      */
     public Environment getEnvironment() {
         if (manifest != null) {
+            final String env = manifest.getMainAttributes().getValue(ENVIRONMENT_KEY);
+            Preconditions.checkNotNull(env, "MANIFEST.MF is missing X-Environment entry, might be a DeployCtl issue");
+
             try {
-                return Environment.valueOf(manifest.getMainAttributes().getValue(ENVIRONMENT_KEY).toUpperCase().replace(
-                            '-', '_'));
+                return Environment.valueOf(env.toUpperCase().replace('-', '_'));
             } catch (IllegalArgumentException e) {
                 LOG.error("DeployCtl X-Environment doesn't match Environment enum", e);
             }
