@@ -66,6 +66,8 @@ public class FlowIdInboundInterceptor extends AbstractPhaseInterceptor<Message> 
                 // if (LOG.isDebugEnabled()) {
                 // LOG.debug("server receiver adds flowId " + from + " to context: " + FlowId.peekFlowId());
                 // }
+
+                FlowId.getScope().enter(flowId);
             }
         }
     }

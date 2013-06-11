@@ -55,6 +55,7 @@ public class FlowIdOutboundInterceptor extends AbstractPhaseInterceptor<Message>
             // LOG.debug("client handleMessage: owning flowId: " + FlowId.peekFlowId());
             // }
         } else {
+            FlowId.getScope().exit();
 
             // this is the response and the end of the call.
             // add the flow id to the response and remove it from our context.
