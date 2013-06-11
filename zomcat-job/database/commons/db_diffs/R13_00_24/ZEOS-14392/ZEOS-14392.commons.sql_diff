@@ -3,9 +3,13 @@ SET ROLE TO zalando;
 --create table if not existing (run with STOP_ON_ERROR=0)
 \i database/commons/01_commons/04_tables/10_resource_lock.sql
 
+RESET role;
+
 BEGIN;
 
 select _v.register_patch('ZEOS-14392.commons');
+
+SET ROLE TO zalando;
 
 drop function if exists zz_commons.job_resource_acquire_lock(text, text, text, bigint);
 drop function if exists zz_commons.job_resource_peek_lock(text);
