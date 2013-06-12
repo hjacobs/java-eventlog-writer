@@ -126,9 +126,6 @@
             <properties>
                 <test.db.name>local_test_db</test.db.name>
                 <unit.test.skip>false</unit.test.skip>
-                <jacoco.agent.version>0.5.1.20110327142208</jacoco.agent.version>
-                <jacoco.agent.path>${project.build.directory}/jacocoagent-${jacoco.agent.version}.jar</jacoco.agent.path>
-                <jacoco.file.path>${project.build.directory}/jacoco/jacoco.exec</jacoco.file.path>
             </properties>
             <build>
                 <plugins>
