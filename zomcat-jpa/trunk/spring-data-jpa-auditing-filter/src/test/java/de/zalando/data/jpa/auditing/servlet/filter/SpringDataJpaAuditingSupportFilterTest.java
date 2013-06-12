@@ -26,35 +26,35 @@ public class SpringDataJpaAuditingSupportFilterTest {
 
     @Test
     public void testFilter() throws IOException, ServletException {
-        SpringDataJpaAuditingSupportFilter filter = new XUsernameRequestHeaderAuditingFilter();
-        MockHttpServletRequest request = new MockHttpServletRequest();
+        final SpringDataJpaAuditingSupportFilter filter = new XUsernameRequestHeaderAuditingFilter();
+        final MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("X-USERNAME", AUDITOR);
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain mockFilterChain = new MockFilterChain(new AssertionServlet(AUDITOR));
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final MockFilterChain mockFilterChain = new MockFilterChain(new AssertionServlet(AUDITOR));
         filter.doFilter(request, response, mockFilterChain);
 
-        String auditorAfterFilter = AuditorContextHolder.getContext().getAuditor();
+        final String auditorAfterFilter = AuditorContextHolder.getContext().getAuditor();
         Assert.assertNull(auditorAfterFilter);
     }
 
     @Test
     public void testFilterSetDefault() throws IOException, ServletException {
-        SpringDataJpaAuditingSupportFilter filter = new TestAuditingFilter();
-        MockHttpServletRequest request = new MockHttpServletRequest();
+        final SpringDataJpaAuditingSupportFilter filter = new TestAuditingFilter();
+        final MockHttpServletRequest request = new MockHttpServletRequest();
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain mockFilterChain = new MockFilterChain(new AssertionServlet("auditor@zalando.de"));
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final MockFilterChain mockFilterChain = new MockFilterChain(new AssertionServlet("auditor@zalando.de"));
         filter.doFilter(request, response, mockFilterChain);
 
-        String auditorAfterFilter = AuditorContextHolder.getContext().getAuditor();
+        final String auditorAfterFilter = AuditorContextHolder.getContext().getAuditor();
         Assert.assertNull(auditorAfterFilter);
     }
 
     static class TestAuditingFilter extends SpringDataJpaAuditingSupportFilter {
 
         @Override
-        String getAuditor(final HttpServletRequest servletRequest) {
+        protected String getAuditor(final HttpServletRequest servletRequest) {
             return "auditor@zalando.de";
         }
 
@@ -63,8 +63,8 @@ public class SpringDataJpaAuditingSupportFilterTest {
     static class XUsernameRequestHeaderAuditingFilter extends SpringDataJpaAuditingSupportFilter {
 
         @Override
-        String getAuditor(final HttpServletRequest servletRequest) {
-            String auditor = servletRequest.getHeader("X-USERNAME");
+        protected String getAuditor(final HttpServletRequest servletRequest) {
+            final String auditor = servletRequest.getHeader("X-USERNAME");
             return auditor;
         }
 
@@ -81,7 +81,7 @@ public class SpringDataJpaAuditingSupportFilterTest {
 
         @Override
         public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
-            String auditor = AuditorContextHolder.getContext().getAuditor();
+            final String auditor = AuditorContextHolder.getContext().getAuditor();
             Assert.assertEquals(templateAuditor, auditor);
         }
 

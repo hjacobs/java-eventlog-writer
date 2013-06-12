@@ -27,7 +27,7 @@ public abstract class SpringDataJpaAuditingSupportFilter implements Filter {
 
         final HttpServletRequest servletRequest = (HttpServletRequest) request;
 
-        String auditor = getAuditor(servletRequest);
+        final String auditor = getAuditor(servletRequest);
 
         // set the auditor
         AuditorContextHolder.getContext().setAuditor(auditor);
@@ -49,7 +49,7 @@ public abstract class SpringDataJpaAuditingSupportFilter implements Filter {
      *
      * @return
      */
-    abstract String getAuditor(final HttpServletRequest servletRequest);
+    protected abstract String getAuditor(final HttpServletRequest servletRequest);
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException { }
