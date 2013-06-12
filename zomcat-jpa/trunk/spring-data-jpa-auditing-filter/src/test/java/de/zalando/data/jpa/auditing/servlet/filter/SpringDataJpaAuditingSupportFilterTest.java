@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class SpringDataJpaAuditingSupportFilterTest {
 
     @Test
     public void testFilter() throws IOException, ServletException {
-        SpringDataJpaAuditingSupportFilter filter = new SpringDataJpaAuditingSupportFilter();
+        SpringDataJpaAuditingSupportFilter filter = new XUsernameRequestHeaderAuditingFilter();
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("X-USERNAME", AUDITOR);
 
@@ -39,10 +40,8 @@ public class SpringDataJpaAuditingSupportFilterTest {
 
     @Test
     public void testFilterSetDefault() throws IOException, ServletException {
-        SpringDataJpaAuditingSupportFilter filter = new SpringDataJpaAuditingSupportFilter();
+        SpringDataJpaAuditingSupportFilter filter = new TestAuditingFilter();
         MockHttpServletRequest request = new MockHttpServletRequest();
-        // NO HEADER SET
-        // request.addHeader("X-USERNAME", AUDITOR);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain mockFilterChain = new MockFilterChain(new AssertionServlet("auditor@zalando.de"));
@@ -50,6 +49,25 @@ public class SpringDataJpaAuditingSupportFilterTest {
 
         String auditorAfterFilter = AuditorContextHolder.getContext().getAuditor();
         Assert.assertNull(auditorAfterFilter);
+    }
+
+    static class TestAuditingFilter extends SpringDataJpaAuditingSupportFilter {
+
+        @Override
+        String getAuditor(final HttpServletRequest servletRequest) {
+            return "auditor@zalando.de";
+        }
+
+    }
+
+    static class XUsernameRequestHeaderAuditingFilter extends SpringDataJpaAuditingSupportFilter {
+
+        @Override
+        String getAuditor(final HttpServletRequest servletRequest) {
+            String auditor = servletRequest.getHeader("X-USERNAME");
+            return auditor;
+        }
+
     }
 
     @SuppressWarnings("serial")
