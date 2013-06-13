@@ -36,6 +36,10 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>de.zalando</groupId>
                 <artifactId>zalando-deploy-db-artifacts-plugin</artifactId>
                 <executions>
