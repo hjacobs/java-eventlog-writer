@@ -31,8 +31,22 @@ Unverständliche Fehlermeldungen
 -------------------------------
 
 ****
-WARNING Konstanze trägt was ein
+WARNING: 
 ****
+[cols=2]
+|===
+|Exception
+|Lösung
+
+|Caused by: org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line x in XML document from class path resource [xxxx.xml] is invalid; nested exception is org.xml.sax.SAXParseException; lineNumber: x; columnNumber: y; cvc-complex-type.2.4.c: Übereinstimmungsplatzhalter ist streng, aber es kann keine Deklaration für Element "abc:def" gefunden werden.
+|Überprüfen das: xmlns:abc="http://www.zalando.de/schema/data/jpa" und xsi:schemaLocation="http://www.zalando.de/schema/data/jpa http://www.zalando.de/schema/data/jpa/spring-abc-1.2.xsd"> valide sind, IDE kann Hinweise geben.
+
+|java.lang.IllegalStateException: Cannot apply class transformer without LoadTimeWeaver specified
+|Überlagerte Exception. Eigentlich steht eine nicht gefundene PersistenceUnit dahinter. Entweder in der xml oder der Javaconfig nach der Angabe der PersistenceUnit schauen, ob sie mit dem deklarierten Namen in der peristence.xml übereinstimmt.
+
+|org.springframework.dao.DataAccessResourceFailureException: Could not obtain sequence value; nested exception is java.sql.SQLException: Unexpected token: NEXTVAL in statement [select nextval(
+|Es sind mehrere Datenbank zu Testzwecken angegeben? Dann Überprüfung der verwendeten Datenbank für den fehlschlagenden Test durchführen
+
 
 zomcat-jpa-eclipselink
 ----------------------
