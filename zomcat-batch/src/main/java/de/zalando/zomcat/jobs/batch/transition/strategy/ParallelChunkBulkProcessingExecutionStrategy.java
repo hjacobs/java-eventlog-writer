@@ -141,16 +141,26 @@ public abstract class ParallelChunkBulkProcessingExecutionStrategy<ITEM_TYPE>
                                 }
 
                                 if (writeTime == WriteTime.AT_EACH_ITEM) {
-                                    write(successfulChunkItems, failedChunkItems);
-                                    successfulChunkItems.clear();
-                                    failedChunkItems.clear();
+                                    try {
+                                        write(successfulChunkItems, failedChunkItems);
+                                        successfulChunkItems.clear();
+                                        failedChunkItems.clear();
+                                    } catch (RuntimeException e) {
+                                        LOG.error("Could not write item [{}:{}]", new Object[] {chunkId, item, e});
+                                        throw e;
+                                    }
                                 }
                             }
 
                             if (writeTime == WriteTime.AT_EACH_CHUNK) {
-                                write(successfulChunkItems, failedChunkItems);
-                                successfulChunkItems.clear();
-                                failedChunkItems.clear();
+                                try {
+                                    write(successfulChunkItems, failedChunkItems);
+                                    successfulChunkItems.clear();
+                                    failedChunkItems.clear();
+                                } catch (RuntimeException e) {
+                                    LOG.error("Could not write chunk [{}]", chunkId, e);
+                                    throw e;
+                                }
                             }
 
                             return Pair.of(successfulItems, failedItems);
