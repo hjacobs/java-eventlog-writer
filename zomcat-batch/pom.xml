@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat Batch</name>
     <description>Batch Processing Support Classes (bulk processing jobs)</description>
-    <version>1.0.21</version>
+    <version>1.0.22</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
