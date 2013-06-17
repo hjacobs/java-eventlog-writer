@@ -6,11 +6,10 @@ import java.util.jar.Manifest;
 
 import org.apache.commons.io.IOUtils;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.zalando.domain.Environment;
-
-import junit.framework.Assert;
 
 public class AppInstanceContextProviderTest {
     @Test
