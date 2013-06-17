@@ -45,8 +45,6 @@ import com.jolbox.bonecp.Statistics;
 import com.jolbox.bonecp.spring.DynamicDataSourceProxy;
 
 import de.zalando.zomcat.HostStatus;
-import de.zalando.zomcat.spread.HeartbeatInformation;
-import de.zalando.zomcat.spread.SpreadServiceInformation;
 
 /**
  * @author  Guy Youansi
@@ -101,7 +99,6 @@ public class StatusServlet extends HttpServlet {
         getHostInfos(pageContent);
         getDataSourceInfos(pageContent);
         getThreadInfos(pageContent);
-        getSpreadHeartbeat(pageContent);
 
         response.setContentType("text/plain");
 
@@ -134,97 +131,6 @@ public class StatusServlet extends HttpServlet {
         } catch (Exception e) {
             // ignore
         }
-    }
-
-    private void getSpreadHeartbeat(final StringBuilder pageContent) throws ServletException {
-        final ApplicationContext applicationContext = getApplicationContext(getServletConfig());
-
-        HeartbeatInformation heartbeatOperationHandler = null;
-
-        try {
-            heartbeatOperationHandler = (HeartbeatInformation) applicationContext.getBean("heartbeatOperationHandler");
-        } catch (final Exception e) {
-            LOG.info("heartbeatOperationHandler not found => no spread message received information");
-        }
-
-        pageContent.append("last spread message received=");
-
-        if (heartbeatOperationHandler != null) {
-            pageContent.append(heartbeatOperationHandler.getLastMessageReceived());
-        } else {
-            pageContent.append("null");
-        }
-
-        pageContent.append(NEW_LINE);
-
-        pageContent.append("last spread message received as date=");
-
-        if ((heartbeatOperationHandler != null) && (heartbeatOperationHandler.getLastMessageReceived() != null)) {
-            pageContent.append(FDF.format(heartbeatOperationHandler.getLastMessageReceived()));
-        } else {
-            pageContent.append("null");
-        }
-
-        pageContent.append(NEW_LINE);
-
-        SpreadServiceInformation spreadService = null;
-
-        try {
-            spreadService = (SpreadServiceInformation) applicationContext.getBean("spreadService");
-        } catch (final Exception e) {
-            LOG.info("spreadService not found => no spread message received information");
-        }
-
-        pageContent.append("last spread message send=");
-
-        if (spreadService != null) {
-            pageContent.append(spreadService.getLastSuccessfulMessageTime());
-        } else {
-            pageContent.append("null");
-        }
-
-        pageContent.append(NEW_LINE);
-
-        pageContent.append("last spread message send as date=");
-
-        if ((spreadService != null) && (spreadService.getLastSuccessfulMessageTime() != null)) {
-            pageContent.append(FDF.format(spreadService.getLastSuccessfulMessageTime()));
-        } else {
-            pageContent.append("null");
-        }
-
-        pageContent.append(NEW_LINE);
-
-        pageContent.append("last failed spread message=");
-
-        if (spreadService != null) {
-            pageContent.append(spreadService.getLastFailureMessageTime());
-        } else {
-            pageContent.append("null");
-        }
-
-        pageContent.append(NEW_LINE);
-
-        pageContent.append("last failed spread message as date=");
-
-        if ((spreadService != null) && (spreadService.getLastFailureMessageTime() != null)) {
-            pageContent.append(FDF.format(spreadService.getLastFailureMessageTime()));
-        } else {
-            pageContent.append("null");
-        }
-
-        pageContent.append(NEW_LINE);
-
-        pageContent.append("total number of send spread message failures=");
-
-        if (spreadService != null) {
-            pageContent.append(spreadService.getNumberOfSendFailures());
-        } else {
-            pageContent.append("null");
-        }
-
-        pageContent.append(NEW_LINE);
-
     }
 
     private static MBeanServer getMBeanServer() {
