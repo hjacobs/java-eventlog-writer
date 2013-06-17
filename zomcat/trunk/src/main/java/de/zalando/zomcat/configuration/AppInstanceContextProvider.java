@@ -180,12 +180,11 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
     }
 
     /**
-     * Tries to get the ServletContext via Spring's ContextLoader and then open the MANIFEST.MF file from the classpath.
-     * Will not work locally or in unit tests
+     * Tries to open the MANIFEST.MF via the given ServletContext.
      *
      * @return  AppInstanceContextProvider
      */
-    public static AppInstanceContextProvider fromSpringWebApplicationContext() {
+    public static AppInstanceContextProvider fromServletContext(final ServletContext context) {
         final String instanceCode = System.getProperty(SystemConstants.SYSTEM_PROPERTY_NAME_JVM_PROCESS_NAME);
         String host;
 
@@ -196,27 +195,41 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
             host = null;
         }
 
-        try {
-            WebApplicationContext wac = ContextLoader.getCurrentWebApplicationContext();
-            if (wac != null) {
-                ServletContext context = wac.getServletContext();
-                if (context != null) {
-                    InputStream is = context.getResourceAsStream(MANIFEST_PATH);
-                    if (is != null) {
-                        return new AppInstanceContextProvider(host, instanceCode, new Manifest(is));
-                    } else {
-                        LOG.debug("Unable to read META-INF/MANIFEST.MF, probably running locally");
-                    }
+        if (context != null) {
+            try {
+                final InputStream is = context.getResourceAsStream(MANIFEST_PATH);
+                if (is != null) {
+                    return new AppInstanceContextProvider(host, instanceCode, new Manifest(is));
                 } else {
-                    LOG.debug("Unable to get ServletContext from WebApplicationContext");
+                    LOG.debug("Unable to read META-INF/MANIFEST.MF, probably running locally");
                 }
-            } else {
-                LOG.debug("Unable to get WebApplicationContext, probably not running in a spring web application");
+            } catch (IOException e) {
+                LOG.debug("Unable to read META-INF/MANIFEST.MF", e);
             }
-        } catch (IOException e) {
-            LOG.debug("Unable to read META-INF/MANIFEST.MF", e);
         }
 
         return new AppInstanceContextProvider(host, instanceCode, null);
     }
+
+    /**
+     * Tries to get the ServletContext via Spring's ContextLoader. Will not work locally or in unit tests
+     *
+     * @return  AppInstanceContextProvider
+     */
+    public static AppInstanceContextProvider fromSpringWebApplicationContext() {
+        final WebApplicationContext wac = ContextLoader.getCurrentWebApplicationContext();
+        if (wac != null) {
+            final ServletContext context = wac.getServletContext();
+            if (context != null) {
+                return fromServletContext(context);
+            } else {
+                LOG.debug("Unable to get ServletContext from WebApplicationContext");
+            }
+        } else {
+            LOG.debug("Unable to get WebApplicationContext, probably not running in a spring web application");
+        }
+
+        return fromServletContext(null);
+    }
+
 }
