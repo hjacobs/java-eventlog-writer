@@ -17,6 +17,7 @@
     </organization>
     <properties>
         <test.src.dir>src/test/java</test.src.dir>
+        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <build>
         <resources>
