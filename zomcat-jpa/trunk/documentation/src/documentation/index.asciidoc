@@ -31,7 +31,7 @@ Unverständliche Fehlermeldungen
 -------------------------------
 
 ****
-WARNING: 
+WARNING:
 ****
 [cols=2]
 |===
@@ -68,9 +68,9 @@ von Tabellen und Spalten.
         <properties>
 
             <!-- Customizer for Zalando Tabellen- und Spalten-Namen -->
-            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.DefaultZomcatSessionCustomizer"/>
+            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer"/>
             <!-- Use special EnumConverter to work with Progress -->
-            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.PostgresZomcatSessionCustomizer"/>-->
+            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.PostgresZomcatSessionCustomizer"/>-->
             <!-- Custom SessionLog implementation to use SLF4J -->
             <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
 
@@ -252,14 +252,14 @@ In your cxf.xml File add the following
             </entry>
         </cxf:properties>
         <cxf:inInterceptors>
-            <!-- 
+            <!--
                 MAYBE MORE INBOUND INTERCEPTORS
             -->
             <ref bean="auditorContextInboundInterceptor"/>
         </cxf:inInterceptors>
         <cxf:outInterceptors>
-            <!-- 
-                MAYBE MORE OUTBOUND INTERCEPTORS 
+            <!--
+                MAYBE MORE OUTBOUND INTERCEPTORS
             -->
             <ref bean="auditorContextOutboundInterceptor"/>
         </cxf:outInterceptors>

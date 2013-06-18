@@ -14,7 +14,7 @@
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
             <property name="eclipselink.ddl-generation.output-mode" value="database"/>
             <property name="eclipselink.weaving" value="dynamic" />
-            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.DefaultZomcatSessionCustomizer"/>
+            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer"/>
             <!-- custom SessionLog implementation to use apache commons logging 1.1 API (so log4J) -->
             <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Log4jSessionLog"/>
             <property name="eclipselink.logging.timestamp" value="false"/>
