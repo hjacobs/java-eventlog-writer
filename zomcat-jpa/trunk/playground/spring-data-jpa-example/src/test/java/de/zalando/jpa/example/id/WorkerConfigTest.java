@@ -16,11 +16,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.auditing.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -33,7 +35,6 @@ import de.zalando.jpa.springframework.ExtendedEclipseLinkJpaVendorAdapter;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @Transactional
-@ActiveProfiles("HSQL")
 public class WorkerConfigTest {
 
     @Autowired
@@ -74,8 +75,11 @@ public class WorkerConfigTest {
     @EnableJpaAuditing
     static class TestConfig {
 
-        @Autowired
-        private DataSource dataSource;
+        @Bean
+        public DataSource dataSource() {
+            EmbeddedDatabaseBuilder dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL);
+            return dataSource.build();
+        }
 
         @Bean
         public PlatformTransactionManager transactionManager() {
@@ -95,7 +99,7 @@ public class WorkerConfigTest {
             LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
             factory.setPersistenceUnitName("idExample");
             factory.setJpaVendorAdapter(vendorAdapter);
-            factory.setDataSource(dataSource);
+            factory.setDataSource(dataSource());
 
             return factory;
         }

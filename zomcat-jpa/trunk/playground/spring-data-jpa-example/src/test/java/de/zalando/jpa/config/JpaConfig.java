@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.jpa.support.ClasspathScanningPersistenceUnitPostProcessor;
 
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -28,8 +26,6 @@ import de.zalando.jpa.springframework.ExtendedEclipseLinkJpaVendorAdapter;
  */
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "de.zalando.production.repository")
-@ImportResource("classpath:/enableAuditing.xml")
 public class JpaConfig {
 
     @Configuration
