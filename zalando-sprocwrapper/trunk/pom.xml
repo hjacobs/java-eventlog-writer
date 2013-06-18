@@ -19,7 +19,6 @@
     <properties>
         <antrun.version>1.3</antrun.version>
         <test.src.dir>src/test/java</test.src.dir>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <organization>
         <name>Zalando/Technology/Platform</name>
