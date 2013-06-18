@@ -11,6 +11,9 @@
         <name>Zalando/Technology/Backend/Purchasing</name>
     </organization>
     <description>Spring-Data-JPA Auditing Java Config</description>
+    <properties>
+        <project.build_env.maven>maven3</project.build_env.maven>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.data</groupId>

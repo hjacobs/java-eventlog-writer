@@ -11,6 +11,9 @@
     </organization>
     <description>Small extension to Spring-Data for Auditing</description>
     <artifactId>spring-data-jpa-auditing-cxf</artifactId>
+    <properties>
+        <project.build_env.maven>maven3</project.build_env.maven>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

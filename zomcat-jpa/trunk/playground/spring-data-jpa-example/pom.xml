@@ -19,6 +19,7 @@
         <test.db.name>zalando_test</test.db.name>
         <test.src.dir>src/test/java</test.src.dir>
         <zomcat.jpa.version>1.4.2-SNAPSHOT</zomcat.jpa.version>
+        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
         <dependency>
