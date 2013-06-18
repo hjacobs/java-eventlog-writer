@@ -23,6 +23,9 @@
         <name>Zalando/Technology/Backend/Payment</name>
     </organization>
 
+    <properties>
+        <project.build_env.maven>maven3</project.build_env.maven>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
