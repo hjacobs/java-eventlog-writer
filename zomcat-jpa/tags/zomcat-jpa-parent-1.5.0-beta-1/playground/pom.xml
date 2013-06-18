@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>de.zalando</groupId>
+        <artifactId>zomcat-jpa-parent</artifactId>
+        <version>1.4.2-SNAPSHOT</version>
+    </parent>
+    <groupId>de.zalando</groupId>
+    <artifactId>playground</artifactId>
+    <packaging>pom</packaging>
+    <name>Zomcat JPA Parent for Playground</name>
+    <description>Module contains example how to use zomcat-jpa</description>
+    <organization>
+        <name>Zalando/Technology/Platform</name>
+    </organization>
+    <properties>
+        <zomcat.jpa.version>1.4.0-SNAPSHOT</zomcat.jpa.version>
+        <project.build_env.maven>maven3</project.build_env.maven>
+    </properties>
+    <modules>
+        <module>spring-data-jpa-example</module>
+    </modules>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <configuration>
+                        <skip>false</skip>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <profiles>
+        <profile>
+            <id>withLoadTimeWeaving</id>
+            <modules>
+                <module>spring-data-jpa-loadtime-weaving</module>
+                <module>spring-data-jpa-static-weaving</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>
