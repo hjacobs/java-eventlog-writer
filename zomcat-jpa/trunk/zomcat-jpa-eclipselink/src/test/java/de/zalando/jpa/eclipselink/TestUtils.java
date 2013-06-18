@@ -17,7 +17,7 @@ public final class TestUtils {
     }
 
     public static Vector<DatabaseMapping> createVectorOf(final DatabaseMapping... databaseMappings) {
-        final Vector v = new Vector();
+        final Vector<DatabaseMapping> v = new Vector<>();
         v.addAll(Arrays.asList(databaseMappings));
         return v;
     }

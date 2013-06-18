@@ -1,6 +1,6 @@
 package de.zalando.jpa.eclipselink;
 
-enum Status {
+public enum Status {
 
     INITIAL,
     ORDERED;
