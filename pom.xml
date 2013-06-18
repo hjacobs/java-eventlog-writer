@@ -15,7 +15,10 @@
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
-    <dependencies>
+    <properties>
+        <project.build_env.maven>maven3</project.build_env.maven>
+    </properties>
+     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat</artifactId>
