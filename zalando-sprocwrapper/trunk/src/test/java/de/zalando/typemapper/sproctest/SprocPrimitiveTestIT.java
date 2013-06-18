@@ -55,7 +55,9 @@ public class SprocPrimitiveTestIT extends AbstractTest {
     @Test
     public void testPrimitivesWithSearchPath() throws SQLException {
         connection.createStatement().execute("set search_path to tmp2,tmp");
-        DbFunctionRegister.reInitRegistry(connection);
+
+        DbFunctionRegister db = new DbFunctionRegister(connection);
+        db.reInitRegistry(connection);
 
         final PreparedStatement ps = connection.prepareStatement("SELECT primitives_function();");
         final ResultSet rs = ps.executeQuery();
@@ -72,7 +74,9 @@ public class SprocPrimitiveTestIT extends AbstractTest {
     @Test
     public void testObjectArray() throws SQLException {
         connection.createStatement().execute("set search_path to tmp,tmp2");
-        DbFunctionRegister.reInitRegistry(connection);
+
+        DbFunctionRegister db = new DbFunctionRegister(connection);
+        db.reInitRegistry(connection);
 
         final PreparedStatement ps = connection.prepareStatement("SELECT tmp.array_function();");
         final ResultSet rs = ps.executeQuery();
