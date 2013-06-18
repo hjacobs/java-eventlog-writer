@@ -36,6 +36,33 @@ import com.google.gson.JsonSerializer;
 
 import de.zalando.zomcat.proxy.ProxyUtils;
 
+/**
+ * This is a general purpose JSON serializer. Objects that are wrapped in proxy objects (CGLIB) can be serialized as
+ * well. This class can be registered as a jax-rs provider in your project's cxf file:
+ *
+ * <pre>
+                               &lt;jaxrs:providers>
+                                   &lt;bean class="de.zalando.zomcat.cxf.GsonJsonProvider">&lt;/bean>
+                               &lt;/jaxrs:providers>
+ * </pre>
+ *
+ * Furthermore you can define custom serializers to handle special cases. For example:
+ *
+ * <pre>
+                       &lt;bean class="de.zalando.zomcat.cxf.GsonJsonProvider">
+                            &lt;property name="serializers">
+                                &lt;map>
+                                    &lt;entry>
+                                        &lt;key>
+                                            &lt;value>de.zalando.catalog.domain.sku.SimpleSku&lt;/value>
+                                        &lt;/key>
+                                        &lt;value>de.zalando.catalog.cxf.serializer.ShortSkuSerializer&lt;/value>
+                                    &lt;/entry>
+                                &lt;/map>
+                            &lt;/property>
+                      &lt;/bean>
+ * </pre>
+ */
 @Provider
 @Consumes({ MediaType.APPLICATION_JSON, "text/json" })
 @Produces({ MediaType.APPLICATION_JSON, "text/json" })
