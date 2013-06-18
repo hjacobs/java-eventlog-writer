@@ -12,6 +12,9 @@
     <name>Zomcat Base</name>
     <description>Zomcat Support Classes: Servlets (heartbeat, status, toggle), AbstractJob, Flow-ID, ..</description>
     <version>1.2.14</version>
+    <properties>
+        <project.build_env.maven>maven3</project.build_env.maven>
+    </properties>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
