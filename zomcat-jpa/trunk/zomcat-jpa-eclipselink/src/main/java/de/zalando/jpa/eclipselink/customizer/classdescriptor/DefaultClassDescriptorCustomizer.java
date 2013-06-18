@@ -2,7 +2,11 @@ package de.zalando.jpa.eclipselink.customizer.classdescriptor;
 
 import java.util.Map;
 
+import org.eclipse.persistence.annotations.ChangeTrackingType;
 import org.eclipse.persistence.descriptors.ClassDescriptor;
+import org.eclipse.persistence.descriptors.changetracking.AttributeChangeTrackingPolicy;
+import org.eclipse.persistence.descriptors.changetracking.DeferredChangeDetectionPolicy;
+import org.eclipse.persistence.descriptors.changetracking.ObjectChangeTrackingPolicy;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.sessions.Session;
 
@@ -27,11 +31,23 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
 
     private static final NoOpColumnNameCustomizer NOOPCOLUMNNAMECUSTOMIZER = new NoOpColumnNameCustomizer();
 
+    private static final String SET_OBJECT_CHANGE_POLICY_TO = "Set ObjectChangePolicy to {0}";
+    public static final String USE_DEFAULT_CHANGE_TRACKING_POLICY = "Use default change tracking policy";
+    public static final String COULD_NOT_DETERMINE_CHANGE_TRACKING_TYPE =
+        "Could not determine ChangeTrackingType for property value '{0}'. Use AUTO.";
+
+    public static final String DEFERRED_CHANGE_DETECTION_POLICY = "DeferredChangeDetectionPolicy";
+    public static final String OBJECT_CHANGE_TRACKING_POLICY = "ObjectChangeTrackingPolicy";
+    public static final String ATTRIBUTE_CHANGE_TRACKING_POLICY = "AttributeChangeTrackingPolicy";
+
     public DefaultClassDescriptorCustomizer() { }
 
     @Override
     public void customize(final ClassDescriptor clazzDescriptor, final Session session) {
         logFine(session, "----  Customize for entity {0} ----\n", clazzDescriptor.getJavaClassName());
+
+        customizeObjectChangePolicy(clazzDescriptor, session);
+
         for (DatabaseMapping databaseMapping : clazzDescriptor.getMappings()) {
             logFine(session, "Field : {0}", databaseMapping.getAttributeName());
 
@@ -55,6 +71,40 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
         }
 
         logFine(session, "----  Entity {0} customized  ----\n", clazzDescriptor.getJavaClassName());
+    }
+
+    private void customizeObjectChangePolicy(final ClassDescriptor clazzDescriptor, final Session session) {
+        final String propertyValue = (String) session.getProperty(ZOMCAT_JPA_CHANGE_TRACKER_TYPE);
+        ChangeTrackingType changeTrackingType;
+
+        try {
+            changeTrackingType = ChangeTrackingType.valueOf(propertyValue);
+        } catch (Exception e) {
+            logWarning(session, COULD_NOT_DETERMINE_CHANGE_TRACKING_TYPE, propertyValue);
+            changeTrackingType = ChangeTrackingType.AUTO;
+        }
+
+        switch (changeTrackingType) {
+
+            case DEFERRED :
+                clazzDescriptor.setObjectChangePolicy(new DeferredChangeDetectionPolicy());
+                logFine(session, SET_OBJECT_CHANGE_POLICY_TO, DEFERRED_CHANGE_DETECTION_POLICY);
+                break;
+
+            case OBJECT :
+                clazzDescriptor.setObjectChangePolicy(new ObjectChangeTrackingPolicy());
+                logFine(session, SET_OBJECT_CHANGE_POLICY_TO, OBJECT_CHANGE_TRACKING_POLICY);
+                break;
+
+            case ATTRIBUTE :
+                clazzDescriptor.setObjectChangePolicy(new AttributeChangeTrackingPolicy());
+                logFine(session, SET_OBJECT_CHANGE_POLICY_TO, ATTRIBUTE_CHANGE_TRACKING_POLICY);
+                break;
+
+            case AUTO :
+            default :
+                logFine(session, USE_DEFAULT_CHANGE_TRACKING_POLICY);
+        }
     }
 
     protected boolean isNoOpCustomizer(final ColumnNameCustomizer<DatabaseMapping> columnNameCustomizer) {

@@ -1,12 +1,15 @@
 package de.zalando.jpa.eclipselink.customizer.classdescriptor;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.mappings.DirectToFieldMapping;
 import org.eclipse.persistence.mappings.ManyToOneMapping;
 import org.eclipse.persistence.mappings.OneToManyMapping;
 import org.eclipse.persistence.oxm.mappings.XMLInverseReferenceMapping;
 
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ColumnNameCustomizer;
@@ -22,11 +25,16 @@ import de.zalando.jpa.eclipselink.customizer.databasemapping.OneToManyMappingCol
  */
 public class ClassDescriptorCustomizerTest {
 
+    private DefaultClassDescriptorCustomizer classDescriptorCustomizer;
+
+    @Before
+    public void setUp() throws Exception {
+        classDescriptorCustomizer = new DefaultClassDescriptorCustomizer();
+    }
+
     @Test
     public void testNoOpColumnNameCustomizer() {
-        DefaultClassDescriptorCustomizer clazzDescriptorCustomizer = new DefaultClassDescriptorCustomizer();
-
-        ColumnNameCustomizer<DatabaseMapping> result = clazzDescriptorCustomizer.getColumnNameCustomizer(
+        ColumnNameCustomizer<DatabaseMapping> result = classDescriptorCustomizer.getColumnNameCustomizer(
                 new XMLInverseReferenceMapping());
 
         assertCustomizer(result, NoOpColumnNameCustomizer.class);
@@ -35,37 +43,35 @@ public class ClassDescriptorCustomizerTest {
     @Test
     public void testColumnNameCustomizerSelection() {
 
-        DefaultClassDescriptorCustomizer clazzDescriptorCustomizer = new DefaultClassDescriptorCustomizer();
-
         // columnNames
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
+        classDescriptorCustomizer.registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
+        classDescriptorCustomizer.registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
+        classDescriptorCustomizer.registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
 
         // enumConverter
-        clazzDescriptorCustomizer.registerConverterCustomizer(new DirectToFieldMappingEnumTypeConverterCustomizer());
+        classDescriptorCustomizer.registerConverterCustomizer(new DirectToFieldMappingEnumTypeConverterCustomizer());
 
         // invoke
-        ColumnNameCustomizer<DatabaseMapping> result = clazzDescriptorCustomizer.getColumnNameCustomizer(
+        ColumnNameCustomizer<DatabaseMapping> result = classDescriptorCustomizer.getColumnNameCustomizer(
                 new DirectToFieldMapping());
 
         // assert
         assertCustomizer(result, DirectToFieldMappingColumnNameCustomizer.class);
 
         // invoke
-        result = clazzDescriptorCustomizer.getColumnNameCustomizer(new ManyToOneMapping());
+        result = classDescriptorCustomizer.getColumnNameCustomizer(new ManyToOneMapping());
 
         // assert
         assertCustomizer(result, ManyToOneMappingColumnNameCustomizer.class);
 
         // invoke
-        result = clazzDescriptorCustomizer.getColumnNameCustomizer(new OneToManyMapping());
+        result = classDescriptorCustomizer.getColumnNameCustomizer(new OneToManyMapping());
 
         // assert
         assertCustomizer(result, OneToManyMappingColumnNameCustomizer.class);
 
         ConverterCustomizer<DatabaseMapping> converterCustomizerResult =
-            clazzDescriptorCustomizer.getConverterCustomizer(new DirectToFieldMapping());
+            classDescriptorCustomizer.getConverterCustomizer(new DirectToFieldMapping());
 
         assertConverter(converterCustomizerResult, DirectToFieldMappingEnumTypeConverterCustomizer.class);
 
@@ -73,16 +79,15 @@ public class ClassDescriptorCustomizerTest {
 
     private void assertConverter(final ConverterCustomizer<DatabaseMapping> converterCustomizerResult,
             final Class<?> clazz) {
-        Assert.assertNotNull(converterCustomizerResult);
-        Assert.assertEquals(clazz, converterCustomizerResult.getClass());
+        assertNotNull(converterCustomizerResult);
+        assertEquals(clazz, converterCustomizerResult.getClass());
 
     }
 
     protected void assertCustomizer(final ColumnNameCustomizer<DatabaseMapping> customizer,
             final Class<?> expectedClass) {
-        Assert.assertNotNull("Customizer should not be null", customizer);
-        Assert.assertEquals("Class of ColumnNameCustomizer does not match expected CustomizerClass", expectedClass,
+        assertNotNull("Customizer should not be null", customizer);
+        assertEquals("Class of ColumnNameCustomizer does not match expected CustomizerClass", expectedClass,
             customizer.getClass());
     }
-
 }

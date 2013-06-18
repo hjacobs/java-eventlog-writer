@@ -14,6 +14,8 @@ import de.zalando.jpa.eclipselink.customizer.databasemapping.ConverterCustomizer
  */
 public interface ClassDescriptorCustomizer {
 
+    String ZOMCAT_JPA_CHANGE_TRACKER_TYPE = "zomcatJpa.changeTracker.type";
+
     void customize(ClassDescriptor clazzDescriptor, Session session);
 
     void registerColumnNameCustomizer(ColumnNameCustomizer columnNameCustomizer);
