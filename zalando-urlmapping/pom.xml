@@ -16,6 +16,9 @@
     </organization>
     <build>
     </build>
+    <properties>
+        <project.build_env.maven>maven3</project.build_env.maven>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
