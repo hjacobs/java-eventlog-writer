@@ -47,6 +47,7 @@ WARNING:
 |org.springframework.dao.DataAccessResourceFailureException: Could not obtain sequence value; nested exception is java.sql.SQLException: Unexpected token: NEXTVAL in statement [select nextval(
 |Es sind mehrere Datenbank zu Testzwecken angegeben? Dann Überprüfung der verwendeten Datenbank für den fehlschlagenden Test durchführen
 
+|===
 
 zomcat-jpa-eclipselink
 ----------------------
