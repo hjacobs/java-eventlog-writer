@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.zalando</groupId>
         <artifactId>playground</artifactId>
-        <version>1.4.2-SNAPSHOT</version>
+        <version>1.5.0-SNAPSHOT</version>
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>spring-data-jpa-example</artifactId>
@@ -16,9 +16,8 @@
     <properties>
         <test.db.host>localhost</test.db.host>
         <test.db.port>5432</test.db.port>
-        <test.db.name>zalando_test</test.db.name>
+        <test.db.name>local_zomcat_jpa_db</test.db.name>
         <test.src.dir>src/test/java</test.src.dir>
-        <zomcat.jpa.version>1.4.2-SNAPSHOT</zomcat.jpa.version>
         <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
@@ -133,7 +132,8 @@
             <id>integration-test</id>
             <properties>
                 <test.db.name>local_zomcat_jpa_db</test.db.name>
-                <unit.test.skip>false</unit.test.skip>            </properties>
+                <unit.test.skip>false</unit.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -148,7 +148,8 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <reportsDirectory>${project.basedir}/target/failsafe-reports</reportsDirectory>
-                            <systemPropertyVariables>                                <frontend.sproc.datasource.username>postgres</frontend.sproc.datasource.username>
+                            <systemPropertyVariables>
+                                <frontend.sproc.datasource.username>postgres</frontend.sproc.datasource.username>
                                 <frontend.sproc.datasource.password>postgres</frontend.sproc.datasource.password>
                                 <frontend.sproc.datasource.url>
                                     jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name}
