@@ -19,6 +19,7 @@
         <test.db.name>local_zomcat_jpa_db</test.db.name>
         <test.src.dir>src/test/java</test.src.dir>
         <project.build_env.maven>maven3</project.build_env.maven>
+        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
         <dependency>
