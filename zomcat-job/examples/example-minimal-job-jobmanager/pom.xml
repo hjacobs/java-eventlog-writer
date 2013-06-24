@@ -8,7 +8,10 @@
    <name>Example Job Manager</name>
    <version>0.1-SNAPSHOT</version>
    <description>Example minimal job manager project</description>
-   <organization>
+   <properties>
+        <project.build_env.maven>maven3</project.build_env.maven>
+    </properties>
+    <organization>
       <name>Zalando/Technology/Platform</name>
    </organization>
    <modules>
