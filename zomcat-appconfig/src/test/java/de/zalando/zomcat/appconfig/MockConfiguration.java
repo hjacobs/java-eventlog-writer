@@ -1,5 +1,7 @@
 package de.zalando.zomcat.appconfig;
 
+import java.lang.reflect.Type;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +18,7 @@ import de.zalando.appconfig.cache.ConfigurationCache;
 
 public class MockConfiguration implements Configuration {
 
-    private Map<String, String> values = Maps.newHashMap();
+    private final Map<String, String> values = Maps.newHashMap();
 
     private String getKey(final String key) {
         return getKey(key, null);
@@ -369,4 +371,15 @@ public class MockConfiguration implements Configuration {
     public ConfigurationCache getCachingPolicy() {
         return null; // To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public <T> T getConfig(final String key, final ConfigCtx context, final Class<T> resultType) {
+        return null;
+    }
+
+    @Override
+    public <T> T getConfig(final String key, final ConfigCtx context, final Type resultType) {
+        return null;
+    }
+
 }
