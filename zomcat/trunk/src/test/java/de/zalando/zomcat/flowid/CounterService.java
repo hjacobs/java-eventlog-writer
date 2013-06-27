@@ -1,11 +1,9 @@
 package de.zalando.zomcat.flowid;
 
-import org.springframework.context.annotation.Scope;
-
 import org.springframework.stereotype.Component;
 
 @Component
-@Scope("flow")
+@FlowScoped
 public class CounterService {
 
     private int counter = 0;
