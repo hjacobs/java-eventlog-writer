@@ -22,4 +22,8 @@ public interface SystemConstants {
      */
     String SYSTEM_NAME_FOR_LOCAL_INSTANCE = "local_local";
 
+    /**
+     * absolute path to the MANIFEST.MF file written by deployctl.
+     */
+    String SYSTEM_PATH_TO_MANIFEST = "/data/zalando/processes/%s/ROOT/META-INF/MANIFEST.MF";
 }

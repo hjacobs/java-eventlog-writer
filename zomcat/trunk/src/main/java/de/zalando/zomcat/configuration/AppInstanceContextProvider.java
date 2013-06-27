@@ -5,6 +5,10 @@ import java.io.InputStream;
 
 import java.net.UnknownHostException;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,9 +17,6 @@ import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.google.common.base.Strings;
 
@@ -184,6 +185,7 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
      *
      * @return  AppInstanceContextProvider
      */
+    @Deprecated
     public static AppInstanceContextProvider fromServletContext(final ServletContext context) {
         final String instanceCode = System.getProperty(SystemConstants.SYSTEM_PROPERTY_NAME_JVM_PROCESS_NAME);
         String host;
@@ -216,20 +218,39 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
      *
      * @return  AppInstanceContextProvider
      */
+    @Deprecated
     public static AppInstanceContextProvider fromSpringWebApplicationContext() {
-        final WebApplicationContext wac = ContextLoader.getCurrentWebApplicationContext();
-        if (wac != null) {
-            final ServletContext context = wac.getServletContext();
-            if (context != null) {
-                return fromServletContext(context);
-            } else {
-                LOG.debug("Unable to get ServletContext from WebApplicationContext");
-            }
-        } else {
-            LOG.debug("Unable to get WebApplicationContext, probably not running in a spring web application");
+        return fromManifestOnFilesystem();
+    }
+
+    /**
+     * Tries to read the MANIFEST.MF from the local filesystem using it's absolute path
+     * (/data/zalando/processes/{jvm.process.name}/ROOT/META-INF/MANIFEST.MF).
+     *
+     * @return  AppInstanceContextProvider
+     */
+    public static AppInstanceContextProvider fromManifestOnFilesystem() {
+        final String instanceCode = System.getProperty(SystemConstants.SYSTEM_PROPERTY_NAME_JVM_PROCESS_NAME);
+        String host;
+
+        try {
+            host = java.net.InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            LOG.debug("Unable to get hostname", e);
+            host = null;
         }
 
-        return fromServletContext(null);
+        if (instanceCode != null) {
+            final Path path = Paths.get(String.format(SystemConstants.SYSTEM_PATH_TO_MANIFEST, instanceCode));
+            try {
+                final InputStream is = Files.newInputStream(path);
+                return new AppInstanceContextProvider(host, instanceCode, new Manifest(is));
+            } catch (IOException e) {
+                LOG.debug("Unable to read MANIFEST.MF from filesystem, should only happen locally {}", path.toString());
+            }
+        }
+
+        return new AppInstanceContextProvider(host, instanceCode, null);
     }
 
 }
