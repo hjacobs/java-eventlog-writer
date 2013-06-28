@@ -21,7 +21,7 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     private HeartbeatMode heartbeatMode = HeartbeatMode.OK;
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.HeartbeatStatusMBean#toggleHeartbeatMode()
+     * @see  HeartbeatStatusMBean#toggleHeartbeatMode()
      */
     @ManagedOperation(description = "Toggles the HeartbeatMode between OK and DEPLOY")
     @Override
@@ -36,7 +36,7 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.HeartbeatStatusMBean#getHeartbeatMode()
+     * @see  HeartbeatStatusMBean#getHeartbeatMode()
      */
     @ManagedOperation(description = "Returns the actual HeartbeatMode")
     @Override
@@ -74,7 +74,7 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.HeartbeatStatusMBean#setHeartbeatMode(HeartbeatMode)
+     * @see  HeartbeatStatusMBean#setHeartbeatMode(HeartbeatMode)
      */
     @ManagedOperation(description = "sets the new HeartbeatMode")
     @Override
@@ -83,7 +83,7 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.HeartbeatStatusMBean#setHeartbeatMode(java.lang.String)
+     * @see  HeartbeatStatusMBean#setHeartbeatMode(java.lang.String)
      */
     @ManagedOperation(description = "sets the new HeartbeatMode")
     @Override

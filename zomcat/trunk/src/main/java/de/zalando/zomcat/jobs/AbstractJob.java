@@ -214,7 +214,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getId()
+     * @see  RunningWorker#getId()
      */
     @Override
     public int getId() {
@@ -222,7 +222,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getActualProcessedItemNumber()
+     * @see  RunningWorker#getActualProcessedItemNumber()
      */
     @Override
     public Integer getActualProcessedItemNumber() {
@@ -230,7 +230,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getStartTime()
+     * @see  RunningWorker#getStartTime()
      */
     @Override
     public DateTime getStartTime() {
@@ -238,7 +238,7 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getTotalNumberOfItemsToBeProcessed()
+     * @see  RunningWorker#getTotalNumberOfItemsToBeProcessed()
      */
     @Override
     public Integer getTotalNumberOfItemsToBeProcessed() {

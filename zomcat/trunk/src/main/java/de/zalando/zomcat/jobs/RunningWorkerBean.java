@@ -80,7 +80,7 @@ public class RunningWorkerBean implements RunningWorker, Serializable {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getStartTime()
+     * @see  RunningWorker#getStartTime()
      */
     @Override
     public DateTime getStartTime() {
@@ -90,14 +90,14 @@ public class RunningWorkerBean implements RunningWorker, Serializable {
     protected static final DateTimeFormatter DTF = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS");
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getStartTime()
+     * @see  RunningWorker#getStartTime()
      */
     public String getStartTimeFormatted() {
         return DTF.print(startTime);
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getInternalStartTime()
+     * @see  RunningWorker#getInternalStartTime()
      */
     @Override
     public DateTime getInternalStartTime() {
@@ -121,7 +121,7 @@ public class RunningWorkerBean implements RunningWorker, Serializable {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.RunningWorker#getDescription()
+     * @see  RunningWorker#getDescription()
      */
     @Override
     public String getDescription() {

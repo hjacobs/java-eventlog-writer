@@ -301,7 +301,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#toggleOperationMode()
+     * @see  JobsStatusMBean#toggleOperationMode()
      */
     @ManagedOperation(description = "Toggles between NORMAL and MAINTENANCE OperationMode")
     @Override
@@ -317,7 +317,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#getOperationMode()
+     * @see  JobsStatusMBean#getOperationMode()
      */
     @ManagedOperation(description = "Returns the actual OperationMode")
     @Override
@@ -338,7 +338,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#setOperationMode(de.zalando.commons.backend.enumeration.OperationMode)
+     * @see  JobsStatusMBean#setOperationMode(de.zalando.zomcat.OperationMode)
      */
     @Override
     public void setOperationMode(final OperationMode operationMode) {
@@ -347,7 +347,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#setOperationMode(java.lang.String)
+     * @see  JobsStatusMBean#setOperationMode(java.lang.String)
      */
     @ManagedOperation(description = "sets the new OperationMode")
     @Override
@@ -406,7 +406,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#getJobTypeStatusBeans()
+     * @see  JobsStatusMBean#getJobTypeStatusBeans()
      */
     @Override
     public List<JobTypeStatusBean> getJobTypeStatusBeans() {
@@ -414,7 +414,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#getJobTypeStatusBeans()
+     * @see  JobsStatusMBean#getJobTypeStatusBeans()
      */
     public List<JobTypeStatusBean> getJobTypeStatusBeans(final boolean filterByAppInstanceKey) {
         if (filterByAppInstanceKey == false) {
@@ -481,7 +481,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#toggleJob(java.lang.String, boolean)
+     * @see  JobsStatusMBean#toggleJob(java.lang.String, boolean)
      */
     @ManagedOperation(
         description = "toggles job running mode and returns flag if successful or not, "
@@ -519,7 +519,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#toggleJob(java.lang.String, boolean)
+     * @see  JobsStatusMBean#toggleJob(java.lang.String, boolean)
      */
     @ManagedOperation(
         description = "toggles job group running mode and returns flag if successful or not, "
@@ -599,7 +599,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#getListOfJobTypeStatusBeans()
+     * @see  JobsStatusMBean#getListOfJobTypeStatusBeans()
      */
     @ManagedOperation(description = "Returns the collection of JobTypeStatusBeans")
     @Override
@@ -621,7 +621,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#getNumberOfDifferentJobTypes()
+     * @see  JobsStatusMBean#getNumberOfDifferentJobTypes()
      */
     @ManagedOperation(description = "Returns the size of different job types")
     @Override
@@ -630,7 +630,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#getTotalNumberOfRunningWorkers()
+     * @see  JobsStatusMBean#getTotalNumberOfRunningWorkers()
      */
     @ManagedOperation(description = "Returns the total number of running workers")
     @Override
@@ -645,7 +645,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     }
 
     /**
-     * @see  de.zalando.commons.backend.domain.monitoring.JobsStatusMBean#triggerJob(java.lang.String)
+     * @see  JobsStatusMBean#triggerJob(java.lang.String)
      */
     @ManagedOperation(
         description = "trigger job with given fully qualified job class name. "
