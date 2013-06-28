@@ -91,7 +91,7 @@ public abstract class AbstractBulkProcessingJob<ITEM_TYPE> extends AbstractJob {
      *
      * @return
      *
-     * @throws  de.zalando.commons.backend.jobs.ItemFetcherException
+     * @throws  ItemFetcherException
      */
     private List<ITEM_TYPE> fetchItems(final int limit) throws Exception {
         try {
