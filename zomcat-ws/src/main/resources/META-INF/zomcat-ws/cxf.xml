@@ -29,7 +29,6 @@
         <cxf:inInterceptors>
             <ref bean="flowIdInbound" />
             <ref bean="executionContextInbound" />
-            <ref bean="webServiceAuthorizationInInterceptor" />
             <ref bean="logInbound"/>
         </cxf:inInterceptors>
         <cxf:outInterceptors>
