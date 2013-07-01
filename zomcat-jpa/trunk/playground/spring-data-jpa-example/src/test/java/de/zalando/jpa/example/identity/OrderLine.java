@@ -1,11 +1,10 @@
-package de.zalando.jpa.example.sequences;
+package de.zalando.jpa.example.identity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import javax.validation.constraints.NotNull;
@@ -15,8 +14,7 @@ import javax.validation.constraints.NotNull;
 public class OrderLine {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_line_id_seq")
-    @SequenceGenerator(name = "order_line_id_seq", sequenceName = "order_line_id_seq", allocationSize = 100)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

@@ -1,4 +1,4 @@
-package de.zalando.jpa.example.sequences;
+package de.zalando.jpa.example.identity;
 
 import javax.sql.DataSource;
 
@@ -20,13 +20,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.auditing.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -36,12 +34,16 @@ import org.springframework.transaction.annotation.Transactional;
 import de.zalando.jpa.config.DataSourceConfig;
 import de.zalando.jpa.springframework.ExtendedEclipseLinkJpaVendorAdapter;
 
+/**
+ * @author  jbellmann
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @Transactional
-public class SequenceGeneratoTest {
+@ActiveProfiles("POSTGRES")
+public class PostgresIdentityIT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SequenceGeneratoTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HsqlIdentityTest.class);
 
     @Autowired
     private CustomerOrderRepository customerOrderRepository;
@@ -68,15 +70,12 @@ public class SequenceGeneratoTest {
 
     @Configuration
     @Import({ DataSourceConfig.class })
-    @EnableJpaRepositories("de.zalando.jpa.example.sequences")
+    @EnableJpaRepositories("de.zalando.jpa.example.identity")
     @EnableJpaAuditing
     static class TestConfig {
 
-        @Bean
-        public DataSource dataSource() {
-            EmbeddedDatabaseBuilder dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL);
-            return dataSource.build();
-        }
+        @Autowired
+        private DataSource dataSource;
 
         @Bean
         public PlatformTransactionManager transactionManager() {
@@ -89,17 +88,18 @@ public class SequenceGeneratoTest {
         @Bean
         public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
             ExtendedEclipseLinkJpaVendorAdapter vendorAdapter = new ExtendedEclipseLinkJpaVendorAdapter();
-            vendorAdapter.setDatabase(Database.HSQL);
+            vendorAdapter.setDatabase(Database.POSTGRESQL);
             vendorAdapter.setGenerateDdl(true);
             vendorAdapter.setShowSql(true);
 
             LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-            factory.setPersistenceUnitName("sequenceIdGenerator");
+            factory.setPersistenceUnitName("identity");
             factory.setJpaVendorAdapter(vendorAdapter);
-            factory.setDataSource(dataSource());
+            factory.setDataSource(dataSource);
 
             return factory;
         }
 
     }
+
 }

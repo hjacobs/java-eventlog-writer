@@ -1,4 +1,4 @@
-package de.zalando.jpa.example.sequences;
+package de.zalando.jpa.example.identity;
 
 import java.util.List;
 
@@ -9,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.google.common.collect.Lists;
@@ -22,9 +21,11 @@ import com.google.common.collect.Lists;
 public class CustomerOrder {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_order_id_seq")
-    @SequenceGenerator(name = "customer_order_id_seq", sequenceName = "customer_order_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // important senseless field, otherwise we got an [EclipseLink-6023] error
+    private int nothing = 6;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerOrder", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderLine> orderLines = Lists.newArrayList();
@@ -36,14 +37,6 @@ public class CustomerOrder {
     public void addOrderLine(final OrderLine orderLine) {
         orderLine.setCustomerOrder(this);
         this.orderLines.add(orderLine);
-    }
-
-    public void setOrderLines(final List<OrderLine> orderLines) {
-        this.orderLines = orderLines;
-    }
-
-    public Long getId() {
-        return id;
     }
 
 }

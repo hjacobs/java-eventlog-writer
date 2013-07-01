@@ -35,7 +35,7 @@ public class DataSourceConfig {
 
             dataSource.setUsername("postgres");
             dataSource.setPassword("postgres");
-            dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/local_zomcat_jpa_db");
+            dataSource.setJdbcUrl("jdbc:postgresql://localhost:5434/local_zomcat_jpa_db");
             dataSource.setDriverClass("org.postgresql.Driver");
             dataSource.setInitSQL("SET search_path to zzj_data,public;");
 

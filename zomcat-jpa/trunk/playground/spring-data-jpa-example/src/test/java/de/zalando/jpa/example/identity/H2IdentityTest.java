@@ -1,4 +1,4 @@
-package de.zalando.jpa.example.sequences;
+package de.zalando.jpa.example.identity;
 
 import javax.sql.DataSource;
 
@@ -34,16 +34,14 @@ import org.springframework.transaction.annotation.Transactional;
 import de.zalando.jpa.config.DataSourceConfig;
 import de.zalando.jpa.springframework.ExtendedEclipseLinkJpaVendorAdapter;
 
-/**
- * @author  jbellmann
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @Transactional
-@ActiveProfiles("POSTGRES")
-public class SequenceGeneratorIT {
+@ActiveProfiles("H2")
+// @Ignore
+public class H2IdentityTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SequenceGeneratorTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(H2IdentityTest.class);
 
     @Autowired
     private CustomerOrderRepository customerOrderRepository;
@@ -70,7 +68,7 @@ public class SequenceGeneratorIT {
 
     @Configuration
     @Import({ DataSourceConfig.class })
-    @EnableJpaRepositories("de.zalando.jpa.example.sequences")
+    @EnableJpaRepositories("de.zalando.jpa.example.identity")
     @EnableJpaAuditing
     static class TestConfig {
 
@@ -88,12 +86,12 @@ public class SequenceGeneratorIT {
         @Bean
         public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
             ExtendedEclipseLinkJpaVendorAdapter vendorAdapter = new ExtendedEclipseLinkJpaVendorAdapter();
-            vendorAdapter.setDatabase(Database.POSTGRESQL);
+            vendorAdapter.setDatabase(Database.H2);
             vendorAdapter.setGenerateDdl(true);
             vendorAdapter.setShowSql(true);
 
             LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-            factory.setPersistenceUnitName("sequenceIdGenerator");
+            factory.setPersistenceUnitName("identity");
             factory.setJpaVendorAdapter(vendorAdapter);
             factory.setDataSource(dataSource);
 
@@ -101,5 +99,4 @@ public class SequenceGeneratorIT {
         }
 
     }
-
 }
