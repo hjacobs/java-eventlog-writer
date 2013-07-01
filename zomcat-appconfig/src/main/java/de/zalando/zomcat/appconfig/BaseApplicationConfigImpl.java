@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import de.zalando.appconfig.ConfigCtx;
 import de.zalando.appconfig.Configuration;
+import de.zalando.appconfig.builder.EntityConfigurationBuilder;
 
 import de.zalando.domain.Environment;
 
@@ -40,7 +41,7 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
      */
     public AppInstanceContextProvider getAppInstanceContext() {
         if (appInstanceContextProvider == null) {
-            appInstanceContextProvider = AppInstanceContextProvider.fromSpringWebApplicationContext();
+            appInstanceContextProvider = AppInstanceContextProvider.fromManifestOnFilesystem();
         }
 
         return appInstanceContextProvider;
@@ -127,6 +128,16 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
     @Override
     public <Feature extends FeatureToggle> boolean isFeatureEnabled(final Feature feature, final int appDomainId) {
         return isFeatureEnabled(feature, appDomainId, false);
+    }
+
+    @Override
+    public <T> T getEntity(final Class<T> classOfT, final String id) {
+        return EntityConfigurationBuilder.entityConfiguration(getConfig()).withId(id).get(classOfT);
+    }
+
+    @Override
+    public <T> T getEntity(final Class<T> classOfT, final int id) {
+        return EntityConfigurationBuilder.entityConfiguration(getConfig()).withId(id).get(classOfT);
     }
 
 }
