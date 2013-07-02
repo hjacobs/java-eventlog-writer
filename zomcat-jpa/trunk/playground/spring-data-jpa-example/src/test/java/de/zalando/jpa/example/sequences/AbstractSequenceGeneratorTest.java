@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import de.zalando.jpa.config.DataSourceConfig;
 import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
-import de.zalando.jpa.config.JpaZwoConfig;
+import de.zalando.jpa.config.JpaConfig;
 import de.zalando.jpa.config.PersistenceUnitNameProvider;
 import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 
@@ -68,7 +68,7 @@ public abstract class AbstractSequenceGeneratorTest {
     @Configuration
     @EnableJpaRepositories(AbstractSequenceGeneratorTest.packagesToScan)
     @EnableJpaAuditing
-    @Import({ JpaZwoConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
+    @Import({ JpaConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
     static class TestConfig {
 
         @Bean

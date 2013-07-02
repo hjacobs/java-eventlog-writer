@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import de.zalando.jpa.config.DataSourceConfig;
 import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
-import de.zalando.jpa.config.JpaZwoConfig;
+import de.zalando.jpa.config.JpaConfig;
 import de.zalando.jpa.config.PersistenceUnitNameProvider;
 import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 import de.zalando.jpa.example.order.Address;
@@ -98,7 +98,7 @@ public abstract class AbstractPurchaseOrderTestSupport {
     @Configuration
     @EnableJpaRepositories(AbstractPurchaseOrderTestSupport.packagesToScan)
     @EnableJpaAuditing
-    @Import({ JpaZwoConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
+    @Import({ JpaConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
     @ImportResource("classpath:/enableAuditing.xml")
     static class TestConfig {
 

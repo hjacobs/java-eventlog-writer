@@ -52,7 +52,8 @@ public class DataSourceConfig {
         @Bean
         public DataSource dataSource() {
             EmbeddedDatabaseBuilder dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2);
-            dataSource.addScript("schema_h2.sql").addScript("sequence_h2.sql");
+
+            dataSource.addScript("schema_h2.sql"); // .addScript("sequence_h2.sql");
             return dataSource.build();
         }
     }

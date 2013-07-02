@@ -21,7 +21,7 @@ import de.zalando.jpa.springframework.ExtendedEclipseLinkJpaVendorAdapter;
  */
 @Configuration
 @EnableTransactionManagement
-public class JpaZwoConfig {
+public class JpaConfig {
 
     @Autowired
     private DataSource dataSource;

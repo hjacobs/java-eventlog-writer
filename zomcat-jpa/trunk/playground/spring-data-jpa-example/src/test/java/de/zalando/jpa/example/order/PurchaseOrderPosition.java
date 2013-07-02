@@ -18,13 +18,9 @@ import com.google.common.base.Objects;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "purchase_order_position", schema = "zzj_data")
-// @SequenceGenerator(
-// name = "purchase_order_position_id_seq", sequenceName = "purchase_order_pos_id_seq", allocationSize = 1
-// )
 public class PurchaseOrderPosition implements Serializable {
 
     @Id
-// @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchase_order_position_id_seq")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 

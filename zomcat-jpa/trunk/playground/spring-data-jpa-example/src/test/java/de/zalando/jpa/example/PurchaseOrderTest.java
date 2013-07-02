@@ -3,7 +3,6 @@ package de.zalando.jpa.example;
 import org.junit.Test;
 
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 import de.zalando.jpa.config.TestProfiles;
@@ -16,7 +15,7 @@ import de.zalando.jpa.config.TestProfiles;
 public class PurchaseOrderTest extends AbstractPurchaseOrderTestSupport {
 
     @Test
-    @Rollback(false)
+// @Rollback(false)
     public void testSavePurchaseOrder() {
         super.doTestSavePurchaseOrder();
     }
