@@ -685,7 +685,7 @@ class StoredProcedure {
                 boolean commitFailed = false;
 
                 final String transactionId = "sprocwrapper_" + UUID.randomUUID();
-                final String prepareTransactionStatement = "PREPARE TRANSACTION " + transactionId;
+                final String prepareTransactionStatement = "PREPARE TRANSACTION '" + transactionId + "'";
 
                 for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                     try {
@@ -709,7 +709,7 @@ class StoredProcedure {
                 if (commitFailed) {
                     rollbackPrepared(datasources, transactionId);
                 } else {
-                    final String commitStatement = "COMMIT PREPARED " + transactionId;
+                    final String commitStatement = "COMMIT PREPARED '" + transactionId + "'";
 
                     for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                         try {
@@ -750,7 +750,7 @@ class StoredProcedure {
     private void rollbackPrepared(final Map<Integer, SameConnectionDatasource> datasources,
             final String transactionId) {
 
-        final String rollbackQuery = "ROLLBACK PREPARED " + transactionId;
+        final String rollbackQuery = "ROLLBACK PREPARED '" + transactionId + "'";
 
         for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
             try {
