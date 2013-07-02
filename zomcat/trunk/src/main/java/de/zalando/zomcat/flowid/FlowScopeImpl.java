@@ -59,12 +59,6 @@ class FlowScopeImpl implements FlowScope {
         Preconditions.checkState(isActive(), "No flow scope active!");
 
         if (flowId.equals(getConversationId())) {
-            for (final String destructionCallbackName : getDestructionCallbacks().keySet()) {
-                callDestructionCallback(destructionCallbackName);
-            }
-
-            getDestructionCallbacks().clear();
-
             for (final String loggingKey : getLoggingKeys()) {
                 MDC.remove(loggingKey);
             }
@@ -79,10 +73,6 @@ class FlowScopeImpl implements FlowScope {
 
     private Map<String, Object> getContext() {
         return Preconditions.checkNotNull(FLOW_CONTEXT.get(), "No flow scope active!");
-    }
-
-    private Map<String, Runnable> getDestructionCallbacks() {
-        return (Map<String, Runnable>) getContext().get(DESTRUCTION_CALLBACKS_KEY);
     }
 
     @Override
@@ -100,25 +90,12 @@ class FlowScopeImpl implements FlowScope {
 
     @Override
     public Object remove(final String name) {
-        callDestructionCallback(name);
-        getDestructionCallbacks().remove(name);
         return getContext().remove(name);
     }
 
     @Override
     public void registerDestructionCallback(final String name, final Runnable callback) {
-        getDestructionCallbacks().put(name, callback);
-    }
-
-    private void callDestructionCallback(final String name) {
-        final Runnable runnable = getDestructionCallbacks().get(name);
-        if (runnable != null) {
-            try {
-                runnable.run();
-            } catch (final Exception e) {
-                LOG.error(String.format("Failed to destruct '%s'!", name), e);
-            }
-        }
+        // no op
     }
 
     @Override
