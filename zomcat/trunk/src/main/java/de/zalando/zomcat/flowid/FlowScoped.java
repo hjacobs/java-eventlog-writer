@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Scope;
 
 @Scope("flow")
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface FlowScoped { }
