@@ -2,11 +2,31 @@ package de.zalando.jpa.example;
 
 import org.junit.Assert;
 
+import org.junit.runner.RunWith;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
+
+import org.springframework.data.jpa.auditing.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import de.zalando.jpa.config.DataSourceConfig;
+import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
+import de.zalando.jpa.config.JpaZwoConfig;
+import de.zalando.jpa.config.PersistenceUnitNameProvider;
+import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 import de.zalando.jpa.example.order.Address;
 import de.zalando.jpa.example.order.OrderStatus;
 import de.zalando.jpa.example.order.PurchaseOrder;
@@ -14,13 +34,19 @@ import de.zalando.jpa.example.order.PurchaseOrderPosition;
 import de.zalando.jpa.example.order.PurchaseOrderRepository;
 
 /**
- * The testcode for integration an unit-test.
+ * The testcode for integration and unit-test.
  *
  * @author  jbellmann
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
+@Transactional
 public abstract class AbstractPurchaseOrderTestSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPurchaseOrderTestSupport.class);
+
+    public static final String packagesToScan = "de.zalando.jpa.example.order";
+    public static final String persistenceUnitName = "default";
 
     @Autowired
     private PurchaseOrderRepository purchaseOrderRepository;
@@ -69,4 +95,17 @@ public abstract class AbstractPurchaseOrderTestSupport {
 
     }
 
+    @Configuration
+    @EnableJpaRepositories(AbstractPurchaseOrderTestSupport.packagesToScan)
+    @EnableJpaAuditing
+    @Import({ JpaZwoConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
+    @ImportResource("classpath:/enableAuditing.xml")
+    static class TestConfig {
+
+        @Bean
+        public PersistenceUnitNameProvider persistenceUnitNameProvider() {
+            return new DefaultPersistenceUnitNameProvider(AbstractPurchaseOrderTestSupport.persistenceUnitName);
+        }
+
+    }
 }

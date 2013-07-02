@@ -14,7 +14,8 @@ import com.jolbox.bonecp.BoneCPDataSource;
 @Configuration
 public class DataSourceConfig {
 
-    @Profile("HSQL")
+    @Configuration
+    @Profile(TestProfiles.HSQL)
     static class HSQLDataSource {
 
         @Bean
@@ -26,7 +27,8 @@ public class DataSourceConfig {
         }
     }
 
-    @Profile("POSTGRES")
+    @Configuration
+    @Profile(TestProfiles.POSTGRES)
     static class PostgreSqlDataSource {
 
         @Bean
@@ -43,7 +45,8 @@ public class DataSourceConfig {
         }
     }
 
-    @Profile("H2")
+    @Configuration
+    @Profile(TestProfiles.H2)
     static class H2DataSource {
 
         @Bean
