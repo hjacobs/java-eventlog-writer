@@ -214,4 +214,10 @@ public interface ExampleSProcService {
     ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet2(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 
+    @SProcCall
+    Order getOrders(@SProcParam int id);
+
+    @SProcCall
+    int createOrder(@SProcParam String orderNumber, @SProcParam TobisAmount amount);
+
 }

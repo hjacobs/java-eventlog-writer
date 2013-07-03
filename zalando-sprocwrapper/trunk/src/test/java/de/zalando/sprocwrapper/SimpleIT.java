@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.math.BigDecimal;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,6 +59,8 @@ import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
+import de.zalando.sprocwrapper.example.Order;
+import de.zalando.sprocwrapper.example.TobisAmount;
 
 import de.zalando.typemapper.parser.DateTimeUtil;
 
@@ -739,5 +743,15 @@ public class SimpleIT {
     public void testValidValidationReturnValue2() {
         final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 4);
         exampleSProcService.testSprocCallWithValidationInvalidRet2(obj);
+    }
+
+    @Test
+    public void testMonetaryValue() {
+        BigDecimal b = new BigDecimal("123.124");
+        int i = exampleSProcService.createOrder("order2", new TobisAmount(b, "EUR"));
+
+        Order o = exampleSProcService.getOrders(i);
+
+        assertEquals(o.amount.amount.compareTo(b), 0);
     }
 }

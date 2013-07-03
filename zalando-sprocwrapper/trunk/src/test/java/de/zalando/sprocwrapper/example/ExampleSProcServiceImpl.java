@@ -337,4 +337,14 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public Timestamp getMicorsecondTimestamp() {
         return sproc.getMicorsecondTimestamp();
     }
+
+    @Override
+    public Order getOrders(final int id) {
+        return sproc.getOrders(id);
+    }
+
+    @Override
+    public int createOrder(final String orderNumber, final TobisAmount amount) {
+        return sproc.createOrder(orderNumber, amount);
+    }
 }
