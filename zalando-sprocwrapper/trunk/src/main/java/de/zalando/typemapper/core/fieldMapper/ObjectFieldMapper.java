@@ -49,6 +49,10 @@ public class ObjectFieldMapper {
                         mapping.map(result,
                             mapping.getFieldMapper().mapField(currentNode.getValue(), mapping.getFieldClass()));
                     } else if (DbResultNodeType.OBJECT.equals(currentNode.getNodeType())) {
+
+                        /**
+                         * TODO: Lookup Value Transformer, map to intermediate class, then use transformer to map to target class
+                         */
                         mapping.map(result, mapField(mapping.getFieldClass(), (ObjectResultNode) currentNode));
                     } else if (DbResultNodeType.ARRAY.equals(currentNode.getNodeType())) {
                         mapping.map(result,
