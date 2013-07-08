@@ -110,9 +110,11 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
      *          hostname and taking it modulo 3, so it's not really reliable
      */
     public Integer getSegment() {
-        Matcher matcher = SEGMENT_FROM_HOST_PATTERN.matcher(getHost());
-        if (matcher.find()) {
-            return (Integer.valueOf(matcher.group()) - 1) % SEGMENT_COUNT + 1;
+        if (getHost() != null) {
+            Matcher matcher = SEGMENT_FROM_HOST_PATTERN.matcher(getHost());
+            if (matcher.find()) {
+                return (Integer.valueOf(matcher.group()) - 1) % SEGMENT_COUNT + 1;
+            }
         }
 
         return null;
