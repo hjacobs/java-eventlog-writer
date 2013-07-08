@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat Base</name>
     <description>Zomcat Support Classes: Servlets (heartbeat, status, toggle), AbstractJob, Flow-ID, ..</description>
-    <version>1.3.4</version>
+    <version>1.3.5</version>
     <properties>
         <project.build_env.maven>maven3</project.build_env.maven>
     </properties>

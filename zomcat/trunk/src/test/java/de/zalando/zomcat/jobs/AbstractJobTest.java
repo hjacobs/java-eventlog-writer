@@ -97,4 +97,49 @@ public class AbstractJobTest {
         EasyMock.verify(context);
     }
 
+    @Test
+    public void testNotifyStopRunningLockReleaseError() {
+
+        LockResourceManager resourceManager = EasyMock.createMock(LockResourceManager.class);
+        EasyMock.expect(resourceManager.acquireLock(EasyMock.anyObject(String.class), EasyMock.anyObject(String.class),
+                        EasyMock.anyObject(String.class), EasyMock.anyLong())).andReturn(Boolean.TRUE).once();
+
+        resourceManager.releaseLock(EasyMock.anyObject(String.class), EasyMock.anyObject(String.class));
+
+        RuntimeException releaseException = new RuntimeException();
+        EasyMock.expectLastCall().andThrow(releaseException).once();
+
+        ApplicationContext context = EasyMock.createMock(ApplicationContext.class);
+        EasyMock.expect(context.getBean("lockResourceManager", LockResourceManager.class)).andReturn(resourceManager)
+                .once();
+        EasyMock.replay(context, resourceManager);
+
+        final Set<String> allowedJobGroupAppInstances = Sets.newHashSet();
+        final Set<String> allowedJobAppInstances = Sets.newHashSet();
+        final JobGroupConfig jobGroupConfig = new JobGroupConfig("TestJobGroup", true, allowedJobGroupAppInstances);
+        final JobConfig jobConfig = new JobConfig(allowedJobAppInstances, 0, 0, true, jobGroupConfig);
+
+        TestResourceLockJob job = new TestResourceLockJob();
+        TestJobListener listener = new TestJobListener();
+        job.addJobListener(listener);
+
+        job.setApplicationContext(context);
+        job.setJobGroupConfig(jobGroupConfig);
+        job.setJobConfig(jobConfig);
+        try {
+            job.executeInternal(null);
+        } catch (RuntimeException e) {
+
+            // exception should be the same
+            Assert.assertTrue(releaseException == e);
+        }
+
+        Assert.assertEquals(1, listener.getOnExecutionSetUpCounter());
+        Assert.assertEquals(1, listener.getOnExecutionTearDownCounter());
+        Assert.assertEquals(1, listener.getStartRunningCounter());
+        Assert.assertEquals(1, listener.getStopRunningCounter());
+
+        EasyMock.verify(context);
+    }
+
 }

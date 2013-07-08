@@ -190,15 +190,19 @@ public abstract class AbstractJob extends QuartzJobBean implements Job, RunningW
                 log(Level.ERROR, "failed to run job: " + e.getMessage(), e);
                 throwable = e;
             } finally {
+                try {
 
-                // notify about stop running this job
-                if (isLockedJob) {
+                    // notify about stop running this job
+                    if (isLockedJob) {
 
-                    // if the database is not available, the lock needs to be removed manually.
-                    lockResourceManager.releaseLock(getLockResource(), flowId);
+                        // if the database is not available, the lock needs to be removed manually.
+                        lockResourceManager.releaseLock(getLockResource(), flowId);
+                    }
+                } finally {
+
+                    // if an error occurs while releasing the lock, don't forget to notify stop running.
+                    notifyStopRunning(throwable);
                 }
-
-                notifyStopRunning(throwable);
             }
         } finally {
             notifyExecutionTearDown();
