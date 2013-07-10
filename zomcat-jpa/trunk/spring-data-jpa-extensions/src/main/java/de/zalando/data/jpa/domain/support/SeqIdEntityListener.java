@@ -5,9 +5,6 @@ import javax.persistence.PrePersist;
 
 import org.eclipse.persistence.internal.jpa.metadata.listeners.EntityListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -20,13 +17,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 public class SeqIdEntityListener<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SeqIdEntityListener.class);
-
     private SeqIdHandler<T> seqIdHandler;
-
-    public SeqIdEntityListener() {
-        LOG.debug("SeqIdEntityListner created");
-    }
 
     public void setSeqIdHandler(final SeqIdHandler<T> keyHandler) {
         this.seqIdHandler = keyHandler;
