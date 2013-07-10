@@ -237,7 +237,16 @@ public class PgTypeHelper {
         }
 
         String typeName = null;
-        final Class<?> clazz = obj.getClass();
+
+        boolean enhanced;
+
+        try {
+            enhanced = obj.getClass().getDeclaredField("CGLIB$CALLBACK_0") != null;
+        } catch (NoSuchFieldException e) {
+            enhanced = false;
+        }
+
+        final Class<?> clazz = enhanced ? obj.getClass().getSuperclass() : obj.getClass();
         if (clazz.isPrimitive() || clazz.isArray()) {
             throw new IllegalArgumentException("Passed object should be a class with parameters");
         }
