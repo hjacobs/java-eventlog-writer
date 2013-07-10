@@ -30,7 +30,7 @@ public class SequenceIdGenerator implements InitializingBean, SeqIdGenerator {
 
     private String databasePlatform = POSTGRES_DATABASE_PLATFORM;
 
-    private final Object lock = Integer.valueOf(1);
+    private final Object lock = new Object();
 
     static final Map<String, AbstractSequenceMaxValueIncrementer> INCREMENTER_CACHE = Maps.newConcurrentMap();
 
