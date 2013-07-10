@@ -93,8 +93,8 @@ public class WorkerConfigTest {
         public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
             ExtendedEclipseLinkJpaVendorAdapter vendorAdapter = new ExtendedEclipseLinkJpaVendorAdapter();
             vendorAdapter.setDatabase(Database.HSQL);
-            vendorAdapter.setGenerateDdl(true);
-            vendorAdapter.setShowSql(true);
+// vendorAdapter.setGenerateDdl(true);
+// vendorAdapter.setShowSql(true);
 
             LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
             factory.setPersistenceUnitName("idExample");

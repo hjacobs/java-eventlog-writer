@@ -44,8 +44,9 @@ public class JpaConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         ExtendedEclipseLinkJpaVendorAdapter vendorAdapter = new ExtendedEclipseLinkJpaVendorAdapter();
         vendorAdapter.setDatabase(database);
-        vendorAdapter.setGenerateDdl(true);
-        vendorAdapter.setShowSql(true);
+        // this will overwrite "create-or-extend-tables", so commented
+// vendorAdapter.setGenerateDdl(true);
+// vendorAdapter.setShowSql(true);
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setPersistenceUnitName(persistenceUnitNameProvider.getPersistenceUnitName());

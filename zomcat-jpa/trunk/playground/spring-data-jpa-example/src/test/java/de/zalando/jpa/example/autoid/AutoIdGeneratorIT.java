@@ -89,8 +89,8 @@ public class AutoIdGeneratorIT {
         public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
             ExtendedEclipseLinkJpaVendorAdapter vendorAdapter = new ExtendedEclipseLinkJpaVendorAdapter();
             vendorAdapter.setDatabase(Database.POSTGRESQL);
-            vendorAdapter.setGenerateDdl(true);
-            vendorAdapter.setShowSql(true);
+// vendorAdapter.setGenerateDdl(true);
+// vendorAdapter.setShowSql(true);
 
             LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
             factory.setPersistenceUnitName("autoIdGenerator");
