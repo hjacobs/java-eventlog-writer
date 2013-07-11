@@ -43,7 +43,9 @@ import de.zalando.typemapper.core.db.DbType;
 import de.zalando.typemapper.core.db.DbTypeField;
 import de.zalando.typemapper.core.db.DbTypeRegister;
 import de.zalando.typemapper.core.fieldMapper.AnyTransformer;
+import de.zalando.typemapper.core.fieldMapper.DefaultObjectMapper;
 import de.zalando.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
+import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
 
 public class PgTypeHelper {
 
@@ -501,6 +503,18 @@ public class PgTypeHelper {
                 throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
             } catch (final IllegalAccessException e) {
                 throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
+            }
+        }
+
+        Class<? extends ObjectMapper> mapperClass = databaseFieldDescriptor.getMapper();
+        if (mapperClass != null && mapperClass != DefaultObjectMapper.class) {
+            try {
+                ObjectMapper mapper = mapperClass.newInstance();
+                value = mapper.marshalToDb(value);
+            } catch (InstantiationException e) {
+                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
             }
         }
 
