@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import com.google.common.base.Optional;
+
 import de.zalando.typemapper.core.db.DbFunction;
 import de.zalando.typemapper.core.db.DbFunctionRegister;
 import de.zalando.typemapper.core.db.DbTypeField;
@@ -157,7 +159,21 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                 } else if (DbResultNodeType.OBJECT == node.getNodeType()) {
                     final Object value = ObjectFieldMapper.mapFromDbObjectNode(mapping.getFieldClass(),
                             (ObjectResultNode) node, mapping);
-                    mapping.map(result, value);
+
+                    if (mapping.isOptionalField()) {
+                        boolean allFieldsAreNull = true;
+
+                        for (DbResultNode dbResultNode : node.getChildren()) {
+                            if (dbResultNode.getValue() != null) {
+                                allFieldsAreNull = false;
+                                break;
+                            }
+                        }
+
+                        mapping.map(result, value == null || allFieldsAreNull ? Optional.absent() : Optional.of(value));
+                    } else {
+                        mapping.map(result, value);
+                    }
                 } else if (DbResultNodeType.ARRAY == node.getNodeType()) {
                     final Object value = ArrayFieldMapper.mapField(mapping.getField(), (ArrayResultNode) node);
                     mapping.map(result, value);

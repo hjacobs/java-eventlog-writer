@@ -32,6 +32,8 @@ import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 import de.zalando.typemapper.annotations.DatabaseField;
 import de.zalando.typemapper.annotations.DatabaseType;
 import de.zalando.typemapper.core.DatabaseFieldDescriptor;
@@ -235,6 +237,22 @@ public class PgTypeHelper {
         return getObjectAttributesForPgSerialization(obj, typeHint, connection, false);
     }
 
+    private static boolean isCglibProxy(final Object obj) {
+        try {
+            return obj.getClass().getDeclaredField("CGLIB$CALLBACK_0") != null;
+        } catch (NoSuchFieldException e) {
+            return false;
+        }
+    }
+
+    private static Class<?> getActualClass(final Object obj) {
+        if (isCglibProxy(obj)) {
+            return obj.getClass().getSuperclass();
+        } else {
+            return obj.getClass();
+        }
+    }
+
     public static PgTypeDataHolder getObjectAttributesForPgSerialization(final Object obj, final String typeHint,
             final Connection connection, final boolean forceTypeHint) {
         if (obj == null) {
@@ -243,15 +261,7 @@ public class PgTypeHelper {
 
         String typeName = null;
 
-        boolean enhanced;
-
-        try {
-            enhanced = obj.getClass().getDeclaredField("CGLIB$CALLBACK_0") != null;
-        } catch (NoSuchFieldException e) {
-            enhanced = false;
-        }
-
-        final Class<?> clazz = enhanced ? obj.getClass().getSuperclass() : obj.getClass();
+        final Class<?> clazz = getActualClass(obj);
         if (clazz.isPrimitive() || clazz.isArray()) {
             throw new IllegalArgumentException("Passed object should be a class with parameters");
         }
@@ -320,7 +330,7 @@ public class PgTypeHelper {
 
                 Object value;
                 try {
-                    value = f.get(obj);
+                    value = getOptionalValue(f.get(obj));
                 } catch (final IllegalArgumentException e) {
                     throw new IllegalArgumentException("Could not read value of field " + f.getName(), e);
                 } catch (final IllegalAccessException e) {
@@ -388,6 +398,16 @@ public class PgTypeHelper {
             return new PgTypeDataHolder(typeName, Collections.unmodifiableCollection(resultPositionMap.values()));
         } else {
             return new PgTypeDataHolder(typeName, Collections.unmodifiableCollection(resultList));
+        }
+    }
+
+    private static Object getOptionalValue(final Object o) {
+        if (o instanceof Optional) {
+            Optional<?> optional = (Optional<?>) o;
+
+            return optional.isPresent() ? optional.get() : null;
+        } else {
+            return o;
         }
     }
 
