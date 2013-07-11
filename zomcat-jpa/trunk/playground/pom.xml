@@ -17,7 +17,6 @@
     <properties>
         <zomcat.jpa.version>1.5.0-SNAPSHOT</zomcat.jpa.version>
         <project.build_env.maven>maven3</project.build_env.maven>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <modules>
         <module>spring-data-jpa-example</module>
