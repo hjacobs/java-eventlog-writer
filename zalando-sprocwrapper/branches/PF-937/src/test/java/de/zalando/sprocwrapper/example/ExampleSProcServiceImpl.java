@@ -347,4 +347,10 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public int createOrder(final String orderNumber, final TobisAmount amount) {
         return sproc.createOrder(orderNumber, amount);
     }
+
+    @Override
+    public int createOrder(final Order order) {
+        return sproc.createOrder(order);
+    }
+
 }

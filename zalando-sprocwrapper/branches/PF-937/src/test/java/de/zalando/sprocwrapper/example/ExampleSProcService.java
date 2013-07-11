@@ -220,4 +220,7 @@ public interface ExampleSProcService {
     @SProcCall
     int createOrder(@SProcParam String orderNumber, @SProcParam TobisAmount amount);
 
+    @SProcCall
+    int createOrder(@SProcParam Order order);
+
 }

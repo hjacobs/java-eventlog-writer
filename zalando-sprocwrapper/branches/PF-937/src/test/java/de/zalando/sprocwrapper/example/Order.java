@@ -8,7 +8,7 @@ import de.zalando.typemapper.annotations.DatabaseType;
 /**
  * @author  jmussler
  */
-@DatabaseType
+@DatabaseType(name = "order_type")
 public class Order {
 
     @DatabaseField

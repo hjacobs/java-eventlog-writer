@@ -754,4 +754,15 @@ public class SimpleIT {
 
         assertEquals(o.amount.getAmount().compareTo(b), 0);
     }
+
+    @Test
+    public void testMonetaryValueInsideOrder() {
+        BigDecimal b = new BigDecimal("123.124");
+        Order o = new Order("order3", new TobisAmountImpl(b, "EUR"));
+        int i = exampleSProcService.createOrder(o);
+
+        o = exampleSProcService.getOrders(i);
+
+        assertEquals(o.amount.getAmount().compareTo(b), 0);
+    }
 }
