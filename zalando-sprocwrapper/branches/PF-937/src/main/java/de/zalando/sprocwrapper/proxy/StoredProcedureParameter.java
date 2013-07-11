@@ -11,9 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.zalando.sprocwrapper.globalobjecttransformer.GlobalObjectTransformerLoader;
 import de.zalando.sprocwrapper.globalvaluetransformer.GlobalValueTransformerLoader;
 
 import de.zalando.typemapper.core.ValueTransformer;
+import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
 
 /**
  * @author  jmussler
@@ -55,18 +57,17 @@ class StoredProcedureParameter {
 
         // first check if this is a globally mapped class
         ValueTransformer<?, ?> valueTransformerForClass = null;
+        ObjectMapper globalObjectMapper = null;
         if (genericType != null) {
             valueTransformerForClass = GlobalValueTransformerLoader.getValueTransformerForClass((Class<?>) genericType);
+            globalObjectMapper = GlobalObjectTransformerLoader.getObjectMapperForClass((Class<?>) genericType);
         }
 
         if (valueTransformerForClass != null) {
 
-            // Annotation[] an = clazz.getAnnotations();
-            // GlobalObjectMapper mapper = ((DatabaseField) an[0]).mapper().newInstance();
-
             // inject the additional logic to transform types and values
             return new GlobalValueTransformedParameter(valueTransformerForClass, clazz, genericType, m, typeName,
-                    sqlType, javaPosition, sensitive);
+                    sqlType, javaPosition, sensitive, globalObjectMapper);
         } else {
             Integer typeId = sqlType;
             if (typeId == null || typeId == -1) {

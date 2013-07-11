@@ -26,7 +26,12 @@ public final class ValueTransformerUtils {
     }
 
     public static Class<?> getMarshalToDbClass(final ValueTransformer<?, ?> valueTransformerForClass) {
-        return getMarshalToDbClass(valueTransformerForClass.getClass());
+        return valueTransformerForClass != null ? getMarshalToDbClass(valueTransformerForClass.getClass()) : null;
+    }
+
+    public static Class<?> getUnmarshalFromDbNodeClass(final Class<?> valueTransformerClass) {
+        final Method method = ReflectionUtils.findMethod(valueTransformerClass, "unmarshalFromDbNode");
+        return method != null ? method.getReturnType() : null;
     }
 
 }

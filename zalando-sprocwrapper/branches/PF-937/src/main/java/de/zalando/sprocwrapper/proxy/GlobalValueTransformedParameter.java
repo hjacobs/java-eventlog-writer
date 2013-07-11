@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 import de.zalando.sprocwrapper.globalvaluetransformer.ValueTransformerUtils;
 
 import de.zalando.typemapper.core.ValueTransformer;
-import de.zalando.typemapper.core.fieldMapper.GlobalObjectMapper;
+import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
 import de.zalando.typemapper.postgres.PgTypeHelper;
 
 public class GlobalValueTransformedParameter extends StoredProcedureParameter {
@@ -22,11 +22,12 @@ public class GlobalValueTransformedParameter extends StoredProcedureParameter {
     @SuppressWarnings("rawtypes")
     private ValueTransformer valueTransformerForClass;
 
-    private GlobalObjectMapper globalObjectMapper;
+    private ObjectMapper globalObjectMapper;
 
     public GlobalValueTransformedParameter(final ValueTransformer<?, ?> valueTransformerForClass, final Class<?> clazz,
             final Type genericType, final Method m, final String typeName, final int sqlType, final int javaPosition,
-            final boolean sensitive) throws InstantiationException, IllegalAccessException {
+            final boolean sensitive, final ObjectMapper globalObjectMapper) throws InstantiationException,
+        IllegalAccessException {
         super(getValueTransformedClazz(clazz, valueTransformerForClass), m, typeName, getValueTransformedTypeId(clazz),
             javaPosition, sensitive);
 
@@ -49,17 +50,25 @@ public class GlobalValueTransformedParameter extends StoredProcedureParameter {
             final List<Object> transformedValues = Lists.newArrayList();
             if (value.getClass().isArray()) {
                 for (final Object o : ((Object[]) value)) {
-                    transformedValues.add(valueTransformerForClass.marshalToDb(o));
+                    transformedValues.add(getMarshaledObject(o));
                 }
             } else {
                 for (final Object o : ((Collection<?>) value)) {
-                    transformedValues.add(String.valueOf(valueTransformerForClass.marshalToDb(o)));
+                    transformedValues.add(String.valueOf(getMarshaledObject(o)));
                 }
             }
 
             return forwardingStoredProcedureParameter.mapParam(transformedValues, connection);
         } else {
-            return forwardingStoredProcedureParameter.mapParam(valueTransformerForClass.marshalToDb(value), connection);
+            return forwardingStoredProcedureParameter.mapParam(getMarshaledObject(value), connection);
+        }
+    }
+
+    private Object getMarshaledObject(final Object o) {
+        if (globalObjectMapper != null) {
+            return globalObjectMapper.marshalToDb(o);
+        } else {
+            return valueTransformerForClass.marshalToDb(o);
         }
     }
 

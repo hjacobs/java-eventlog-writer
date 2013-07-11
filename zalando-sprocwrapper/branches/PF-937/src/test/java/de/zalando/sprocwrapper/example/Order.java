@@ -14,10 +14,7 @@ public class Order {
     @DatabaseField
     public String orderNumber;
 
-    @DatabaseField(
-        transformer = de.zalando.sprocwrapper.example.transformer.TobisAmountTransformer.class,
-        mapper = MoneyObjectMapper.class
-    )
+    @DatabaseField(mapper = MoneyObjectMapper.class)
     public TobisAmount amount;
 
     public Order(final String on, final TobisAmount a) {

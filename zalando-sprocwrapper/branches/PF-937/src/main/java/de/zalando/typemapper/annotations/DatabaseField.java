@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import de.zalando.typemapper.core.ValueTransformer;
 import de.zalando.typemapper.core.fieldMapper.AnyTransformer;
 import de.zalando.typemapper.core.fieldMapper.DefaultObjectMapper;
-import de.zalando.typemapper.core.fieldMapper.GlobalObjectMapper;
+import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,6 +33,6 @@ public @interface DatabaseField {
      */
     Class<? extends ValueTransformer<?, ?>> transformer() default AnyTransformer.class;
 
-    Class<? extends GlobalObjectMapper> mapper() default DefaultObjectMapper.class;
+    Class<? extends ObjectMapper> mapper() default DefaultObjectMapper.class;
 
 }
