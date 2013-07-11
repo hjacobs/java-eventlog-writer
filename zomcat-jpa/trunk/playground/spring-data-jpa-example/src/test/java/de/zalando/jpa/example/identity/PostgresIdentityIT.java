@@ -56,6 +56,7 @@ public class PostgresIdentityIT {
     @Test
     public void insertCustomerOrder() {
         CustomerOrder co = new CustomerOrder();
+        co = customerOrderRepository.saveAndFlush(co);
 
         //
         for (int i = 0; i < 100; i++) {
