@@ -2,20 +2,12 @@ package de.zalando.sprocwrapper.example;
 
 import java.math.BigDecimal;
 
-/**
- * @author  jmussler
- */
-public class TobisAmount {
+public interface TobisAmount {
+    String getCurrency();
 
-    public TobisAmount() { }
+    void setCurrency(final String currency);
 
-    public TobisAmount(final BigDecimal a, final String c) {
-        currency = c;
-        amount = a;
-    }
+    BigDecimal getAmount();
 
-    public String currency;
-
-    public BigDecimal amount;
-
+    void setAmount(final BigDecimal amount);
 }

@@ -60,7 +60,7 @@ import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
 import de.zalando.sprocwrapper.example.Order;
-import de.zalando.sprocwrapper.example.TobisAmount;
+import de.zalando.sprocwrapper.example.TobisAmountImpl;
 
 import de.zalando.typemapper.parser.DateTimeUtil;
 
@@ -748,10 +748,10 @@ public class SimpleIT {
     @Test
     public void testMonetaryValue() {
         BigDecimal b = new BigDecimal("123.124");
-        int i = exampleSProcService.createOrder("order2", new TobisAmount(b, "EUR"));
+        int i = exampleSProcService.createOrder("order2", new TobisAmountImpl(b, "EUR"));
 
         Order o = exampleSProcService.getOrders(i);
 
-        assertEquals(o.amount.amount.compareTo(b), 0);
+        assertEquals(o.amount.getAmount().compareTo(b), 0);
     }
 }

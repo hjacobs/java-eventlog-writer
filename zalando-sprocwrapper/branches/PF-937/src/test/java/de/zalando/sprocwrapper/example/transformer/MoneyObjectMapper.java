@@ -6,6 +6,7 @@ import java.util.List;
 
 import de.zalando.sprocwrapper.example.MonetaryAmount;
 import de.zalando.sprocwrapper.example.TobisAmount;
+import de.zalando.sprocwrapper.example.TobisAmountImpl;
 import de.zalando.sprocwrapper.globalobjecttransformer.annotation.GlobalObjectMapper;
 
 import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
@@ -22,12 +23,12 @@ public class MoneyObjectMapper extends ObjectMapper<MonetaryAmount, TobisAmount>
         BigDecimal amount = new BigDecimal(dbResultNodeList.get(0).getValue());
         String currency = dbResultNodeList.get(1).getValue();
 
-        return new TobisAmount(amount, currency);
+        return new TobisAmountImpl(amount, currency);
     }
 
     @Override
     public MonetaryAmount marshalToDb(final TobisAmount t) {
-        return new MonetaryAmount(t.amount, t.currency);
+        return new MonetaryAmount(t.getAmount(), t.getCurrency());
     }
 
 }
