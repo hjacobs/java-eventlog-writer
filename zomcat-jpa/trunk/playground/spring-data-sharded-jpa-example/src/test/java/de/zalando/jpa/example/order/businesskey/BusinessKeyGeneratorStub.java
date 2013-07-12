@@ -1,4 +1,4 @@
-package de.zalando.jpa.example.order;
+package de.zalando.jpa.example.order.businesskey;
 
 import java.util.UUID;
 

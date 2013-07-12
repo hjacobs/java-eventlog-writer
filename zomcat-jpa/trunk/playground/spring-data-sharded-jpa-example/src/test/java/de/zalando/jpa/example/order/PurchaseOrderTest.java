@@ -1,17 +1,13 @@
-package de.zalando.jpa.example;
+package de.zalando.jpa.example.order;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-
-import de.zalando.jpa.config.TestProfiles;
 
 /**
  * @author  jbellmann
  */
-@ActiveProfiles(TestProfiles.POSTGRES)
 @DirtiesContext
 @Ignore // no db-access in unit-tests at zalando
 public class PurchaseOrderTest extends AbstractPurchaseOrderTestSupport {

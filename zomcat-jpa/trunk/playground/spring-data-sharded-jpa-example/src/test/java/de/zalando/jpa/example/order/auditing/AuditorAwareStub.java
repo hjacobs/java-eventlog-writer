@@ -1,4 +1,4 @@
-package de.zalando.jpa.example.order;
+package de.zalando.jpa.example.order.auditing;
 
 import org.springframework.data.domain.AuditorAware;
 

@@ -8,8 +8,8 @@
     http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd">
 
     <jpa:auditing auditor-aware-ref="auditorAwareStub"/>
-    <bean id="auditorAwareStub" class="de.zalando.jpa.example.order.AuditorAwareStub"/>
+    <bean id="auditorAwareStub" class="de.zalando.jpa.example.order.auditing.AuditorAwareStub"/>
 
     <zjpa:businesskey businesskey-generator-ref="businessKeyGeneratorStub"/>
-    <bean id="businessKeyGeneratorStub" class="de.zalando.jpa.example.order.BusinessKeyGeneratorStub"/>
+    <bean id="businessKeyGeneratorStub" class="de.zalando.jpa.example.order.businesskey.BusinessKeyGeneratorStub"/>
 </beans>

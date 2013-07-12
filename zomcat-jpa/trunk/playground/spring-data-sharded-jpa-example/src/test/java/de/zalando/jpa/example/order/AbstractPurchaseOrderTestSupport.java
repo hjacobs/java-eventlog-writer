@@ -1,4 +1,4 @@
-package de.zalando.jpa.example;
+package de.zalando.jpa.example.order;
 
 import org.junit.Assert;
 
@@ -22,11 +22,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.zalando.jpa.config.JpaConfig;
-import de.zalando.jpa.example.order.Address;
-import de.zalando.jpa.example.order.OrderStatus;
-import de.zalando.jpa.example.order.PurchaseOrder;
-import de.zalando.jpa.example.order.PurchaseOrderPosition;
-import de.zalando.jpa.example.order.PurchaseOrderRepository;
 
 /**
  * The testcode for integration and unit-test.
