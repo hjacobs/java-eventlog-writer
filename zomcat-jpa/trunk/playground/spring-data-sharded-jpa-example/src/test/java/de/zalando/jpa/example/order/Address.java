@@ -14,6 +14,7 @@ import javax.persistence.Version;
 
 import javax.validation.constraints.NotNull;
 
+import org.eclipse.persistence.annotations.Partitioned;
 import org.eclipse.persistence.annotations.ReplicationPartitioning;
 
 import org.springframework.data.annotation.CreatedBy;
@@ -26,6 +27,7 @@ import com.google.common.base.Objects;
 @Entity
 @Table(name = "purchase_order_address", schema = "zzj_data")
 @ReplicationPartitioning(name = "Replicate", connectionPools = {"default", "node2"})
+@Partitioned("Replicate")
 public class Address {
 
     @Id

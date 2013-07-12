@@ -19,6 +19,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.eclipse.persistence.annotations.Partitioned;
+
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -31,6 +33,7 @@ import de.zalando.data.annotation.BusinessKey;
 
 @Entity
 @Table(name = "purchase_order", schema = "zzj_data")
+@Partitioned("Replicate")
 public class PurchaseOrder {
 
     @Id

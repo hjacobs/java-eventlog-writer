@@ -13,11 +13,14 @@ import javax.persistence.Version;
 
 import javax.validation.constraints.NotNull;
 
+import org.eclipse.persistence.annotations.Partitioned;
+
 import com.google.common.base.Objects;
 
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "purchase_order_position", schema = "zzj_data")
+@Partitioned("Replicate")
 public class PurchaseOrderPosition implements Serializable {
 
     @Id
