@@ -23,9 +23,11 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -43,6 +45,7 @@ import de.zalando.sprocwrapper.proxy.executors.SingleRowCustomMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowSimpleTypeExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.ValidationExecutorWrapper;
+import de.zalando.sprocwrapper.sharding.ShardedDataAccessException;
 import de.zalando.sprocwrapper.sharding.ShardedObject;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 
@@ -429,8 +432,8 @@ class StoredProcedure {
             connection = firstDs.getConnection();
 
         } catch (final SQLException e) {
-            throw new IllegalStateException("Failed to acquire connection for virtual shard " + shardIds.get(0)
-                    + " for " + name, e);
+            throw new CannotGetJdbcConnectionException("Failed to acquire connection for virtual shard "
+                    + shardIds.get(0) + " for " + name, e);
         }
 
         final List<Object[]> paramValues = Lists.newArrayList();
@@ -530,6 +533,7 @@ class StoredProcedure {
         DataSource shardDs;
         int i = 0;
         final List<String> exceptions = Lists.newArrayList();
+        final ImmutableMap.Builder<Integer, Throwable> causes = ImmutableMap.builder();
         for (final int shardId : shardIds) {
             shardDs = getShardDs(dp, transactionalDatasources, shardId);
             if (LOG.isDebugEnabled()) {
@@ -544,6 +548,7 @@ class StoredProcedure {
 
                 // remember all exceptions and go on
                 exceptions.add("shardId: " + shardId + ", message: " + e.getMessage() + ", query: " + getQuery());
+                causes.put(shardId, e);
             }
 
             if (searchShards && sprocResult != null) {
@@ -562,8 +567,8 @@ class StoredProcedure {
         }
 
         if (!exceptions.isEmpty()) {
-            throw new IllegalStateException("Got exception(s) while executing sproc on shards: "
-                    + Joiner.on(", ").join(exceptions));
+            throw new ShardedDataAccessException("Got exception(s) while executing sproc on shards: "
+                    + Joiner.on(", ").join(exceptions), causes.build());
         }
 
         return sprocResult;
@@ -574,7 +579,7 @@ class StoredProcedure {
             final List<Object[]> paramValues, final Map<Integer, SameConnectionDatasource> transactionalDatasources,
             final List<?> results, Object sprocResult) {
         DataSource shardDs;
-        final List<FutureTask<Object>> taskList = Lists.newArrayList();
+        final Map<Integer, FutureTask<Object>> tasks = Maps.newHashMapWithExpectedSize(shardIds.size());
         FutureTask<Object> task;
         int i = 0;
 
@@ -585,24 +590,28 @@ class StoredProcedure {
             }
 
             task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i), args));
-            taskList.add(task);
+            tasks.put(shardId, task);
             parallelThreadPool.execute(task);
             i++;
         }
 
         final List<String> exceptions = Lists.newArrayList();
-        for (final FutureTask<Object> taskToFinish : taskList) {
+        final ImmutableMap.Builder<Integer, Throwable> causes = ImmutableMap.builder();
+
+        for (final Entry<Integer, FutureTask<Object>> taskToFinish : tasks.entrySet()) {
             try {
-                sprocResult = taskToFinish.get();
+                sprocResult = taskToFinish.getValue().get();
             } catch (final InterruptedException ex) {
 
                 // remember all exceptions and go on
                 exceptions.add("got sharding execution exception: " + ex.getMessage() + ", query: " + getQuery());
+                causes.put(taskToFinish.getKey(), ex);
             } catch (final ExecutionException ex) {
 
                 // remember all exceptions and go on
                 exceptions.add("got sharding execution exception: " + ex.getCause().getMessage() + ", query: "
                         + getQuery());
+                causes.put(taskToFinish.getKey(), ex.getCause());
             }
 
             if (searchShards && sprocResult != null) {
@@ -619,8 +628,8 @@ class StoredProcedure {
         }
 
         if (!exceptions.isEmpty()) {
-            throw new IllegalStateException("Got exception(s) while executing sproc on shards: "
-                    + Joiner.on(", ").join(exceptions));
+            throw new ShardedDataAccessException("Got exception(s) while executing sproc on shards: "
+                    + Joiner.on(", ").join(exceptions), causes.build());
         }
 
         return sprocResult;
