@@ -1,9 +1,5 @@
 package de.zalando.jpa.config;
 
-import javax.sql.DataSource;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,18 +19,6 @@ import de.zalando.jpa.springframework.ExtendedEclipseLinkJpaVendorAdapter;
 @EnableTransactionManagement
 public class JpaConfig {
 
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    private DataSource dataSource2;
-
-    @Autowired
-    private Database database;
-
-    @Autowired
-    private PersistenceUnitNameProvider persistenceUnitNameProvider;
-
     @Bean
     public PlatformTransactionManager transactionManager() {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
@@ -46,19 +30,16 @@ public class JpaConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         ExtendedEclipseLinkJpaVendorAdapter vendorAdapter = new ExtendedEclipseLinkJpaVendorAdapter();
-        vendorAdapter.setDatabase(database);
+        vendorAdapter.setDatabase(Database.POSTGRESQL);
         // this will overwrite "create-or-extend-tables", so commented
 // vendorAdapter.setGenerateDdl(true);
 // vendorAdapter.setShowSql(true);
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-        factory.setPersistenceUnitName(persistenceUnitNameProvider.getPersistenceUnitName());
+        factory.setPersistenceUnitName("default");
         factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setDataSource(dataSource);
-
-        factory.getJpaPropertyMap().put("eclipselink.connection-pool.default.nonJtaDataSource", "dataSource");
-        factory.getJpaPropertyMap().put("eclipselink.connection-pool.node2.nonJtaDataSource", "dataSource2");
-        factory.getJpaPropertyMap().put("eclipselink.partitioning", "Replicate");
+        // for sharding we set no datasource
+// factory.setDataSource(dataSource);
 
         return factory;
     }

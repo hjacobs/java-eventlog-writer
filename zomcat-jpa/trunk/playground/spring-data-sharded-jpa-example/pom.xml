@@ -16,10 +16,10 @@
     </organization>
     <properties>
         <zal.commons.version>13.28-SNAPSHOT</zal.commons.version>
-        <test.db.host>192.168.58.133</test.db.host>
-        <test.db.port>5432</test.db.port>
+        <test.db.host>localhost</test.db.host>
+        <test.db.port>5434</test.db.port>
         <test.src.dir>src/test/java</test.src.dir>
-        <project.build_env.maven>maven2</project.build_env.maven>
+        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
         <dependency>

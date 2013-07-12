@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
@@ -22,11 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import de.zalando.jpa.config.DataSourceConfig;
-import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
 import de.zalando.jpa.config.JpaConfig;
-import de.zalando.jpa.config.PersistenceUnitNameProvider;
-import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 import de.zalando.jpa.example.order.Address;
 import de.zalando.jpa.example.order.OrderStatus;
 import de.zalando.jpa.example.order.PurchaseOrder;
@@ -46,7 +41,6 @@ public abstract class AbstractPurchaseOrderTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPurchaseOrderTestSupport.class);
 
     public static final String packagesToScan = "de.zalando.jpa.example.order";
-    public static final String persistenceUnitName = "default";
 
     @Autowired
     private PurchaseOrderRepository purchaseOrderRepository;
@@ -98,14 +92,7 @@ public abstract class AbstractPurchaseOrderTestSupport {
     @Configuration
     @EnableJpaRepositories(AbstractPurchaseOrderTestSupport.packagesToScan)
     @EnableJpaAuditing
-    @Import({ JpaConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
+    @Import({ JpaConfig.class })
     @ImportResource({ "classpath:/enableAuditing.xml" })
-    static class TestConfig {
-
-        @Bean
-        public PersistenceUnitNameProvider persistenceUnitNameProvider() {
-            return new DefaultPersistenceUnitNameProvider(AbstractPurchaseOrderTestSupport.persistenceUnitName);
-        }
-
-    }
+    static class TestConfig { }
 }

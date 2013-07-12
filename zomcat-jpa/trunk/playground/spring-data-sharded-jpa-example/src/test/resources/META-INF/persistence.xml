@@ -2,7 +2,8 @@
 <persistence version="2.0"
     xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-    <persistence-unit name="default">
+    <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <class>de.zalando.jpa.example.order.Address</class>
         <class>de.zalando.jpa.example.order.PurchaseOrderPosition</class>
         <class>de.zalando.jpa.example.order.PurchaseOrder</class>
@@ -27,191 +28,28 @@
             <property name="eclipselink.logging.level.cache" value="ALL"/>
             <property name="eclipselink.logging.level" value="ALL"/>
             <property name="eclipselink.logging.parameters" value="true"/>
+
+            <!-- SHARDING_DEFAULT_PARTITIONING -->
+            <property name="eclipselink.partitioning" value="Replicate" />
+
+            <!-- SHARDING_CONNECTION_POOLS -->
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5434/local_zomcat_jpa1_db" />
+            <property name="javax.persistence.jdbc.user" value="postgres" />
+            <property name="javax.persistence.jdbc.password" value="postgres" />
+
+            <!-- DEFAULT_CONNECTION_POOL -->
+            <property name="eclipselink.connection-pool.default.initial" value="1" />
+            <property name="eclipselink.connection-pool.default.min" value="64" />
+            <property name="eclipselink.connection-pool.default.max" value="64" />
+
+            <!-- NODE_2_CONNECTION_POOL -->
+            <property name="eclipselink.connection-pool.node2.url" value="jdbc:postgresql://localhost:5434/local_zomcat_jpa2_db" />
+            <property name="eclipselink.connection-pool.node2.user" value="postgres" />
+            <property name="eclipselink.connection-pool.node2.password" value="postgres" />
+            <property name="eclipselink.connection-pool.node2.initial" value="1" />
+            <property name="eclipselink.connection-pool.node2.min" value="64" />
+            <property name="eclipselink.connection-pool.node2.max" value="64" />
             </properties>
-    </persistence-unit>
-
-    <persistence-unit name="integrationTest">
-        <class>de.zalando.jpa.example.order.Address</class>
-        <class>de.zalando.jpa.example.order.PurchaseOrderPosition</class>
-        <class>de.zalando.jpa.example.order.PurchaseOrder</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-            <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-            <property name="eclipselink.weaving" value="false" />
-            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.DefaultZomcatSessionCustomizer"/>-->
-            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.PostgresZomcatSessionCustomizer"/>
-            <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
-
-            <property name="eclipselink.logging.timestamp" value="false"/>
-            <property name="eclipselink.logging.session" value="false"/>
-            <property name="eclipselink.logging.connection" value="false"/>
-            <property name="eclipselink.logging.thread" value="false"/>
-            <property name="eclipselink.logging.level.transaction" value="ALL"/>
-            <property name="eclipselink.logging.level.sql" value="FINE"/>
-            <property name="eclipselink.logging.level.event" value="ALL"/>
-            <property name="eclipselink.logging.level.connection" value="ALL"/>
-            <property name="eclipselink.logging.level.query" value="FINE"/>
-            <property name="eclipselink.logging.level.cache" value="ALL"/>
-            <property name="eclipselink.logging.level" value="ALL"/>
-            <property name="eclipselink.logging.parameters" value="true"/>
-        </properties>
-    </persistence-unit>
-
-    <persistence-unit name="idExample">
-        <class>de.zalando.jpa.example.id.WorkerConfig</class>
-        <class>de.zalando.jpa.example.id.Worker</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-            <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-            <property name="eclipselink.weaving" value="false" />
-            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer"/>
-            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.PostgresZomcatSessionCustomizer"/>-->
-            <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
-
-            <property name="eclipselink.logging.timestamp" value="false"/>
-            <property name="eclipselink.logging.session" value="false"/>
-            <property name="eclipselink.logging.connection" value="false"/>
-            <property name="eclipselink.logging.thread" value="false"/>
-            <property name="eclipselink.logging.level.transaction" value="ALL"/>
-            <property name="eclipselink.logging.level.sql" value="FINE"/>
-            <property name="eclipselink.logging.level.event" value="ALL"/>
-            <property name="eclipselink.logging.level.connection" value="ALL"/>
-            <property name="eclipselink.logging.level.query" value="FINE"/>
-            <property name="eclipselink.logging.level.cache" value="ALL"/>
-            <property name="eclipselink.logging.level" value="ALL"/>
-            <property name="eclipselink.logging.parameters" value="true"/>
-        </properties>
-    </persistence-unit>
-
-    <persistence-unit name="sequenceIdGenerator">
-        <class>de.zalando.jpa.example.sequences.CustomerOrder</class>
-        <class>de.zalando.jpa.example.sequences.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-            <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-            <property name="eclipselink.weaving" value="false" />
-            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer"/>
-            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.PostgresZomcatSessionCustomizer"/>-->
-            <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
-
-            <property name="eclipselink.logging.timestamp" value="false"/>
-            <property name="eclipselink.logging.session" value="false"/>
-            <property name="eclipselink.logging.connection" value="false"/>
-            <property name="eclipselink.logging.thread" value="false"/>
-            <property name="eclipselink.logging.level.transaction" value="ALL"/>
-            <property name="eclipselink.logging.level.sql" value="ALL"/>
-            <property name="eclipselink.logging.level.event" value="ALL"/>
-            <property name="eclipselink.logging.level.connection" value="ALL"/>
-            <property name="eclipselink.logging.level.query" value="FINE"/>
-            <property name="eclipselink.logging.level.cache" value="ALL"/>
-            <property name="eclipselink.logging.level" value="ALL"/>
-            <property name="eclipselink.logging.parameters" value="true"/>
-            <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
-            <property name="eclipselink.jdbc.batch-writing.size" value="1000"/>
-            <property name="eclipselink.jdbc.cache-statements" value="true"/>
-            <property name="eclipselink.jdbc.cache-statements.size" value="100"/>
-        </properties>
-    </persistence-unit>
-
-    <persistence-unit name="autoIdGenerator">
-        <class>de.zalando.jpa.example.autoid.CustomerOrder</class>
-        <class>de.zalando.jpa.example.autoid.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-            <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-            <property name="eclipselink.weaving" value="false" />
-            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer"/>
-            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.PostgresZomcatSessionCustomizer"/>-->
-            <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
-
-            <property name="eclipselink.logging.timestamp" value="false"/>
-            <property name="eclipselink.logging.session" value="false"/>
-            <property name="eclipselink.logging.connection" value="false"/>
-            <property name="eclipselink.logging.thread" value="false"/>
-            <property name="eclipselink.logging.level.transaction" value="ALL"/>
-            <property name="eclipselink.logging.level.sql" value="ALL"/>
-            <property name="eclipselink.logging.level.event" value="ALL"/>
-            <property name="eclipselink.logging.level.connection" value="ALL"/>
-            <property name="eclipselink.logging.level.query" value="FINE"/>
-            <property name="eclipselink.logging.level.cache" value="ALL"/>
-            <property name="eclipselink.logging.level" value="ALL"/>
-            <property name="eclipselink.logging.parameters" value="true"/>
-            <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
-            <property name="eclipselink.jdbc.batch-writing.size" value="1000"/>
-            <property name="eclipselink.jdbc.cache-statements" value="true"/>
-            <property name="eclipselink.jdbc.cache-statements.size" value="100"/>
-        </properties>
-    </persistence-unit>
-
-    <persistence-unit name="identity">
-        <class>de.zalando.jpa.example.identity.CustomerOrder</class>
-        <class>de.zalando.jpa.example.identity.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-            <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-            <property name="eclipselink.weaving" value="false" />
-            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer"/>
-            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.PostgresZomcatSessionCustomizer"/>-->
-            <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
-
-            <property name="eclipselink.logging.timestamp" value="false"/>
-            <property name="eclipselink.logging.session" value="false"/>
-            <property name="eclipselink.logging.connection" value="false"/>
-            <property name="eclipselink.logging.thread" value="false"/>
-            <property name="eclipselink.logging.level.transaction" value="ALL"/>
-            <property name="eclipselink.logging.level.sql" value="ALL"/>
-            <property name="eclipselink.logging.level.event" value="ALL"/>
-            <property name="eclipselink.logging.level.connection" value="ALL"/>
-            <property name="eclipselink.logging.level.query" value="FINE"/>
-            <property name="eclipselink.logging.level.cache" value="ALL"/>
-            <property name="eclipselink.logging.level" value="ALL"/>
-            <property name="eclipselink.logging.parameters" value="true"/>
-            <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
-            <property name="eclipselink.jdbc.batch-writing.size" value="1000"/>
-            <property name="eclipselink.jdbc.cache-statements" value="true"/>
-            <property name="eclipselink.jdbc.cache-statements.size" value="100"/>
-        </properties>
-    </persistence-unit>
-
-    <persistence-unit name="unidirectional">
-        <class>de.zalando.jpa.example.unidirectional.CustomerOrder</class>
-        <class>de.zalando.jpa.example.unidirectional.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-            <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-            <property name="eclipselink.weaving" value="false" />
-            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer"/>
-            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.PostgresZomcatSessionCustomizer"/>-->
-            <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
-
-            <property name="eclipselink.logging.timestamp" value="false"/>
-            <property name="eclipselink.logging.session" value="false"/>
-            <property name="eclipselink.logging.connection" value="false"/>
-            <property name="eclipselink.logging.thread" value="false"/>
-            <property name="eclipselink.logging.level.transaction" value="ALL"/>
-            <property name="eclipselink.logging.level.sql" value="ALL"/>
-            <property name="eclipselink.logging.level.event" value="ALL"/>
-            <property name="eclipselink.logging.level.connection" value="ALL"/>
-            <property name="eclipselink.logging.level.query" value="FINE"/>
-            <property name="eclipselink.logging.level.cache" value="ALL"/>
-            <property name="eclipselink.logging.level" value="ALL"/>
-            <property name="eclipselink.logging.parameters" value="true"/>
-            <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
-            <property name="eclipselink.jdbc.batch-writing.size" value="1000"/>
-            <property name="eclipselink.jdbc.cache-statements" value="true"/>
-            <property name="eclipselink.jdbc.cache-statements.size" value="100"/>
-        </properties>
     </persistence-unit>
 </persistence>
