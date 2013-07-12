@@ -20,6 +20,7 @@
     </properties>
     <modules>
         <module>spring-data-jpa-example</module>
+        <module>spring-data-sharded-jpa-example</module>
     </modules>
     <build>
         <pluginManagement>
