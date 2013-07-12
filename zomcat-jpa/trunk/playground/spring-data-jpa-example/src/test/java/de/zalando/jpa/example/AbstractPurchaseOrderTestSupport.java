@@ -57,7 +57,7 @@ public abstract class AbstractPurchaseOrderTestSupport {
         order.setBrandCode("BRANDCODE_A");
         purchaseOrderRepository.saveAndFlush(order);
 
-        Assert.assertNotNull(order.getBusinessKey());
+        Assert.assertNotNull(order.getId());
         Assert.assertNotNull(order.getBrandCode());
         Assert.assertNotNull(order.getCreatedBy());
         Assert.assertNotNull(order.getModifiedBy());
@@ -92,7 +92,6 @@ public abstract class AbstractPurchaseOrderTestSupport {
 
         LOG.info("PurchaseOrder to save with Postions : {}", order);
         LOG.info("Address : {}", order.getAddress());
-
     }
 
     @Configuration

@@ -4,6 +4,7 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
     <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
         <class>de.zalando.jpa.example.order.Address</class>
         <class>de.zalando.jpa.example.order.PurchaseOrderPosition</class>
         <class>de.zalando.jpa.example.order.PurchaseOrder</class>

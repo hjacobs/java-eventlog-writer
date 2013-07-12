@@ -4,7 +4,7 @@ CREATE TABLE zzj_data.purchase_order
 (
   po_id                         serial                                      NOT NULL  PRIMARY KEY,
   po_version                    integer                                     NOT NULL,
-  po_business_key               text                                        NOT NULL DEFAULT zzj_data.get_next_number('PURCHASE_ORDER'),
+--  po_business_key               text                                        NOT NULL DEFAULT zzj_data.get_next_number('PURCHASE_ORDER'),
   po_order_status               zzj_data.order_status                       NOT NULL DEFAULT 'INITIAL',
 
   po_brand_code                 text                                        NOT NULL,

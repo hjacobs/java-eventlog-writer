@@ -19,6 +19,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.eclipse.persistence.annotations.HashPartitioning;
 import org.eclipse.persistence.annotations.Partitioned;
 
 import org.springframework.data.annotation.CreatedBy;
@@ -33,6 +34,9 @@ import de.zalando.data.annotation.BusinessKey;
 
 @Entity
 @Table(name = "purchase_order", schema = "zzj_data")
+@HashPartitioning(
+    name = "HashPartitionByOrderId", partitionColumn = @Column(name = "po_id"), connectionPools = {"default", "node2"}
+)
 @Partitioned("Replicate")
 public class PurchaseOrder {
 
@@ -97,12 +101,12 @@ public class PurchaseOrder {
         this.orderStatus = orderStatus;
     }
 
-    public String getBusinessKey() {
-        return businessKey;
-    }
-
     public Date getCreationDate() {
         return creationDate;
+    }
+
+    public String getBusinessKey() {
+        return businessKey;
     }
 
     public String getCreatedBy() {
