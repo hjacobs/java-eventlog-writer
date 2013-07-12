@@ -1,13 +1,19 @@
 package de.zalando.jpa.config;
 
+import java.util.Map;
+
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
+
+import com.google.common.collect.Maps;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
@@ -55,6 +61,39 @@ public class DataSourceConfig {
 
             dataSource.addScript("schema_h2.sql"); // .addScript("sequence_h2.sql");
             return dataSource.build();
+        }
+    }
+
+    @Configuration
+    @Profile(TestProfiles.H2_SHARDED)
+    static class H2ShardedDataSource {
+
+        @Bean
+        public EmbeddedDatabase embeddedDatabaseOne() {
+
+            return new EmbeddedDatabaseBuilder().setName("ONE").setType(EmbeddedDatabaseType.H2).build();
+        }
+
+        @Bean
+        public EmbeddedDatabase embeddedDatabaseTwo() {
+
+            return new EmbeddedDatabaseBuilder().setName("TWO").setType(EmbeddedDatabaseType.H2).build();
+        }
+
+        @Bean
+        public DataSource dataSource() {
+            AbstractRoutingDataSource routingDataSource = new RoundRobinRoutingDataSource();
+
+            //
+            Map<Object, Object> dataSourceMap = Maps.newHashMap();
+            dataSourceMap.put(ShardKey.ONE, embeddedDatabaseOne());
+            dataSourceMap.put(ShardKey.TWO, embeddedDatabaseTwo());
+
+            //
+            routingDataSource.setTargetDataSources(dataSourceMap);
+            routingDataSource.setDefaultTargetDataSource(embeddedDatabaseOne());
+            routingDataSource.afterPropertiesSet();
+            return routingDataSource;
         }
     }
 

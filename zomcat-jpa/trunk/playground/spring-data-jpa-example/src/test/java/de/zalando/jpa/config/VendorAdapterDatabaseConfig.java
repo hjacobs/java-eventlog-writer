@@ -23,6 +23,16 @@ public class VendorAdapterDatabaseConfig {
     }
 
     @Configuration
+    @Profile(TestProfiles.H2_SHARDED)
+    static class H2ShardedVendorAdapter {
+
+        @Bean
+        public Database database() {
+            return Database.H2;
+        }
+    }
+
+    @Configuration
     @Profile(TestProfiles.POSTGRES)
     static class PostgresVendorAdapter {
 

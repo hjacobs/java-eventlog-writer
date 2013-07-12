@@ -145,6 +145,9 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <skipTests>${unit.test.skip}</skipTests>
+                            <excludes>
+                                <exclude>**/Abstract*.java</exclude>
+                            </excludes>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -158,6 +161,9 @@
                                 <frontend.sproc.datasource.url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name}</frontend.sproc.datasource.url>
                             </systemPropertyVariables>
                             <argLine>${failsafe.argLine}</argLine>
+                           <excludes>
+                            <exclude>**/Abstract*.java</exclude>
+                           </excludes>
                         </configuration>
                         <executions>
                             <execution>
