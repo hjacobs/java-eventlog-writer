@@ -1,4 +1,4 @@
-package de.zalando.jpa.example.order;
+package de.zalando.jpa.sharding.policy;
 
 import java.util.ArrayList;
 import java.util.List;
