@@ -2,12 +2,19 @@ package de.zalando.zomcat.appconfig;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import static de.zalando.appconfig.ConfigCtxBuilder.configCtx;
+
+import java.util.Collection;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.zalando.appconfig.ConfigCtx;
 import de.zalando.appconfig.Configuration;
-import de.zalando.appconfig.builder.EntityConfigurationBuilder;
+import de.zalando.appconfig.proxy.EntityConfigurationProxy;
+
+import de.zalando.config.domain.context.ApplicationContext;
 
 import de.zalando.domain.Environment;
 
@@ -15,6 +22,7 @@ import de.zalando.zomcat.configuration.AppInstanceContextProvider;
 
 /**
  * @author  hjacobs
+ * @author  mjuenemann
  */
 public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements BaseApplicationConfig {
 
@@ -132,12 +140,17 @@ public class BaseApplicationConfigImpl extends JobConfigSourceImpl implements Ba
 
     @Override
     public <T> T getEntity(final Class<T> classOfT, final String id) {
-        return EntityConfigurationBuilder.entityConfiguration(getConfig()).withId(id).get(classOfT);
+        return new EntityConfigurationProxy(getConfig()).getEntity(classOfT,
+                configCtx().withCustomContext(id).getConfigCtx());
     }
 
     @Override
     public <T> T getEntity(final Class<T> classOfT, final int id) {
-        return EntityConfigurationBuilder.entityConfiguration(getConfig()).withId(id).get(classOfT);
+        return getEntity(classOfT, "" + id);
     }
 
+    @Override
+    public <T> Map<ApplicationContext, Collection<T>> getEntitiesWithContext(final Class<T> classOfT) {
+        return new EntityConfigurationProxy(getConfig()).getEntitiesWithContext(classOfT).asMap();
+    }
 }

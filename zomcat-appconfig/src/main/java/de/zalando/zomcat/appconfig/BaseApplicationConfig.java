@@ -1,6 +1,11 @@
 package de.zalando.zomcat.appconfig;
 
+import java.util.Collection;
+import java.util.Map;
+
 import de.zalando.appconfig.Configuration;
+
+import de.zalando.config.domain.context.ApplicationContext;
 
 import de.zalando.domain.Environment;
 
@@ -9,6 +14,7 @@ import de.zalando.zomcat.jobs.JobConfigSource;
 
 /**
  * @author  hjacobs
+ * @author  mjuenemann
  */
 public interface BaseApplicationConfig extends JobConfigSource {
 
@@ -59,6 +65,17 @@ public interface BaseApplicationConfig extends JobConfigSource {
      * @example  PaymentMethod pm = applicationConfig.getEntity(PaymentMethod.class, pmId);
      */
     <T> T getEntity(final Class<T> classOfT, final int id);
+
+    /**
+     * Retrieve all entities that are defined in the central config service (other resources are not supported at the
+     * moment) with their context information. Only use this method if you want to iterate over all specified contexts.
+     * If you only want to get one entity instance, use getEntity or directly EntitiyConfigurationProxy
+     *
+     * @param   classOfT
+     *
+     * @return
+     */
+    <T> Map<ApplicationContext, Collection<T>> getEntitiesWithContext(final Class<T> classOfT);
 
     Configuration getConfig();
 

@@ -382,4 +382,9 @@ public class MockConfiguration implements Configuration {
         return null;
     }
 
+    @Override
+    public Set<ConfigCtx> getSpecifiedContexts(final String key) {
+        return null;
+    }
+
 }
