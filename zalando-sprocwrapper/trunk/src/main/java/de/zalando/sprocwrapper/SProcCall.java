@@ -64,7 +64,9 @@ public @interface SProcCall {
          * de.zalando.dbutils.sproc.LockingSproc though we continue counting with a considerably higher value
          */
         GET_PENDING_BATCH_MAILS(1001L),
-        EAN_GET_NEXT_EAN(1002L);
+        EAN_GET_NEXT_EAN(1002L),
+        ZALOS_EXPORT_OUTBOUND_TOURS(1003L),
+        ZALOS_INBOUND_TOUR_ARRIVAL(1004L);
 
         private AdvisoryLock(final long sprocId) {
             this.sprocId = sprocId;
