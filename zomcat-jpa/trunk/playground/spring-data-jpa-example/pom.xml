@@ -56,6 +56,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>spring-data-jpa-test-support</artifactId>
+            <scope>test</scope>
+            <version>${zomcat.jpa.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.jolbox</groupId>
             <artifactId>bonecp-spring</artifactId>
             <scope>test</scope>
