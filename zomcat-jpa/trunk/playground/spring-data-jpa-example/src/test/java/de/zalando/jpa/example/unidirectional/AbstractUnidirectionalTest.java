@@ -28,9 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Lists;
 
 import de.zalando.jpa.config.DataSourceConfig;
-import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
 import de.zalando.jpa.config.JpaConfig;
 import de.zalando.jpa.config.PersistenceUnitNameProvider;
+import de.zalando.jpa.config.StandardPersistenceUnitNameProvider;
 import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 
 /**
@@ -45,7 +45,7 @@ public abstract class AbstractUnidirectionalTest {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractUnidirectionalTest.class);
 
-    public static final String peristenceUnitName = "de.zalando.jpa.example.unidirectional";
+    public static final String PACKAGES_TO_SCAN = "de.zalando.jpa.example.unidirectional";
 
     @Autowired
     protected CustomerOrderRepository customerOrderRepository;
@@ -85,14 +85,14 @@ public abstract class AbstractUnidirectionalTest {
     }
 
     @Configuration
-    @EnableJpaRepositories(AbstractUnidirectionalTest.peristenceUnitName)
+    @EnableJpaRepositories(AbstractUnidirectionalTest.PACKAGES_TO_SCAN)
     @EnableJpaAuditing
     @Import({ JpaConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
     static class TestConfig {
 
         @Bean
         public PersistenceUnitNameProvider persistenceUnitNameProvider() {
-            return new DefaultPersistenceUnitNameProvider("unidirectional");
+            return new StandardPersistenceUnitNameProvider("unidirectional");
         }
 
     }
