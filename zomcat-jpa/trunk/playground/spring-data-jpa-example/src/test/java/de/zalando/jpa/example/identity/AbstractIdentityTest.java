@@ -24,9 +24,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.zalando.jpa.config.DataSourceConfig;
-import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
 import de.zalando.jpa.config.JpaConfig;
 import de.zalando.jpa.config.PersistenceUnitNameProvider;
+import de.zalando.jpa.config.StandardPersistenceUnitNameProvider;
 import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -36,8 +36,8 @@ public abstract class AbstractIdentityTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIdentityTest.class);
 
-    public static final String packagesToScan = "de.zalando.jpa.example.identity";
-    public static final String persistenceUnitName = "identity";
+    public static final String PACKAGES_TO_SCAN = "de.zalando.jpa.example.identity";
+    public static final String PU_NAME = "identity";
 
     @Autowired
     private CustomerOrderRepository customerOrderRepository;
@@ -64,14 +64,14 @@ public abstract class AbstractIdentityTest {
     }
 
     @Configuration
-    @EnableJpaRepositories(AbstractIdentityTest.packagesToScan)
+    @EnableJpaRepositories(AbstractIdentityTest.PACKAGES_TO_SCAN)
     @EnableJpaAuditing
     @Import({ JpaConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
     static class TestConfig {
 
         @Bean
         public PersistenceUnitNameProvider persistenceUnitNameProvider() {
-            return new DefaultPersistenceUnitNameProvider(AbstractIdentityTest.persistenceUnitName);
+            return new StandardPersistenceUnitNameProvider(AbstractIdentityTest.PU_NAME);
         }
 
     }
