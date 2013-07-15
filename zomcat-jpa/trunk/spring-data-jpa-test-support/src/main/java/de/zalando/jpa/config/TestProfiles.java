@@ -1,7 +1,7 @@
 package de.zalando.jpa.config;
 
 /**
- * Profiles to test.
+ * Defines Refactoring-/Typesafe Profiles to test.
  *
  * @author  jbellmann
  */

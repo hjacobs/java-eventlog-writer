@@ -2,6 +2,9 @@ package de.zalando.jpa.config;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.annotation.Bean;
@@ -23,14 +26,16 @@ import de.zalando.jpa.springframework.ExtendedEclipseLinkJpaVendorAdapter;
 @EnableTransactionManagement
 public class JpaConfig {
 
-    @Autowired
+    private static final Logger LOG = LoggerFactory.getLogger(JpaConfig.class);
+
+    @Autowired(required = false)
     private DataSource dataSource;
 
-    @Autowired
-    private Database database;
+    @Autowired(required = false)
+    private Database database = Database.POSTGRESQL;
 
-    @Autowired
-    private PersistenceUnitNameProvider persistenceUnitNameProvider;
+    @Autowired(required = false)
+    private PersistenceUnitNameProvider persistenceUnitNameProvider = new StandardPersistenceUnitNameProvider();
 
     @Bean
     public PlatformTransactionManager transactionManager() {
@@ -51,7 +56,12 @@ public class JpaConfig {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setPersistenceUnitName(persistenceUnitNameProvider.getPersistenceUnitName());
         factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setDataSource(dataSource);
+        if (this.dataSource != null) {
+            factory.setDataSource(dataSource);
+        } else {
+            LOG.warn(
+                "No DataSource was configured. So we expect you provide connection-pool configuration in the 'persistence.xml'?");
+        }
 
         return factory;
     }

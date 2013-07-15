@@ -17,6 +17,11 @@ import com.google.common.collect.Maps;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
+/**
+ * Muliple DataSource-Configurations for Tests.
+ *
+ * @author  jbellmann
+ */
 @Configuration
 public class DataSourceConfig {
 
