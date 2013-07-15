@@ -22,6 +22,7 @@
         <module>spring-data-jpa-auditing-cxf</module>
         <module>spring-data-jpa-java-config</module>
         <!-- <module>sharding</module>-->
+        <module>spring-data-jpa-test-support</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
