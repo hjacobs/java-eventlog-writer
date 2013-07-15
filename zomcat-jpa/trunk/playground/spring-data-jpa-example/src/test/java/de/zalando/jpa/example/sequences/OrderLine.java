@@ -11,12 +11,14 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "order_Line")
+@Table(name = "sequences_order_line")
 public class OrderLine {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_line_id_seq")
-    @SequenceGenerator(name = "order_line_id_seq", sequenceName = "order_line_id_seq", allocationSize = 100)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequences_order_line_id_seq")
+    @SequenceGenerator(
+        name = "sequences_order_line_id_seq", sequenceName = "sequences_order_line_id_seq", allocationSize = 100
+    )
     private Long id;
 
     @NotNull

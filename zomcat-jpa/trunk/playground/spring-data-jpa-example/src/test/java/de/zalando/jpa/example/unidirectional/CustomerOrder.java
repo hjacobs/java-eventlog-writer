@@ -11,12 +11,14 @@ import javax.persistence.Table;
  * @author  jbellmann
  */
 @Entity
-@Table(name = "customer_Order")
+@Table(name = "unidir_customer_order")
 public class CustomerOrder {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_order_id_seq")
-    @SequenceGenerator(name = "customer_order_id_seq", sequenceName = "customer_order_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "unidir_customer_order_id_seq")
+    @SequenceGenerator(
+        name = "unidir_customer_order_id_seq", sequenceName = "unidir_customer_order_id_seq", allocationSize = 1
+    )
     private Long id;
 
     public Long getId() {

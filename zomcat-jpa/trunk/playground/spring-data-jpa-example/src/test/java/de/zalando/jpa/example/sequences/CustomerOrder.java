@@ -18,12 +18,14 @@ import com.google.common.collect.Lists;
  * @author  jbellmann
  */
 @Entity
-@Table(name = "customer_Order")
+@Table(name = "sequences_customer_order")
 public class CustomerOrder {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_order_id_seq")
-    @SequenceGenerator(name = "customer_order_id_seq", sequenceName = "customer_order_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequences_customer_order_id_seq")
+    @SequenceGenerator(
+        name = "sequences_customer_order_id_seq", sequenceName = "sequences_customer_order_id_seq", allocationSize = 1
+    )
     private Long id;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerOrder", orphanRemoval = true, fetch = FetchType.EAGER)

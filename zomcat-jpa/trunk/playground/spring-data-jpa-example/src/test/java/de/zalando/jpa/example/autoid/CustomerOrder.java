@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
  * @author  jbellmann
  */
 @Entity
-@Table(name = "customerOrder")
+@Table(name = "autoid_customer_order")
 public class CustomerOrder {
 
     @Id

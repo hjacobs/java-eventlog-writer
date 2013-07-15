@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "orderLine")
+@Table(name = "autoid_order_line")
 public class OrderLine {
 
     @Id
