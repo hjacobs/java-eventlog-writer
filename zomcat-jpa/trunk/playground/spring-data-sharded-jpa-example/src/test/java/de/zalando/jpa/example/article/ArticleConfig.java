@@ -1,43 +1,46 @@
 package de.zalando.jpa.example.article;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.IdClass;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.eclipse.persistence.annotations.Partitioned;
 
 @Entity
+@IdClass(ArticleSkuPk.class)
 @Table(name = "article_config", schema = "zzj_data")
 @Partitioned("PartitionByShardKey")
 public class ArticleConfig {
 
     @Id
     @OneToOne
-    private ArticleSku configSku;
+    private ArticleSku articlesku;
 
-    @Column
     private String name;
 
-    @ManyToOne
-    private ArticleModel articleModel;
+// @ManyToOne
+// private ArticleModel articleModel;
 
-    public ArticleModel getArticleModel() {
-        return articleModel;
+    protected ArticleConfig() {
+        // just for JPA
     }
 
-    public void setArticleModel(final ArticleModel articleModel) {
-        this.articleModel = articleModel;
+    public ArticleConfig(final ArticleSku articlesku) {
+        this.articlesku = articlesku;
     }
+
+// public ArticleModel getArticleModel() {
+// return articleModel;
+// }
+//
+// public void setArticleModel(final ArticleModel articleModel) {
+// this.articleModel = articleModel;
+// }
 
     public ArticleSku getConfigSku() {
-        return configSku;
-    }
-
-    public void setConfigSku(final ArticleSku configSku) {
-        this.configSku = configSku;
+        return articlesku;
     }
 
     public String getName() {

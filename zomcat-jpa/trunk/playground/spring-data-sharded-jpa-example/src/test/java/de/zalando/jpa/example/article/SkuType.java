@@ -5,7 +5,9 @@ package de.zalando.jpa.example.article;
  * File Templates.
  */
 public enum SkuType {
+
     MODEL,
     CONFIG,
     SIMPLE
+
 }

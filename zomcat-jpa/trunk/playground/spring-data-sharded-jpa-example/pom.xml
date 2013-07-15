@@ -44,6 +44,11 @@
             <version>${zomcat.jpa.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>spring-data-jpa-test-support</artifactId>
+            <version>${zomcat.jpa.version}</version>
+        </dependency>
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${jodatime.version}</version>

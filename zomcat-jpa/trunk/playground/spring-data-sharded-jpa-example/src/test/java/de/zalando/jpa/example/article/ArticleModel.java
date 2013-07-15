@@ -3,9 +3,9 @@ package de.zalando.jpa.example.article;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -15,15 +15,15 @@ import javax.persistence.Table;
 import org.eclipse.persistence.annotations.Partitioned;
 
 @Entity
+@IdClass(ArticleSkuPk.class)
 @Table(name = "article_model", schema = "zzj_data")
 @Partitioned("PartitionByShardKey")
 public class ArticleModel {
 
     @Id
     @OneToOne
-    private ArticleSku modelSku;
+    private ArticleSku articlesku;
 
-    @Column
     private String name;
 
     @OneToMany
@@ -32,6 +32,15 @@ public class ArticleModel {
     @ManyToMany
     @JoinTable
     private List<Attribute> attributes;
+
+    /**
+     * INTERNAL: Only for JPA.
+     */
+    protected ArticleModel() { }
+
+    public ArticleModel(final ArticleSku articleSku) {
+        this.articlesku = articleSku;
+    }
 
     public List<ArticleConfig> getArticleConfigs() {
         return articleConfigs;
@@ -50,11 +59,11 @@ public class ArticleModel {
     }
 
     public ArticleSku getModelSku() {
-        return modelSku;
+        return articlesku;
     }
 
     public void setModelSku(final ArticleSku modelSku) {
-        this.modelSku = modelSku;
+        this.articlesku = modelSku;
     }
 
     public String getName() {

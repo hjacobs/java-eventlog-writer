@@ -2,7 +2,6 @@ package de.zalando.jpa.example.article;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -10,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.eclipse.persistence.annotations.Partitioned;
@@ -26,18 +26,18 @@ import de.zalando.sprocwrapper.sharding.ShardedObject;
 @Partitioned("PartitionByShardKey")
 public class ArticleSku implements ShardedObject, Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "article_sku_id_seq")
+    @SequenceGenerator(name = "article_sku_id_seq", sequenceName = "article_sku_id_seq", allocationSize = 1)
+    private Long id;
 
     @ShardKey
-    @Column
     private String sku;
 
     @Enumerated(EnumType.STRING)
-    @Column
-    private SkuType skuType;
+    private SkuType type;
 
     @ManyToOne
     private ArticleSku model;
@@ -58,20 +58,16 @@ public class ArticleSku implements ShardedObject, Serializable {
         this.config = config;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(final Integer id) {
-        this.id = id;
-    }
-
     public ArticleSku getModel() {
         return model;
     }
 
     public void setModel(final ArticleSku model) {
         this.model = model;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getSku() {
@@ -83,10 +79,10 @@ public class ArticleSku implements ShardedObject, Serializable {
     }
 
     public SkuType getSkuType() {
-        return skuType;
+        return type;
     }
 
     public void setSkuType(final SkuType skuType) {
-        this.skuType = skuType;
+        this.type = skuType;
     }
 }
