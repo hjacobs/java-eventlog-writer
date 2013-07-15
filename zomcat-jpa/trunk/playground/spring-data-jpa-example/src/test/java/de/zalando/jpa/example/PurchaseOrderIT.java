@@ -9,8 +9,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
 import de.zalando.jpa.config.PersistenceUnitNameProvider;
+import de.zalando.jpa.config.StandardPersistenceUnitNameProvider;
 import de.zalando.jpa.config.TestProfiles;
 
 /**
@@ -32,7 +32,7 @@ public class PurchaseOrderIT extends AbstractPurchaseOrderTestSupport {
 
         @Bean
         public PersistenceUnitNameProvider persistenceUnitNameProvider() {
-            return new DefaultPersistenceUnitNameProvider("integrationTest");
+            return new StandardPersistenceUnitNameProvider("integrationTest");
         }
 
     }
