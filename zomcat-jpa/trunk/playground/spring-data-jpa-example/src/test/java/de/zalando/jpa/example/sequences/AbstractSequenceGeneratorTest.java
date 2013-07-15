@@ -24,9 +24,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.zalando.jpa.config.DataSourceConfig;
-import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
 import de.zalando.jpa.config.JpaConfig;
 import de.zalando.jpa.config.PersistenceUnitNameProvider;
+import de.zalando.jpa.config.StandardPersistenceUnitNameProvider;
 import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 
 /**
@@ -73,7 +73,7 @@ public abstract class AbstractSequenceGeneratorTest {
 
         @Bean
         public PersistenceUnitNameProvider persistenceUnitNameProvider() {
-            return new DefaultPersistenceUnitNameProvider(AbstractSequenceGeneratorTest.persistenceUnitName);
+            return new StandardPersistenceUnitNameProvider(AbstractSequenceGeneratorTest.persistenceUnitName);
         }
 
     }
