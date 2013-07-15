@@ -24,9 +24,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.zalando.jpa.config.DataSourceConfig;
-import de.zalando.jpa.config.DefaultPersistenceUnitNameProvider;
 import de.zalando.jpa.config.JpaConfig;
 import de.zalando.jpa.config.PersistenceUnitNameProvider;
+import de.zalando.jpa.config.StandardPersistenceUnitNameProvider;
 import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -35,8 +35,8 @@ import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
 public class AbstractShardingTest {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractShardingTest.class);
 
-    public static final String packagesToScan = "de.zalando.jpa.example.sharding";
-    public static final String persistenceUnitName = "sharding";
+    public static final String PACKAGES_TO_SCAN = "de.zalando.jpa.example.sharding";
+    public static final String PU_NAME = "sharding";
 
     @Autowired
     private CustomerOrderRepository customerOrderRepository;
@@ -63,14 +63,14 @@ public class AbstractShardingTest {
     }
 
     @Configuration
-    @EnableJpaRepositories(AbstractShardingTest.packagesToScan)
+    @EnableJpaRepositories(AbstractShardingTest.PACKAGES_TO_SCAN)
     @EnableJpaAuditing
     @Import({ JpaConfig.class, DataSourceConfig.class, VendorAdapterDatabaseConfig.class })
     static class TestConfig {
 
         @Bean
         public PersistenceUnitNameProvider persistenceUnitNameProvider() {
-            return new DefaultPersistenceUnitNameProvider(AbstractShardingTest.persistenceUnitName);
+            return new StandardPersistenceUnitNameProvider(AbstractShardingTest.PU_NAME);
         }
 
     }
