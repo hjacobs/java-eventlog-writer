@@ -13,6 +13,8 @@ import javax.persistence.Table;
 import org.eclipse.persistence.annotations.Partitioned;
 import org.eclipse.persistence.annotations.Partitioning;
 
+import de.zalando.jpa.sharding.policy.PartitioningPolicyShardKey;
+
 import de.zalando.sprocwrapper.sharding.ShardKey;
 
 @Entity

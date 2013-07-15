@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+// TODO    What is this annotation used for?
 /**
  * @author  jmussler
  */
@@ -13,5 +14,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Inherited
 public @interface ShardKey {
+
+    // TODO add some documenation what pos() stands for !!!
     int pos() default -1;
 }
