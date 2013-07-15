@@ -65,13 +65,33 @@ public class GlobalValueTransformerLoader {
                 final Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(
                         GlobalValueTransformer.class);
                 for (final Class<?> foundGlobalValueTransformer : typesAnnotatedWith) {
+
                     final Class<?> valueTransformerReturnType = ValueTransformerUtils.getUnmarshalFromDbClass(
                             foundGlobalValueTransformer);
                     if (valueTransformerReturnType != null) {
+
+                        // check if we have to manage a value transformer from the new namespace:
+                        DelegationValueTransformer delegationValueTransformer = null;
+                        if (com.typemapper.core.ValueTransformer.class.isAssignableFrom(foundGlobalValueTransformer)) {
+
+                            // we found a new value transformer. create a wrapper/delegation for it:
+                            delegationValueTransformer = new DelegationValueTransformer(
+                                    (com.typemapper.core.ValueTransformer) foundGlobalValueTransformer.newInstance());
+                        }
+
                         GlobalValueTransformerRegistry.register(valueTransformerReturnType,
-                            (ValueTransformer<?, ?>) foundGlobalValueTransformer.newInstance());
-                        LOG.debug("Global Value Transformer [{}] for type [{}] registered. ",
-                            foundGlobalValueTransformer.getSimpleName(), valueTransformerReturnType.getSimpleName());
+                            delegationValueTransformer != null
+                                ? delegationValueTransformer
+                                : ((ValueTransformer<?, ?>) foundGlobalValueTransformer.newInstance()));
+                        if (delegationValueTransformer != null) {
+                            LOG.debug("Delegation Value Transformer added [{}] for type [{}] registered. ",
+                                foundGlobalValueTransformer.getSimpleName(),
+                                valueTransformerReturnType.getSimpleName());
+                        } else {
+                            LOG.debug("Global Value Transformer [{}] for type [{}] registered. ",
+                                foundGlobalValueTransformer.getSimpleName(),
+                                valueTransformerReturnType.getSimpleName());
+                        }
                     } else {
                         LOG.error(
                             "Could add global transformer [{}] to global registry. Could not find method unmarshalFromDb.",
@@ -94,5 +114,29 @@ public class GlobalValueTransformerLoader {
     public static void changeNamespaceToScan(final String newNamespace) {
         namespaceToScan = newNamespace;
         scannedClasspath = false;
+    }
+
+    /**
+     * This helper transformer is only for compatibility issues. If all projects use the unified sprocwrapper, this
+     * class can be removed safely.
+     */
+    @Deprecated
+    public static class DelegationValueTransformer extends ValueTransformer {
+
+        private com.typemapper.core.ValueTransformer valueTransformer;
+
+        public DelegationValueTransformer(final com.typemapper.core.ValueTransformer valueTransformer) {
+            this.valueTransformer = valueTransformer;
+        }
+
+        @Override
+        public Object unmarshalFromDb(final String value) {
+            return valueTransformer.unmarshalFromDb(value);
+        }
+
+        @Override
+        public Object marshalToDb(final Object o) {
+            return valueTransformer.marshalToDb(o);
+        }
     }
 }

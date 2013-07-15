@@ -746,7 +746,7 @@ public class SimpleIT {
     }
 
     @Test
-    @Ignore("Active this test when the new monetary feature is finished")
+    @Ignore("Only activate this test when the new monetary feature is finished")
     public void testMonetaryValue() {
         BigDecimal b = new BigDecimal("123.124");
         int i = exampleSProcService.createOrder("order2", new TobisAmount(b, "EUR"));
