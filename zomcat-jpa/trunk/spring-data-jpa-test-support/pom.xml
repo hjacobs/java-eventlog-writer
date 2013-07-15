@@ -37,5 +37,9 @@
             <artifactId>zomcat-jpa-eclipselink</artifactId>
             <version>${zomcat.jpa.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.jolbox</groupId>
+            <artifactId>bonecp-spring</artifactId>
+        </dependency>
     </dependencies>
 </project>
