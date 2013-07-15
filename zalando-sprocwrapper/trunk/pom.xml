@@ -109,6 +109,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
+                            <reportsDirectory>${project.basedir}/target/failsafe-reports</reportsDirectory>
                             <systemPropertyVariables>
                                 <frontend.sproc.datasource.username>postgres</frontend.sproc.datasource.username>
                                 <frontend.sproc.datasource.password>postgres</frontend.sproc.datasource.password>
