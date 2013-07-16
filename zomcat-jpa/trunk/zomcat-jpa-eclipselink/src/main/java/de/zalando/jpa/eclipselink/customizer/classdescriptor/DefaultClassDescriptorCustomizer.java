@@ -38,18 +38,18 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
 
     @Override
     public void customize(final ClassDescriptor clazzDescriptor, final Session session) {
-        logFine(session, "----  Customize for entity {0} ----\n", clazzDescriptor.getJavaClassName());
+        logFine(session, START_CUS, clazzDescriptor.getJavaClassName());
 
         customizeObjectChangePolicy(clazzDescriptor, session);
 
         for (DatabaseMapping databaseMapping : clazzDescriptor.getMappings()) {
-            logFine(session, "Field : {0}", databaseMapping.getAttributeName());
+            logFine(session, FIELD, databaseMapping.getAttributeName());
 
             // columnNames
             ColumnNameCustomizer<DatabaseMapping> columnNameCustomizer = getColumnNameCustomizer(databaseMapping);
 
             if (isNoOpCustomizer(columnNameCustomizer)) {
-                logFinest(session, "No ColumnNameCustomizer found for {0}", databaseMapping.getClass().getName());
+                logFinest(session, NO_COL_CUSTOMIZER, databaseMapping.getClass().getName());
             }
 
             columnNameCustomizer.customizeColumnName(clazzDescriptor.getTableName(), databaseMapping, session);
@@ -57,7 +57,7 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
             // converter
             ConverterCustomizer<DatabaseMapping> converterCustomizer = getConverterCustomizer(databaseMapping);
             if (isNoOpCustomizer(converterCustomizer)) {
-                logFinest(session, "No ConverterCustomizer found for {0}", databaseMapping.getClass().getName());
+                logFinest(session, NO_CONV_CUSTOMIZER, databaseMapping.getClass().getName());
             }
 
             converterCustomizer.customizeConverter(databaseMapping, session);
@@ -66,7 +66,7 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
 
         // session.getProject().addPartitioningPolicy(null);
 
-        logFine(session, "----  Entity {0} customized  ----\n", clazzDescriptor.getJavaClassName());
+        logFine(session, END_CUS, clazzDescriptor.getJavaClassName());
     }
 
     private void customizeObjectChangePolicy(final ClassDescriptor clazzDescriptor, final Session session) {

@@ -19,6 +19,12 @@ public abstract class LogSupport {
     public static final String OBJECT_CHANGE_TRACKING_POLICY = "ObjectChangeTrackingPolicy";
     public static final String ATTRIBUTE_CHANGE_TRACKING_POLICY = "AttributeChangeTrackingPolicy";
 
+    public static final String NO_COL_CUSTOMIZER = "No ColumnNameCustomizer found for {0}";
+    public static final String NO_CONV_CUSTOMIZER = "No ConverterCustomizer found for {0}";
+    public static final String FIELD = "Field : {0}";
+    public static final String START_CUS = "----  Customize for entity {0} ----\n";
+    public static final String END_CUS = "----  Entity {0} customized  ----\n";
+
     protected void logFinest(final Session session, final String message, final Object... args) {
         session.getSessionLog().log(SessionLog.FINEST, message, args, false);
     }
