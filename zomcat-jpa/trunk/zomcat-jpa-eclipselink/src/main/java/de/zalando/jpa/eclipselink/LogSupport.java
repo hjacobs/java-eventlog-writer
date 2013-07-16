@@ -10,6 +10,15 @@ import org.eclipse.persistence.sessions.Session;
  */
 public abstract class LogSupport {
 
+    public static final String SET_OBJECT_CHANGE_POLICY_TO = "Set ObjectChangePolicy to {0}";
+    public static final String USE_DEFAULT_CHANGE_TRACKING_POLICY = "Use default change tracking policy";
+    public static final String COULD_NOT_DETERMINE_CHANGE_TRACKING_TYPE =
+        "Could not determine ChangeTrackingType for property value '{0}'. Use AUTO.";
+
+    public static final String DEFERRED_CHANGE_DETECTION_POLICY = "DeferredChangeDetectionPolicy";
+    public static final String OBJECT_CHANGE_TRACKING_POLICY = "ObjectChangeTrackingPolicy";
+    public static final String ATTRIBUTE_CHANGE_TRACKING_POLICY = "AttributeChangeTrackingPolicy";
+
     protected void logFinest(final Session session, final String message, final Object... args) {
         session.getSessionLog().log(SessionLog.FINEST, message, args, false);
     }

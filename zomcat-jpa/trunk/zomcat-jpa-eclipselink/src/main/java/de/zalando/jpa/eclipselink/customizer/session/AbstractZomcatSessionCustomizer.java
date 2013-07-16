@@ -21,6 +21,7 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
 
         logSessionProperties(session);
 
+        // process customization on all clazzDescriptors
         Map<Class, ClassDescriptor> clazzDescriptors = session.getDescriptors();
         for (Map.Entry<Class, ClassDescriptor> descriptorEntry : clazzDescriptors.entrySet()) {
 
