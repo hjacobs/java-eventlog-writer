@@ -1,0 +1,2 @@
+== Leider scheint es nicht so einfach erweiterbar zu sein wie man es braucht, daher muessen
+wir uns wohl hier ein eigenes construct bauen
