@@ -2,21 +2,23 @@ package de.zalando.sprocwrapper.example.transformer;
 
 import java.math.BigDecimal;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.TreeMap;
 
-import de.zalando.sprocwrapper.example.MonetaryAmount;
 import de.zalando.sprocwrapper.example.TobisAmount;
 import de.zalando.sprocwrapper.example.TobisAmountImpl;
 import de.zalando.sprocwrapper.globalobjecttransformer.annotation.GlobalObjectMapper;
 
 import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
 import de.zalando.typemapper.core.result.DbResultNode;
+import de.zalando.typemapper.postgres.PgTypeHelper.PgTypeDataHolder;
 
 /**
  * @author  danieldelhoyo
  */
 @GlobalObjectMapper
-public class MoneyObjectMapper extends ObjectMapper<MonetaryAmount, TobisAmount> {
+public class MoneyObjectMapper extends ObjectMapper<TobisAmount> {
     @Override
     public TobisAmount unmarshalFromDbNode(final DbResultNode dbResultNode) {
         List<DbResultNode> dbResultNodeList = dbResultNode.getChildren();
@@ -27,8 +29,11 @@ public class MoneyObjectMapper extends ObjectMapper<MonetaryAmount, TobisAmount>
     }
 
     @Override
-    public MonetaryAmount marshalToDb(final TobisAmount t) {
-        return new MonetaryAmount(t.getAmount(), t.getCurrency());
+    public PgTypeDataHolder marshalToDb(final TobisAmount t) {
+        TreeMap<Integer, Object> resultPositionMap = new TreeMap<Integer, Object>();
+        resultPositionMap.put(1, t.getAmount());
+        resultPositionMap.put(2, t.getCurrency());
+        return new PgTypeDataHolder("monetary_amount", Collections.unmodifiableCollection(resultPositionMap.values()));
     }
 
 }

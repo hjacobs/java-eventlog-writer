@@ -215,7 +215,7 @@ public class PgTypeHelper {
         private final String typeName;
         private final Collection<Object> attributes;
 
-        PgTypeDataHolder(final String typeName, final Collection<Object> attributes) {
+        public PgTypeDataHolder(final String typeName, final Collection<Object> attributes) {
             this.typeName = typeName;
             this.attributes = attributes;
         }
@@ -266,6 +266,11 @@ public class PgTypeHelper {
         final Class<?> clazz = getActualClass(obj);
         if (clazz.isPrimitive() || clazz.isArray()) {
             throw new IllegalArgumentException("Passed object should be a class with parameters");
+        }
+
+        // mapper defined
+        if (clazz.equals(PgTypeDataHolder.class)) {
+            return (PgTypeDataHolder) obj;
         }
 
         // remove when removing deprecated annotations:
@@ -386,9 +391,11 @@ public class PgTypeHelper {
         final int fieldsWithUndefinedPositions = resultList == null ? 0 : resultList.size();
         final int fieldsInDb = dbFields == null ? 0 : dbFields.size();
 
-        if (fieldsInDb != fieldsWithDefinedPositions) {
+        if (fieldsInDb != fieldsWithDefinedPositions & connection != null) {
             LOG.error("fieldsInDb({})!=fieldsWithDefinedPositions({}) @DatabaseField annotation missing", fieldsInDb,
                 fieldsWithDefinedPositions);
+            throw new IllegalArgumentException("Class " + clazz.getName()
+                    + " should have all its database related fields annotated");
         }
 
         if (fieldsWithDefinedPositions > 0 && fieldsWithUndefinedPositions > 0) {
