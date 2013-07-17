@@ -4,8 +4,11 @@ import org.eclipse.persistence.mappings.DirectToFieldMapping;
 import org.eclipse.persistence.mappings.ManyToOneMapping;
 import org.eclipse.persistence.mappings.OneToManyMapping;
 
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.ChangePolicyClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.CompositeClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.DefaultClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.databasemapping.CustomizerRegistry;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ManyToOneMappingColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.OneToManyMappingColumnNameCustomizer;
@@ -23,13 +26,16 @@ public class DefaultZomcatSessionCustomizer extends AbstractZomcatSessionCustomi
     private final ClassDescriptorCustomizer clazzDescriptorCustomizer;
 
     public DefaultZomcatSessionCustomizer() {
-        clazzDescriptorCustomizer = new DefaultClassDescriptorCustomizer();
 
-        // columnNames
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
-        clazzDescriptorCustomizer.registerColumnNameCustomizer(new OneToOneMappingColumnNameCustomizer());
+        // create classDescriptorCustomizer, that will use the columnNameCustomizers or do other things
+        clazzDescriptorCustomizer = CompositeClassDescriptorCustomizer.build(new DefaultClassDescriptorCustomizer(),
+                new ChangePolicyClassDescriptorCustomizer());
+
+        // Register ColumnNameCustomizers
+        CustomizerRegistry.get().registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
+        CustomizerRegistry.get().registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
+        CustomizerRegistry.get().registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
+        CustomizerRegistry.get().registerColumnNameCustomizer(new OneToOneMappingColumnNameCustomizer());
     }
 
     @Override

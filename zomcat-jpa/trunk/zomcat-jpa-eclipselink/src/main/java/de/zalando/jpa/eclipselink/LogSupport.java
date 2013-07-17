@@ -25,6 +25,12 @@ public abstract class LogSupport {
     public static final String START_CUS = "----  Customize for entity {0} ----\n";
     public static final String END_CUS = "----  Entity {0} customized  ----\n";
 
+    public static final String CUS_SESSION_START = "Customize Session ...";
+    public static final String CUS_SESSION_END = "Session customized";
+
+    public static final String KEY_VALUE = "key : {0}, Value: {1}";
+    public static final String SESSION_PROPS = "SessionProperties ...";
+
     protected void logFinest(final Session session, final String message, final Object... args) {
         session.getSessionLog().log(SessionLog.FINEST, message, args, false);
     }

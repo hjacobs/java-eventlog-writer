@@ -17,7 +17,7 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
     @SuppressWarnings("rawtypes")
     @Override
     public void customize(final Session session) throws Exception {
-        logInfo(session, "Customize Session ...");
+        logInfo(session, CUS_SESSION_START);
 
         logSessionProperties(session);
 
@@ -28,13 +28,13 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
             getClassDescriptorCustomizer().customize(descriptorEntry.getValue(), session);
         }
 
-        logInfo(session, "Session customized");
+        logInfo(session, CUS_SESSION_END);
     }
 
     protected void logSessionProperties(final Session session) {
-        logFine(session, "SessionProperties ...");
+        logFine(session, SESSION_PROPS);
         for (Map.Entry<Object, Object> entry : session.getProperties().entrySet()) {
-            logFine(session, "key : {0}, Value: {1}", entry.getKey().toString(), entry.getValue().toString());
+            logFine(session, KEY_VALUE, entry.getKey().toString(), entry.getValue().toString());
         }
     }
 

@@ -1,5 +1,6 @@
 package de.zalando.jpa.eclipselink.customizer.session;
 
+import de.zalando.jpa.eclipselink.customizer.databasemapping.CustomizerRegistry;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingEnumTypeConverterCustomizer;
 
 /**
@@ -11,8 +12,7 @@ public class PostgresZomcatSessionCustomizer extends DefaultZomcatSessionCustomi
         super();
 
         // converter for enums
-        getClassDescriptorCustomizer().registerConverterCustomizer(
-            new DirectToFieldMappingEnumTypeConverterCustomizer());
+        CustomizerRegistry.get().registerConverterCustomizer(new DirectToFieldMappingEnumTypeConverterCustomizer());
     }
 
 }

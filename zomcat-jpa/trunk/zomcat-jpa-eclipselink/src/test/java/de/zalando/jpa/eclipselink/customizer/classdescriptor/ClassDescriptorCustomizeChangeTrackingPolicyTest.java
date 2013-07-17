@@ -67,7 +67,7 @@ public class ClassDescriptorCustomizeChangeTrackingPolicyTest {
 
     @Before
     public void setUp() throws Exception {
-        classDescriptorCustomizer = new DefaultClassDescriptorCustomizer();
+        classDescriptorCustomizer = new ChangePolicyClassDescriptorCustomizer();
 
         final Slf4jSessionLog slf4jSessionLog = new Slf4jSessionLog();
         final Vector<DatabaseMapping> mappings = new Vector<>(0);
