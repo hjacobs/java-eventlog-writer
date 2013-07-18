@@ -772,6 +772,7 @@ public class SimpleIT {
         assertEquals("EUR", o.amount.getCurrency());
         assertNotNull(o.positions);
         assertEquals(1, o.positions.size());
-        assertEquals(c, o.positions.get(0).amount);
+        assertEquals(c, o.positions.get(0).amount.getAmount());
+        assertEquals("EUR", o.positions.get(0).amount.getCurrency());
     }
 }
