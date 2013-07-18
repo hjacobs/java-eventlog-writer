@@ -16,7 +16,7 @@
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
             <property name="eclipselink.ddl-generation.output-mode" value="database"/>
             <property name="eclipselink.weaving" value="false" />
-            <!-- <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.PostgresZomcatSessionCustomizer"/> -->
+            <property name="eclipselink.session.customizer" value="de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer"/>
             <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
 
             <property name="eclipselink.logging.timestamp" value="false"/>
@@ -33,7 +33,7 @@
             <property name="eclipselink.logging.parameters" value="true"/>
 
             <!-- SHARDING_DEFAULT_PARTITIONING -->
-            <property name="eclipselink.partitioning" value="PartitionByShardKey" />
+            <property name="eclipselink.partitioning" value="Replicate" />
 
             <!-- SHARDING_CONNECTION_POOLS -->
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
@@ -53,6 +53,9 @@
             <property name="eclipselink.connection-pool.node2.initial" value="1" />
             <property name="eclipselink.connection-pool.node2.min" value="64" />
             <property name="eclipselink.connection-pool.node2.max" value="64" />
+
+            <!-- DEFINE A PARTITIONING_FACTORY -->
+            <property name="zomcat.eclipselink.partition-policy-factory-name" value="de.zalando.jpa.eclipselink.partitioning.CustomPartitioningFactory"/>
             </properties>
     </persistence-unit>
 
