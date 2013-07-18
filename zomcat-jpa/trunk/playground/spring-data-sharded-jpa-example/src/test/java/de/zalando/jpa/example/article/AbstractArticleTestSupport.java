@@ -48,11 +48,21 @@ public abstract class AbstractArticleTestSupport {
     public void doTestSaveArticleModel() {
         Assert.assertNotNull(articleModelRepository);
 
-        ArticleSku id = new ArticleSku();
-        id.setSkuType(SkuType.CONFIG);
-        id = this.articleSkuRepository.saveAndFlush(id);
+        // soll in shard 1
+        ArticleSku one = new ArticleSku();
+        one.setSkuType(SkuType.CONFIG);
+        one.setSku("123ABC");
+        one = this.articleSkuRepository.saveAndFlush(one);
 
-        ArticleModel articleModel = new ArticleModel(id);
+        // soll in shard 2
+        ArticleSku two = new ArticleSku();
+        two.setSku("456DEFG");
+        two.setSkuType(SkuType.CONFIG);
+        two = this.articleSkuRepository.saveAndFlush(two);
+
+        // soll in denselben shard wie 'one' also shard 1
+        ArticleModel articleModel = new ArticleModel(one);
+        articleModel.setName("MyArticleModel");
         articleModel = articleModelRepository.saveAndFlush(articleModel);
     }
 

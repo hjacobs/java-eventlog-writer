@@ -13,17 +13,28 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.eclipse.persistence.annotations.Partitioned;
-import org.eclipse.persistence.annotations.Partitioning;
+import org.eclipse.persistence.annotations.ReplicationPartitioning;
 
-import de.zalando.jpa.sharding.policy.PartitioningPolicyShardKey;
+import de.zalando.jpa.eclipselink.partitioning.annotations.CustomPartitioning;
+import de.zalando.jpa.sharding.policy.ModuloPartitioningPolicy;
 
-import de.zalando.sprocwrapper.sharding.ShardKey;
 import de.zalando.sprocwrapper.sharding.ShardedObject;
 
 @Entity
 @Table(name = "article_sku", schema = "zzj_data")
-@Partitioning(name = "PartitionByShardKey", partitioningClass = PartitioningPolicyShardKey.class)
-@Partitioned("PartitionByShardKey")
+
+// This is necessary for schema-generation on all shards.
+@ReplicationPartitioning(
+    name = ArticlePartitions.REPLICATE,
+    connectionPools = {ArticlePartitions.Pools.DEFAULT, ArticlePartitions.Pools.NODE_2}
+)
+
+// this is new
+@CustomPartitioning(
+    name = ArticlePartitions.SHARDED_OBJECT_PARTITIONING, partitioningClass = ModuloPartitioningPolicy.class,
+    unionUnpartitionableQueries = true
+)
+@Partitioned(ArticlePartitions.SHARDED_OBJECT_PARTITIONING)
 public class ArticleSku implements ShardedObject, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -33,7 +44,7 @@ public class ArticleSku implements ShardedObject, Serializable {
     @SequenceGenerator(name = "article_sku_id_seq", sequenceName = "article_sku_id_seq", allocationSize = 1)
     private Long id;
 
-    @ShardKey
+// @ShardKey
     private String sku;
 
     @Enumerated(EnumType.STRING)

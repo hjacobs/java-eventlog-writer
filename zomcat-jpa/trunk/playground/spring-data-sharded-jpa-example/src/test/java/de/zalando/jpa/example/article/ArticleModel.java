@@ -14,11 +14,13 @@ import javax.persistence.Table;
 
 import org.eclipse.persistence.annotations.Partitioned;
 
+import de.zalando.sprocwrapper.sharding.ShardedObject;
+
 @Entity
 @IdClass(ArticleSkuPk.class)
 @Table(name = "article_model", schema = "zzj_data")
-@Partitioned("PartitionByShardKey")
-public class ArticleModel {
+@Partitioned(ArticlePartitions.SHARDED_OBJECT_PARTITIONING)
+public class ArticleModel implements ShardedObject {
 
     @Id
     @OneToOne
@@ -72,5 +74,13 @@ public class ArticleModel {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    /**
+     * Just delegates to the {@link ArticleSku}-id field to get the sku.
+     */
+    @Override
+    public Object getShardKey() {
+        return this.articlesku.getShardKey();
     }
 }

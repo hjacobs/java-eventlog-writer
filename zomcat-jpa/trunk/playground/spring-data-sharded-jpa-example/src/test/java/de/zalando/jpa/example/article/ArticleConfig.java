@@ -8,11 +8,13 @@ import javax.persistence.Table;
 
 import org.eclipse.persistence.annotations.Partitioned;
 
+import de.zalando.sprocwrapper.sharding.ShardedObject;
+
 @Entity
 @IdClass(ArticleSkuPk.class)
 @Table(name = "article_config", schema = "zzj_data")
-@Partitioned("PartitionByShardKey")
-public class ArticleConfig {
+@Partitioned(ArticlePartitions.SHARDED_OBJECT_PARTITIONING)
+public class ArticleConfig implements ShardedObject {
 
     @Id
     @OneToOne
@@ -50,4 +52,10 @@ public class ArticleConfig {
     public void setName(final String name) {
         this.name = name;
     }
+
+    @Override
+    public Object getShardKey() {
+        return this.articlesku.getShardKey();
+    }
+
 }

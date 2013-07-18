@@ -9,7 +9,9 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
 @Table(name = "attribute", schema = "zzj_data")
-@Partitioned(value = "PartitionByShardKey") // lost... keine shard-key reference möglich
+
+// @Partitioned(value = "PartitionByShardKey") // lost... keine shard-key reference möglich
+@Partitioned(ArticlePartitions.SHARDED_OBJECT_PARTITIONING)
 public class Attribute extends AbstractPersistable<Long> {
 
     private static final long serialVersionUID = 1L;
