@@ -68,7 +68,7 @@ public class ObjectFieldMapper {
                         mapping.map(result,
                             mapping.getFieldMapper().mapField(currentNode.getValue(), mapping.getFieldClass()));
                     } else if (DbResultNodeType.OBJECT.equals(currentNode.getNodeType())) {
-                        mapping.map(result, mapField(mapping.getFieldClass(), (ObjectResultNode) currentNode));
+                        mapping.map(result, mapFromDbObjectNode(clazz, (ObjectResultNode) currentNode, mapping));
                     } else if (DbResultNodeType.ARRAY.equals(currentNode.getNodeType())) {
                         mapping.map(result,
                             ArrayFieldMapper.mapField(mapping.getField(), (ArrayResultNode) currentNode));
