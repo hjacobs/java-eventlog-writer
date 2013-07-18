@@ -65,6 +65,9 @@ public class ModuloPartitioningPolicy extends PartitioningPolicy {
     }
 
     // TAKEN FROM HASHPARTITIONINGPOLICY
+    /**
+     * TODO.
+     */
     @Override
     public List<Accessor> getConnectionsForQuery(final AbstractSession session, final DatabaseQuery query,
             final AbstractRecord arguments) {
