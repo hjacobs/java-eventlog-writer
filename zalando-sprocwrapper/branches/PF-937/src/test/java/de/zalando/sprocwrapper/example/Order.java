@@ -1,5 +1,7 @@
 package de.zalando.sprocwrapper.example;
 
+import java.util.List;
+
 import de.zalando.sprocwrapper.example.transformer.MoneyObjectMapper;
 
 import de.zalando.typemapper.annotations.DatabaseField;
@@ -16,6 +18,9 @@ public class Order {
 
     @DatabaseField(mapper = MoneyObjectMapper.class)
     public TobisAmount amount;
+
+    @DatabaseField
+    public List<OrderPosition> positions;
 
     public Order(final String on, final TobisAmount a) {
         orderNumber = on;

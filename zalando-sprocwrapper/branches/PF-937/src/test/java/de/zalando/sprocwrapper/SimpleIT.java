@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,7 @@ import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
 import de.zalando.sprocwrapper.example.Order;
+import de.zalando.sprocwrapper.example.OrderPosition;
 import de.zalando.sprocwrapper.example.TobisAmountImpl;
 
 import de.zalando.typemapper.parser.DateTimeUtil;
@@ -757,12 +759,19 @@ public class SimpleIT {
 
     @Test
     public void testMonetaryValueInsideOrder() {
-        BigDecimal b = new BigDecimal("123.124");
+        BigDecimal b = new BigDecimal("12.34");
+        BigDecimal c = new BigDecimal("45.67");
         Order o = new Order("order3", new TobisAmountImpl(b, "EUR"));
+        o.positions = Arrays.asList(new OrderPosition(new TobisAmountImpl(c, "EUR")));
+
         int i = exampleSProcService.createOrder(o);
 
         o = exampleSProcService.getOrders(i);
 
         assertEquals(o.amount.getAmount().compareTo(b), 0);
+        assertEquals("EUR", o.amount.getCurrency());
+        assertNotNull(o.positions);
+        assertEquals(1, o.positions.size());
+        assertEquals(c, o.positions.get(0).amount);
     }
 }

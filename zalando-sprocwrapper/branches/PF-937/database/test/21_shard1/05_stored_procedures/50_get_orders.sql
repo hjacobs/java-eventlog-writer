@@ -1,7 +1,12 @@
-CREATE OR REPLACE FUNCTION get_orders(IN id int, OUT id int, OUT order_number text, OUT amount ztest_shard1.monetary_amount) RETURNS SETOF record AS
+CREATE OR REPLACE FUNCTION get_orders(IN id int) RETURNS SETOF ztest_shard1.order_type AS
 $$
-SELECT *
-  FROM ztest_shard1.order
- WHERE id = $1
- ORDER BY id ASC
+SELECT ROW(o.order_number,
+           o.amount,
+           array_agg(ROW(p.amount)::ztest_shard1.order_position_type)
+       )::ztest_shard1.order_type
+  FROM ztest_shard1."order" o
+  LEFT JOIN ztest_shard1.order_position p ON p.order_id=o.id
+ WHERE o.id = $1
+ GROUP BY o.order_number, o.amount
+ ORDER BY o.order_number
 $$ LANGUAGE 'sql' SECURITY DEFINER;
