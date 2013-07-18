@@ -9,6 +9,10 @@ import org.junit.Test;
 
 import org.mockito.Mockito;
 
+import de.zalando.jpa.eclipselink.partitioning.AlwaysNullPartitionPolicyFactory;
+import de.zalando.jpa.eclipselink.partitioning.PartitioningPolicyFactory;
+import de.zalando.jpa.eclipselink.partitioning.PartitioningPolicyFactoryBuilder;
+
 /**
  * @author  jbellmann
  */

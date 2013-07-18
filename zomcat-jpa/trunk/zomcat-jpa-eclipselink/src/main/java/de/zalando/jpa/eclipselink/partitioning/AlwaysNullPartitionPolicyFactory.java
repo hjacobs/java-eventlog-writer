@@ -1,4 +1,4 @@
-package de.zalando.jpa.eclipselink.customizer.classdescriptor;
+package de.zalando.jpa.eclipselink.partitioning;
 
 import org.eclipse.persistence.descriptors.ClassDescriptor;
 import org.eclipse.persistence.descriptors.partitioning.PartitioningPolicy;

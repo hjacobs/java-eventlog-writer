@@ -1,4 +1,4 @@
-package de.zalando.jpa.eclipselink.customizer.classdescriptor;
+package de.zalando.jpa.eclipselink.partitioning;
 
 import java.lang.annotation.Annotation;
 
