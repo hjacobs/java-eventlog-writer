@@ -47,11 +47,11 @@ public abstract class LogSupport {
         logFiner(session, message, new Object[] {});
     }
 
-    protected void logFine(final Session session, final String message, final Object... args) {
+    public static void logFine(final Session session, final String message, final Object... args) {
         session.getSessionLog().log(SessionLog.FINE, message, args, false);
     }
 
-    protected void logFine(final Session session, final String message) {
+    public static void logFine(final Session session, final String message) {
         logFine(session, message, new Object[] {});
     }
 

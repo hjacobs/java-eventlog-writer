@@ -8,6 +8,7 @@ import de.zalando.jpa.eclipselink.customizer.classdescriptor.ChangePolicyClassDe
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.CompositeClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.DefaultClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.PartitioningClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.CustomizerRegistry;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ManyToOneMappingColumnNameCustomizer;
@@ -29,7 +30,7 @@ public class DefaultZomcatSessionCustomizer extends AbstractZomcatSessionCustomi
 
         // create classDescriptorCustomizer, that will use the columnNameCustomizers or do other things
         clazzDescriptorCustomizer = CompositeClassDescriptorCustomizer.build(new DefaultClassDescriptorCustomizer(),
-                new ChangePolicyClassDescriptorCustomizer());
+                new ChangePolicyClassDescriptorCustomizer(), new PartitioningClassDescriptorCustomizer());
 
         // Register ColumnNameCustomizers
         CustomizerRegistry.get().registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
