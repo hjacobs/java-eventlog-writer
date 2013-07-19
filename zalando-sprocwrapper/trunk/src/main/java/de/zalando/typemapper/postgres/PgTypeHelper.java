@@ -278,10 +278,9 @@ public class PgTypeHelper {
         final Field[] fields = getFields(clazz);
         Map<String, DbTypeField> dbFields = null;
 
-        DbType dbType = null;
         if (connection != null) {
             try {
-                dbType = DbTypeRegister.getDbType(typeName, connection);
+                DbType dbType = DbTypeRegister.getDbType(typeName, connection);
                 dbFields = new HashMap<String, DbTypeField>();
                 for (final DbTypeField dbfield : dbType.getFields()) {
                     dbFields.put(dbfield.getName(), dbfield);
@@ -364,15 +363,6 @@ public class PgTypeHelper {
 
         final int fieldsWithDefinedPositions = resultPositionMap == null ? 0 : resultPositionMap.size();
         final int fieldsWithUndefinedPositions = resultList == null ? 0 : resultList.size();
-        final int fieldsInDb = dbFields == null ? 0 : dbFields.size();
-
-        // PF-1160
-        if (dbType != null) { // do we have connection?
-            if (fieldsInDb != fieldsWithDefinedPositions) {
-                LOG.warn("fieldsInDb({})!=fieldsWithDefinedPositions({}) @DatabaseField annotation might be missing",
-                    fieldsInDb, fieldsWithDefinedPositions);
-            }
-        }
 
         if (fieldsWithDefinedPositions > 0 && fieldsWithUndefinedPositions > 0) {
             throw new IllegalArgumentException("Class " + clazz.getName()
