@@ -29,6 +29,9 @@ import org.postgresql.jdbc2.PostgresJDBCDriverReusedTimestampUtils;
 
 import org.postgresql.util.PGobject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.zalando.typemapper.annotations.DatabaseField;
 import de.zalando.typemapper.annotations.DatabaseType;
 import de.zalando.typemapper.core.DatabaseFieldDescriptor;
@@ -49,6 +52,8 @@ public class PgTypeHelper {
 
     private static final PostgresJDBCDriverReusedTimestampUtils postgresJDBCDriverReusedTimestampUtils =
         new PostgresJDBCDriverReusedTimestampUtils();
+
+    private static final Logger LOG = LoggerFactory.getLogger(PgTypeHelper.class);
 
     static {
         final Map<String, Integer> m = new HashMap<String, Integer>();
@@ -273,9 +278,10 @@ public class PgTypeHelper {
         final Field[] fields = getFields(clazz);
         Map<String, DbTypeField> dbFields = null;
 
+        DbType dbType = null;
         if (connection != null) {
             try {
-                final DbType dbType = DbTypeRegister.getDbType(typeName, connection);
+                dbType = DbTypeRegister.getDbType(typeName, connection);
                 dbFields = new HashMap<String, DbTypeField>();
                 for (final DbTypeField dbfield : dbType.getFields()) {
                     dbFields.put(dbfield.getName(), dbfield);
@@ -358,6 +364,16 @@ public class PgTypeHelper {
 
         final int fieldsWithDefinedPositions = resultPositionMap == null ? 0 : resultPositionMap.size();
         final int fieldsWithUndefinedPositions = resultList == null ? 0 : resultList.size();
+        final int fieldsInDb = dbFields == null ? 0 : dbFields.size();
+
+        // PF-1160
+        if (dbType != null) { // do we have connection?
+            if (fieldsInDb != fieldsWithDefinedPositions) {
+                LOG.warn("fieldsInDb({})!=fieldsWithDefinedPositions({}) @DatabaseField annotation might be missing",
+                    fieldsInDb, fieldsWithDefinedPositions);
+            }
+        }
+
         if (fieldsWithDefinedPositions > 0 && fieldsWithUndefinedPositions > 0) {
             throw new IllegalArgumentException("Class " + clazz.getName()
                     + " should have all its database related fields marked with correct names or positions");
