@@ -2,6 +2,8 @@ package de.zalando.sprocwrapper.example;
 
 import java.util.List;
 
+import com.google.common.base.Optional;
+
 import de.zalando.sprocwrapper.example.transformer.MoneyObjectMapper;
 
 import de.zalando.typemapper.annotations.DatabaseField;
@@ -22,9 +24,17 @@ public class Order {
     @DatabaseField
     public List<OrderPosition> positions;
 
+    @DatabaseField
+    public Optional<AddressPojo> address = Optional.absent();
+
     public Order(final String on, final TobisAmount a) {
-        orderNumber = on;
-        amount = a;
+        this(on, a, null);
+    }
+
+    public Order(final String on, final TobisAmount a, final AddressPojo address) {
+        this.orderNumber = on;
+        this.amount = a;
+        this.address = Optional.fromNullable(address);
     }
 
     public Order() { }

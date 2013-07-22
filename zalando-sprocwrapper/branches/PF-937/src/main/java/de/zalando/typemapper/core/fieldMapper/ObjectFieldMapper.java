@@ -8,6 +8,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 import de.zalando.typemapper.annotations.DatabaseField;
 import de.zalando.typemapper.core.Mapping;
 import de.zalando.typemapper.core.result.ArrayResultNode;
@@ -29,9 +31,34 @@ public class ObjectFieldMapper {
 
         // has unmarsahllFromDbNode mapper?
         if (!mapper.getClass().equals(DefaultObjectMapper.class)) {
-            value = mapper.unmarshalFromDbNode(node);
+            if (mapping.isOptionalField()) {
+
+                // The check for records with all null fields would probably make sense for all types but we currently
+                // just do it for optional fields for backward-compatibility
+                boolean allFieldsAreNull = true;
+
+                for (DbResultNode dbResultNode : node.getChildren()) {
+                    if (dbResultNode.getValue() != null) {
+                        allFieldsAreNull = false;
+                        break;
+                    }
+                }
+
+                if (allFieldsAreNull) {
+                    value = null;
+                } else {
+                    value = mapper.unmarshalFromDbNode(node);
+                }
+            } else {
+                value = mapper.unmarshalFromDbNode(node);
+            }
+
         } else {
             value = mapField(mapping.getFieldClass(), node);
+        }
+
+        if (mapping.isOptionalField()) {
+            value = Optional.fromNullable(value);
         }
 
         return value;

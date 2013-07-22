@@ -221,6 +221,9 @@ public interface ExampleSProcService {
     int createOrder(@SProcParam String orderNumber, @SProcParam TobisAmount amount);
 
     @SProcCall
+    int createOrder(@SProcParam String orderNumber, @SProcParam TobisAmount amount, @SProcParam AddressPojo address);
+
+    @SProcCall
     int createOrder(@SProcParam Order order);
 
 }
