@@ -1,6 +1,7 @@
 package de.zalando.sprocwrapper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -782,6 +783,12 @@ public class SimpleIT {
         assertNotNull(o.positions);
         assertEquals(1, o.positions.size());
 
+        assertNotNull(o.address);
+        assertTrue(o.address.isPresent());
+        assertEquals(1, o.address.get().customerId);
+        assertEquals("Main Street", o.address.get().street);
+        assertEquals("23", o.address.get().number);
+
         OrderPosition pos = o.positions.get(0);
         assertEquals(c, pos.amount.getAmount());
         assertEquals("EUR", pos.amount.getCurrency());
@@ -796,11 +803,37 @@ public class SimpleIT {
         assertEquals(1, pos.address.get().customerId);
         assertEquals("Main Street", pos.address.get().street);
         assertEquals("23", pos.address.get().number);
+    }
+
+    @Test
+    public void testEmptyOptionalValues() {
+        BigDecimal b = new BigDecimal("12.34");
+        BigDecimal c = new BigDecimal("45.67");
+
+        Order o = new Order("order4", new TobisAmountImpl(b, "EUR"));
+        o.positions = Arrays.asList(new OrderPosition(new TobisAmountImpl(c, "EUR")));
+
+        int i = exampleSProcService.createOrder(o);
+
+        o = exampleSProcService.getOrders(i);
+
+        assertEquals(o.amount.getAmount().compareTo(b), 0);
+        assertEquals("EUR", o.amount.getCurrency());
+        assertNotNull(o.positions);
+        assertEquals(1, o.positions.size());
+
+        OrderPosition pos = o.positions.get(0);
+        assertEquals(c, pos.amount.getAmount());
+        assertEquals("EUR", pos.amount.getCurrency());
+
+        assertNotNull(pos.optionalAmount);
+        assertFalse(pos.optionalAmount.isPresent());
+
+        assertNotNull(pos.address);
+        assertFalse(pos.address.isPresent());
 
         assertNotNull(o.address);
-        assertTrue(o.address.isPresent());
-        assertEquals(1, o.address.get().customerId);
-        assertEquals("Main Street", o.address.get().street);
-        assertEquals("23", o.address.get().number);
+        assertFalse(o.address.isPresent());
     }
+
 }

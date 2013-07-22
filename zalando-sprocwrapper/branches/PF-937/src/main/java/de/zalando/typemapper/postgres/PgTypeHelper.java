@@ -344,8 +344,11 @@ public class PgTypeHelper {
                     throw new IllegalArgumentException("Could not read value of field " + f.getName(), e);
                 }
 
-                // here we need apply any value/type transformation before generating the
-                value = applyTransformer(f, databaseFieldDescriptor, value);
+                if (value != null) {
+
+                    // here we need apply any value/type transformation before generating the
+                    value = applyTransformer(f, databaseFieldDescriptor, value);
+                }
 
                 final int fieldPosition = databaseFieldDescriptor.getPosition();
                 if (fieldPosition > 0) {

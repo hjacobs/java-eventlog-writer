@@ -25,7 +25,7 @@ public class Order {
     public List<OrderPosition> positions;
 
     @DatabaseField
-    public Optional<AddressPojo> address = Optional.absent();
+    public Optional<AddressPojo> address;
 
     public Order(final String on, final TobisAmount a) {
         this(on, a, null);
@@ -37,5 +37,7 @@ public class Order {
         this.address = Optional.fromNullable(address);
     }
 
-    public Order() { }
+    public Order() {
+        this(null, null);
+    }
 }

@@ -145,15 +145,19 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                 // if the node value is null. we could not determine the type and it is always
                 // simple. there we do not try to set (even the simple types)
                 // to null - they are already set to null while creation time.
-                if (node.getValue() == null && DbResultNodeType.SIMPLE == node.getNodeType()) {
-                    continue;
+                if (node.getValue() == null) {
+                    if (mapping.isOptionalField()) {
+                        mapping.map(result, null);
+                    } else if (DbResultNodeType.SIMPLE == node.getNodeType()) {
+                        continue;
+                    }
                 }
 
                 if (DbResultNodeType.SIMPLE == node.getNodeType()) {
                     final String fieldStringValue = node.getValue();
                     final Object value = mapping.getFieldMapper().mapField(fieldStringValue, mapping.getFieldClass());
-                    mapping.map(result, value);
 
+                    mapping.map(result, value);
                 } else if (DbResultNodeType.OBJECT == node.getNodeType()) {
                     final Object value = ObjectFieldMapper.mapFromDbObjectNode(mapping.getFieldClass(),
                             (ObjectResultNode) node, mapping);
@@ -161,6 +165,7 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                     mapping.map(result, value);
                 } else if (DbResultNodeType.ARRAY == node.getNodeType()) {
                     final Object value = ArrayFieldMapper.mapField(mapping.getField(), (ArrayResultNode) node);
+
                     mapping.map(result, value);
                 }
             } catch (final Exception e) {

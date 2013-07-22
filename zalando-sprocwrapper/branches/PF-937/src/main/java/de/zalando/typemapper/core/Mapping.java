@@ -205,8 +205,12 @@ public class Mapping {
         return fieldMapper;
     }
 
-    public void map(final Object target, final Object value) throws IllegalArgumentException, IllegalAccessException,
+    public void map(final Object target, Object value) throws IllegalArgumentException, IllegalAccessException,
         InvocationTargetException, InstantiationException {
+        if (isOptionalField()) {
+            value = Optional.fromNullable(value);
+        }
+
         if (embed) {
             Object embedValue = getEmbedFieldValue(target);
             if (embedValue == null) {

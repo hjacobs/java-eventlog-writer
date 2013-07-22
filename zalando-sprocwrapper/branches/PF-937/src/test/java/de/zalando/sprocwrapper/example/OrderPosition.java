@@ -18,7 +18,9 @@ public class OrderPosition {
     @DatabaseField
     public Optional<AddressPojo> address = Optional.absent();
 
-    public OrderPosition() { }
+    public OrderPosition() {
+        this(null);
+    }
 
     public OrderPosition(final TobisAmount amount) {
         this(amount, null);

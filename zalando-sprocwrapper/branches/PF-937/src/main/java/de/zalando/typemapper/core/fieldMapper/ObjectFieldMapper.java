@@ -1,14 +1,11 @@
 package de.zalando.typemapper.core.fieldMapper;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 
 import de.zalando.typemapper.annotations.DatabaseField;
 import de.zalando.typemapper.core.Mapping;
@@ -22,43 +19,31 @@ public class ObjectFieldMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectFieldMapper.class);
 
+    private static boolean isRowWithAllFieldsNull(final ObjectResultNode node) {
+        if (node != null && node.getChildren() != null) {
+            for (DbResultNode dbResultNode : node.getChildren()) {
+                if (dbResultNode != null && dbResultNode.getValue() != null) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     public static final Object mapFromDbObjectNode(final Class classz, final ObjectResultNode node,
             final Mapping mapping) throws InstantiationException, IllegalAccessException, IllegalArgumentException,
         InvocationTargetException, NotsupportedTypeException {
-        Object value = null;
-        Annotation[] an = mapping.getField().getDeclaredAnnotations();
-        ObjectMapper mapper = ((DatabaseField) an[0]).mapper().newInstance();
+        DatabaseField databaseField = mapping.getField().getAnnotation(DatabaseField.class);
+        final Object value;
 
-        // has unmarsahllFromDbNode mapper?
-        if (!mapper.getClass().equals(DefaultObjectMapper.class)) {
-            if (mapping.isOptionalField()) {
-
-                // The check for records with all null fields would probably make sense for all types but we currently
-                // just do it for optional fields for backward-compatibility
-                boolean allFieldsAreNull = true;
-
-                for (DbResultNode dbResultNode : node.getChildren()) {
-                    if (dbResultNode.getValue() != null) {
-                        allFieldsAreNull = false;
-                        break;
-                    }
-                }
-
-                if (allFieldsAreNull) {
-                    value = null;
-                } else {
-                    value = mapper.unmarshalFromDbNode(node);
-                }
-            } else {
-                value = mapper.unmarshalFromDbNode(node);
-            }
-
+        if (mapping.isOptionalField() && isRowWithAllFieldsNull(node)) {
+            value = null;
+        } else if (databaseField.mapper() != DefaultObjectMapper.class) {
+            ObjectMapper mapper = databaseField.mapper().newInstance();
+            value = mapper.unmarshalFromDbNode(node);
         } else {
             value = mapField(mapping.getFieldClass(), node);
-        }
-
-        if (mapping.isOptionalField()) {
-            value = Optional.fromNullable(value);
         }
 
         return value;
@@ -86,8 +71,12 @@ public class ObjectFieldMapper {
             for (final Mapping mapping : mappings) {
                 final DbResultNode currentNode = node.getChildByName(mapping.getName());
                 if (currentNode == null) {
-                    LOG.warn("Could not find value of mapping: {}", mapping.getName());
-                    continue;
+                    if (mapping.isOptionalField()) {
+                        mapping.map(result, null);
+                    } else {
+                        LOG.warn("Could not find value of mapping: {}", mapping.getName());
+                        continue;
+                    }
                 }
 
                 try {
