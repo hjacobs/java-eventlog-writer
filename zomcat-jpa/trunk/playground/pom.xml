@@ -19,7 +19,6 @@
         <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <modules>
-        <module>sprocwrapper-shardkey-shaded</module>
         <module>spring-data-jpa-example</module>
         <module>spring-data-sharded-jpa-example</module>
         <module>spring-data-sharded-jpa-example-2</module>

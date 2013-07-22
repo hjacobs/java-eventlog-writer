@@ -38,6 +38,11 @@
             <version>${zomcat.jpa.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sprocwrapper-shardkey-shaded</artifactId>
+            <version>${zomcat.jpa.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.jolbox</groupId>
             <artifactId>bonecp-spring</artifactId>
             <scope>compile</scope>

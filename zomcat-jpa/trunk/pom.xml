@@ -21,6 +21,7 @@
         <module>spring-data-jpa-auditing-filter</module>
         <module>spring-data-jpa-auditing-cxf</module>
         <module>spring-data-jpa-java-config</module>
+        <module>sprocwrapper-shardkey-shaded</module>
         <!-- <module>sharding</module>-->
         <module>spring-data-jpa-test-support</module>
     </modules>
