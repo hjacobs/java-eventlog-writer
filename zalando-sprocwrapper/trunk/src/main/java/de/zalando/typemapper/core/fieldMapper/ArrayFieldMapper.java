@@ -43,8 +43,13 @@ public class ArrayFieldMapper {
                     obj = mapperForClass.mapField(child.getValue(),
                             (Class) ((ParameterizedType) actualTypeArguments[0]).getRawType());
                 } else {
-                    mapperForClass = FieldMapperRegister.getMapperForClass((Class) actualTypeArguments[0]);
-                    obj = mapperForClass.mapField(child.getValue(), (Class) actualTypeArguments[0]);
+                    Class actualTypeClass = (Class) actualTypeArguments[0];
+                    mapperForClass = FieldMapperRegister.getMapperForClass(actualTypeClass);
+                    if (mapperForClass == null) {
+                        throw new NotsupportedTypeException("Could not find mapper for type " + actualTypeClass);
+                    }
+
+                    obj = mapperForClass.mapField(child.getValue(), actualTypeClass);
                 }
             }
 

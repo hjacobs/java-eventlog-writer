@@ -40,7 +40,7 @@ public class ObjectFieldMapper {
             for (final Mapping mapping : mappings) {
                 final DbResultNode currentNode = node.getChildByName(mapping.getName());
                 if (currentNode == null) {
-                    LOG.warn("Could not find value of mapping: {}", mapping.getName());
+                    LOG.warn("Could not find value of mapping: {} in class: {}", mapping.getName(), clazz);
                     continue;
                 }
 
