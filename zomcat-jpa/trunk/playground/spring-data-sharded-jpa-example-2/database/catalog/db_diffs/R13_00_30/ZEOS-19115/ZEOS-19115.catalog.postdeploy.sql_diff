@@ -1,0 +1,12 @@
+BEGIN;
+
+  select _v.register_patch('ZEOS-19115.catalog.postdeploy');
+
+  SET role TO zalando;
+
+  drop sequence zcat_data.multimedia_seq;
+
+  RESET role;
+
+-- ROLLBACK;
+COMMIT;

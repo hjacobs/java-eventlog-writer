@@ -1,0 +1,18 @@
+BEGIN;
+
+    -- $ID: $
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-15776.catalog');
+
+    set role to zalando;
+
+    -- no problem locking the table: is not yet in production
+    create index on zcat_data.article_facet_supplier_simple (afss_supplier_code);
+    create index on zcat_data.article_facet_supplier_config (afsc_supplier_code);
+    create index on zcat_data.article_facet_supplier_model (afsm_supplier_code);
+
+    reset role;
+
+COMMIT;
+

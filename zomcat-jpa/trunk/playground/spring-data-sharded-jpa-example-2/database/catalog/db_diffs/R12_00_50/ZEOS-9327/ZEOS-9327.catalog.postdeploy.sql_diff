@@ -1,0 +1,19 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-9327.catalog.postdeploy');
+
+    set role to zalando;
+
+    -- features config: base fallback price
+    insert into zcat_commons.app_config (ac_key, ac_appdomain_id, ac_value, ac_is_online_updateable) values
+        ('feature.baseFallbackPrice.create', null, 'off', true),
+        ('feature.baseFallbackPrice.events', null, 'off', true),
+        ('feature.baseFallbackPrice.materialization', null, 'off', true);
+
+    reset role;
+
+--ROLLBACK;
+COMMIT;

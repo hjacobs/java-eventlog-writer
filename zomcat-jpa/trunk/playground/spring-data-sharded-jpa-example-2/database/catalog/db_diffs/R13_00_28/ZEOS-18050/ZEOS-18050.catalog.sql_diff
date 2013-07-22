@@ -1,0 +1,28 @@
+BEGIN;
+
+-- $Id$
+-- $HeadURL$
+
+select _v.register_patch('ZEOS-18050.catalog');
+
+SET role TO zalando;
+
+    -- This update removes all the duplicates and then immediately afterwards unique index should be created.
+    -- Maybe this should be executed outside transaction, although size table is quite small
+    -- and there shouldn't be any updates in between those two operations.
+    UPDATE zcat_commons.size size_tab
+       SET s_sort_key = new_sort_keys.new_sort_key
+      FROM (
+          SELECT s_size_chart_code, s_code, s_sort_key, row_number() OVER(PARTITION BY s_size_chart_code ORDER BY s_sort_key, s_code) AS new_sort_key FROM zcat_commons.size WHERE s_size_chart_code IN (
+            SELECT DISTINCT(s_size_chart_code) size_chart FROM zcat_commons.size GROUP BY s_size_chart_code, s_sort_key HAVING count(*) > 1
+          )
+          ORDER BY s_size_chart_code, s_sort_key, s_code
+      ) new_sort_keys
+    WHERE size_tab.s_size_chart_code = new_sort_keys.s_size_chart_code AND size_tab.s_code = new_sort_keys.s_code;
+
+    CREATE UNIQUE INDEX size_size_chart_code_sort_key_uidx ON zcat_commons.size(s_size_chart_code, s_sort_key);
+
+RESET role;
+
+COMMIT;
+--ROLLBACK;

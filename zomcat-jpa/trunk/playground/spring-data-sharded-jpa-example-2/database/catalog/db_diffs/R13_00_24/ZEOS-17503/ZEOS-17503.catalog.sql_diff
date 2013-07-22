@@ -1,0 +1,18 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch('ZEOS-17503.catalog');
+
+    SET role TO zalando;
+
+    ALTER TABLE zcat_data.price_definition ALTER COLUMN pd_last_modified DROP NOT NULL;
+    ALTER TABLE zcat_data.price_definition ALTER COLUMN pd_created_by DROP NOT NULL;
+    ALTER TABLE zcat_data.price_definition ALTER COLUMN pd_last_modified_by DROP NOT NULL;
+    ALTER TABLE zcat_data.price_definition ALTER COLUMN pd_flow_id DROP NOT NULL;
+
+    RESET role;
+
+COMMIT;
+--ROLLBACK;
