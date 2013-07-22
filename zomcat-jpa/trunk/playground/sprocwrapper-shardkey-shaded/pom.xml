@@ -95,7 +95,7 @@
                                 <exclude>de/zalando/sprocwrapper/Abstract*.class</exclude>
                                 <exclude>de/zalando/sprocwrapper/SProc*.class</exclude>
                                 <exclude>de/zalando/sprocwrapper/proxy/**</exclude>
-                                <exclude>de/zalando/sprocwrapper/dsprovider/**</exclude>
+                                <!-- <exclude>de/zalando/sprocwrapper/dsprovider/**</exclude> -->
                                 <!--  -->
                                 <exclude>de/zalando/sprocwrapper/globalvaluetransformer/G*.class</exclude>
                                 <exclude>de/zalando/sprocwrapper/globalvaluetransformer/R*.class</exclude>
