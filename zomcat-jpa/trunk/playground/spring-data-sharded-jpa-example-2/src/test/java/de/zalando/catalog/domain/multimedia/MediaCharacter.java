@@ -7,16 +7,13 @@ import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.validator.constraints.NotBlank;
 
 import de.zalando.catalog.domain.article.Versioned;
 
-import de.zalando.typemapper.annotations.DatabaseType;
-
-@DatabaseType(inheritance = true)
-@XmlType(propOrder = {"mediaCharacterCode", "name", "active"})
+// @DatabaseType(inheritance = true)
+// @XmlType(propOrder = {"mediaCharacterCode", "name", "active"})
 public class MediaCharacter extends Versioned implements Serializable {
 
     private static final long serialVersionUID = -6118229386023480372L;

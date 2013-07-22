@@ -7,16 +7,13 @@ import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.validator.constraints.NotBlank;
 
 import de.zalando.catalog.domain.article.Versioned;
 
-import de.zalando.typemapper.annotations.DatabaseType;
-
-@DatabaseType(inheritance = true)
-@XmlType(propOrder = {"multimediaTypeCode", "name", "mimeType", "active"})
+// @DatabaseType(inheritance = true)
+// @XmlType(propOrder = {"multimediaTypeCode", "name", "mimeType", "active"})
 public class MultimediaType extends Versioned implements Serializable {
 
     private static final long serialVersionUID = -7014464198279789003L;

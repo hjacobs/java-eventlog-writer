@@ -23,12 +23,10 @@ import de.zalando.catalog.domain.transformer.ShardedIdConverter;
 
 import de.zalando.sprocwrapper.sharding.ShardedObject;
 
-import de.zalando.typemapper.annotations.DatabaseField;
-import de.zalando.typemapper.annotations.DatabaseType;
-
 @Entity
 @Table(schema = "zcat_data")
-@DatabaseType(inheritance = true)
+
+// @DatabaseType(inheritance = true)
 @XmlType(
     propOrder = {"code", "sku", "typeCode", "external", "path", "mediaCharacterCode", "checksum", "width", "height"}
 )
@@ -50,7 +48,7 @@ public class Multimedia extends Versioned implements ShardedObject {
     @Convert("shardedIdConverter")
     private ShardedId code;
     @ManyToOne(targetEntity = ArticleSku.class)
-    @DatabaseField
+// @DatabaseField
     private Sku sku;
     @Column
     @Convert("multimediaTypeCodeConverter")

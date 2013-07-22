@@ -87,14 +87,28 @@
                             <artifact>de.zalando:zalando-sprocwrapper</artifact>
                             <includes>
                                 <include>de/zalando/sprocwrapper/**</include>
+                                <include>de/zalando/typemapper/core/**</include>
+                                <include>de/zalando/sprocwrapper/globalvaluetransformer/annotation/**</include>
+                                <include>de/zalando/typemapper/core/ValueTansformer*.class</include>
                             </includes>
                             <excludes>
                                 <exclude>de/zalando/sprocwrapper/Abstract*.class</exclude>
                                 <exclude>de/zalando/sprocwrapper/SProc*.class</exclude>
                                 <exclude>de/zalando/sprocwrapper/proxy/**</exclude>
                                 <exclude>de/zalando/sprocwrapper/dsprovider/**</exclude>
-                                <exclude>de/zalando/sprocwrapper/globalvaluetransformer/**</exclude>
-                                <exclude>de/zalando/typemapper/**</exclude>
+                                <!--  -->
+                                <exclude>de/zalando/sprocwrapper/globalvaluetransformer/G*.class</exclude>
+                                <exclude>de/zalando/sprocwrapper/globalvaluetransformer/R*.class</exclude>
+                                <exclude>de/zalando/sprocwrapper/globalvaluetransformer/V*.class</exclude>
+                                <!--  -->
+                                <exclude>de/zalando/typemapper/core/D*.class</exclude>
+                                <exclude>de/zalando/typemapper/core/M*.class</exclude>
+                                <exclude>de/zalando/typemapper/core/T*.class</exclude>
+                                <exclude>de/zalando/typemapper/exception/**</exclude>
+                                <exclude>de/zalando/typemapper/core/db/**</exclude>
+                                <exclude>de/zalando/typemapper/core/fieldMapper/**</exclude>
+                                <exclude>de/zalando/typemapper/core/result/**</exclude>
+                                <exclude>de/zalando/typemapper/parser/**</exclude>
                                 <exclude>com/typemapper/**</exclude>
                             </excludes>
                         </filter>

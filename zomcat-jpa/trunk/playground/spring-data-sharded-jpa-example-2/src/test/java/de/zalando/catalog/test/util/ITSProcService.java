@@ -1,8 +1,6 @@
 package de.zalando.catalog.test.util;
 
-import de.zalando.sprocwrapper.SProcService;
-
-@SProcService(namespace = "test")
+// @SProcService(namespace = "test")
 public interface ITSProcService {
     void truncateAllTables();
 
