@@ -81,6 +81,26 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>.</directory>
+                <includes>
+                    <include>database/catalog/04_option_value/**/*</include>
+                    <include>database/catalog/05_commons/**/*</include>
+                    <include>database/catalog/10_data/**/*</include>
+                    <include>database/catalog/20_api/**/*</include>
+                </includes>
+                <excludes>
+                    <exclude>database/**/*externals/**/*</exclude>
+                    <exclude>database/**/db_diffs/**/*</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>de.zalando</groupId>
@@ -103,22 +123,22 @@
                                 <artifactItem>
                                     <groupId>de.zalando</groupId>
                                     <artifactId>zalando-db-commons</artifactId>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>database/purchase</outputDirectory>
+                                    <outputDirectory>database/catalog</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>de.zalando</groupId>
+                                    <artifactId>appdomain-manager</artifactId>
+                                    <outputDirectory>database/catalog</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.zalando</groupId>
                                     <artifactId>zomcat-job</artifactId>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>database/purchase</outputDirectory>
+                                    <outputDirectory>database/catalog</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.zalando</groupId>
-                                    <artifactId>zalando-commons</artifactId>
-                                    <version>${zal.commons.version}</version>
-                                    <dbPathInArtifact>database/shared</dbPathInArtifact>
-                                    <outputDirectory>database/purchase</outputDirectory>
-                                    <includes>**/00_setup/**</includes>
+                                    <artifactId>partner-manager</artifactId>
+                                    <outputDirectory>database/catalog</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                             <gitIgnore>../.gitignore</gitIgnore>
@@ -126,14 +146,109 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>${unit.test.skip}</skipTests>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <!--include>**/*IT.java</include-->
+                    </includes>
+                    <trimStackTrace>false</trimStackTrace>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
         <profile>
+            <id>drop-dbs</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>sql-maven-plugin</artifactId>
+                        <version>1.4</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>9.1-901-1.jdbc4</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <driver>org.postgresql.Driver</driver>
+                            <settingsKey>testdb</settingsKey>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>drop-db</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <url>jdbc:postgresql://${test.db.host}:${test.db.port}/postgres</url>
+                                    <autocommit>true</autocommit>
+                                    <sqlCommand>
+                                        DROP DATABASE IF EXISTS local_catalog1_db;
+                                        DROP DATABASE IF EXISTS local_catalog2_db;
+                                        DROP DATABASE IF EXISTS local_catalog3_db;
+                                        DROP DATABASE IF EXISTS local_catalog4_db;
+                                        DROP DATABASE IF EXISTS local_catalog5_db;
+                                        DROP DATABASE IF EXISTS local_catalog6_db;
+                                        DROP DATABASE IF EXISTS local_catalog7_db;
+                                        DROP DATABASE IF EXISTS local_catalog8_db;
+                                    </sqlCommand>
+                                    <onError>abort</onError>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!--plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>install-file</goal>
+                                </goals>
+                                <configuration>
+                                    <packaging>jar</packaging>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <groupId>${project.groupId}</groupId>
+                                    <version>${project.version}</version>
+                                    <file>
+                                        ${project.build.directory}/${project.groupId}-${project.artifactId}-${project.version}.jar
+                                    </file>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin-->
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>integration-test</id>
             <properties>
-                <test.db.name>local_zomcat_jpa_db</test.db.name>
+                <test.db.port>5433</test.db.port>
                 <unit.test.skip>false</unit.test.skip>
+                <test.src.dir>src/test/java</test.src.dir>
             </properties>
             <build>
                 <plugins>
@@ -149,11 +264,6 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <reportsDirectory>${project.basedir}/target/failsafe-reports</reportsDirectory>
-                            <systemPropertyVariables>
-                                <frontend.sproc.datasource.username>postgres</frontend.sproc.datasource.username>
-                                <frontend.sproc.datasource.password>postgres</frontend.sproc.datasource.password>
-                                <frontend.sproc.datasource.url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name}</frontend.sproc.datasource.url>
-                            </systemPropertyVariables>
                             <argLine>${failsafe.argLine}</argLine>
                         </configuration>
                         <executions>
@@ -198,8 +308,14 @@
                                     <autocommit>true</autocommit>
                                     <url>jdbc:postgresql://${test.db.host}:${test.db.port}/postgres</url>
                                     <sqlCommand>
-                                        CREATE DATABASE local_zomcat_jpa1_db TEMPLATE template1;
-                                        CREATE DATABASE local_zomcat_jpa2_db TEMPLATE template1;
+                                        CREATE DATABASE local_catalog1_db TEMPLATE template1;
+                                        CREATE DATABASE local_catalog2_db TEMPLATE template1;
+                                        CREATE DATABASE local_catalog3_db TEMPLATE template1;
+                                        CREATE DATABASE local_catalog4_db TEMPLATE template1;
+                                        CREATE DATABASE local_catalog5_db TEMPLATE template1;
+                                        CREATE DATABASE local_catalog6_db TEMPLATE template1;
+                                        CREATE DATABASE local_catalog7_db TEMPLATE template1;
+                                        CREATE DATABASE local_catalog8_db TEMPLATE template1;
                                     </sqlCommand>
                                     <onError>continue</onError>
                                 </configuration>
@@ -220,15 +336,21 @@
                         <configuration>
                             <driver>org.postgresql.Driver</driver>
                             <urls>
-                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_zomcat_jpa1_db
-                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_zomcat_jpa2_db
+                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_catalog1_db
+                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_catalog2_db
+                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_catalog3_db
+                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_catalog4_db
+                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_catalog5_db
+                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_catalog6_db
+                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_catalog7_db
+                                jdbc:postgresql://${test.db.host}:${test.db.port}/local_catalog8_db
                             </urls>
                             <settingsKey>testdb</settingsKey>
                             <skip>${maven.test.skip}</skip>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>create-jpa-dbs</id>
+                                <id>create-price-dbs</id>
                                 <phase>process-test-resources</phase>
                                 <goals>
                                     <goal>execute</goal>
@@ -240,7 +362,7 @@
                                     <fileset>
                                         <basedir>${basedir}</basedir>
                                         <includes>
-                                            <include>database/purchase/**/*.sql</include>
+                                            <include>database/catalog/**/*.sql</include>
                                             <include>database/*.sql</include>
                                         </includes>
                                         <excludes>
@@ -248,6 +370,101 @@
                                         </excludes>
                                     </fileset>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>fast</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>false</skip>
+                                    <excludes>
+                                        <exclude>**/*SIT.*</exclude>
+                                    </excludes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>slow</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>false</skip>
+                                    <includes>
+                                        <include>none</include>
+                                        <include>**/*SIT.*</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>cucumber</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>false</skip>
+                                    <includes>
+                                        <include>none</include>
+                                        <include>**/*Cucumber.*</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>

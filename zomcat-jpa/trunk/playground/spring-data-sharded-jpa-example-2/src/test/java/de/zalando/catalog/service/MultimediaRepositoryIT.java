@@ -48,9 +48,6 @@ public class MultimediaRepositoryIT extends AbstractDBTest {
 
     public static final int MULTIMEDIA_PER_SKU = 3;
 
-// @Autowired
-// private ArticleITUtils articleITUtils;
-
     @Autowired
     private MultimediaService multimediaService;
 
