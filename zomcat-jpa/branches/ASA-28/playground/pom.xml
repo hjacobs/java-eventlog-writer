@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.zalando</groupId>
         <artifactId>zomcat-jpa-parent</artifactId>
-        <version>1.4.0-SNAPSHOT</version>
+        <version>1.4.2-SNAPSHOT</version>
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>playground</artifactId>
@@ -15,7 +15,7 @@
         <name>Zalando/Technology/Platform</name>
     </organization>
     <properties>
-        <zomcat.jpa.version>1.4.0-SNAPSHOT</zomcat.jpa.version>
+        <zomcat.jpa.version>1.4.2-SNAPSHOT</zomcat.jpa.version>
     </properties>
     <modules>
         <module>spring-data-jpa-example</module>

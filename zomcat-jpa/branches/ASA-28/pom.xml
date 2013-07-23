@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <name>Zomcat JPA Parent</name>
     <description>Zomcat JPA Support Classes</description>
-    <version>1.4.1</version>
+    <version>1.4.2-SNAPSHOT</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -28,9 +28,9 @@
         <aspectj.version>1.7.1</aspectj.version>
         <jodatime.version>2.2</jodatime.version>
         <eclipselink.version>2.4.1</eclipselink.version>
-        <spring.data.commons.version>1.5.1.RELEASE</spring.data.commons.version>
-        <spring.data.jpa.version>1.3.2.RELEASE</spring.data.jpa.version>
-        <querydsl.version>3.1.0</querydsl.version>
+        <spring.data.commons.version>1.5.2.RELEASE</spring.data.commons.version>
+        <spring.data.jpa.version>1.3.3.RELEASE</spring.data.jpa.version>
+        <querydsl.version>3.2.1</querydsl.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -60,9 +60,9 @@
         </dependencies>
     </dependencyManagement>
     <scm>
-        <url>https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.4.1</url>
-        <connection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.4.1</connection>
-        <developerConnection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.4.1</developerConnection>
+        <url>https://svn.zalando.net/reboot-libs/zomcat-jpa/branches/ASA-28</url>
+        <connection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/branches/ASA-28</connection>
+        <developerConnection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/branches/ASA-28</developerConnection>
     </scm>
     <build>
         <pluginManagement>
