@@ -1,11 +1,12 @@
 Zomcat JPA
 ==========
 Joerg Bellmann
-v1.4.0-SNAPSHOT, 2013
+v1.5.0-SNAPSHOT, 2013
 :doctype: book
 :toc:
 :icons:
 :numbered:
+:linkattrs:
 
 
 
@@ -52,9 +53,10 @@ WARNING:
 zomcat-jpa-eclipselink
 ----------------------
 
-Grundlegende Unterstützung für die Verwendugn von JPA bei Zalando. Ein Session-Customizer sorgt für die Zalando-Spezifische Benamung
+Grundlegende Unterstützung für die Verwendung von JPA bei Zalando. Ein Session-Customizer sorgt für die Zalando-Spezifische Benamung
 von Tabellen und Spalten.
 
+.Beispiel persistence.xml
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
@@ -93,10 +95,36 @@ von Tabellen und Spalten.
             <property name="eclipselink.logging.level.cache" value="ALL"/>
             <property name="eclipselink.logging.level" value="ALL"/>
             <property name="eclipselink.logging.parameters" value="true"/>
+
+            <!-- ADVANCED ZALANDO-ECLIPSELINK-CONFIGURATION -->
+            <!-- use deferred change tracking, because attribute change tracking, that is activated with weaving seems to be buggy -->
+            <property name="zomcatJpa.changeTracker.type" value="DEFERRED"/>
         </properties>
     </persistence-unit>
 </persistence>
 ----
+
+Konfiguration der ChangePolicy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Es wurden Probleme bei der Verwendung der AttributeChangeTrackingPolicy, welche teilweise automatisch durch static-weaving aktiviert wird, festgestellt.
+Deshalb existiert hier ein ClassDescriptorCustomizer, der für alle Entity-Klassen die ChangeTrackingPolicy auf den definierten Wert setzt:
+
+[source,xml]
+----
+<property name="zomcatJpa.changeTracker.type" value="DEFERRED"/>
+----
+
+Mögliche Werte für _zomcatJpa.changeTracker.type_ sind:
+
+* DEFERRED (empfohlen)
+* ATTRIBUTE
+* OBJECT
+* AUTO (Standard)
+
+Was diese im Detail bedeuten kann im http://wiki.eclipse.org/Introduction_to_EclipseLink_Transactions_%28ELUG%29#Unit_of_Work_and_Change_Policy[EclipseLink Wiki^] nachgelesen werden.
+
+
 
 zomcat-jpa-domain
 -----------------

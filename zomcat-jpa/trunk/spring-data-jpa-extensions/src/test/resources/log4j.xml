@@ -8,7 +8,7 @@
         </layout>
     </appender>
     <logger name="de.zalando.data" additivity="false">
-        <level value="INFO" />
+        <level value="DEBUG" />
         <appender-ref ref="default" />
     </logger>
     <root>
