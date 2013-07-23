@@ -215,6 +215,15 @@ public interface ExampleSProcService {
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 
     @SProcCall
+    ExampleDomainObjectWithEmbed getEntityWithEmbed();
+
+    @SProcCall
+    ExampleDomainObjectWithEmbed getEntityWithEmbedEmptyString();
+
+    @SProcCall
+    ExampleDomainObjectWithEmbed getEntityWithEmbedNullFields();
+
+    @SProcCall
     Order getOrders(@SProcParam int id);
 
     @SProcCall

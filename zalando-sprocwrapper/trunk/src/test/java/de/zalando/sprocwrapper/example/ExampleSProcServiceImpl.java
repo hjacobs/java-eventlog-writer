@@ -339,6 +339,21 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public ExampleDomainObjectWithEmbed getEntityWithEmbed() {
+        return sproc.getEntityWithEmbed();
+    }
+
+    @Override
+    public ExampleDomainObjectWithEmbed getEntityWithEmbedEmptyString() {
+        return sproc.getEntityWithEmbedEmptyString();
+    }
+
+    @Override
+    public ExampleDomainObjectWithEmbed getEntityWithEmbedNullFields() {
+        return sproc.getEntityWithEmbedNullFields();
+    }
+
+    @Override
     public Order getOrders(final int id) {
         return sproc.getOrders(id);
     }
