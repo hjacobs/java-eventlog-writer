@@ -42,6 +42,7 @@ import com.google.common.collect.Sets;
 import de.zalando.sprocwrapper.example.AddressPojo;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEmbed;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEnum;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithGlobalTransformer;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
@@ -728,5 +729,17 @@ public class SimpleIT {
     public void testValidValidationReturnValue2() {
         final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 4);
         exampleSProcService.testSprocCallWithValidationInvalidRet2(obj);
+    }
+
+    @Test
+    public void testReturnDomainObjectWithEmbedNullFields() {
+        ExampleDomainObjectWithEmbed result = exampleSProcService.getEntityWithEmbedNullFields();
+        assertNotNull(result);
+        assertEquals("x", result.getX());
+
+        ExampleDomainObject y = result.getY();
+        assertNotNull(y);
+        assertNull(y.getA());
+        assertNull(y.getB());
     }
 }

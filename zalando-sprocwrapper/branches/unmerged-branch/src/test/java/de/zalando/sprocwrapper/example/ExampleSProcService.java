@@ -211,4 +211,7 @@ public interface ExampleSProcService {
     ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet2(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 
+    @SProcCall
+    ExampleDomainObjectWithEmbed getEntityWithEmbedNullFields();
+
 }

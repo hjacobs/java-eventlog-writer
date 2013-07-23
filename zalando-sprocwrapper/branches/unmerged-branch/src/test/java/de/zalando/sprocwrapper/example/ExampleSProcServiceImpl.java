@@ -330,4 +330,9 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public DateTime testGlobalTransformer6(final DateTime dateTime) {
         return sproc.testGlobalTransformer6(dateTime);
     }
+
+    @Override
+    public ExampleDomainObjectWithEmbed getEntityWithEmbedNullFields() {
+        return sproc.getEntityWithEmbedNullFields();
+    }
 }
