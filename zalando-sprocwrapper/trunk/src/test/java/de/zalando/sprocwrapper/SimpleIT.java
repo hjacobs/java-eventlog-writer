@@ -777,7 +777,9 @@ public class SimpleIT {
         assertEquals("x", result.getX());
 
         ExampleDomainObject y = result.getY();
-        assertNull(y);
+        assertNotNull(y);
+        assertNull(y.getA());
+        assertNull(y.getB());
     }
 
     @Test
