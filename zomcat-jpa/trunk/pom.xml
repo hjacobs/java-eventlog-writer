@@ -32,9 +32,9 @@
         <jodatime.version>2.2</jodatime.version>
         <jpa.api.version>2.1.0</jpa.api.version>
         <eclipselink.version>2.5.0</eclipselink.version>
-        <spring.data.commons.version>1.5.1.RELEASE</spring.data.commons.version>
-        <spring.data.jpa.version>1.3.2.RELEASE</spring.data.jpa.version>
-        <querydsl.version>3.1.0</querydsl.version>
+        <spring.data.commons.version>1.5.2.RELEASE</spring.data.commons.version>
+        <spring.data.jpa.version>1.3.3.RELEASE</spring.data.jpa.version>
+        <querydsl.version>3.2.1</querydsl.version>
 
         <project.build_env.maven>maven3</project.build_env.maven>
 
