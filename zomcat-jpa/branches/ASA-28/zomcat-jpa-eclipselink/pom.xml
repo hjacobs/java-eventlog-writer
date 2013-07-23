@@ -10,7 +10,6 @@
     <packaging>jar</packaging>
     <name>Zomcat JPA EclipseLink Support</name>
     <description>Zomcat JPA EclipseLink Support Classes</description>
-    <version>1.4.1</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
