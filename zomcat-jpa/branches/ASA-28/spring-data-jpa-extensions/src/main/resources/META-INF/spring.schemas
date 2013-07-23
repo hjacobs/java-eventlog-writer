@@ -1,0 +1,4 @@
+http\://www.zalando.de/schema/data/jpa/spring-zjpa-1.0.xsd=de/zalando/data/jpa/repository/config/spring-zjpa-1.0.xsd
+http\://www.zalando.de/schema/data/jpa/spring-zjpa-1.1.xsd=de/zalando/data/jpa/repository/config/spring-zjpa-1.1.xsd
+http\://www.zalando.de/schema/data/jpa/spring-zjpa-1.2.xsd=de/zalando/data/jpa/repository/config/spring-zjpa-1.2.xsd
+http\://www.zalando.de/schema/data/jpa/spring-zjpa.xsd=de/zalando/data/jpa/repository/config/spring-zjpa-1.2.xsd
