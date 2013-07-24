@@ -206,6 +206,7 @@ public class Mapping {
             if (setter != null) {
                 setter.invoke(embedValue, value);
             } else {
+                getField().setAccessible(true);
                 getField().set(embedValue, value);
             }
         } else {
@@ -213,12 +214,9 @@ public class Mapping {
             if (setter != null) {
                 setter.invoke(target, value);
             } else {
-                final boolean accessible = getField().isAccessible();
                 getField().setAccessible(true);
                 getField().set(target, value);
-                getField().setAccessible(accessible);
             }
-
         }
     }
 

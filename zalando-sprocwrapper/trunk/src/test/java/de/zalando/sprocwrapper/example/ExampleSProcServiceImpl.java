@@ -354,6 +354,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public ExampleDomainObjectWithoutSetters getEntityWithoutSetters() {
+        return sproc.getEntityWithoutSetters();
+    }
+
+    @Override
     public Order getOrders(final int id) {
         return sproc.getOrders(id);
     }
