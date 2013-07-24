@@ -10,6 +10,8 @@
    <description>Example minimal job manager project</description>
    <properties>
         <project.build_env.maven>maven3</project.build_env.maven>
+        <project.build_env.sonar>disabled</project.build_env.sonar>
+        <project.build_env.force_it>true</project.build_env.force_it>
     </properties>
     <organization>
       <name>Zalando/Technology/Platform</name>
