@@ -13,18 +13,8 @@ import org.springframework.orm.jpa.vendor.Database;
 public class VendorAdapterDatabaseConfig {
 
     @Configuration
-    @Profile(TestProfiles.H2)
+    @Profile({ TestProfiles.H2, TestProfiles.H2_SHARDED_4, TestProfiles.H2_SHARDED })
     static class H2VendorAdapter {
-
-        @Bean
-        public Database database() {
-            return Database.H2;
-        }
-    }
-
-    @Configuration
-    @Profile(TestProfiles.H2_SHARDED)
-    static class H2ShardedVendorAdapter {
 
         @Bean
         public Database database() {
