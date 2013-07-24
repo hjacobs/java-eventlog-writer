@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import de.zalando.jpa.eclipselink.Slf4jSessionLog;
+import de.zalando.jpa.eclipselink.ZomcatPersistenceUnitProperties;
 
 /**
  * @author  ahartmann
@@ -78,8 +79,8 @@ public class ClassDescriptorCustomizeChangeTrackingPolicyTest {
 
         sessionMock = mock(Session.class);
         when(sessionMock.getSessionLog()).thenReturn(slf4jSessionLog);
-        when(sessionMock.getProperty(eq(ClassDescriptorCustomizer.ZOMCAT_JPA_CHANGE_TRACKER_TYPE))).thenReturn(
-            changeTrackingTypePropertyValue);
+        when(sessionMock.getProperty(eq(ZomcatPersistenceUnitProperties.ZOMCAT_ECLIPSELINK_CHANGE_TRACKER_NAME)))
+            .thenReturn(changeTrackingTypePropertyValue);
     }
 
     @Test

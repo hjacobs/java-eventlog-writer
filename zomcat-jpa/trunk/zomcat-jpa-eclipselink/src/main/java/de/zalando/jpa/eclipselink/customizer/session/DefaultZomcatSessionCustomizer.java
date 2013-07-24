@@ -6,14 +6,7 @@ import org.eclipse.persistence.mappings.OneToManyMapping;
 
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ChangePolicyClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
-import de.zalando.jpa.eclipselink.customizer.classdescriptor.CompositeClassDescriptorCustomizer;
-import de.zalando.jpa.eclipselink.customizer.classdescriptor.DefaultClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.PartitioningClassDescriptorCustomizer;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.CustomizerRegistry;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingColumnNameCustomizer;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.ManyToOneMappingColumnNameCustomizer;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.OneToManyMappingColumnNameCustomizer;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.OneToOneMappingColumnNameCustomizer;
 
 /**
  * The {@link DefaultZomcatSessionCustomizer} registers
@@ -27,20 +20,17 @@ public class DefaultZomcatSessionCustomizer extends AbstractZomcatSessionCustomi
     private final ClassDescriptorCustomizer clazzDescriptorCustomizer;
 
     public DefaultZomcatSessionCustomizer() {
+        super();
 
-        // create classDescriptorCustomizer, that will use the columnNameCustomizers or do other things
-        clazzDescriptorCustomizer = CompositeClassDescriptorCustomizer.build(new DefaultClassDescriptorCustomizer(),
-                new ChangePolicyClassDescriptorCustomizer(), new PartitioningClassDescriptorCustomizer());
+        final ClassDescriptorCustomizer defaults = newBuilderWithDefaults().build();
 
-        // Register ColumnNameCustomizers
-        CustomizerRegistry.get().registerColumnNameCustomizer(new DirectToFieldMappingColumnNameCustomizer());
-        CustomizerRegistry.get().registerColumnNameCustomizer(new ManyToOneMappingColumnNameCustomizer());
-        CustomizerRegistry.get().registerColumnNameCustomizer(new OneToManyMappingColumnNameCustomizer());
-        CustomizerRegistry.get().registerColumnNameCustomizer(new OneToOneMappingColumnNameCustomizer());
+        clazzDescriptorCustomizer = newComposite().with(defaults).with(new ChangePolicyClassDescriptorCustomizer())
+                                                  .with(new PartitioningClassDescriptorCustomizer()).build();
+
     }
 
     @Override
-    ClassDescriptorCustomizer getClassDescriptorCustomizer() {
+    public ClassDescriptorCustomizer getClassDescriptorCustomizer() {
         return this.clazzDescriptorCustomizer;
     }
 

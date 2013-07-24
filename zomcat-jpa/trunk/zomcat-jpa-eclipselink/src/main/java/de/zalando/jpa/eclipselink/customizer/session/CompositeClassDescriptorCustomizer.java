@@ -1,4 +1,4 @@
-package de.zalando.jpa.eclipselink.customizer.classdescriptor;
+package de.zalando.jpa.eclipselink.customizer.session;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -11,12 +11,14 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
+
 /**
  * To combine multiple {@link ClassDescriptorCustomizer}s.
  *
  * @author  jbellmann
  */
-public class CompositeClassDescriptorCustomizer implements ClassDescriptorCustomizer {
+final class CompositeClassDescriptorCustomizer implements ClassDescriptorCustomizer {
 
     protected List<ClassDescriptorCustomizer> customizers = new LinkedList<ClassDescriptorCustomizer>();
 
@@ -43,7 +45,7 @@ public class CompositeClassDescriptorCustomizer implements ClassDescriptorCustom
      *
      * @return
      */
-    public static ClassDescriptorCustomizer build(final ClassDescriptorCustomizer... classDescriptorCustomizers) {
+    static ClassDescriptorCustomizer build(final ClassDescriptorCustomizer... classDescriptorCustomizers) {
         CompositeClassDescriptorCustomizer composite = new CompositeClassDescriptorCustomizer();
         composite.customizers.addAll(Lists.newArrayList(
                 Iterables.filter(Arrays.asList(classDescriptorCustomizers), Predicates.notNull())));
@@ -57,7 +59,7 @@ public class CompositeClassDescriptorCustomizer implements ClassDescriptorCustom
      *
      * @return
      */
-    public static ClassDescriptorCustomizer build(final List<ClassDescriptorCustomizer> classDescriptorCustomizers) {
+    static ClassDescriptorCustomizer build(final List<ClassDescriptorCustomizer> classDescriptorCustomizers) {
         return build(classDescriptorCustomizers.toArray(new ClassDescriptorCustomizer[0]));
     }
 

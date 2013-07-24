@@ -11,9 +11,6 @@ import org.eclipse.persistence.sessions.Session;
  */
 public interface ClassDescriptorCustomizer {
 
-    // TODO move to separate class or interface
-    String ZOMCAT_JPA_CHANGE_TRACKER_TYPE = "zomcatJpa.changeTracker.type";
-
     void customize(ClassDescriptor clazzDescriptor, Session session);
 
 }

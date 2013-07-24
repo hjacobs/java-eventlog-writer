@@ -8,11 +8,13 @@ import org.eclipse.persistence.descriptors.changetracking.ObjectChangeTrackingPo
 import org.eclipse.persistence.sessions.Session;
 
 import de.zalando.jpa.eclipselink.LogSupport;
+import de.zalando.jpa.eclipselink.ZomcatPersistenceUnitProperties;
 
 /**
  * This {@link ClassDescriptorCustomizer} customizes {@link ChangeTrackingType} for an {@link ClassDescriptor}.
  *
  * @author  jbellmann
+ * @author  ahartmann
  */
 public class ChangePolicyClassDescriptorCustomizer extends LogSupport implements ClassDescriptorCustomizer {
 
@@ -22,7 +24,8 @@ public class ChangePolicyClassDescriptorCustomizer extends LogSupport implements
     }
 
     private void customizeObjectChangePolicy(final ClassDescriptor clazzDescriptor, final Session session) {
-        final String propertyValue = (String) session.getProperty(ZOMCAT_JPA_CHANGE_TRACKER_TYPE);
+        final String propertyValue = (String) session.getProperty(
+                ZomcatPersistenceUnitProperties.ZOMCAT_ECLIPSELINK_CHANGE_TRACKER_NAME);
 
         ChangeTrackingType changeTrackingType = ChangeTrackingType.AUTO;
 

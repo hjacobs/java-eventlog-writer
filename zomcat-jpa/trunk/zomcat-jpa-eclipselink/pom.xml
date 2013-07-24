@@ -8,7 +8,7 @@
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-jpa-eclipselink</artifactId>
     <packaging>jar</packaging>
-    <name>Zomcat JPA EclipseLink Support</name>
+    <name>Zomcat JPA -- EclipseLink Support</name>
     <description>Zomcat JPA EclipseLink Support Classes</description>
     <version>1.5.0-SNAPSHOT</version>
     <properties>
@@ -19,6 +19,11 @@
     </organization>
 
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sprocwrapper-shardkey-shaded</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.jpa</artifactId>

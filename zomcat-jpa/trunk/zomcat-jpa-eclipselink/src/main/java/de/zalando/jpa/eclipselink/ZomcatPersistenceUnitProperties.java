@@ -5,7 +5,7 @@ package de.zalando.jpa.eclipselink;
  *
  * @author  jbellmann
  */
-public class ZomcatPersistenceUnitProperties {
+public final class ZomcatPersistenceUnitProperties {
 
     public static final String ZOMCAT_ECLIPSELINK_CHANGE_TRACKER_NAME = "zomcat.eclipselink.change-tracker-name";
 
