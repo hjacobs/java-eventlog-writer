@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                           http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+
+    <bean id="persistenceUnitManager" class="org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager">
+        <property name="defaultDataSource" ref="priceCatalogDataSourceSProc_shard1"/>
+        <property name="dataSources">
+            <map>
+                <entry key="node1" value-ref="dataSourceFrontendSProc_shard1_def"/>
+                <entry key="node2" value-ref="dataSourceFrontendSProc_shard2_def"/>
+                <entry key="node3" value-ref="dataSourceFrontendSProc_shard3_def"/>
+                <entry key="node4" value-ref="dataSourceFrontendSProc_shard4_def"/>
+                <entry key="node5" value-ref="dataSourceFrontendSProc_shard5_def"/>
+                <entry key="node6" value-ref="dataSourceFrontendSProc_shard6_def"/>
+                <entry key="node7" value-ref="dataSourceFrontendSProc_shard7_def"/>
+                <entry key="node8" value-ref="dataSourceFrontendSProc_shard8_def"/>
+            </map>
+        </property>
+        <property name="persistenceUnitPostProcessors">
+            <bean class="org.springframework.data.jpa.support.ClasspathScanningPersistenceUnitPostProcessor" c:basePackage="de.zalando.catalog.domain"/>
+        </property>
+    </bean>
+
+    <bean id="shardedEclipseLinkJpaVendorAdapter" class="de.zalando.catalog.backend.ShardedEclipseLinkJpaVendor" c:persistenceUnitManager-ref="persistenceUnitManager">
+        <property name="partitioningPolicies">
+            <list>
+                <bean class="de.zalando.catalog.backend.ShardedObjectPartitionPolicy">
+                    <constructor-arg name="persistenceUnitManager" ref="persistenceUnitManager"/>
+                    <constructor-arg name="shardingStrategy">
+                        <bean  class="de.zalando.catalog.persistence.price.shard.SkuShardingStrategy"/>
+                    </constructor-arg>
+                    <property name="name" value="SkuSharding"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="persistenceUnitManager" ref="persistenceUnitManager"/>
+        <property name="persistenceUnitName" value="catalog" />
+        <property name="jpaVendorAdapter" ref="shardedEclipseLinkJpaVendorAdapter"/>
+        <property name="jpaDialect">
+            <bean class="de.zalando.jpa.springframework.ExtendedEclipseLinkJpaDialect" />
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
+
+    <jpa:repositories base-package="de.zalando.catalog.backend.repository" entity-manager-factory-ref="entityManagerFactory"/>
+
+    <tx:annotation-driven />
+
+</beans>
