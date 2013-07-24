@@ -48,4 +48,9 @@ public class DelegatingPartitioningPolicy extends PartitioningPolicy {
         this.delegate = delegate;
     }
 
+    @Override
+    public String toString() {
+        return new StringBuilder("DelegatingPartitioninPolicy[name=").append(getName()).append("]").toString();
+    }
+
 }

@@ -6,23 +6,38 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.eclipse.persistence.annotations.Partitioned;
+import org.eclipse.persistence.annotations.ReplicationPartitioning;
 
 import de.zalando.catalog.domain.sku.ModelSku;
 import de.zalando.catalog.domain.sku.SkuFactory;
 import de.zalando.catalog.domain.sku.SkuType;
 
 @Entity
-@Table(schema = "zcat_data", name = "article_sku")
+@Table(name = "article_sku")
+
+// default is same as node1
+@ReplicationPartitioning(name = "Replicate", connectionPools = {"default", "node1", "node2", "node3", "node4"})
+
+// @Partitioned("listPoolNames")
+@Partitioned("SkuSharding")
 public class ArticleSku extends de.zalando.catalog.domain.sku.Sku implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequences_article_sku_id_seq")
+    @SequenceGenerator(
+        name = "sequences_article_sku_id_seq", sequenceName = "sequences_article_sku_id_seq", allocationSize = 1
+    )
     private Long id;
 
-    @Column
     private String sku;
 
     @Enumerated(EnumType.STRING)
@@ -82,4 +97,10 @@ public class ArticleSku extends de.zalando.catalog.domain.sku.Sku implements Ser
     public Object getShardKey() {
         return SkuFactory.valueOf(sku);
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder("ArticleSku[sku=").append(asString()).append("]").toString();
+    }
+
 }

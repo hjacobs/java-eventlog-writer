@@ -68,9 +68,15 @@ public class ShardedEclipseLinkJpaVendor extends ExtendedEclipseLinkJpaVendorAda
 
             final Project project = serverSession.getProject();
             for (final PartitioningPolicy partitioningPolicy : this.partitioningPolicies) {
+
                 final PartitioningPolicy delegatingPolicy = project.getPartitioningPolicy(partitioningPolicy.getName());
+
                 if (delegatingPolicy != null && delegatingPolicy instanceof DelegatingPartitioningPolicy) {
+
                     ((DelegatingPartitioningPolicy) delegatingPolicy).setDelegate(partitioningPolicy);
+
+                    // make sure PartitioningPolicy will be initialized
+                    ((DelegatingPartitioningPolicy) delegatingPolicy).initialize(serverSession);
                 }
             }
 

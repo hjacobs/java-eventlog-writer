@@ -1,8 +1,11 @@
 package de.zalando.jpa.config;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.eclipse.persistence.descriptors.partitioning.PartitioningPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.context.annotation.Bean;
+
+import org.springframework.jdbc.datasource.lookup.MapDataSourceLookup;
 
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -35,13 +40,17 @@ public class ShardedJpaConfig {
     private DataSource defaultDataSource;
 
     @Autowired
-    private Map<String, DataSource> dataSourceLookup;
+    private MapDataSourceLookup mapDataSourceLookup;
 
     @Autowired(required = false)
     private Database database = Database.POSTGRESQL;
 
     @Autowired(required = false)
     private PersistenceUnitNameProvider persistenceUnitNameProvider = new StandardPersistenceUnitNameProvider();
+
+    // Spring picks up every configured bean that is of type PartitioningPolicy
+    @Autowired
+    private List<PartitioningPolicy> partitioningPolicies = new ArrayList<PartitioningPolicy>();
 
     @Bean
     public PlatformTransactionManager transactionManager() {
@@ -55,12 +64,16 @@ public class ShardedJpaConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 
         DefaultPersistenceUnitManager persistenceUnitManager = new DefaultPersistenceUnitManager();
-// persistenceUnitManager.setDefaultDataSource(defaultDataSource);
-        persistenceUnitManager.setDataSources(dataSourceLookup);
+
+        persistenceUnitManager.setDataSourceLookup(mapDataSourceLookup);
 
         ShardedEclipseLinkJpaVendor vendorAdapter = new ShardedEclipseLinkJpaVendor(persistenceUnitManager);
         LOG.info("database : {}", database.toString());
         vendorAdapter.setDatabase(database);
+        if (!this.partitioningPolicies.isEmpty()) {
+
+            vendorAdapter.setPartitioningPolicies(this.partitioningPolicies);
+        }
 
         // this will overwrite "create-or-extend-tables", so commented
         // vendorAdapter.setGenerateDdl(true);

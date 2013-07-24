@@ -6,6 +6,8 @@ import javax.persistence.EntityManagerFactory;
 
 import javax.sql.DataSource;
 
+import org.eclipse.persistence.descriptors.partitioning.PartitioningPolicy;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,12 +16,15 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import de.zalando.jpa.eclipselink.partitioning.policies.ListPoolNamesPartitioningPolicy;
 
 /**
  * @author  jbellmann
@@ -57,5 +62,11 @@ public class ShardedConfigTest {
 
     @Configuration
     @Import({ ShardedDataSourceConfig.class, ShardedJpaConfig.class, VendorAdapterDatabaseConfig.class })
-    static class TestConfig { }
+    static class TestConfig {
+
+        @Bean
+        public PartitioningPolicy partitioninPolicy() {
+            return new ListPoolNamesPartitioningPolicy();
+        }
+    }
 }
