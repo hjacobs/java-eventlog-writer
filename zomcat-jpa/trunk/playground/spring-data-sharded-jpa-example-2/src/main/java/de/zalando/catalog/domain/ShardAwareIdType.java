@@ -1,7 +1,10 @@
 package de.zalando.catalog.domain;
 
+// ich habe keine Ahnung warum es keine 0 gibt
+// was soll dass, wenn es in ShardedId.of(5) nicht funktioniert
 public enum ShardAwareIdType {
 
+    MULTIMEDIA_0(0),
     MULTIMEDIA(1);
 
     private final int code;

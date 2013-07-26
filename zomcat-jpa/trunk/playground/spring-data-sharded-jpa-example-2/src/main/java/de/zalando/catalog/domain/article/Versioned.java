@@ -6,6 +6,7 @@ import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlElement;
 
 public abstract class Versioned {
+
     @Column
     @Version
     private Integer version;

@@ -12,6 +12,8 @@ import de.zalando.sprocwrapper.sharding.ShardedObject;
 // @XmlJavaTypeAdapter(ShardedIdAdapter.class)
 public class ShardedId implements ShardedObject, Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private final long id;
     private final ShardAwareIdType shardAwareIdType;
     private final int virtualShardId;

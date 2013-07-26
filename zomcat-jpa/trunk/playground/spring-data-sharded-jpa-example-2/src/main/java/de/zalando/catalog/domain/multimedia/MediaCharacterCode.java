@@ -2,7 +2,7 @@ package de.zalando.catalog.domain.multimedia;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 import javax.xml.bind.annotation.XmlElement;
 
@@ -12,14 +12,17 @@ import com.google.common.base.Objects;
 
 // @XmlType(propOrder = {"code"})
 // @XmlJavaTypeAdapter(MediaCharacterCodeAdapter.class)
+// This can be modeled as an Embeddable
+@Embeddable
 public class MediaCharacterCode implements Serializable {
 
     private static final long serialVersionUID = -7281525429134342812L;
 
-    @Column
     private String code;
 
-    public MediaCharacterCode() { }
+    protected MediaCharacterCode() {
+        // just for JPA
+    }
 
     public MediaCharacterCode(final String code) {
         this.code = code;

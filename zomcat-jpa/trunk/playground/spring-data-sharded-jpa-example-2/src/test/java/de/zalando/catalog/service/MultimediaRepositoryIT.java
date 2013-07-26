@@ -2,8 +2,6 @@ package de.zalando.catalog.service;
 
 import java.util.List;
 
-import org.fest.assertions.Assertions;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -129,16 +127,16 @@ public class MultimediaRepositoryIT extends AbstractDBTest {
     @Test
     @Ignore
     public void test() {
-        final List<Multimedia> all = multimediaRepository.findAll();
-        final List<ShardedId> ids = Lists.transform(multimediaList, GET_IDS);
-
-        Assertions.assertThat(all).onProperty("code").containsOnly(ids.toArray());
-
-        for (final ShardedId id : ids) {
-            final Multimedia m = multimediaRepository.findByCode(id);
-            Assertions.assertThat(m).isNotNull();
-            Assertions.assertThat(m.getCode()).isEqualTo(id);
-        }
+// final List<Multimedia> all = multimediaRepository.findAll();
+// final List<ShardedId> ids = Lists.transform(multimediaList, GET_IDS);
+//
+// Assertions.assertThat(all).onProperty("code").containsOnly(ids.toArray());
+//
+// for (final ShardedId id : ids) {
+// final Multimedia m = multimediaRepository.withShardId(id);
+// Assertions.assertThat(m).isNotNull();
+// Assertions.assertThat(m.getCode()).isEqualTo(id);
+// }
 
     }
 

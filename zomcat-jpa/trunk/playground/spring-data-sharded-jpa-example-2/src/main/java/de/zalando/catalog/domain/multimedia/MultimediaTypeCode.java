@@ -2,7 +2,7 @@ package de.zalando.catalog.domain.multimedia;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 import javax.xml.bind.annotation.XmlElement;
 
@@ -12,11 +12,12 @@ import com.google.common.base.Objects;
 
 // @XmlType(propOrder = {"code"})
 // @XmlJavaTypeAdapter(MultimediaTypeCodeAdapter.class)
+// This can be modeled as an Embeddable
+@Embeddable
 public class MultimediaTypeCode implements Serializable {
 
     private static final long serialVersionUID = 8896016946836139745L;
 
-    @Column
     private String code;
 
     public MultimediaTypeCode() { }
