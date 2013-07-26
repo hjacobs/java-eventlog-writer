@@ -12,6 +12,7 @@ import com.google.common.base.Objects;
 
 // @XmlType(propOrder = {"code"})
 // @XmlJavaTypeAdapter(MediaCharacterCodeAdapter.class)
+
 // This can be modeled as an Embeddable
 @Embeddable
 public class MediaCharacterCode implements Serializable {

@@ -16,6 +16,8 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.eclipse.persistence.annotations.Partitioned;
 
+import com.google.common.base.Preconditions;
+
 import de.zalando.catalog.domain.ShardedId;
 import de.zalando.catalog.domain.article.Versioned;
 import de.zalando.catalog.domain.sku.Sku;
@@ -82,7 +84,13 @@ public class Multimedia extends Versioned implements ShardedObject {
         // just for JPA
     }
 
+    /**
+     * Only useful constructor, ensure an ID for Multimedia.
+     *
+     * @param  shardedId
+     */
     public Multimedia(final ShardedId shardedId) {
+        Preconditions.checkNotNull(shardedId, "ShardedId should never be null.");
         this.id = shardedId.asLong();
     }
 

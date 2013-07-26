@@ -24,8 +24,6 @@ import de.zalando.catalog.domain.sku.SkuType;
 
 // default is same as node1
 @ReplicationPartitioning(name = "Replicate", connectionPools = {"default", "node1", "node2", "node3", "node4"})
-
-// @Partitioned("listPoolNames")
 @Partitioned("SkuSharding")
 public class ArticleSku extends de.zalando.catalog.domain.sku.Sku implements Serializable {
 
