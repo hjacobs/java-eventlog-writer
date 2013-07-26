@@ -25,6 +25,7 @@ public class DirectToFieldMappingColumnNameCustomizer extends AbstractColumnName
         super(DirectToFieldMapping.class);
     }
 
+    // TODO, when we use Embeddables there is no tableName, it is null, how can we fix this
     @Override
     public void customizeColumnName(final String tableName, final DirectToFieldMapping databaseMapping,
             final Session session) {

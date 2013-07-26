@@ -2,6 +2,8 @@ package de.zalando.jpa.eclipselink.customizer.classdescriptor;
 
 import java.util.Map;
 
+import javax.persistence.Embeddable;
+
 import org.eclipse.persistence.descriptors.ClassDescriptor;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.sessions.Session;
@@ -35,6 +37,14 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
     @Override
     public void customize(final ClassDescriptor clazzDescriptor, final Session session) {
         logFine(session, START_CUS, clazzDescriptor.getJavaClassName());
+
+        Class descriptorjavaClazz = clazzDescriptor.getJavaClass();
+
+        // TODO, fix test
+        if (descriptorjavaClazz != null && descriptorjavaClazz.isAnnotationPresent(Embeddable.class)) {
+            logFine(session, "Skip Embeddable-class {0}", clazzDescriptor.getJavaClassName());
+            return;
+        }
 
         for (DatabaseMapping databaseMapping : clazzDescriptor.getMappings()) {
             logFine(session, FIELD, databaseMapping.getAttributeName());
