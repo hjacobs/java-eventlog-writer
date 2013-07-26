@@ -15,7 +15,6 @@
         <name>Zalando/Technology/Platform</name>
     </organization>
     <properties>
-        <zal.commons.version>13.28-SNAPSHOT</zal.commons.version>
         <test.db.host>localhost</test.db.host>
         <test.db.port>5434</test.db.port>
         <test.src.dir>src/test/java</test.src.dir>
@@ -118,7 +117,6 @@
                                 <artifactItem>
                                     <groupId>de.zalando</groupId>
                                     <artifactId>zalando-commons</artifactId>
-                                    <version>${zal.commons.version}</version>
                                     <dbPathInArtifact>database/shared</dbPathInArtifact>
                                     <outputDirectory>database/purchase</outputDirectory>
                                     <includes>**/00_setup/**</includes>
