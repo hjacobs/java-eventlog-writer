@@ -12,6 +12,7 @@ import org.eclipse.persistence.descriptors.partitioning.PartitioningPolicy;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -102,8 +103,23 @@ public class AnotherMultimediaTest {
     }
 
     @Test
+    @Ignore
+    public void testProblemWithSavingSku() {
+
+        // this is coming from webservice
+        final String sku = "test1234";
+
+        // this should be done automatically!
+        final ArticleSku articleSku = articleSkuRepository.findOneBySku(sku);
+
+        final Multimedia multimedia = new Multimedia(null);
+        multimedia.setSku(articleSku);
+        multimediaRepository.save(multimedia);
+    }
+
+    @Test
     public void readArticleSkus() {
-        List<ArticleSku> resultArticleSkuList = this.articleSkuRepository.findAll();
+        final List<ArticleSku> resultArticleSkuList = this.articleSkuRepository.findAll();
         Assert.assertNotNull(resultArticleSkuList);
         Assert.assertFalse(resultArticleSkuList.isEmpty());
         Assert.assertEquals(this.articleSkuList.size(), resultArticleSkuList.size());
@@ -115,9 +131,9 @@ public class AnotherMultimediaTest {
         printArticleSkus(resultArticleSkuList);
 
         LOG.info("---------------------------------------");
-        for (ArticleSku r : resultArticleSkuList) {
-            FindBySku predicate = new FindBySku(r.asString());
-            ArticleSku orig = getFirst(filter(this.articleSkuList, predicate), null);
+        for (final ArticleSku r : resultArticleSkuList) {
+            final FindBySku predicate = new FindBySku(r.asString());
+            final ArticleSku orig = getFirst(filter(this.articleSkuList, predicate), null);
             Assert.assertNotNull(orig);
             LOG.info("TRY_EQUALS : with orig: {} and fromDB: {}", orig, r);
 
@@ -132,7 +148,7 @@ public class AnotherMultimediaTest {
 
         final List<ShardedId> codes = Lists.newArrayList();
 
-        for (ArticleSku r : resultArticleSkuList) {
+        for (final ArticleSku r : resultArticleSkuList) {
 
             codes.add(ShardedId.of(r.getId()));
 
@@ -149,9 +165,9 @@ public class AnotherMultimediaTest {
 
         LOG.info("--------------LIST MULTIMEDIA - SINGLE CALL -------------------------");
 
-        for (ShardedId si : codes) {
+        for (final ShardedId si : codes) {
 
-            Multimedia m = this.multimediaRepository.findOne(si.asLong());
+            final Multimedia m = this.multimediaRepository.findOne(si.asLong());
 
             LOG.info("FOUND : {}", m.toString());
         }
@@ -161,14 +177,14 @@ public class AnotherMultimediaTest {
         List<Multimedia> multiMediaResult = null;
 
         // Variante 1, Predicates + QueryDSL, seems to work
-        Iterable<Multimedia> result = this.multimediaRepository.findAll(idIn(transform(codes)));
+        final Iterable<Multimedia> result = this.multimediaRepository.findAll(idIn(transform(codes)));
 
         multiMediaResult = extracts(result);
 
         // VARIANTE 2, CustomImplementation, does not work
         // multiMediaResult = this.multimediaRepository.findByCodes(codes);
 
-        for (Multimedia m : multiMediaResult) {
+        for (final Multimedia m : multiMediaResult) {
             LOG.info("MM : {}", m.toString());
         }
 
@@ -183,7 +199,7 @@ public class AnotherMultimediaTest {
      */
     private static void printArticleSkus(final List<ArticleSku> skus) {
 
-        for (ArticleSku s : skus) {
+        for (final ArticleSku s : skus) {
             LOG.info("ARTICLESKU:  {}", s);
         }
 
@@ -198,9 +214,9 @@ public class AnotherMultimediaTest {
      */
     private List<Multimedia> extracts(final Iterable<Multimedia> iterable) {
 
-        List<Multimedia> result = Lists.newArrayList();
+        final List<Multimedia> result = Lists.newArrayList();
 
-        for (Multimedia m : iterable) {
+        for (final Multimedia m : iterable) {
             result.add(m);
         }
 
@@ -215,7 +231,7 @@ public class AnotherMultimediaTest {
 
         @Bean
         public PartitioningPolicy skuShardingPolicy() {
-            ShardedObjectPartitionPolicy sopp = new ShardedObjectPartitionPolicy();
+            final ShardedObjectPartitionPolicy sopp = new ShardedObjectPartitionPolicy();
             sopp.setShardingStrategy(new SkuShardingStrategy());
             return sopp;
         }
