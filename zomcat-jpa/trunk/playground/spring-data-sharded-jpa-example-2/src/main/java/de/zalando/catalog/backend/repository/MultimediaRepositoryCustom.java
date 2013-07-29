@@ -11,6 +11,8 @@ public interface MultimediaRepositoryCustom {
 
     Multimedia findByShardedId(final ShardedId shardedId);
 
+    Multimedia save(Multimedia multimedia, String sku);
+
 // List<Multimedia> findByCodes(final List<ShardedId> codes);
 
 }

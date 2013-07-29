@@ -12,7 +12,6 @@ import org.eclipse.persistence.descriptors.partitioning.PartitioningPolicy;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -103,18 +102,36 @@ public class AnotherMultimediaTest {
     }
 
     @Test
-    @Ignore
+// @Ignore
     public void testProblemWithSavingSku() {
 
         // this is coming from webservice
-        final String sku = "test1234";
+        // final String sku = "test1234";
+        // it has to be somewhere in the db, right
+        ArticleSku articleSku = this.articleSkuList.get(0);
+//
+        final String sku = articleSku.asString();
+        final long id = articleSku.getId();
+
+        // do not say I use the ref above
+        articleSku = null;
 
         // this should be done automatically!
-        final ArticleSku articleSku = articleSkuRepository.findOneBySku(sku);
+        // final ArticleSku articleSku = articleSkuRepository.findOneBySku(sku);
 
-        final Multimedia multimedia = new Multimedia(null);
-        multimedia.setSku(articleSku);
-        multimediaRepository.save(multimedia);
+        final Multimedia multimedia = new Multimedia(ShardedId.of(id));
+        multimedia.setPath("/test/path/model/" + id);
+        multimedia.setTypeCode(new MultimediaTypeCode("JPEG_IMAGE"));
+        multimedia.setMediaCharacterCode(new MediaCharacterCode("IMAGE"));
+
+        // to make sure, the repository will set it somehow
+        Assert.assertNull(multimedia.getSku());
+
+        // multimedia.setSku(articleSku);
+
+        Multimedia saved = multimediaRepository.save(multimedia, sku);
+        Assert.assertNotNull(saved.getSku());
+        Assert.assertNotNull(saved.getShardKey());
     }
 
     @Test
