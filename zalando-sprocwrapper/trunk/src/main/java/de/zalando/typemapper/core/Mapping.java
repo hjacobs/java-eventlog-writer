@@ -12,13 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.zalando.sprocwrapper.util.NameUtils;
+
 import de.zalando.typemapper.annotations.Embed;
 import de.zalando.typemapper.core.fieldMapper.AnyTransformer;
 import de.zalando.typemapper.core.fieldMapper.FieldMapper;
 import de.zalando.typemapper.core.fieldMapper.FieldMapperRegister;
 import de.zalando.typemapper.core.fieldMapper.ValueTransformerFieldMapper;
 import de.zalando.typemapper.exception.NotsupportedTypeException;
-import de.zalando.typemapper.postgres.PgTypeHelper;
 
 public class Mapping {
 
@@ -167,7 +168,7 @@ public class Mapping {
             return annotationName;
         }
 
-        return PgTypeHelper.camelCaseToUnderScore(field.getName());
+        return NameUtils.camelCaseToUnderscore(field.getName());
     }
 
     public Field getField() {

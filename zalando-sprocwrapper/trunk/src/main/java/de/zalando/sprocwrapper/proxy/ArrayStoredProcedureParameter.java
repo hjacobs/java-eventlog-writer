@@ -7,6 +7,8 @@ import java.sql.Connection;
 
 import java.util.Collection;
 
+import de.zalando.sprocwrapper.util.NameUtils;
+
 import de.zalando.typemapper.annotations.DatabaseType;
 import de.zalando.typemapper.postgres.PgArray;
 import de.zalando.typemapper.postgres.PgTypeHelper;
@@ -51,7 +53,7 @@ class ArrayStoredProcedureParameter extends StoredProcedureParameter {
                     if (dbType != null) {
                         innerTypeName = dbType.name();
                     } else if (innerTypeName == null) {
-                        innerTypeName = SProcProxyBuilder.camelCaseToUnderscore(paramsClass.getSimpleName());
+                        innerTypeName = NameUtils.camelCaseToUnderscore(paramsClass.getSimpleName());
                     }
                 }
             }

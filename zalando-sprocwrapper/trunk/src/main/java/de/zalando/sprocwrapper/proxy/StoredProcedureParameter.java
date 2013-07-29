@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.zalando.sprocwrapper.globalvaluetransformer.GlobalValueTransformerLoader;
+import de.zalando.sprocwrapper.util.NameUtils;
 
 import de.zalando.typemapper.core.ValueTransformer;
 
@@ -106,7 +107,7 @@ class StoredProcedureParameter {
         type = typeId;
 
         if (typeName == null || typeName.isEmpty()) {
-            this.typeName = SProcProxyBuilder.camelCaseToUnderscore(clazz.getSimpleName());
+            this.typeName = NameUtils.camelCaseToUnderscore(clazz.getSimpleName());
         } else {
             this.typeName = typeName;
         }

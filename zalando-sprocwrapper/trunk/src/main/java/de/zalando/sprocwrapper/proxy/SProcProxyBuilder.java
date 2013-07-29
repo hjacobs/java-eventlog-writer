@@ -5,10 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import java.util.Locale;
-
-import org.apache.commons.lang.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +18,7 @@ import de.zalando.sprocwrapper.SProcService.WriteTransaction;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.sharding.ShardKey;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
+import de.zalando.sprocwrapper.util.NameUtils;
 
 /**
  * @author  jmussler
@@ -36,17 +33,8 @@ public class SProcProxyBuilder {
         // utility class: private constructor
     }
 
-    public static String camelCaseToUnderscore(final String camelCase) {
-        final String[] camelCaseParts = StringUtils.splitByCharacterTypeCamelCase(camelCase);
-        for (int i = 0; i < camelCaseParts.length; i++) {
-            camelCaseParts[i] = camelCaseParts[i].toLowerCase(Locale.ENGLISH);
-        }
-
-        return StringUtils.join(camelCaseParts, "_");
-    }
-
     private static String getSqlNameForMethod(final String methodName) {
-        return camelCaseToUnderscore(methodName);
+        return NameUtils.camelCaseToUnderscore(methodName);
     }
 
     @SuppressWarnings("unchecked")

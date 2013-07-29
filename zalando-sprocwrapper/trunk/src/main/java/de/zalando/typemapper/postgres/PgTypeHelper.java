@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.Column;
 
@@ -31,6 +30,8 @@ import org.postgresql.util.PGobject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.zalando.sprocwrapper.util.NameUtils;
 
 import de.zalando.typemapper.annotations.DatabaseField;
 import de.zalando.typemapper.annotations.DatabaseType;
@@ -48,7 +49,6 @@ public class PgTypeHelper {
     private static final Map<String, Integer> pgGenericTypeNameToSQLTypeMap;
     private static final Map<Field, DatabaseFieldDescriptor> fieldToDataBaseFieldDescriptorMap = Collections
             .synchronizedMap(new HashMap<Field, DatabaseFieldDescriptor>());
-    private static Map<String, String> camelCaseToUnderscoreMap = new ConcurrentHashMap<>();
 
     private static final PostgresJDBCDriverReusedTimestampUtils postgresJDBCDriverReusedTimestampUtils =
         new PostgresJDBCDriverReusedTimestampUtils();
@@ -157,56 +157,6 @@ public class PgTypeHelper {
         return typeName;
     }
 
-    public static String camelCaseToUnderScore(final String camelCaseName) {
-        if (camelCaseName == null) {
-            throw new NullPointerException();
-        }
-
-        String ret = camelCaseToUnderscoreMap.get(camelCaseName);
-
-        if (ret == null) {
-
-            final int length = camelCaseName.length();
-            final StringBuilder r = new StringBuilder(length * 2);
-
-            // myFieldName -> my_field_name
-            // MyFileName -> my_field_name
-            // MyFILEName -> my_file_name
-            // too lazy to write a small automata here... so quick and dirty by now
-            boolean wasUpper = false;
-            for (int i = 0; i < length; i++) {
-                char ch = camelCaseName.charAt(i);
-
-                if (Character.isUpperCase(ch)) {
-                    if (i > 0) {
-                        if ((!wasUpper) && (ch != '_')) {
-                            r.append('_');
-                        }
-                    }
-
-                    ch = Character.toLowerCase(ch);
-                    wasUpper = true;
-                } else {
-                    if (wasUpper) {
-                        final int p = r.length() - 2;
-                        if (p > 1 && r.charAt(p) != '_') {
-                            r.insert(p, '_');
-                        }
-                    }
-
-                    wasUpper = false;
-                }
-
-                r.append(ch);
-            }
-
-            ret = r.toString();
-            camelCaseToUnderscoreMap.put(camelCaseName, ret);
-        }
-
-        return ret;
-    }
-
     public static final class PgTypeDataHolder {
         private final String typeName;
         private final Collection<Object> attributes;
@@ -269,7 +219,7 @@ public class PgTypeHelper {
         if (typeName == null || typeName.isEmpty()) {
 
             // fill the name with de-CamelCased name if we could not get it from the annotation
-            typeName = camelCaseToUnderScore(clazz.getSimpleName());
+            typeName = NameUtils.camelCaseToUnderscore(clazz.getSimpleName());
         }
 
         List<Object> resultList = null;
