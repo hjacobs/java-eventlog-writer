@@ -7,9 +7,9 @@ import org.eclipse.persistence.mappings.Association;
 import org.eclipse.persistence.mappings.ManyToOneMapping;
 import org.eclipse.persistence.sessions.Session;
 
+import de.zalando.jpa.eclipselink.customizer.NameUtils;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.support.EntityFieldInspector;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.support.JoinColumnFieldInspector;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.support.NameUtils;
 
 /**
  * @author  jbellmann

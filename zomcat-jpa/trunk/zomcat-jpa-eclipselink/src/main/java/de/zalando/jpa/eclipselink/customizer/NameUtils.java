@@ -1,4 +1,4 @@
-package de.zalando.jpa.eclipselink.customizer.databasemapping.support;
+package de.zalando.jpa.eclipselink.customizer;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Preconditions;

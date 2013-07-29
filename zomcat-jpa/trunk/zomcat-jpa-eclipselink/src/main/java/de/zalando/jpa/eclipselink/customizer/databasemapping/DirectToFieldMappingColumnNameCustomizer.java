@@ -10,9 +10,9 @@ import org.eclipse.persistence.sessions.Session;
 
 import org.springframework.util.ReflectionUtils;
 
+import de.zalando.jpa.eclipselink.customizer.NameUtils;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.support.ColumnFieldInspector;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.support.EntityFieldInspector;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.support.NameUtils;
 
 /**
  * Supports Column-Name-Customization for DirectToFieldMappings.

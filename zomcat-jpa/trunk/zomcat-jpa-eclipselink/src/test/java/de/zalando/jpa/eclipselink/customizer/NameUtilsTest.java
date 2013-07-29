@@ -1,11 +1,11 @@
-package de.zalando.jpa.eclipselink.customizer.databasemapping.support;
+package de.zalando.jpa.eclipselink.customizer;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 /**
- * Tests for {@link de.zalando.jpa.eclipselink.customizer.databasemapping.support.NameUtils}.
+ * Tests for {@link de.zalando.jpa.eclipselink.customizer.NameUtils}.
  *
  * @author  jbellmann
  */
