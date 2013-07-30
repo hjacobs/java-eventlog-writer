@@ -16,6 +16,9 @@ public final class NameUtils {
     }
 
     /**
+     * Builds an fieldname (or column) from provided tablename and attributename.<br/>
+     * For an tablename like 'purchase_order_head' and an attributename 'brandCode' you will get 'poh_brand_code'.
+     *
      * @param   tableName
      * @param   attributeName
      *
@@ -25,6 +28,15 @@ public final class NameUtils {
         return iconizeTableName(tableName) + "_" + camelCaseToUnderscore(attributeName);
     }
 
+    /**
+     * Builds an fieldname (or column) from provided tablename and attributename for boolean fields.<br/>
+     * For an tablename like 'purchase_order_head' and an attributename 'ordered' you will get 'poh_is_ordered'.
+     *
+     * @param   tableName
+     * @param   attributeName
+     *
+     * @return
+     */
     public static String buildBooleanFieldName(final String tableName, String attributeName) {
         if (attributeName.toLowerCase().startsWith("is")) {
             attributeName = attributeName.substring(2);
@@ -43,6 +55,10 @@ public final class NameUtils {
     }
 
     /**
+     * Builds an prefix from tablename for columns. Always in lowercase.<br/>
+     * So for an tablename like 'TA_BLENAME' you would get 'tb'.<br/>
+     * For an tablename like 'thisIs_BlOED' you would get 'tb'.
+     *
      * @param   tableName
      *
      * @return

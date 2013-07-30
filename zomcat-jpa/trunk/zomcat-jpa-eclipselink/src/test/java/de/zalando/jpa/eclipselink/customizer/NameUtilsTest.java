@@ -30,6 +30,12 @@ public class NameUtilsTest {
     }
 
     @Test
+    public void testCamelCaseToUnderscore() {
+        assertEquals("Should produce 'brand_code'", "brand_code", NameUtils.camelCaseToUnderscore("brandCode"));
+        assertEquals("Should produce 'ordered'", "ordered", NameUtils.camelCaseToUnderscore("ordered"));
+    }
+
+    @Test
     public void testBuildFieldName() {
         assertEquals("poh_brand_code", NameUtils.buildFieldName("purchase_order_head", "brandCode"));
         assertEquals("poh_purchaser_email", NameUtils.buildFieldName("purchase_order_head", "purchaserEmail"));
