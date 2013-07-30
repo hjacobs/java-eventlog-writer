@@ -38,9 +38,9 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
     public void customize(final ClassDescriptor clazzDescriptor, final Session session) {
         logFine(session, START_CUS, clazzDescriptor.getJavaClassName());
 
-        Class descriptorjavaClazz = clazzDescriptor.getJavaClass();
+        final Class<?> descriptorjavaClazz = clazzDescriptor.getJavaClass();
 
-        // TODO, fix test
+        // Embeddables have no tablename, we skip them here but we have to extend this
         if (descriptorjavaClazz != null && descriptorjavaClazz.isAnnotationPresent(Embeddable.class)) {
             logFine(session, "Skip Embeddable-class {0}", clazzDescriptor.getJavaClassName());
             return;
