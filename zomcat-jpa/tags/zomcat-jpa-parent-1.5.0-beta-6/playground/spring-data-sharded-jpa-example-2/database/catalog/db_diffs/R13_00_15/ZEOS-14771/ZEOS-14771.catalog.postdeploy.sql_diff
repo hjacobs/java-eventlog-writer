@@ -1,0 +1,22 @@
+BEGIN;
+
+  SELECT _v.register_patch('ZEOS-14771.catalog');
+
+  SET role TO zalando;
+
+  -- drop from price_archive
+  ALTER TABLE zcat_data.price_archive DROP COLUMN pa_source_price_level_reason_id;
+  ALTER TABLE zcat_data.price_archive DROP COLUMN pa_source_promotional_price_level_reason_id;
+
+  -- drop from price_current
+  ALTER TABLE zcat_data.price_current DROP COLUMN pc_source_price_level_reason_id;
+  ALTER TABLE zcat_data.price_current DROP COLUMN pc_source_promotional_price_level_reason_id;
+
+  -- drop from price_definition
+  ALTER TABLE zcat_data.price_definition DROP COLUMN pd_price_level_reason_id;
+
+  -- drop table
+  -- DROP TABLE zcat_commons.price_level_reason;
+
+-- ROLLBACK;
+COMMIT;

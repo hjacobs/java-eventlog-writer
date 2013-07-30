@@ -1,0 +1,16 @@
+BEGIN;
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-16174.catalog.predeploy');
+
+
+    set role to zalando;
+
+    insert into zcat_commons.app_config (ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('jobConfig.articleSolrFullExportJob.appInstanceKey', '*', true);
+
+    reset role;
+
+COMMIT;
+

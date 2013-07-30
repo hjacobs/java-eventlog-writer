@@ -1,0 +1,18 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-16217.2.catalog');
+
+  SET role TO zalando;
+
+  -- remove remaining artefacts after one week of applying ZEOS-16217
+
+    DROP FUNCTION IF EXISTS zcat_commons.is_option_value_of(zcat_commons.option_type, integer);
+    DROP TABLE zcat_commons.option_value;
+
+  RESET role;
+
+COMMIT;
+--ROLLBACK;

@@ -1,0 +1,18 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-10168.catalog.postdeploy');
+
+    set role to zalando;
+
+        insert into zcat_commons.app_config (ac_key, ac_value, ac_is_online_updateable) values
+          ('jobConfig.maintenanceJob.appInstanceKey', '*', true),
+          ('jobConfig.maintenanceJob.limit','10000',true), -- chunk to process limit
+          ('jobConfig.maintenanceJob.active','true',true);
+
+    reset role;
+
+--ROLLBACK;
+COMMIT;

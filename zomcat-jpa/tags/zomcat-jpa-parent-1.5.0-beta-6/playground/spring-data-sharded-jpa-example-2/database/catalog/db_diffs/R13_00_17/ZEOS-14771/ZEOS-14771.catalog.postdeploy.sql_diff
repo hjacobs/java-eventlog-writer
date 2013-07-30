@@ -1,0 +1,11 @@
+BEGIN;
+
+  SELECT _v.register_patch('ZEOS-14771.1.catalog');
+
+  SET role TO zalando;
+
+  -- drop table
+  DROP TABLE zcat_commons.price_level_reason;
+
+-- ROLLBACK;
+COMMIT;

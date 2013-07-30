@@ -1,0 +1,24 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-16905.catalog');
+
+  SET role TO zalando;
+
+  ALTER TABLE zcat_data.article_simple_ean ADD COLUMN ase_created timestamptz;
+  ALTER TABLE zcat_data.article_simple_ean ADD COLUMN ase_created_by text;
+  ALTER TABLE zcat_data.article_simple_ean ADD COLUMN ase_flow_id text;
+
+  ALTER TABLE zcat_data.article_simple_ean ALTER COLUMN ase_created SET DEFAULT clock_timestamp();
+
+  RESET role;
+
+COMMIT;
+
+VACUUM zcat_data.article_simple_ean;
+
+UPDATE zcat_data.article_simple_ean SET ase_created = clock_timestamp() WHERE ase_created IS NULL;
+
+ALTER TABLE zcat_data.article_simple_ean ALTER COLUMN ase_created SET NOT NULL;

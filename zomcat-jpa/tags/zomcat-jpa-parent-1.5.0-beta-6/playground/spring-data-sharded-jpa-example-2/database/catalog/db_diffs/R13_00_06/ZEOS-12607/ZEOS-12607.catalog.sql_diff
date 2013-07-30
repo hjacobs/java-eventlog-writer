@@ -1,0 +1,19 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    SELECT _v.register_patch ('ZEOS-12607.catalog');
+    SET role to zalando;
+
+    ALTER TABLE zcat_data.article_simple_ean ADD COLUMN ase_is_active BOOLEAN;
+    ALTER TABLE zcat_data.article_simple_ean ALTER COLUMN ase_is_active SET DEFAULT TRUE;
+    reset role;
+
+COMMIT;
+
+VACUUM zcat_data.article_simple_ean;
+
+UPDATE zcat_data.article_simple_ean SET ase_is_active = TRUE;
+
+ALTER TABLE zcat_data.article_simple_ean ALTER COLUMN ase_is_active SET NOT NULL;

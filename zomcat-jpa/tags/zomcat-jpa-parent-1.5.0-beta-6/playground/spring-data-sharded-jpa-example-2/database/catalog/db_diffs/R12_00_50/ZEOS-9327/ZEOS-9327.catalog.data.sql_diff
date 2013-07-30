@@ -1,0 +1,18 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-9327.catalog.data');
+
+    set role to zalando;
+
+    insert into zcat_commons.price_level (pl_id, pl_level, pl_name, pl_is_promotional)
+    values (6, 0, 'base_fallback', false);
+
+    create index on zcat_commons.price_level (pl_level);
+
+    reset role;
+
+--ROLLBACK;
+COMMIT;
