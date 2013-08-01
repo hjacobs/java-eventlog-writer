@@ -58,6 +58,7 @@ public @interface SProcCall {
         GET_ZALOS_DEVICE(38L),
         ZALOS_PRINT_LIST_PREPARE(39L),
         ZALOS_PRINT_LIST_POSITION_PREPARE(40L),
+        GET_ZALOS_INBOUND_BATCHING(41L),
 
         /*
          * The values following now don't exist in LockingSproc. To allow adding new values to
