@@ -51,19 +51,19 @@ public class FlowIdOutboundInterceptor extends AbstractPhaseInterceptor<Message>
 
             // no response header available. do nothing, do not remove the
             // context
-            // if (LOG.isDebugEnabled()) {
-            // LOG.debug("client handleMessage: owning flowId: " + FlowId.peekFlowId());
-            // }
         } else {
-            FlowId.getScope().exit();
+
+            // this code may be called twice (once for the success interceptor
+            // second from the fault interceptor). make sure that
+            // the scope is only removed once, because a second call will throw an IllegalStateException
+            if (FlowId.getScope().isActive()) {
+                FlowId.getScope().exit();
+            }
 
             // this is the response and the end of the call.
             // add the flow id to the response and remove it from our context.
             final HttpServletResponse httpServletResponse = (HttpServletResponse) message.get(
                     AbstractHTTPDestination.HTTP_RESPONSE);
-            // if (LOG.isDebugEnabled()) {
-            // LOG.debug("server handleMessage: removing flowId: " + FlowId.peekFlowId());
-            // }
 
             httpServletResponse.setHeader(FlowIdInboundInterceptor.X_FLOW_ID, FlowId.popFlowId());
         }
