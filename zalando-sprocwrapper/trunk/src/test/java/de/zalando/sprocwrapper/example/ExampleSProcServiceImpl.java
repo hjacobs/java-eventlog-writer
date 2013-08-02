@@ -359,6 +359,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public ExampleDomainObjectWithInnerObject getEntityWithNullInnerObject() {
+        return sproc.getEntityWithNullInnerObject();
+    }
+
+    @Override
     public Order getOrders(final int id) {
         return sproc.getOrders(id);
     }

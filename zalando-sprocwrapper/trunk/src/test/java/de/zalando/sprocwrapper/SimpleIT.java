@@ -783,6 +783,21 @@ public class SimpleIT {
     }
 
     @Test
+    public void testReturnDomainObjectWithNullInnerObject() {
+        ExampleDomainObjectWithInnerObject result = exampleSProcService.getEntityWithNullInnerObject();
+        assertNotNull(result);
+
+        assertEquals("a", result.getA());
+
+        ExampleDomainObject b = result.getB();
+        assertNotNull(b);
+        assertNull(b.getA());
+        assertNull(b.getB());
+
+        assertNull(result.getC());
+    }
+
+    @Test
     @Ignore("Only activate this test when the new monetary feature is finished")
     public void testMonetaryValue() {
         BigDecimal b = new BigDecimal("123.124");

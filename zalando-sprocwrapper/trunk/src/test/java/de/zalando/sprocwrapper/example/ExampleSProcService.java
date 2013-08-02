@@ -227,6 +227,9 @@ public interface ExampleSProcService {
     ExampleDomainObjectWithoutSetters getEntityWithoutSetters();
 
     @SProcCall
+    ExampleDomainObjectWithInnerObject getEntityWithNullInnerObject();
+
+    @SProcCall
     Order getOrders(@SProcParam int id);
 
     @SProcCall
