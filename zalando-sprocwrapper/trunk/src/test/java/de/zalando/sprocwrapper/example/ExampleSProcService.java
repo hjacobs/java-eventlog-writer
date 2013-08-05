@@ -92,6 +92,15 @@ public interface ExampleSProcService {
     @SProcCall(runOnAllShards = true, parallel = true, name = "collect_data_from_all_shards")
     List<String> collectDataFromAllShardsParallel(@SProcParam String someParameter);
 
+    @SProcCall(runOnAllShards = true, searchShards = true)
+    List<String> collectDataFromAllShardsSearchShardsOn(@SProcParam String someParameter);
+
+    @SProcCall(
+        runOnAllShards = true, parallel = true, searchShards = true,
+        name = "collect_data_from_all_shards_search_shards_on"
+    )
+    List<String> collectDataFromAllShardsParallelSearchShardsOn(@SProcParam String someParameter);
+
     @SProcCall(sql = "SELECT 1 UNION ALL SELECT 2")
     List<Integer> getInts();
 

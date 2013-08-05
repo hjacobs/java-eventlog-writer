@@ -136,8 +136,18 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public List<String> collectDataFromAllShardsSearchShardsOn(final String someParameter) {
+        return sproc.collectDataFromAllShardsSearchShardsOn(someParameter);
+    }
+
+    @Override
     public List<String> collectDataFromAllShardsParallel(final String someParameter) {
         return sproc.collectDataFromAllShardsParallel(someParameter);
+    }
+
+    @Override
+    public List<String> collectDataFromAllShardsParallelSearchShardsOn(final String someParameter) {
+        return sproc.collectDataFromAllShardsParallelSearchShardsOn(someParameter);
     }
 
     @Override

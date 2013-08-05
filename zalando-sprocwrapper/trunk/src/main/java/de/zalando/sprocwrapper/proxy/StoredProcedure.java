@@ -551,16 +551,8 @@ class StoredProcedure {
                 causes.put(shardId, e);
             }
 
-            if (searchShards && sprocResult != null) {
-                if (collectionResult) {
-                    results.addAll((Collection) sprocResult);
-                }
-
+            if (addResultsBreakWhenSharded(results, sprocResult)) {
                 break;
-            }
-
-            if (collectionResult && sprocResult != null) {
-                results.addAll((Collection) sprocResult);
             }
 
             i++;
@@ -614,16 +606,8 @@ class StoredProcedure {
                 causes.put(taskToFinish.getKey(), ex.getCause());
             }
 
-            if (searchShards && sprocResult != null) {
-                if (collectionResult) {
-                    results.addAll((Collection) sprocResult);
-                }
-
+            if (addResultsBreakWhenSharded(results, sprocResult)) {
                 break;
-            }
-
-            if (sprocResult != null && collectionResult) {
-                results.addAll((Collection) sprocResult);
             }
         }
 
@@ -633,6 +617,27 @@ class StoredProcedure {
         }
 
         return sprocResult;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private boolean addResultsBreakWhenSharded(final Collection results, final Object sprocResult) {
+        boolean breakSearch = false;
+
+        if (collectionResult && sprocResult != null && !((Collection) sprocResult).isEmpty()) {
+
+            // Result is a non-empty collection
+            results.addAll((Collection) sprocResult);
+
+            // Break if shardedSearch
+            breakSearch = searchShards;
+        } else if (!collectionResult && sprocResult != null && searchShards) {
+
+            // Result is non-null, but not a collection
+            // Break if shardedSearch
+            breakSearch = true;
+        }
+
+        return breakSearch;
     }
 
     private DataSource getShardDs(final DataSourceProvider dp,
