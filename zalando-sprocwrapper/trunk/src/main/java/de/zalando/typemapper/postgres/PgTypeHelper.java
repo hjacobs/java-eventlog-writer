@@ -363,6 +363,13 @@ public class PgTypeHelper {
 
         final int fieldsWithDefinedPositions = resultPositionMap == null ? 0 : resultPositionMap.size();
         final int fieldsWithUndefinedPositions = resultList == null ? 0 : resultList.size();
+        final int fieldsInDb = dbFields == null ? 0 : dbFields.size();
+
+        // PF-1160
+        if (fieldsInDb != fieldsWithDefinedPositions & dbFields != null) {
+            LOG.warn("Fields in DB({})!=Annotated fields({}). @DatabaseField annotation might be missing", fieldsInDb,
+                fieldsWithDefinedPositions);
+        }
 
         if (fieldsWithDefinedPositions > 0 && fieldsWithUndefinedPositions > 0) {
             throw new IllegalArgumentException("Class " + clazz.getName()
