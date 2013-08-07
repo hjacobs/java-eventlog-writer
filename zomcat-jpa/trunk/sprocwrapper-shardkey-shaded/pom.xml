@@ -17,6 +17,11 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zalando-sprocwrapper</artifactId>
             <version>1.0.0-RC2</version>
