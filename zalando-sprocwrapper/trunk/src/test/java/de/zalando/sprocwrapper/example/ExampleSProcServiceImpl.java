@@ -374,6 +374,16 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public Example1DomainObject1 getExample1EntityWithNumbers1(final Example1DomainObject1 domain) {
+        return sproc.getExample1EntityWithNumbers1(domain);
+    }
+
+    @Override
+    public Example2DomainObject1 getExample2EntityWithNumbers1(final Example2DomainObject1 domain) {
+        return sproc.getExample2EntityWithNumbers1(domain);
+    }
+
+    @Override
     public Order getOrders(final int id) {
         return sproc.getOrders(id);
     }

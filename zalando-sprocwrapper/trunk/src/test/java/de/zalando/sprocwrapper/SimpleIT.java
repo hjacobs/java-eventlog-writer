@@ -43,6 +43,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.zalando.sprocwrapper.example.AddressPojo;
+import de.zalando.sprocwrapper.example.Example1DomainObject1;
+import de.zalando.sprocwrapper.example.Example1DomainObject2;
+import de.zalando.sprocwrapper.example.Example2DomainObject1;
+import de.zalando.sprocwrapper.example.Example2DomainObject2;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEmbed;
@@ -780,6 +784,48 @@ public class SimpleIT {
         assertNotNull(y);
         assertNull(y.getA());
         assertNull(y.getB());
+    }
+
+    @Ignore
+    @Test
+    public void testResourcesWithNumbers1() {
+        Example1DomainObject1 input = new Example1DomainObject1();
+        input.setExample1Field1("example1field1");
+
+        Example1DomainObject2 input2 = new Example1DomainObject2();
+        input2.setExample1Field1("example1complexfield1");
+        input2.setExample1Field2("example1complexfield2");
+        input.setExample1Field2(input2);
+
+        Example1DomainObject1 output = exampleSProcService.getExample1EntityWithNumbers1(input);
+        assertNotNull(output);
+        assertEquals("example1field1", output.getExample1Field1());
+
+        Example1DomainObject2 object2 = output.getExample1Field2();
+        assertNotNull(object2);
+        assertEquals("example1complexfield1", object2.getExample1Field1());
+        assertEquals("example1complexfield2", object2.getExample1Field2());
+    }
+
+    @Ignore
+    @Test
+    public void testResourcesWithNumbers2() {
+        Example2DomainObject1 input = new Example2DomainObject1();
+        input.setExample2Field1("example2field1");
+
+        Example2DomainObject2 input2 = new Example2DomainObject2();
+        input2.setExample2Field1("example2complexfield1");
+        input2.setExample2Field2("example2complexfield2");
+        input.setExample2Field2(input2);
+
+        Example2DomainObject1 output = exampleSProcService.getExample2EntityWithNumbers1(input);
+        assertNotNull(output);
+        assertEquals("example2field1", output.getExample2Field1());
+
+        Example2DomainObject2 object2 = output.getExample2Field2();
+        assertNotNull(object2);
+        assertEquals("example2complexfield1", object2.getExample2Field1());
+        assertEquals("example2complexfield2", object2.getExample2Field2());
     }
 
     @Test
