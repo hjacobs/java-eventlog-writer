@@ -6,7 +6,7 @@
         <class>de.zalando.jpa.example.order.Address</class>
         <class>de.zalando.jpa.example.order.PurchaseOrderPosition</class>
         <class>de.zalando.jpa.example.order.PurchaseOrder</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -35,7 +35,7 @@
         <class>de.zalando.jpa.example.order.Address</class>
         <class>de.zalando.jpa.example.order.PurchaseOrderPosition</class>
         <class>de.zalando.jpa.example.order.PurchaseOrder</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -63,7 +63,7 @@
     <persistence-unit name="idExample">
         <class>de.zalando.jpa.example.id.WorkerConfig</class>
         <class>de.zalando.jpa.example.id.Worker</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -91,7 +91,7 @@
     <persistence-unit name="sequenceIdGenerator">
         <class>de.zalando.jpa.example.sequences.CustomerOrder</class>
         <class>de.zalando.jpa.example.sequences.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -123,7 +123,7 @@
     <persistence-unit name="autoIdGenerator">
         <class>de.zalando.jpa.example.autoid.CustomerOrder</class>
         <class>de.zalando.jpa.example.autoid.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -155,7 +155,7 @@
     <persistence-unit name="identity">
         <class>de.zalando.jpa.example.identity.CustomerOrder</class>
         <class>de.zalando.jpa.example.identity.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -187,7 +187,7 @@
     <persistence-unit name="unidirectional">
         <class>de.zalando.jpa.example.unidirectional.CustomerOrder</class>
         <class>de.zalando.jpa.example.unidirectional.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -219,7 +219,7 @@
     <persistence-unit name="sharding">
         <class>de.zalando.jpa.example.sharding.CustomerOrder</class>
         <class>de.zalando.jpa.example.sharding.OrderLine</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -253,7 +253,7 @@
 
     <persistence-unit name="auditing">
         <class>de.zalando.jpa.example.auditing.Account</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
