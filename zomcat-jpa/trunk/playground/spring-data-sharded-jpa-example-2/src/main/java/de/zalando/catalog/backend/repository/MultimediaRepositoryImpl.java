@@ -40,6 +40,11 @@ public class MultimediaRepositoryImpl implements MultimediaRepositoryCustom {
         multimedia.setSku(articleSku);
 
         return this.multimediaRepository.save(multimedia);
+
+// final Multimedia result = this.multimediaRepository.saveAndFlush(multimedia);
+// result.setSku(SkuFactory.valueOf(multimedia.getSku().asString()));
+// result.setSku(SkuFactory.valueOf(sku));
+// return result;
     }
 
 }
