@@ -1,4 +1,4 @@
-package de.zalando.jpa.example;
+package de.zalando.jpa.example.order;
 
 import org.junit.Assert;
 
@@ -27,11 +27,6 @@ import de.zalando.jpa.config.JpaConfig;
 import de.zalando.jpa.config.PersistenceUnitNameProvider;
 import de.zalando.jpa.config.StandardPersistenceUnitNameProvider;
 import de.zalando.jpa.config.VendorAdapterDatabaseConfig;
-import de.zalando.jpa.example.order.Address;
-import de.zalando.jpa.example.order.OrderStatus;
-import de.zalando.jpa.example.order.PurchaseOrder;
-import de.zalando.jpa.example.order.PurchaseOrderPosition;
-import de.zalando.jpa.example.order.PurchaseOrderRepository;
 
 /**
  * The testcode for integration and unit-test.
@@ -46,7 +41,6 @@ public abstract class AbstractPurchaseOrderTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPurchaseOrderTestSupport.class);
 
     public static final String PACKAGES_TO_SCAN = "de.zalando.jpa.example.order";
-    public static final String PU_NAME = "default";
 
     @Autowired
     private PurchaseOrderRepository purchaseOrderRepository;
@@ -103,7 +97,7 @@ public abstract class AbstractPurchaseOrderTestSupport {
 
         @Bean
         public PersistenceUnitNameProvider persistenceUnitNameProvider() {
-            return new StandardPersistenceUnitNameProvider(AbstractPurchaseOrderTestSupport.PU_NAME);
+            return new StandardPersistenceUnitNameProvider();
         }
 
     }

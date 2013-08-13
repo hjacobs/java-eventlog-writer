@@ -1,4 +1,4 @@
-package de.zalando.jpa.example;
+package de.zalando.jpa.example.order;
 
 import org.junit.Test;
 
