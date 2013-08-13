@@ -24,7 +24,7 @@ public class DelegatingPartitioningPolicy extends PartitioningPolicy {
     public DelegatingPartitioningPolicy() { }
 
     /**
-     * important, that is what not work in current implementation of eclipselink make sure the initialization will be
+     * Important, that is what not work in current implementation of eclipselink make sure the initialization will be
      * delegated to the delegate.
      */
     @Override
