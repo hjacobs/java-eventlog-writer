@@ -10,7 +10,7 @@
         <class>de.zalando.jpa.example.article.ArticleModel</class>
         <class>de.zalando.jpa.example.article.ArticleSku</class>
         <class>de.zalando.jpa.example.article.Attribute</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -65,7 +65,7 @@
         <class>de.zalando.jpa.example.order.Address</class>
         <class>de.zalando.jpa.example.order.PurchaseOrderPosition</class>
         <class>de.zalando.jpa.example.order.PurchaseOrder</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
