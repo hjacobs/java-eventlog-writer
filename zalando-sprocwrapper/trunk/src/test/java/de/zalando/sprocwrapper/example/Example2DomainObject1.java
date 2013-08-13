@@ -3,10 +3,10 @@ package de.zalando.sprocwrapper.example;
 import de.zalando.typemapper.annotations.DatabaseField;
 
 public class Example2DomainObject1 {
-    @DatabaseField
+    @DatabaseField(name = "example2_field1")
     private String example2Field1;
 
-    @DatabaseField
+    @DatabaseField(name = "example2_field2")
     private Example2DomainObject2 example2Field2;
 
     public String getExample2Field1() {

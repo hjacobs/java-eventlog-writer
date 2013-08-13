@@ -379,8 +379,8 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
-    public Example2DomainObject1 getExample2EntityWithNumbers1(final Example2DomainObject1 domain) {
-        return sproc.getExample2EntityWithNumbers1(domain);
+    public Example2DomainObject1 getExample2EntityWithNumbers1() {
+        return sproc.getExample2EntityWithNumbers1();
     }
 
     @Override

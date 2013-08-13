@@ -786,7 +786,6 @@ public class SimpleIT {
         assertNull(y.getB());
     }
 
-    @Ignore
     @Test
     public void testResourcesWithNumbers1() {
         Example1DomainObject1 input = new Example1DomainObject1();
@@ -807,18 +806,10 @@ public class SimpleIT {
         assertEquals("example1complexfield2", object2.getExample1Field2());
     }
 
-    @Ignore
     @Test
     public void testResourcesWithNumbers2() {
-        Example2DomainObject1 input = new Example2DomainObject1();
-        input.setExample2Field1("example2field1");
 
-        Example2DomainObject2 input2 = new Example2DomainObject2();
-        input2.setExample2Field1("example2complexfield1");
-        input2.setExample2Field2("example2complexfield2");
-        input.setExample2Field2(input2);
-
-        Example2DomainObject1 output = exampleSProcService.getExample2EntityWithNumbers1(input);
+        Example2DomainObject1 output = exampleSProcService.getExample2EntityWithNumbers1();
         assertNotNull(output);
         assertEquals("example2field1", output.getExample2Field1());
 

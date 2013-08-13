@@ -242,7 +242,7 @@ public interface ExampleSProcService {
     Example1DomainObject1 getExample1EntityWithNumbers1(@SProcParam Example1DomainObject1 domain);
 
     @SProcCall
-    Example2DomainObject1 getExample2EntityWithNumbers1(@SProcParam Example2DomainObject1 domain);
+    Example2DomainObject1 getExample2EntityWithNumbers1();
 
     @SProcCall
     Order getOrders(@SProcParam int id);
