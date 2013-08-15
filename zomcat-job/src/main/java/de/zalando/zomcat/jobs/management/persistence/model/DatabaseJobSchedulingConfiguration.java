@@ -8,7 +8,7 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.annotations.DatabaseField;
 
 import de.zalando.zomcat.jobs.JobConfig;
 import de.zalando.zomcat.jobs.JobGroupConfig;
