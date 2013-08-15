@@ -33,4 +33,4 @@ language plpgsql
     cost 100;
 
 GRANT EXECUTE ON FUNCTION zz_commons.job_resource_acquire_lock (text, text, text, bigint) TO zalando_api_executor;
-ALTER FUNCTION zz_commons.job_resource_acquire_lock (text, text, text, bigint) owner TO zalando;
+-- ALTER FUNCTION zz_commons.job_resource_acquire_lock (text, text, text, bigint) owner TO zalando;

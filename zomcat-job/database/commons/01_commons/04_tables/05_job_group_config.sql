@@ -26,6 +26,6 @@ COMMENT ON COLUMN zz_commons.job_group_config.jgc_created
 COMMENT ON COLUMN zz_commons.job_group_config.jgc_last_modified
         IS 'Last Modified Timestamp of JobGroup';
 
-ALTER TABLE zz_commons.job_group_config OWNER TO zalando;
+-- ALTER TABLE zz_commons.job_group_config OWNER TO zalando;
 
 GRANT INSERT, DELETE , UPDATE ON zz_commons.job_group_config TO zalando_24x7;

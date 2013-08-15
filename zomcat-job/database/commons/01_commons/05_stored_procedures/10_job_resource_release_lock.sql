@@ -20,4 +20,4 @@ language sql
     cost 100;
 
 grant execute on function zz_commons.job_resource_release_lock ( text, text ) to zalando_api_executor;
-alter function zz_commons.job_resource_release_lock ( text, text ) owner to zalando;
+-- alter function zz_commons.job_resource_release_lock ( text, text ) owner to zalando;

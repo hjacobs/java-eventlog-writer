@@ -48,6 +48,6 @@ COMMENT ON COLUMN zz_commons.job_scheduling_config_history.jsch_job_group_config
 COMMENT ON COLUMN zz_commons.job_scheduling_config_history.jsch_created
         IS 'Created Date of Job Configuration';
 
-ALTER TABLE zz_commons.job_scheduling_config_history OWNER TO zalando;
+-- ALTER TABLE zz_commons.job_scheduling_config_history OWNER TO zalando;
 
 GRANT INSERT, DELETE, UPDATE ON zz_commons.job_scheduling_config_history TO zalando_24x7;
