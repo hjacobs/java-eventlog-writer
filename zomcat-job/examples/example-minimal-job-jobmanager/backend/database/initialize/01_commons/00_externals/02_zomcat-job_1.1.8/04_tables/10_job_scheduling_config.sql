@@ -43,6 +43,6 @@ COMMENT ON COLUMN zz_commons.job_scheduling_config.jsc_created
 COMMENT ON COLUMN zz_commons.job_scheduling_config.jsc_last_modified
         IS 'Last Modified Date of Job Configuration';
 
-ALTER TABLE zz_commons.job_scheduling_config OWNER TO zalando;
+-- ALTER TABLE zz_commons.job_scheduling_config OWNER TO zalando;
 
 GRANT INSERT, DELETE , UPDATE ON zz_commons.job_scheduling_config TO zalando_24x7;

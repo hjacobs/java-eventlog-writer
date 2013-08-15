@@ -18,7 +18,7 @@ CREATE TABLE zz_commons.partner (
     PRIMARY KEY (p_id )
 );
 
-ALTER TABLE zz_commons.partner OWNER TO zalando;
+-- ALTER TABLE zz_commons.partner OWNER TO zalando;
 
 COMMENT ON TABLE zz_commons.partner IS 'a partner is using the zalando platform to offer and sell his own articles. the shipping is handled by the partner';
 COMMENT ON COLUMN zz_commons.partner.p_stock_id IS 'a reference to the stock of the partner';

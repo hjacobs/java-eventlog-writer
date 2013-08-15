@@ -32,7 +32,7 @@ Pro Applikations-Instanz können Werte wie URLs, Währungen, Locales, etc. (in z
 COMMENT ON COLUMN zz_commons.appdomain.ad_app_url IS 'Die URL der Applikation';
 COMMENT ON COLUMN zz_commons.appdomain.ad_mobile_url IS 'Die URL der mobilen Site';
 
-ALTER TABLE zz_commons.appdomain OWNER TO zalando;
+-- ALTER TABLE zz_commons.appdomain OWNER TO zalando;
 
 -- GRANT SELECT ON TABLE zz_commons.appdomain TO robot_push_factor_import;
 GRANT INSERT, UPDATE ON zz_commons.appdomain TO robot_appdomain_updater;

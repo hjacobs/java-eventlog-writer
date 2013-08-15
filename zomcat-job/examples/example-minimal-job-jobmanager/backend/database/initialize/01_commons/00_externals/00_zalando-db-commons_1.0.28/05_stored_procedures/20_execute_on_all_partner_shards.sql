@@ -106,5 +106,5 @@ WHEN OTHERS OR query_canceled THEN
 END;
 $BODY$
 LANGUAGE plpgsql;
-ALTER FUNCTION zz_commons.execute_on_all_partners(text, text) OWNER TO zalando;
+-- ALTER FUNCTION zz_commons.execute_on_all_partners(text, text) OWNER TO zalando;
 GRANT EXECUTE ON FUNCTION zz_commons.execute_on_all_partners(text, text) TO public;

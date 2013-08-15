@@ -39,6 +39,6 @@ COMMENT ON COLUMN zz_commons.job_group_config_history.jgch_jgc_last_modified
 COMMENT ON COLUMN zz_commons.job_group_config_history.jgch_created
         IS 'Creation date of JobGroup Config History entry - date/time of alteration';
 
-ALTER TABLE zz_commons.job_group_config_history OWNER TO zalando;
+-- ALTER TABLE zz_commons.job_group_config_history OWNER TO zalando;
 
 GRANT INSERT, DELETE , UPDATE ON zz_commons.job_group_config_history TO zalando_24x7;
