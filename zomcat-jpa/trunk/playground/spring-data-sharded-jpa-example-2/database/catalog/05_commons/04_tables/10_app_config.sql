@@ -14,7 +14,7 @@ CREATE TABLE zcat_commons.app_config
 COMMENT ON TABLE zcat_commons.app_config IS 'Hier werden verschiedene Konfigurationseinträge definiert. Ein Eintrag kann appDomain Abhängig sein.';
 COMMENT ON COLUMN zcat_commons.app_config.ac_is_online_updateable IS 'Dient der Unterscheidung zwischen festen und zur Laufzeit in die Applikation aktualisierbaren Konfigurationswerten.';
 
-ALTER TABLE zcat_commons.app_config OWNER TO zalando;
+-- ALTER TABLE zcat_commons.app_config OWNER TO zalando;
 
 CREATE UNIQUE INDEX app_config_global_ac_key_idx ON zcat_commons.app_config ( ac_key ) WHERE ac_appdomain_id IS NULL;
 
