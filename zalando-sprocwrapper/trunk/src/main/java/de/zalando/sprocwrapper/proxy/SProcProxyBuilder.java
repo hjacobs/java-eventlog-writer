@@ -27,7 +27,7 @@ public class SProcProxyBuilder {
 
     private static final VirtualShardKeyStrategy VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT = new VirtualShardKeyStrategy();
 
-    private static final Logger LOG = LoggerFactory.getLogger(OtherStoredProcedureParameter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SProcProxyBuilder.class);
 
     private SProcProxyBuilder() {
         // utility class: private constructor
@@ -92,7 +92,6 @@ public class SProcProxyBuilder {
                     LOG.error("Result mapper for sproc can not be instantiated", ex);
                     return null;
                 }
-
             }
 
             boolean useValidation;
