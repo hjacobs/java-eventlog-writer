@@ -250,4 +250,9 @@ public interface ExampleSProcService {
     @SProcCall
     int createOrder(@SProcParam String orderNumber, @SProcParam TobisAmount amount);
 
+    @SProcCall(sql = "SELECT 'ENUM_CONST_2'::example_enum;")
+    ExampleEnum getExampleEnum();
+
+    @SProcCall(sql = "SELECT (1,2)::ztest_shard1.bug_lookup_type")
+    BugLookupType getValueForTypeLookup();
 }

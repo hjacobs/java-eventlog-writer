@@ -142,6 +142,10 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                     continue;
                 }
 
+                /*
+                 * TODO here it realy goes wrong
+                 *
+                 */
                 if (DbResultNodeType.SIMPLE == node.getNodeType()) {
                     final String fieldStringValue = node.getValue();
                     final Object value = mapping.getFieldMapper().mapField(fieldStringValue, mapping.getFieldClass());

@@ -43,6 +43,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.zalando.sprocwrapper.example.AddressPojo;
+import de.zalando.sprocwrapper.example.BugLookupType;
 import de.zalando.sprocwrapper.example.Example1DomainObject1;
 import de.zalando.sprocwrapper.example.Example1DomainObject2;
 import de.zalando.sprocwrapper.example.Example2DomainObject1;
@@ -843,5 +844,18 @@ public class SimpleIT {
         Order o = exampleSProcService.getOrders(i);
 
         assertEquals(o.amount.amount.compareTo(b), 0);
+    }
+
+    @Test
+    public void testEnumReturnValueU() {
+        ExampleEnum e = exampleSProcService.getExampleEnum();
+        assertEquals(e, ExampleEnum.ENUM_CONST_2);
+    }
+
+    @Test
+    public void testTypeLookupBug() {
+        BugLookupType t = exampleSProcService.getValueForTypeLookup();
+        assertEquals(1, t.a);
+        assertEquals(2, t.b);
     }
 }

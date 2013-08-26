@@ -173,6 +173,7 @@
                                 </goals>
                                 <configuration>
                                     <sqlCommand>
+                                        DROP SCHEMA IF EXISTS ztest_shard CASCADE;
                                         DROP SCHEMA IF EXISTS ztest_shard1 CASCADE;
                                         DROP SCHEMA IF EXISTS ztest_shard2 CASCADE;
                                     </sqlCommand>
