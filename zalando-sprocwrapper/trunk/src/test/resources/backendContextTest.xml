@@ -25,12 +25,22 @@
     <context:component-scan base-package="de.zalando" />
     <context:annotation-config />
 
+    <bean id="testDataSource" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="org.postgresql.Driver" />
+        <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
+        <property name="username" value="${frontend.sproc.datasource.username}" />
+        <property name="password" value="${frontend.sproc.datasource.password}" />
+        <property name="initSQL" value="SET search_path to ztest_shard, public;" />
+        <property name="minConnectionsPerPartition" value="15" />
+        <property name="maxConnectionsPerPartition" value="15" />
+    </bean>
+
     <bean id="testDataSource1" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
         <property name="driverClass" value="org.postgresql.Driver" />
         <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="initSQL" value="SET search_path to ztest_shard1, public;" />
+        <property name="initSQL" value="SET search_path to ztest_shard1, ztest_shard, public;" />
         <property name="minConnectionsPerPartition" value="15" />
         <property name="maxConnectionsPerPartition" value="15" />
     </bean>
@@ -40,7 +50,7 @@
         <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="initSQL" value="SET search_path to ztest_shard2, public;" />
+        <property name="initSQL" value="SET search_path to ztest_shard2, ztest_shard, public;" />
         <property name="minConnectionsPerPartition" value="15" />
         <property name="maxConnectionsPerPartition" value="15" />
     </bean>

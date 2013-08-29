@@ -399,7 +399,22 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
-    public BugLookupType getValueForTypeLookup() {
+    public LookupType getValueForTypeLookup() {
         return sproc.getValueForTypeLookup();
+    }
+
+    @Override
+    public List<LookupType> getValueForTypeLookupList() {
+        return sproc.getValueForTypeLookupList();
+    }
+
+    @Override
+    public WrapperLookup getValueForTypeLookupInnerList() {
+        return sproc.getValueForTypeLookupInnerList();
+    }
+
+    @Override
+    public WrapperLookupSchema getValueForTypeLookupSchema() {
+        return sproc.getValueForTypeLookupSchema();
     }
 }

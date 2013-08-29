@@ -7,12 +7,12 @@ import de.zalando.typemapper.annotations.DatabaseType;
  * @author  jmussler
  */
 @DatabaseType
-public class BugLookupType {
+public class LookupTypeSchema {
 
     @DatabaseField
     public int a;
     @DatabaseField
     public int b;
 
-    public BugLookupType() { }
+    public LookupTypeSchema() { }
 }
