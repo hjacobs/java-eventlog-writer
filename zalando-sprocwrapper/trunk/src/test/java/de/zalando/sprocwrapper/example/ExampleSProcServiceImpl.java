@@ -417,4 +417,9 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public WrapperLookupSchema getValueForTypeLookupSchema() {
         return sproc.getValueForTypeLookupSchema();
     }
+
+    @Override
+    public int testInheritanceFunction(final TestInheritanceChild c) {
+        return sproc.testInheritanceFunction(c);
+    }
 }

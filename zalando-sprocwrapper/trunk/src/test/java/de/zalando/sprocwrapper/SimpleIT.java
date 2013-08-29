@@ -67,6 +67,7 @@ import de.zalando.sprocwrapper.example.GlobalTransformedObject;
 import de.zalando.sprocwrapper.example.LookupType;
 import de.zalando.sprocwrapper.example.LookupTypeSchema;
 import de.zalando.sprocwrapper.example.Order;
+import de.zalando.sprocwrapper.example.TestInheritanceChild;
 import de.zalando.sprocwrapper.example.TobisAmount;
 import de.zalando.sprocwrapper.example.WrapperLookup;
 import de.zalando.sprocwrapper.example.WrapperLookupSchema;
@@ -908,5 +909,12 @@ public class SimpleIT {
         LookupTypeSchema entry = bugs.get(0);
         assertEquals(1, entry.a);
         assertEquals(2, entry.b);
+    }
+
+    @Test
+    public void testInheritanceInParameter() throws Exception {
+        TestInheritanceChild child = new TestInheritanceChild(1, 5, 7);
+        int result = exampleSProcService.testInheritanceFunction(child);
+        assertEquals(13, result);
     }
 }

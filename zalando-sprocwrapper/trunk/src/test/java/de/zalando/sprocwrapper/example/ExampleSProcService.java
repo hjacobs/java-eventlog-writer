@@ -264,4 +264,7 @@ public interface ExampleSProcService {
 
     @SProcCall(sql = "SELECT 1 AS count, ARRAY[(1,2)]::ztest_shard.lookup_type_schema[] AS bugs")
     WrapperLookupSchema getValueForTypeLookupSchema();
+
+    @SProcCall
+    int testInheritanceFunction(@SProcParam TestInheritanceChild c);
 }
