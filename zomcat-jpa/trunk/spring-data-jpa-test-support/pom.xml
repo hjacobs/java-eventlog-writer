@@ -12,14 +12,11 @@
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
-    <properties>
-        <zomcat.jpa.version>1.5.0-beta-5</zomcat.jpa.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>spring-data-jpa-extensions</artifactId>
-            <version>${zomcat.jpa.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>hibernate-jpa-2.0-api</artifactId>
@@ -30,17 +27,17 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>spring-data-jpa-java-config</artifactId>
-            <version>${zomcat.jpa.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>zomcat-jpa-eclipselink</artifactId>
-            <version>${zomcat.jpa.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sprocwrapper-shardkey-shaded</artifactId>
-            <version>${zomcat.jpa.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
