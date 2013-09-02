@@ -1,0 +1,22 @@
+\cd :CATALOG
+
+/****************************************************************************************
+
+Please bootstrap from reboot-libs/maintenance-job!
+
+****************************************************************************************/
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch('ZEOS-12179.catalog.data');
+
+    set role to zalando;
+
+    \i zeos-catalog/backend/database/catalog/05_commons/03_types/10_article_material_type.sql
+    \i zeos-catalog/backend/database/catalog/05_commons/04_tables/10_article_material.sql
+    reset role;
+
+--ROLLBACK;
+COMMIT;

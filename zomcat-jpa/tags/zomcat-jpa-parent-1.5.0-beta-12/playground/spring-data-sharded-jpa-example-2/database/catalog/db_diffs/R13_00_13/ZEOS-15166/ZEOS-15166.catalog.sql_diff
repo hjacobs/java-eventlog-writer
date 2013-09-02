@@ -1,0 +1,34 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-15166.catalog');
+
+  SET role TO zalando;
+
+  -- @DBAs This script will only have an effect on live and possibly patch staging
+
+  -- Create the new, proper color codes
+  INSERT INTO zcat_commons.color (c_code, c_created_by, c_last_modified_by, c_flow_id, c_family_code, c_name_message_key)
+                          SELECT c_code, c_created_by, c_last_modified_by, c_flow_id, c_family_code, c_name_message_key
+                            FROM zcat_commons.color
+                           WHERE c_code LIKE 'color.%';
+
+  -- Update references to the wrong codes with the new ones
+  UPDATE zcat_data.article_config
+     SET ac_main_color_code = replace(ac_main_color_code, 'color.', ''),
+         ac_second_color_code = replace(ac_second_color_code, 'color.', ''),
+         ac_third_color_code = replace(ac_third_color_code, 'color.', '')
+   WHERE (   ac_main_color_code LIKE 'color.%'
+          OR ac_second_color_code LIKE 'color.%'
+          OR ac_third_color_code LIKE 'color.%');
+
+  -- Delete the wrong color codes
+  DELETE
+    FROM zcat_commons.color
+   WHERE c_code LIKE 'color.%';
+
+  RESET role;
+
+COMMIT;

@@ -1,0 +1,10 @@
+BEGIN;
+
+    SELECT _v.register_patch('ZEOS-15699.catalog');
+
+    SET role TO zalando;
+
+    \i database/catalog/10_data/04_tables/63_article_simple_size_info.sql
+
+-- ROLLBACK;
+COMMIT;

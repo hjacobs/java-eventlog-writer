@@ -1,0 +1,19 @@
+== Leider scheint es nicht so einfach erweiterbar zu sein wie man es braucht, daher muessen
+wir uns wohl hier ein eigenes construct bauen
+
+
+http://wiki.eclipse.org/EclipseLink/Examples/JPA/Partitioning
+
+http://wiki.eclipse.org/EclipseLink/Release/2.5/JPA21
+
+http://dev.eclipse.org/svnroot/rt/org.eclipse.persistence/trunk/examples/org.eclipse.persistence.example.jpa.partitioned/src/model/Customer.java
+
+http://java-persistence-performance.blogspot.de/2011/05/data-partitioning-scaling-database.html
+
+
+== CUSTOM
+
+This conversation shows, it is a known issue since 2011, but no one cares:
+
+http://web.archiveorange.com/archive/v/N2Kaoexdhyrd2pFTisAU
+
