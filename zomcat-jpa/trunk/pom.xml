@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <name>Zomcat JPA Parent</name>
     <description>Zomcat JPA Support Classes</description>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0-beta-9</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -94,9 +94,9 @@
         </dependencies>
     </dependencyManagement>
     <scm>
-        <url>https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.5.0-beta-7</url>
-        <connection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.5.0-beta-7</connection>
-        <developerConnection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.5.0-beta-7</developerConnection>
+        <url>https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.5.0-beta-9</url>
+        <connection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.5.0-beta-9</connection>
+        <developerConnection>scm:svn:https://svn.zalando.net/reboot-libs/zomcat-jpa/tags/zomcat-jpa-parent-1.5.0-beta-9</developerConnection>
     </scm>
     <build>
         <pluginManagement>
