@@ -1,0 +1,17 @@
+BEGIN;
+
+    select _v.register_patch ('ZEOS-14677.catalog');
+
+    set role to zalando;
+
+    CREATE UNIQUE INDEX bscg_brand_size_chart_group_commodity_group_code_idx
+        ON zcat_commons.brand_size_chart_group(bscg_brand_code, bscg_size_chart_group, bscg_commodity_group_code);
+
+    CREATE UNIQUE INDEX bscg_brand_size_chart_group_null_idx
+        ON zcat_commons.brand_size_chart_group (bscg_brand_code, bscg_size_chart_group)
+    WHERE bscg_commodity_group_code IS NULL;
+
+     reset role;
+
+--ROLLBACK;
+COMMIT;

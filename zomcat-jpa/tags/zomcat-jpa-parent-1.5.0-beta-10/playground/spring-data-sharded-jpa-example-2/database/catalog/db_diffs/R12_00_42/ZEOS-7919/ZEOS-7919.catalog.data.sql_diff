@@ -1,0 +1,29 @@
+BEGIN;
+
+    -- $Id: $
+    -- $HeadURL: $
+
+    select _v.register_patch ('ZEOS-7919.catalog.data');
+
+    set role to zalando;
+
+    insert into zcat_data.price_level_reason
+        (plr_id, plr_code, plr_description, plr_price_level_id)
+    values
+        ( 9, 'PRL0021', 'Testing', (select pl_id from zcat_data.price_level where pl_name = 'blocked_price')),
+        ( 10, 'PRL0022', 'Category Management', (select pl_id from zcat_data.price_level where pl_name = 'blocked_price')),
+        ( 11, 'PRL0023', 'Marketing - Newsletter', (select pl_id from zcat_data.price_level where pl_name = 'blocked_price')),
+        ( 12, 'PRL0024', 'Marketing - Print', (select pl_id from zcat_data.price_level where pl_name = 'blocked_price')),
+        ( 13, 'PRL0025', 'Marketing - Campaigns', (select pl_id from zcat_data.price_level where pl_name = 'blocked_price')),
+        ( 14, 'PRL0026', 'Marketing - Others', (select pl_id from zcat_data.price_level where pl_name = 'blocked_price')),
+        ( 15, 'PRL0031', 'Testing', (select pl_id from zcat_data.price_level where pl_name = 'blocked_promotional')),
+        ( 16, 'PRL0032', 'Category Management', (select pl_id from zcat_data.price_level where pl_name = 'blocked_promotional')),
+        ( 17, 'PRL0033', 'Marketing - Newsletter', (select pl_id from zcat_data.price_level where pl_name = 'blocked_promotional')),
+        ( 18, 'PRL0034', 'Marketing - Print', (select pl_id from zcat_data.price_level where pl_name = 'blocked_promotional')),
+        ( 19, 'PRL0035', 'Marketing - Campaigns', (select pl_id from zcat_data.price_level where pl_name = 'blocked_promotional')),
+        ( 20, 'PRL0036', 'Marketing - Others', (select pl_id from zcat_data.price_level where pl_name = 'blocked_promotional'))
+    ;
+
+    reset role;
+
+COMMIT;

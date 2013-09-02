@@ -1,0 +1,26 @@
+BEGIN;
+
+    -- $Id:
+    -- $HeadURL:
+
+    select _v.register_patch('ZEOS-19079.catalog');
+
+    SET role TO zalando;
+
+    --update end date of valid moon prices.
+    update zcat_data.price_definition moon
+       set pd_end_date = date_trunc ('second', orig.pd_end_date)
+      from zcat_data.price_definition orig
+     where moon.pd_country_code = 'AF'
+       and orig.pd_sku_id = moon.pd_sku_id
+       and orig.pd_partner_id is null
+       and orig.pd_appdomain_id is null
+       and orig.pd_price = moon.pd_price
+       and orig.pd_country_code = 'DE'
+       and orig.pd_price_level_id = 1
+       and date_trunc ('second', moon.pd_start_date) = date_trunc ('second', orig.pd_start_date);
+
+    RESET role;
+
+COMMIT;
+-- ROLLBACK;

@@ -1,0 +1,21 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-12247.catalog.predeploy');
+
+    set role to zalando;
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('priceChange.highPriority.priceLevelReasonCodes', null, true);
+
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('priceChange.highPriority.appDomainIds', null, true);
+
+    reset role;
+
+--ROLLBACK;
+--
+COMMIT;
