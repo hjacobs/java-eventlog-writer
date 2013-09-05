@@ -129,32 +129,36 @@ public class LockResourceManagerIT {
 
         ExecutorService executorService = Executors.newFixedThreadPool(CONCURRENT_CLIENTS);
 
-        Collection<Callable<Boolean>> callableCollection = new LinkedList<Callable<Boolean>>();
-        for (int i = 0; i < CONCURRENT_CLIENTS; i++) {
-            callableCollection.add(new Callable<Boolean>() {
+        try {
+            Collection<Callable<Boolean>> callableCollection = new LinkedList<Callable<Boolean>>();
+            for (int i = 0; i < CONCURRENT_CLIENTS; i++) {
+                callableCollection.add(new Callable<Boolean>() {
 
-                    @Override
-                    public Boolean call() throws Exception {
-                        return lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
-                                TEST_EXPECTED_MAXIMUM_DURATION);
-                    }
-                });
-        }
-
-        for (int i = 0; i < CLIENT_INVOCATIONS; i++) {
-
-            List<Future<Boolean>> results = executorService.invokeAll(callableCollection, CONCURRENT_EXECUTION_TIMEOUT,
-                    TimeUnit.MILLISECONDS);
-
-            int acquiredLocks = 0;
-            for (Future<Boolean> future : results) {
-                if (future.get()) {
-                    acquiredLocks++;
-                }
+                        @Override
+                        public Boolean call() throws Exception {
+                            return lockResourceManager.acquireLock(TEST_COMPONENT, TEST_RESOURCE, FLOWID,
+                                    TEST_EXPECTED_MAXIMUM_DURATION);
+                        }
+                    });
             }
 
-            Assert.assertEquals("should have acquired exactly 1 lock", 1, acquiredLocks);
-            lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
+            for (int i = 0; i < CLIENT_INVOCATIONS; i++) {
+
+                List<Future<Boolean>> results = executorService.invokeAll(callableCollection,
+                        CONCURRENT_EXECUTION_TIMEOUT, TimeUnit.MILLISECONDS);
+
+                int acquiredLocks = 0;
+                for (Future<Boolean> future : results) {
+                    if (future.get()) {
+                        acquiredLocks++;
+                    }
+                }
+
+                Assert.assertEquals("should have acquired exactly 1 lock", 1, acquiredLocks);
+                lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
+            }
+        } finally {
+            executorService.shutdown();
         }
     }
 }

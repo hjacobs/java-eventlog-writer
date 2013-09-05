@@ -8,16 +8,16 @@ import de.zalando.sprocwrapper.SProcService;
 public interface LockResourceSprocService extends LockResourceManager {
 
     @Override
-    @SProcCall
+    @SProcCall(timeoutInMilliSeconds = 10000)
     boolean acquireLock(@SProcParam String lockingComponent, @SProcParam String resource, @SProcParam String flowid,
             @SProcParam long expectedMaximumDuration);
 
     @Override
-    @SProcCall
+    @SProcCall(timeoutInMilliSeconds = 10000)
     void releaseLock(@SProcParam String resource, @SProcParam String flowid);
 
     @Override
-    @SProcCall
+    @SProcCall(timeoutInMilliSeconds = 10000)
     boolean peekLock(@SProcParam String resource);
 
 }
