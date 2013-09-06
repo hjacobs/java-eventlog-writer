@@ -288,7 +288,7 @@
                             <findbugsXmlOutput>true</findbugsXmlOutput>
                             <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
                             <xmlOutput>true</xmlOutput>
-                            <failOnError>true</failOnError>
+                            <failOnError>false</failOnError>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -296,7 +296,7 @@
                         <artifactId>maven-pmd-plugin</artifactId>
                         <version>3.0.1</version>
                         <configuration>
-                            <failOnViolation>true</failOnViolation>
+                            <failOnViolation>false</failOnViolation>
                         </configuration>
                     </plugin>
                 </plugins>
