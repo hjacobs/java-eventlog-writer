@@ -11,8 +11,11 @@ import org.eclipse.persistence.sessions.Session;
 import com.google.common.base.Preconditions;
 
 import de.zalando.jpa.eclipselink.LogSupport;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.ChangePolicyClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.DefaultClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.PartitioningClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.TableNameClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ConverterCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingColumnNameCustomizer;
@@ -53,6 +56,7 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
 
     public abstract ClassDescriptorCustomizer getClassDescriptorCustomizer();
 
+    // TODO, refactor this, make it a bit more understandable
     /**
      * An BuilderStep.
      *
@@ -86,7 +90,18 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
         return new CNCustomizerBuilder();
     }
 
-    public static ColumnNameCustomizerCompositeBuilder newBuilderWithDefaults() {
+    public static ClassDescriptorCustomizer defaultZalandoCustomization() {
+        return defaultZalandoCustomizationBuilder().build();
+    }
+
+    public static ClassDescriptorCustomizerBuilder defaultZalandoCustomizationBuilder() {
+        return newComposite().with(defaultZalandoColumnNameCustomizer().build())
+                             .with(new ChangePolicyClassDescriptorCustomizer())
+                             .with(new PartitioningClassDescriptorCustomizer()).with(
+                                 new TableNameClassDescriptorCustomizer());
+    }
+
+    public static ColumnNameCustomizerCompositeBuilder defaultZalandoColumnNameCustomizer() {
         return new CNCustomizerBuilder().with(new DirectToFieldMappingColumnNameCustomizer())
                                         .with(new OneToManyMappingColumnNameCustomizer())
                                         .with(new OneToOneMappingColumnNameCustomizer()).with(
@@ -96,7 +111,7 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
     /**
      * @author  jbellmann
      */
-    public static final class CNCustomizerBuilder implements ColumnNameCustomizerCompositeBuilder {
+    static final class CNCustomizerBuilder implements ColumnNameCustomizerCompositeBuilder {
 
         private final List<ColumnNameCustomizer> columnNameCustomizer = new ArrayList<ColumnNameCustomizer>();
         private final List<ConverterCustomizer> converterCustomizer = new ArrayList<ConverterCustomizer>();
@@ -144,7 +159,7 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
      *
      * @author  jbellmann
      */
-    public static final class Builder implements ClassDescriptorCustomizerBuilder {
+    static final class Builder implements ClassDescriptorCustomizerBuilder {
 
         private final List<ClassDescriptorCustomizer> customizers = new ArrayList<ClassDescriptorCustomizer>();
 

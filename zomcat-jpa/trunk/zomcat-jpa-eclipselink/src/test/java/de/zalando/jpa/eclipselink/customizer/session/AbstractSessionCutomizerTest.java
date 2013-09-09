@@ -45,6 +45,7 @@ public abstract class AbstractSessionCutomizerTest {
         mappings.add(mapping);
 
         ClassDescriptor descriptor = new ClassDescriptor();
+        descriptor.setJavaClass(AttributeHolderBean.class);
         descriptor.setMappings(mappings);
         descriptor.setTableName("purchase_order_head");
 
