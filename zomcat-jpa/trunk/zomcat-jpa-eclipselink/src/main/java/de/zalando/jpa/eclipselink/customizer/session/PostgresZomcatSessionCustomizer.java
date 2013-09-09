@@ -3,7 +3,8 @@ package de.zalando.jpa.eclipselink.customizer.session;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 
 /**
- * @author  jbellmann
+ * @author      jbellmann
+ * @deprecated  will be deleted next time
  */
 @Deprecated
 public class PostgresZomcatSessionCustomizer extends AbstractZomcatSessionCustomizer {
