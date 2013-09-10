@@ -1,0 +1,15 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-12597.catalog.1');
+
+  SET role TO zalando;
+
+  -- Continued from ZEOS-12597.catalog diff last week. It's now safe to drop the old column
+  ALTER TABLE zcat_data.article_simple_ean DROP COLUMN ase_article_simple_id;
+
+  RESET role;
+
+COMMIT;

@@ -1,0 +1,91 @@
+BEGIN;
+    --PS file should be executed before the deploy!
+
+    SELECT _v.register_patch('ZEOS-15699.catalog.migrate');
+
+    SET role TO zalando;
+
+-- ROLLBACK;
+COMMIT;
+
+SET statement_timeout = 0;
+SET work_mem = '256MB';
+
+-- this creates new entry in article_simple_size_info for every entry in zcat_data.article_simple table (~750k per shard)
+INSERT INTO zcat_data.article_simple_size_info(
+    assi_created_by,
+    assi_last_modified_by,
+    assi_flow_id,
+    assi_article_simple_sku_id,
+    assi_dimension_count,
+    assi_size_display1_eu,
+    assi_size_display2_eu,
+    assi_size_display3_eu,
+    assi_displayed_size_eu,
+    assi_size_display1_uk,
+    assi_size_display2_uk,
+    assi_size_display3_uk,
+    assi_displayed_size_uk,
+    assi_size_display1_us,
+    assi_size_display2_us,
+    assi_size_display3_us,
+    assi_displayed_size_us,
+    assi_size_display1_fr,
+    assi_size_display2_fr,
+    assi_size_display3_fr,
+    assi_displayed_size_fr,
+    assi_size_display1_it,
+    assi_size_display2_it,
+    assi_size_display3_it,
+    assi_displayed_size_it)
+SELECT
+    'bootstrap',
+    'bootstrap',
+    'bootstrap',
+    ass_article_simple_sku_id article_simple_sku_id,
+    count(*) dimension_count,
+    -- eu sizes
+    min(CASE WHEN sdgb_position = 1 THEN (size.s_value).eu END) size_display1_eu,
+    min(CASE WHEN sdgb_position = 2 THEN (size.s_value).eu END) size_display2_eu,
+    min(CASE WHEN sdgb_position = 3 THEN (size.s_value).eu END) size_display3_eu,
+    min(CASE WHEN sdgb_position = 1 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).eu END) ||
+        coalesce(min(CASE WHEN sdgb_position = 2 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).eu END), '') ||
+        coalesce(min(CASE WHEN sdgb_position = 3 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).eu END), '') displayed_size_eu,
+    -- uk sizes
+    min(CASE WHEN sdgb_position = 1 THEN (size.s_value).uk END) size_display1_uk,
+    min(CASE WHEN sdgb_position = 2 THEN (size.s_value).uk END) size_display2_uk,
+    min(CASE WHEN sdgb_position = 3 THEN (size.s_value).uk END) size_display3_uk,
+    min(CASE WHEN sdgb_position = 1 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).uk END) ||
+        coalesce(min(CASE WHEN sdgb_position = 2 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).uk END), '') ||
+        coalesce(min(CASE WHEN sdgb_position = 3 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).uk END), '') displayed_size_uk,
+    -- us sizes
+    min(CASE WHEN sdgb_position = 1 THEN (size.s_value).us END) size_display1_us,
+    min(CASE WHEN sdgb_position = 2 THEN (size.s_value).us END) size_display2_us,
+    min(CASE WHEN sdgb_position = 3 THEN (size.s_value).us END) size_display3_us,
+    min(CASE WHEN sdgb_position = 1 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).us END) ||
+        coalesce(min(CASE WHEN sdgb_position = 2 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).us END), '') ||
+        coalesce(min(CASE WHEN sdgb_position = 3 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).us END), '') displayed_size_us,
+    -- fr sizes
+    min(CASE WHEN sdgb_position = 1 THEN (size.s_value).fr END) size_display1_fr,
+    min(CASE WHEN sdgb_position = 2 THEN (size.s_value).fr END) size_display2_fr,
+    min(CASE WHEN sdgb_position = 3 THEN (size.s_value).fr END) size_display3_fr,
+    min(CASE WHEN sdgb_position = 1 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).fr END) ||
+        coalesce(min(CASE WHEN sdgb_position = 2 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).fr END), '') ||
+        coalesce(min(CASE WHEN sdgb_position = 3 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).fr END), '') displayed_size_fr,
+    -- it sizes
+    min(CASE WHEN sdgb_position = 1 THEN (size.s_value).it END) size_display1_it,
+    min(CASE WHEN sdgb_position = 2 THEN (size.s_value).it END) size_display2_it,
+    min(CASE WHEN sdgb_position = 3 THEN (size.s_value).it END) size_display3_it,
+    min(CASE WHEN sdgb_position = 1 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).it END) ||
+        coalesce(min(CASE WHEN sdgb_position = 2 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).it END), '') ||
+        coalesce(min(CASE WHEN sdgb_position = 3 THEN coalesce(size_dimension_prefix.sdp_value, '') || (size.s_value).it END), '') displayed_size_it
+  FROM zcat_data.article_simple_size article_simple_size
+  JOIN zcat_data.article_sku article_sku on (article_sku.as_id = ass_article_simple_sku_id)
+  JOIN zcat_data.article_model am on (am.am_model_sku_id = article_sku.as_model_id)
+  JOIN zcat_commons.size size on (size.s_code = article_simple_size.ass_size_code and size.s_size_chart_code = ass_size_chart_code)
+  JOIN zcat_commons.size_chart size_chart on (size_chart.sc_code = article_simple_size.ass_size_chart_code)
+  JOIN zcat_commons.size_chart_group size_chart_group on (size_chart_group.scg_id = am.am_size_chart_group_id)
+  JOIN zcat_commons.size_dimension_group_binding size_chart_group_binding on (size_chart_group_binding.sdgb_group_id = scg_dimension_group_id and sdgb_code = size_chart.sc_dimension_code)
+  LEFT JOIN zcat_commons.size_dimension_prefix size_dimension_prefix on (size_dimension_prefix.sdp_id = size_chart_group_binding.sdgb_prefix_id)
+ GROUP BY ass_article_simple_sku_id;
+
