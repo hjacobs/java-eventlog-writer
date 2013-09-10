@@ -9,7 +9,7 @@
     <artifactId>spring-data-jpa-extensions</artifactId>
     <name>Zomcat JPA Spring-Data-JPA Extensions</name>
     <organization>
-        <name>Zalando/Technology/Backend/Purchasing</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <description>Small extension to Spring-Data for Business-Keys</description>
 

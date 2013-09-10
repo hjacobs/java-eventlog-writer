@@ -12,7 +12,7 @@
     <name>Zomcat JPA Examples - Shows BUILDTIME-WEAVING with Tomcat 7 and Spring</name>
     <description>Example how to do static weaving</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <properties>
         <project.build_env.maven>maven3</project.build_env.maven>

@@ -12,7 +12,7 @@
     <description>Zomcat JPA Support Classes</description>
     <version>1.5.0-SNAPSHOT</version>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <modules>
         <module>sprocwrapper-shardkey-shaded</module>

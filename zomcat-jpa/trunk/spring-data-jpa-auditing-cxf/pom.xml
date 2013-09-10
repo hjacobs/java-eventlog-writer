@@ -7,7 +7,7 @@
     </parent>
     <name>Zomcat JPA Spring-Data-JPA Auditing CXF Extension</name>
     <organization>
-        <name>Zalando/Technology/Backend/Purchasing</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <description>Small extension to Spring-Data for Auditing</description>
     <artifactId>spring-data-jpa-auditing-cxf</artifactId>

@@ -14,7 +14,7 @@
         <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
 
     <dependencies>

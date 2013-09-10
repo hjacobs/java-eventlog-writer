@@ -8,7 +8,7 @@
     <artifactId>spring-data-jpa-auditing-filter</artifactId>
     <name>Zomcat JPA Spring-Data-JPA Auditing Web Extension</name>
     <organization>
-        <name>Zalando/Technology/Backend/Purchasing</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <description>Small extension to Spring-Data for Auditing</description>
     <properties>

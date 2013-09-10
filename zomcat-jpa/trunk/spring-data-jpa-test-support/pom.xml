@@ -10,7 +10,7 @@
     <name>Zomcat JPA -- Test Support</name>
     <description>Test-Support for zomcat-jpa</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <dependencies>
         <dependency>

@@ -12,7 +12,7 @@
     <name>Zomcat JPA Examples for Sharding</name>
     <description>Example how to use zomcat-jpa with sharded databases</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <properties>
         <test.db.host>localhost</test.db.host>

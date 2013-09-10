@@ -12,7 +12,7 @@
     <name>Zomcat JPA Examples - Shows LOADTIME-WEAVING with Tomcat 7 and Spring</name>
     <description>Example how to do loadtime weaving</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <properties>
         <!-- DONT KNOW WHY THIS IS NOT TAKEN FROM THE PARENT -->

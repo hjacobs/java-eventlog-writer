@@ -9,7 +9,7 @@
   <name>Zomcat JPA Examples for Sharding 2</name>
     <description>Example how to use zomcat-jpa with sharded databases</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <properties>
         <zal.commons.version>13.28-SNAPSHOT</zal.commons.version>

@@ -12,7 +12,7 @@
     <name>Zomcat JPA Parent for Playground</name>
     <description>Module contains example how to use zomcat-jpa</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <properties>
         <zomcat.jpa.version>1.5.0-SNAPSHOT</zomcat.jpa.version>
