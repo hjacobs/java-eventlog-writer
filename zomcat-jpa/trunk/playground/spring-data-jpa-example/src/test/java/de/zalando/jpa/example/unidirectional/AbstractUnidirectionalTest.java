@@ -78,7 +78,7 @@ public abstract class AbstractUnidirectionalTest {
         orderLineRepository.flush();
 
         //
-        List<OrderLine> lines = orderLineRepository.findByCustomerOrder(co);
+        List<OrderLine> lines = orderLineRepository.findByCustomerorder(co);
         Assert.assertTrue(lines.size() == 100);
 
         LOG.info(co.toString());

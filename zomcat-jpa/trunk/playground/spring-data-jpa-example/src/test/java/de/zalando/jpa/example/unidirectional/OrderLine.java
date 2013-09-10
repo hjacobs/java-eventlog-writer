@@ -23,7 +23,7 @@ public class OrderLine {
 
     @NotNull
     @ManyToOne
-    private CustomerOrder customerOrder;
+    private CustomerOrder customerorder;
 
     private String description;
 
@@ -40,7 +40,7 @@ public class OrderLine {
     }
 
     public void setCustomerOrder(final CustomerOrder customerOrder) {
-        this.customerOrder = customerOrder;
+        this.customerorder = customerOrder;
     }
 
 }

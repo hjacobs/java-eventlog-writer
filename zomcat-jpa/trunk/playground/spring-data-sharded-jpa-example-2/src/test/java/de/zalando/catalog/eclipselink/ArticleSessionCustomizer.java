@@ -16,7 +16,7 @@ public class ArticleSessionCustomizer extends AbstractZomcatSessionCustomizer {
     public ArticleSessionCustomizer() {
         super();
 
-        final ClassDescriptorCustomizer defaultMappings = newBuilderWithDefaults().build();
+        final ClassDescriptorCustomizer defaultMappings = defaultZalandoCustomization();
 
         clazzDescriptorCustomizer = newComposite().with(defaultMappings)
                                                   .with(new PartitioningAnnotationClassDescriptorCustomizer()).build();

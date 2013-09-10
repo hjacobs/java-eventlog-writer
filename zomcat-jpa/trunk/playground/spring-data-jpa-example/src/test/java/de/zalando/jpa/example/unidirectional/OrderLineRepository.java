@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
 
-    List<OrderLine> findByCustomerOrder(final CustomerOrder customerOrder);
+    // Please do not name this query 'findByCustomerOrder', that will fail
+    List<OrderLine> findByCustomerorder(final CustomerOrder customerOrder);
 
 }

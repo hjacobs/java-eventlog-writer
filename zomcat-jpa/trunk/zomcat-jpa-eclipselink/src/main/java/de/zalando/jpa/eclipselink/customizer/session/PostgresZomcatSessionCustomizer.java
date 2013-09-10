@@ -1,6 +1,10 @@
 package de.zalando.jpa.eclipselink.customizer.session;
 
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.ChangePolicyClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.PartitioningClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.TableNameClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingEnumTypeConverterCustomizer;
 
 /**
  * @author      jbellmann
@@ -13,12 +17,14 @@ public class PostgresZomcatSessionCustomizer extends AbstractZomcatSessionCustom
 
     public PostgresZomcatSessionCustomizer() {
         super();
-        clazzDescriptorCustomizer = null;
-// final ClassDescriptorCustomizer defaults = defaultZalandoCustomizationBuilder().with(
-// new DirectToFieldMappingEnumTypeConverterCustomizer()).build();
-//
-// clazzDescriptorCustomizer = newComposite().with(defaults).with(new ChangePolicyClassDescriptorCustomizer())
-// .build();
+
+        final ColumnNameCustomizerCompositeBuilder builder = defaultZalandoColumnNameCustomizer().with(
+                new DirectToFieldMappingEnumTypeConverterCustomizer());
+
+        clazzDescriptorCustomizer = newComposite().with(builder.build())
+                                                  .with(new ChangePolicyClassDescriptorCustomizer())
+                                                  .with(new PartitioningClassDescriptorCustomizer())
+                                                  .with(new TableNameClassDescriptorCustomizer()).build();
     }
 
     @Override

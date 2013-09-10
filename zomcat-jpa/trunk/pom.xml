@@ -22,19 +22,18 @@
         <module>spring-data-jpa-auditing-filter</module>
         <module>spring-data-jpa-auditing-cxf</module>
         <module>spring-data-jpa-java-config</module>
-        <!-- <module>sharding</module>-->
         <module>spring-data-jpa-test-support</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>3.2.4.RELEASE</spring.version>
-        <aspectj.version>1.7.1</aspectj.version>
+        <aspectj.version>1.7.3</aspectj.version>
         <jodatime.version>2.2</jodatime.version>
         <jpa.api.version>2.1.0</jpa.api.version>
         <eclipselink.version>2.5.0</eclipselink.version>
-        <spring.data.commons.version>1.6.0.RC1</spring.data.commons.version>
-        <spring.data.jpa.version>1.4.0.RC1</spring.data.jpa.version>
-        <querydsl.version>3.2.2</querydsl.version>
+        <spring.data.commons.version>1.6.0.RELEASE</spring.data.commons.version>
+        <spring.data.jpa.version>1.4.0.RELEASE</spring.data.jpa.version>
+        <querydsl.version>3.2.3</querydsl.version>
 
         <project.build_env.maven>maven3</project.build_env.maven>
 
