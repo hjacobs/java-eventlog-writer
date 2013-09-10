@@ -5,7 +5,7 @@
         <artifactId>zomcat-jpa-parent</artifactId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
-    <artifactId>spring-data-jpa-java-config</artifactId>
+    <artifactId>zomcat-jpa-java-config</artifactId>
     <name>Zomcat JPA Spring-Data-JPA Auditing Java Config</name>
     <organization>
         <name>Zalando/Technology/Application Strategy &amp; Architecture</name>

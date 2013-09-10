@@ -10,14 +10,14 @@
         <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <description>Small extension to Spring-Data for Auditing</description>
-    <artifactId>spring-data-jpa-auditing-cxf</artifactId>
+    <artifactId>zomcat-jpa-auditing-cxf</artifactId>
     <properties>
         <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>spring-data-jpa-auditing-filter</artifactId>
+            <artifactId>zomcat-jpa-auditing-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

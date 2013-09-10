@@ -6,7 +6,7 @@
         <version>1.5.0-SNAPSHOT</version>
     </parent>
     <groupId>de.zalando</groupId>
-    <artifactId>spring-data-jpa-test-support</artifactId>
+    <artifactId>zomcat-jpa-test-support</artifactId>
     <name>Zomcat JPA -- Test Support</name>
     <description>Test-Support for zomcat-jpa</description>
     <organization>
@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>spring-data-jpa-extensions</artifactId>
+            <artifactId>zomcat-jpa-extensions</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -26,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>spring-data-jpa-java-config</artifactId>
+            <artifactId>zomcat-jpa-java-config</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

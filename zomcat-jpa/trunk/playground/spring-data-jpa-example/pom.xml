@@ -8,7 +8,7 @@
         <version>1.5.0-SNAPSHOT</version>
     </parent>
     <groupId>de.zalando</groupId>
-    <artifactId>spring-data-jpa-example</artifactId>
+    <artifactId>zomcat-jpa-example</artifactId>
     <name>Zomcat JPA Examples</name>
     <description>Example how to use zomcat-jpa</description>
     <organization>
@@ -24,7 +24,7 @@
     <dependencies>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>spring-data-jpa-extensions</artifactId>
+            <artifactId>zomcat-jpa-extensions</artifactId>
             <version>${zomcat.jpa.version}</version>
             <exclusions>
                 <exclusion>
@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>spring-data-jpa-java-config</artifactId>
+            <artifactId>zomcat-jpa-java-config</artifactId>
             <version>${zomcat.jpa.version}</version>
         </dependency>
         <dependency>
@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>spring-data-jpa-test-support</artifactId>
+            <artifactId>zomcat-jpa-test-support</artifactId>
             <scope>test</scope>
             <version>${zomcat.jpa.version}</version>
         </dependency>

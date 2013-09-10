@@ -15,14 +15,14 @@
         <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
     </organization>
     <modules>
-        <module>sprocwrapper-shardkey-shaded</module>
+        <module>zomcat-jpa-shardkey-shaded</module>
         <module>zomcat-jpa-eclipselink</module>
         <!-- <module>zomcat-jpa-domain</module> -->
-        <module>spring-data-jpa-extensions</module>
-        <module>spring-data-jpa-auditing-filter</module>
-        <module>spring-data-jpa-auditing-cxf</module>
-        <module>spring-data-jpa-java-config</module>
-        <module>spring-data-jpa-test-support</module>
+        <module>zomcat-jpa-extensions</module>
+        <module>zomcat-jpa-auditing-filter</module>
+        <module>zomcat-jpa-auditing-cxf</module>
+        <module>zomcat-jpa-java-config</module>
+        <module>zomcat-jpa-test-support</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

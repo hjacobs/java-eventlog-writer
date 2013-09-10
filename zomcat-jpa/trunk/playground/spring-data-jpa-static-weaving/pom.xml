@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>de.zalando</groupId>
-            <artifactId>spring-data-jpa-extensions</artifactId>
+            <artifactId>zomcat-jpa-extensions</artifactId>
             <version>${zomcat.jpa.version}</version>
         </dependency>
         <dependency>
