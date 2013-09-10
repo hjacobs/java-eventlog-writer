@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>sprocwrapper-shardkey-shaded</artifactId>
+            <artifactId>zomcat-jpa-shardkey-shaded</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
