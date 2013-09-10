@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>sprocwrapper-shardkey-shaded</artifactId>
+            <artifactId>zomcat-jpa-shardkey-shaded</artifactId>
             <version>${zomcat.jpa.version}</version>
         </dependency>
         <dependency>
