@@ -14,7 +14,6 @@ import de.zalando.jpa.eclipselink.LogSupport;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ChangePolicyClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.DefaultClassDescriptorCustomizer;
-import de.zalando.jpa.eclipselink.customizer.classdescriptor.PartitioningClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.TableNameClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ConverterCustomizer;
@@ -96,8 +95,7 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
 
     public static ClassDescriptorCustomizerBuilder defaultZalandoCustomizationBuilder() {
         return newComposite().with(defaultZalandoColumnNameCustomizer().build())
-                             .with(new ChangePolicyClassDescriptorCustomizer())
-                             .with(new PartitioningClassDescriptorCustomizer()).with(
+                             .with(new ChangePolicyClassDescriptorCustomizer()).with(
                                  new TableNameClassDescriptorCustomizer());
     }
 

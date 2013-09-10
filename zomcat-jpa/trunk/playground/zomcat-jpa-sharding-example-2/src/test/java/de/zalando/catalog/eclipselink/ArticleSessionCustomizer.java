@@ -1,8 +1,8 @@
 package de.zalando.catalog.eclipselink;
 
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
-import de.zalando.jpa.eclipselink.customizer.classdescriptor.PartitioningAnnotationClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.session.AbstractZomcatSessionCustomizer;
+import de.zalando.jpa.eclipselink.partitioning.customizer.PartitioningAnnotationClassDescriptorCustomizer;
 
 /**
  * Example how to configure an project-specific-session-customizer.

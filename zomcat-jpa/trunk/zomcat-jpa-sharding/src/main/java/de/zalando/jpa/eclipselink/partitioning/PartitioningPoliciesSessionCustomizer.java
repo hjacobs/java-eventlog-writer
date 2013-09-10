@@ -9,8 +9,8 @@ import org.eclipse.persistence.sessions.Session;
 
 import com.google.common.base.Strings;
 
-import de.zalando.jpa.eclipselink.customizer.classdescriptor.PartitioningAnnotationClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.session.DefaultZomcatSessionCustomizer;
+import de.zalando.jpa.eclipselink.partitioning.customizer.PartitioningAnnotationClassDescriptorCustomizer;
 
 /**
  * @deprecated  {@link PartitioningAnnotationClassDescriptorCustomizer} an register it on your

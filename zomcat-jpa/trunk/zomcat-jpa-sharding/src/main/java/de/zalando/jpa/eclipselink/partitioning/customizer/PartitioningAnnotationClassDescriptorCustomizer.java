@@ -1,4 +1,4 @@
-package de.zalando.jpa.eclipselink.customizer.classdescriptor;
+package de.zalando.jpa.eclipselink.partitioning.customizer;
 
 import org.eclipse.persistence.annotations.Partitioned;
 import org.eclipse.persistence.descriptors.ClassDescriptor;
@@ -6,6 +6,7 @@ import org.eclipse.persistence.sessions.Session;
 
 import com.google.common.base.Strings;
 
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.partitioning.DelegatingPartitioningPolicy;
 
 /**

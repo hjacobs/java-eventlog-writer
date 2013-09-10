@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zomcat-jpa-shardkey-shaded</artifactId>
+            <artifactId>zomcat-jpa-sharding</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

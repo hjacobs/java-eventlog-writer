@@ -1,10 +1,11 @@
-package de.zalando.jpa.eclipselink.customizer.classdescriptor;
+package de.zalando.jpa.eclipselink.partitioning.customizer;
 
 import org.eclipse.persistence.descriptors.ClassDescriptor;
 import org.eclipse.persistence.descriptors.partitioning.PartitioningPolicy;
 import org.eclipse.persistence.sessions.Session;
 
 import de.zalando.jpa.eclipselink.ZomcatPersistenceUnitProperties;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.partitioning.AlwaysNullPartitionPolicyFactory;
 import de.zalando.jpa.eclipselink.partitioning.PartitioningPolicyFactory;
 import de.zalando.jpa.eclipselink.partitioning.PartitioningPolicyFactoryBuilder;
