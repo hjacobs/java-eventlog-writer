@@ -17,7 +17,7 @@
     <modules>
         <module>sprocwrapper-shardkey-shaded</module>
         <module>zomcat-jpa-eclipselink</module>
-        <module>zomcat-jpa-domain</module>
+        <!-- <module>zomcat-jpa-domain</module> -->
         <module>spring-data-jpa-extensions</module>
         <module>spring-data-jpa-auditing-filter</module>
         <module>spring-data-jpa-auditing-cxf</module>
