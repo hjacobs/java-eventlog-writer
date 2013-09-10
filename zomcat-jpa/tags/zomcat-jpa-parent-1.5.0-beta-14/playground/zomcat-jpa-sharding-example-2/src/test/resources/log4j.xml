@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<!-- Only for local testing. This file will not make it into any distribution -->
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="default" class="org.apache.log4j.ConsoleAppender">
+        <param name="encoding" value="UTF-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %x %p %t %l: %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- Perf4J Configuration Start -->
+    <!-- used to output aggregated performance statistics -->
+    <appender name="performanceFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
+          <param name="File" value="zalando_catalog_performance.log"/>
+          <param name="Append" value="true"/>
+          <layout class="org.apache.log4j.PatternLayout">
+               <param name="ConversionPattern" value="%m%n"/>
+          </layout>
+     </appender>
+
+    <logger name="de.zalando.catalog" additivity="false">
+        <level value="trace"/>
+        <appender-ref ref="default"/>
+    </logger>
+    <logger name="de.zalando.catalog.domain" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="default"/>
+    </logger>
+
+    <logger name="de.zalando.typemapper.core" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="default"/>
+    </logger>
+
+    <logger name="com.googlecode.ehcache" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="default"/>
+    </logger>
+
+    <logger name="org.springframework" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="default"/>
+    </logger>
+
+    <logger name="org.apache" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="default"/>
+    </logger>
+
+    <!-- typemapper logs bogus exceptions in level ERROR. avoid them. -->
+    <logger name="de.zalando.typemapper.core.fieldMapper" additivity="false">
+        <level value="warn" />
+        <appender-ref ref="default"/>
+    </logger>
+
+    <logger name="de.zalando.typemapper.core.TypeMapper" additivity="false">
+        <level value="fatal" />
+        <appender-ref ref="default"/>
+    </logger>
+
+    <root>
+        <priority value="debug"/>
+        <appender-ref ref="default"/>
+    </root>
+
+</log4j:configuration>

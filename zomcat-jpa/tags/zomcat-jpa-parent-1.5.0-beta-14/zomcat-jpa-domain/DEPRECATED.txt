@@ -1,0 +1,7 @@
+DEPRECATED
+==========
+
+If you need the functionality implemented in this module, please have a look at Spring-Data-JPA. It brings better support to JPA as implemented
+in this module, is much better maintained and much much better documented.
+
+http://www.springsource.org/spring-data/jpa
