@@ -8,7 +8,7 @@
         <version>1.5.0-SNAPSHOT</version>
     </parent>
     <groupId>de.zalando</groupId>
-    <artifactId>spring-data-sharded-jpa-example</artifactId>
+    <artifactId>zomcat-jpa-sharding-example</artifactId>
     <name>Zomcat JPA Examples for Sharding</name>
     <description>Example how to use zomcat-jpa with sharded databases</description>
     <organization>

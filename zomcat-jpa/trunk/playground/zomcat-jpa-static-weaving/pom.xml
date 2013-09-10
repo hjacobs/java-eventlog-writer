@@ -7,7 +7,7 @@
         <version>1.5.0-SNAPSHOT</version>
     </parent>
     <groupId>de.zalando</groupId>
-    <artifactId>spring-data-jpa-static-weaving</artifactId>
+    <artifactId>zomcat-jpa-static-weaving</artifactId>
     <packaging>war</packaging>
     <name>Zomcat JPA Examples - Shows BUILDTIME-WEAVING with Tomcat 7 and Spring</name>
     <description>Example how to do static weaving</description>
@@ -84,7 +84,7 @@
             <plugin>
                 <groupId>com.googlecode.t7mp</groupId>
                 <artifactId>maven-t7-plugin</artifactId>
-                <version>0.9.13</version>
+                <version>0.9.14</version>
                 <executions>
                     <execution>
                         <id>start-tomcat</id>
