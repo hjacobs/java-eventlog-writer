@@ -1,0 +1,68 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-15168.catalog');
+
+  SET role TO zalando;
+
+
+  -- this dbdiff will only work if the data is consitent! Beside the migration, the data may not
+  -- 100% consistent at the time when this dbdiff will be applied.
+  -- check with Tamas/Carsten/Olaf if the dbdiff cannot be applied.
+  -- moved to R13_00_22 - next try
+
+  -- change foreign keys:
+  ALTER TABLE zcat_data.article_facet_logistics_model DROP CONSTRAINT article_facet_logistics_model_aflm_model_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_logistics_model ADD CONSTRAINT  article_facet_logistics_model_aflm_model_sku_id_fkey
+        FOREIGN KEY (aflm_model_sku_id) REFERENCES zcat_data.article_model(am_model_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_production_model DROP CONSTRAINT article_facet_production_model_afpm_model_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_production_model ADD CONSTRAINT  article_facet_production_model_afpm_model_sku_id_fkey
+        FOREIGN KEY (afpm_model_sku_id) REFERENCES zcat_data.article_model(am_model_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_model_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_model_sku_id_fkey
+        FOREIGN KEY (afsm_model_sku_id) REFERENCES zcat_data.article_model(am_model_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_supplier_model DROP CONSTRAINT article_facet_supplier_model_afsm_model_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_supplier_model ADD CONSTRAINT  article_facet_supplier_model_afsm_model_sku_id_fkey
+        FOREIGN KEY (afsm_model_sku_id) REFERENCES zcat_data.article_model(am_model_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_accounting_config DROP CONSTRAINT article_facet_accounting_config_afac_config_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_accounting_config ADD CONSTRAINT  article_facet_accounting_config_afac_config_sku_id_fkey
+        FOREIGN KEY (afac_config_sku_id) REFERENCES zcat_data.article_config(ac_config_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_logistics_config DROP CONSTRAINT article_facet_logistics_config_aflc_config_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_logistics_config ADD CONSTRAINT  article_facet_logistics_config_aflc_config_sku_id_fkey
+        FOREIGN KEY (aflc_config_sku_id) REFERENCES zcat_data.article_config(ac_config_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_production_config DROP CONSTRAINT article_facet_production_config_afpc_config_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_production_config ADD CONSTRAINT  article_facet_production_config_afpc_config_sku_id_fkey
+        FOREIGN KEY (afpc_config_sku_id) REFERENCES zcat_data.article_config(ac_config_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_config_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_config_sku_id_fkey
+        FOREIGN KEY (afsc_config_sku_id) REFERENCES zcat_data.article_config(ac_config_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_supplier_config DROP CONSTRAINT article_facet_supplier_config_afsc_config_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_supplier_config ADD CONSTRAINT  article_facet_supplier_config_afsc_config_sku_id_fkey
+        FOREIGN KEY (afsc_config_sku_id) REFERENCES zcat_data.article_config(ac_config_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_accounting_simple DROP CONSTRAINT article_facet_accounting_simple_afas_simple_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_accounting_simple ADD CONSTRAINT  article_facet_accounting_simple_afas_simple_sku_id_fkey
+        FOREIGN KEY (afas_simple_sku_id) REFERENCES zcat_data.article_simple(as_simple_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_logistics_simple DROP CONSTRAINT article_facet_logistics_simple_afls_simple_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_logistics_simple ADD CONSTRAINT  article_facet_logistics_simple_afls_simple_sku_id_fkey
+        FOREIGN KEY (afls_simple_sku_id) REFERENCES zcat_data.article_simple(as_simple_sku_id);
+
+  ALTER TABLE zcat_data.article_facet_supplier_simple DROP CONSTRAINT article_facet_supplier_simple_afss_simple_sku_id_fkey;
+  ALTER TABLE zcat_data.article_facet_supplier_simple ADD CONSTRAINT  article_facet_supplier_simple_afss_simple_sku_id_fkey
+        FOREIGN KEY (afss_simple_sku_id) REFERENCES zcat_data.article_simple(as_simple_sku_id);
+
+  RESET role;
+
+-- ROLLBACK;
+COMMIT;

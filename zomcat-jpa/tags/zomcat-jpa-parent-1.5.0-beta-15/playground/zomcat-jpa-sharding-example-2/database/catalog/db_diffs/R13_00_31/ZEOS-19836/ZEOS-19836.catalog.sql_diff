@@ -1,0 +1,19 @@
+BEGIN;
+
+  select _v.register_patch('ZEOS-19836.catalog');
+
+  SET role TO zalando;
+
+  DROP TABLE zcat_data.article_facet_multimedia;
+  DROP TABLE zcat_data.multimedia;
+  DROP SEQUENCE IF EXISTS zcat_data.shard_id_sequence_multimedia;
+
+  \i database/catalog/05_commons/04_tables/10_multimedia_type.sql
+  \i database/catalog/05_commons/04_tables/10_media_character.sql
+  \i database/catalog/10_data/04_tables/40_multimedia.sql
+  \i database/catalog/10_data/04_tables/77_article_facet_multimedia.sql
+
+  RESET role;
+
+-- ROLLBACK;
+COMMIT;

@@ -1,0 +1,48 @@
+\set ON_ERROR_STOP 1
+
+do
+$$
+begin
+
+RAISE EXCEPTION 'Please inform catalog team first (tamas) so that the price archiver job can be stopped';
+
+end;
+$$;
+
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch('ZEOS-15624.catalog.postdeploy');
+
+    SET role TO zalando;
+
+
+    delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 0;
+
+    RESET role;
+
+COMMIT;
+--ROLLBACK;
+
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 1;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 2;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 3;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 4;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 5;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 6;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 7;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 8;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null and pc_id % 10 = 9;
+VACUUM zcat_data.price_current;
+delete from zcat_data.price_current where pc_price is null;

@@ -1,0 +1,16 @@
+BEGIN;
+
+    select _v.register_patch ('ZEOS-14006.catalog.config');
+
+    set role to zalando;
+
+    insert into zcat_commons.app_config (ac_key, ac_value, ac_is_online_updateable) values
+        ('feature.articleSearch.updateSolr', 'off', true),
+        ('jobConfig.articleSearchUpdateJob.limit','10000',true), -- chunk to process limit
+        ('jobConfig.articleSearchUpdateJob.active','true',true),
+        ('jobConfig.articleSearchUpdateJob.threadCount','8',true),
+        ('jobConfig.articleSearchUpdateJob.appInstanceKey', '*', true);
+
+    reset role;
+
+COMMIT;

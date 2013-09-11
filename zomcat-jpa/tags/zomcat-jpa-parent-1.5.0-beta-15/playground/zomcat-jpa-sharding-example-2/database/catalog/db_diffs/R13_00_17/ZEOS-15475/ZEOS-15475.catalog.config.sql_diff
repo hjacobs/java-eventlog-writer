@@ -1,0 +1,16 @@
+BEGIN;
+
+  -- $Id: ZEOS-15475.catalog.config.sql_diff 3209 2013-04-08 10:45:22Z maciej.rosiek $
+  -- $HeadURL: https://svn.zalando.net/zeos-catalog/trunk/backend/database/catalog/db_diffs/R13_00_17/ZEOS-15475/ZEOS-15475.catalog.config.sql_diff $
+
+  select _v.register_patch('ZEOS-15475.catalog.config');
+
+  SET role TO zalando;
+
+  INSERT INTO zcat_commons.price_fallback_appdomains(pfa_appdomain_id, pfa_fallback_sequence)
+       VALUES (120, ARRAY [1, 25, 19, 24, 15, 16, 27]),
+              (121, ARRAY [120, 1, 19, 11, 5, 25, 15, 16, 27]);
+
+  RESET role;
+
+COMMIT;

@@ -1,0 +1,11 @@
+TODO
+====
+
+short-term
+- [fixed] provide typical SVN-Layout (trunk, branches, tags) to make it possible to release with mvn-release-plugin
+- [fixed] divide existing code in 'eclipselink-specific' and 'domain-support' (packages 'domain' and 'repository' are independent of eclipselink and are not needed when using spring-data-jpa)
+- [fixed] a multi-module-project would make it possible to add separate extensions
+
+long-term
+- check pom.xml to use 'mvn-release'
+- One-Button-Click-Release per Jenkins, I know that is possible ;-)

@@ -1,0 +1,21 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-12597.catalog');
+
+  SET role TO zalando;
+
+  ALTER TABLE zcat_data.article_simple_ean ADD COLUMN ase_simple_sku_id int references zcat_data.article_sku (as_id);
+
+  ALTER TABLE zcat_data.article_simple_ean ALTER COLUMN ase_article_simple_id DROP NOT NULL;
+
+  RESET role;
+
+COMMIT;
+
+CREATE INDEX CONCURRENTLY ON zcat_data.article_simple_ean (ase_simple_sku_id);
+
+-- copy over data from wrongly named column into this one
+UPDATE zcat_data.article_simple_ean SET ase_simple_sku_id = ase_article_simple_id WHERE ase_simple_sku_id IS NULL;
