@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import java.util.List;
 import java.util.Queue;
 
+import javax.annotation.Nonnull;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +16,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 
+import de.zalando.util.web.urlmapping.rule.MappingRule;
+import de.zalando.util.web.urlmapping.rule.RuleActivationPredicate;
 import de.zalando.util.web.urlmapping.util.Delimiter;
 import de.zalando.util.web.urlmapping.util.Helper;
 
@@ -25,8 +29,9 @@ public class MappingContext {
     /**
      * Factory method to create a MappingContext.
      */
-    public static MappingContext create(final HttpServletRequest request, final HttpServletResponse response) {
-        return new MappingContext(request, response);
+    public static MappingContext create(final HttpServletRequest request, final HttpServletResponse response,
+            @Nonnull final RuleActivationPredicate ruleActivationPredicate) {
+        return new MappingContext(request, response, ruleActivationPredicate);
     }
 
     /**
@@ -43,12 +48,15 @@ public class MappingContext {
     private final Queue<String> pathItems;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
+    private final RuleActivationPredicate ruleActivationPredicate;
     private final String trimmedPath;
     private final ListMultimap<String, String> parameterMap;
 
-    private MappingContext(final HttpServletRequest request, final HttpServletResponse response) {
+    private MappingContext(@Nonnull final HttpServletRequest request, @Nonnull final HttpServletResponse response,
+            @Nonnull final RuleActivationPredicate ruleActivationPredicate) {
         this.request = request;
         this.response = response;
+        this.ruleActivationPredicate = ruleActivationPredicate;
 
         // cut off all slashes at both ends, preserve all slashes between segments (including multiple ones)
         // by doing this, we lose empty trailing segments, which is why we must store rules with optional trailing
@@ -156,4 +164,7 @@ public class MappingContext {
         return trimmedPath;
     }
 
+    public boolean applyRuleActivationPredicate(final MappingRule mappingRule) {
+        return ruleActivationPredicate.apply(mappingRule);
+    }
 }

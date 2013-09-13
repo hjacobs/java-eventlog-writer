@@ -8,7 +8,7 @@
     </parent>
     <groupId>de.zalando.util.web</groupId>
     <artifactId>zalando-urlmapping</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
     <name>URL mapping lib</name>
     <description>lib for fast url mapping</description>
     <organization>
@@ -51,6 +51,11 @@
             <!-- required by spring-test -->
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

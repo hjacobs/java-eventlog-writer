@@ -14,10 +14,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
@@ -47,16 +51,25 @@ public class ForwardMappingRule implements MappingRule {
     private final int cardinality;
     private final int handlersCount;
     private final String id;
+    private final TargetType targetType;
+    private final Optional<String> requestMethod;
+    @Nullable
+    private Integer priority;
 
-    public ForwardMappingRule(final String id, final String baseUrl, final int cardinality) {
-        this(id, baseUrl, cardinality, null);
+    public enum TargetType {
+        STATIC,
+        SPRING,
+        STRIPES
     }
 
-    public ForwardMappingRule(final String id, final String baseUrl, final int cardinality,
-            final List<Handler> handlers) {
-        this.id = id;
+    public ForwardMappingRule(@Nonnull final String id, @Nullable final Integer priority, @Nonnull final String baseUrl,
+            final int cardinality, @Nonnull final List<Handler> handlers, @Nonnull final TargetType targetType,
+            @Nonnull final String requestMethod) {
+        this.priority = priority;
+        this.id = checkNotNull(id, "An id required for all rules");
         this.cardinality = cardinality;
         this.baseUrl = checkNotNull(baseUrl, "A base URL is required for all rules");
+        this.targetType = checkNotNull(targetType, "A target type is required for all rules");
 
         final Builder<RequestParamHandler> requestParamsBuilder = ImmutableList.builder();
         final Builder<PathParamHandler> pathParamsBuilder = ImmutableList.builder();
@@ -80,6 +93,8 @@ public class ForwardMappingRule implements MappingRule {
         urlPostProcessors = urlPostProcessorBuilder.build();
         handlersCount = requestParamHandlers.size() + paramHandlers.size() + postProcessors.size()
                 + urlPostProcessors.size();
+        this.requestMethod = (requestMethod == null || requestMethod.isEmpty()) ? Optional.<String>absent()
+                                                                                : Optional.fromNullable(requestMethod);
 
     }
 
@@ -88,6 +103,14 @@ public class ForwardMappingRule implements MappingRule {
      */
     @Override
     public boolean appliesTo(final MappingContext mappingContext) {
+
+        // check request-method filter (only if request-method is present)
+        if (this.requestMethod.isPresent()) {
+            if (!requestMethod.get().equals(mappingContext.getRequest().getMethod())) {
+                return false;
+            }
+        }
+
         if (!paramHandlers.isEmpty()) {
             Iterable<String> pathItems = mappingContext.getOriginalPathItems();
             if (cardinality > 0) {
@@ -195,6 +218,19 @@ public class ForwardMappingRule implements MappingRule {
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public TargetType getTargetType() {
+        return targetType;
     }
 
 }

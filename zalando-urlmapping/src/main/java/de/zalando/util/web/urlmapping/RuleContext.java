@@ -28,6 +28,7 @@ import com.google.common.collect.Range;
 
 import de.zalando.util.web.urlmapping.domain.MappingConstants;
 import de.zalando.util.web.urlmapping.rule.MappingRule;
+import de.zalando.util.web.urlmapping.rule.RuleActivationPredicate;
 import de.zalando.util.web.urlmapping.rule.RuleBucket;
 
 public class RuleContext {
@@ -117,9 +118,9 @@ public class RuleContext {
         }
     }
 
-    public boolean mapRequest(final HttpServletRequest request, final HttpServletResponse response)
-        throws UrlMappingException {
-        final MappingContext mappingContext = MappingContext.create(request, response);
+    public boolean mapRequest(final HttpServletRequest request, final HttpServletResponse response,
+            final RuleActivationPredicate predicate) throws UrlMappingException {
+        final MappingContext mappingContext = MappingContext.create(request, response, predicate);
         final int segments = mappingContext.getNumberOfSegments();
 
         // we keep one bucket per segment length to make sure we have a constant lookup time

@@ -1,11 +1,13 @@
 RULE:link.admin.login
   TARGET:/customer/AdminLogin.action
+  TARGET-TYPE: STRIPES
   PATH:admin/login
 
 
 --------------------------------------------------------------------------------
 RULE:link.admin.login.link
   TARGET:/customer/AdminLogin.action
+  TARGET-TYPE: STRIPES
   PATH:admin/login
   PARAM:NAME=emailCombination;AGGREGATE=:admin,customer
 
@@ -13,6 +15,7 @@ RULE:link.admin.login.link
 --------------------------------------------------------------------------------
 RULE:link.article.review.save
   TARGET:/catalog/ArticleDetail.action
+  TARGET-TYPE: STRIPES
   PATH:article/review/save
   PARAM:NAME=saveReview;FIXEDVALUE=;FIRST=true
   PARAM:NAME=urlKey;SUFFIX=.html
@@ -21,6 +24,7 @@ RULE:link.article.review.save
 --------------------------------------------------------------------------------
 RULE:link.article.sendfriend.submit
   TARGET:/catalog/ArticleDetail.action
+  TARGET-TYPE: STRIPES
   PATH:article/recommendation/submit
   PARAM:NAME=sendFriendSubmit;FIXEDVALUE=;FIRST=true
   PARAM:NAME=urlKey;SUFFIX=.html
@@ -29,6 +33,7 @@ RULE:link.article.sendfriend.submit
 --------------------------------------------------------------------------------
 RULE:link.article.sizeReminder.submit
   TARGET:/catalog/ArticleDetail.action
+  TARGET-TYPE: STRIPES
   PATH:article/sizereminder/submit
   PARAM:NAME=sizeReminderSubmit;FIXEDVALUE=;FIRST=true
   PARAM:NAME=urlKey;SUFFIX=.html
@@ -37,12 +42,14 @@ RULE:link.article.sizeReminder.submit
 --------------------------------------------------------------------------------
 RULE:link.brands.active
   TARGET:/catalog/ActiveBrands.action
+  TARGET-TYPE: STRIPES
   PATH:activebrands
 
 
 --------------------------------------------------------------------------------
 RULE:link.cart
   TARGET:/checkout/Cart.action
+  TARGET-TYPE: STRIPES
   PATH:cart
   PATH:koszyk
   PATH:kundvagn
@@ -56,6 +63,7 @@ RULE:link.cart
 --------------------------------------------------------------------------------
 RULE:link.cart.ajax
   TARGET:/checkout/AjaxCart.action
+  TARGET-TYPE: STRIPES
   PATH:ajax-cart
   PATH:ajax-koszyk
   PATH:ajax-kundvagn
@@ -69,6 +77,7 @@ RULE:link.cart.ajax
 --------------------------------------------------------------------------------
 RULE:link.cart.login
   TARGET:/checkout/Cart.action
+  TARGET-TYPE: STRIPES
   PATH:cart/login
   PATH:koszyk/login
   PATH:kundvagn/login
@@ -84,6 +93,7 @@ RULE:link.cart.login
 --------------------------------------------------------------------------------
 RULE:link.checkout.addresses
   TARGET:/checkout/Addresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/addresses
   PATH:kasa/adresler
   PATH:kasa/adresy
@@ -97,6 +107,7 @@ RULE:link.checkout.addresses
 --------------------------------------------------------------------------------
 RULE:link.checkout.addresses.delete
   TARGET:/checkout/Addresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/addresses/delete-address
   PATH:kasa/adresler/adresse-loeschen
   PATH:kasa/adresy/adres-dostawy-usunac
@@ -112,6 +123,7 @@ RULE:link.checkout.addresses.delete
 --------------------------------------------------------------------------------
 RULE:link.checkout.addresses.edit.billing
   TARGET:/checkout/Addresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/addresses/edit-billing-address
   PATH:kasa/adresler/fatura-adresi-degistir
   PATH:kasa/adresy/adres-faktury-edytowac
@@ -127,6 +139,7 @@ RULE:link.checkout.addresses.edit.billing
 --------------------------------------------------------------------------------
 RULE:link.checkout.addresses.edit.shipping
   TARGET:/checkout/Addresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/addresses/edit-shipping-address
   PATH:kasa/adresler/teslimat-adresi-degistir
   PATH:kasa/adresy/adres-dostawy-edytowac
@@ -142,6 +155,7 @@ RULE:link.checkout.addresses.edit.shipping
 --------------------------------------------------------------------------------
 RULE:link.checkout.addresses.kiala
   TARGET:/checkout/Addresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/addresses/kiala
   PATH:kasa/adresler/kiala
   PATH:kasa/adresy/kiala
@@ -156,12 +170,14 @@ RULE:link.checkout.addresses.kiala
 --------------------------------------------------------------------------------
 RULE:link.checkout.addresses.kiala.receive
   TARGET:/checkout/address/external/Kiala.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/kiala/receive
 
 
 --------------------------------------------------------------------------------
 RULE:link.checkout.addresses.select
   TARGET:/checkout/Addresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/addresses/select-billing-address
   PATH:kasa/adresler/rechnungsadresse-waehlen
   PATH:kasa/adresy/adres-faktury-wybierac
@@ -177,6 +193,7 @@ RULE:link.checkout.addresses.select
 --------------------------------------------------------------------------------
 RULE:link.checkout.addresses.select.shipping
   TARGET:/checkout/Addresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/addresses/select-shipping-address
   PATH:kasa/adresler/lieferadresse-waehlen
   PATH:kasa/adresy/adres-dostawy-wybierac
@@ -192,6 +209,7 @@ RULE:link.checkout.addresses.select.shipping
 --------------------------------------------------------------------------------
 RULE:link.checkout.canceled
   TARGET:/checkout/Final.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/cancelled
   PATH:kasa/abgebrochen
   PATH:kassa/afgezegd
@@ -205,6 +223,7 @@ RULE:link.checkout.canceled
 --------------------------------------------------------------------------------
 RULE:link.checkout.failed
   TARGET:/checkout/Final.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/failed
   PATH:kasa/fehlgeschlagen
   PATH:kassa/fel
@@ -218,6 +237,7 @@ RULE:link.checkout.failed
 --------------------------------------------------------------------------------
 RULE:link.checkout.feedback
   TARGET:/checkout/Feedback.action
+  TARGET-TYPE: STRIPES
   PATH:bestallning/asikt
   PATH:bestelling/feedback
   PATH:bestellung/meinung
@@ -228,6 +248,7 @@ RULE:link.checkout.feedback
 --------------------------------------------------------------------------------
 RULE:link.checkout.payment
   TARGET:/checkout/PaymentMethod.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/payment
   PATH:kasa/odeme-secenegi
   PATH:kasa/rodzaj-platnosci
@@ -240,6 +261,7 @@ RULE:link.checkout.payment
 --------------------------------------------------------------------------------
 RULE:link.checkout.paymentMethod.delete
   TARGET:/checkout/PaymentMethod.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/delete-payment-method
   PATH:kasa/platnosc-usunac
   PATH:kasa/zahlart-loeschen
@@ -254,6 +276,7 @@ RULE:link.checkout.paymentMethod.delete
 --------------------------------------------------------------------------------
 RULE:link.checkout.print
   TARGET:/checkout/Final.action
+  TARGET-TYPE: STRIPES
   PATH:bestallning/utskrift
   PATH:bestelling/print
   PATH:bestellung/druck
@@ -266,6 +289,7 @@ RULE:link.checkout.print
 --------------------------------------------------------------------------------
 RULE:link.checkout.redirect
   TARGET:/checkout/Final.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/redirect
   PATH:kasa/weiterleitung
   PATH:kassa/redigeren
@@ -278,6 +302,7 @@ RULE:link.checkout.redirect
 --------------------------------------------------------------------------------
 RULE:link.checkout.shipping
   TARGET:/checkout/Shipping.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/shipping
   PATH:kasa/lieferung
   PATH:kassa/leverans
@@ -289,6 +314,7 @@ RULE:link.checkout.shipping
 --------------------------------------------------------------------------------
 RULE:link.checkout.stepConfirmation
   TARGET:/checkout/Confirm.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/overview
   PATH:kasa/uebersicht
   PATH:kasa/zestawienie
@@ -301,6 +327,7 @@ RULE:link.checkout.stepConfirmation
 --------------------------------------------------------------------------------
 RULE:link.checkout.confirmation.deleteShippingAddress
   TARGET:/checkout/Addresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/overview/delete-address
   PATH:kasa/uebersicht/adresse-loeschen
   PATH:kasa/zestawienie/adres-usunac
@@ -315,6 +342,7 @@ RULE:link.checkout.confirmation.deleteShippingAddress
 --------------------------------------------------------------------------------
 RULE:link.checkout.success
   TARGET:/checkout/Final.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/ordered
   PATH:kasa/bestellt
   PATH:kassa/bestaellt
@@ -328,6 +356,7 @@ RULE:link.checkout.success
 --------------------------------------------------------------------------------
 RULE:link.checkout.success.external
   TARGET:/checkout/Final.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/paid
   PATH:kasa/bezahlt
   PATH:kassa/betaald
@@ -341,6 +370,7 @@ RULE:link.checkout.success.external
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.addresses
   TARGET:/checkout/VoucherAddresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/addresses
   PATH:checkout/giftvouchers/addresses
   PATH:kasa/geschenkgutscheine/adressen
@@ -355,6 +385,7 @@ RULE:link.checkout.vouchers.addresses
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.addresses.delete
   TARGET:/checkout/VoucherAddresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/addresses/delete-shipping-address
   PATH:checkout/giftvouchers/addresses/delete-shipping-address
   PATH:kasa/geschenkgutscheine/adressen/lieferadresse-loeschen
@@ -371,6 +402,7 @@ RULE:link.checkout.vouchers.addresses.delete
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.addresses.edit.billing
   TARGET:/checkout/VoucherAddresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/addresses/edit-billing-address
   PATH:checkout/giftvouchers/addresses/edit-billing-address
   PATH:kasa/geschenkgutscheine/adressen/rechnungsadresse-bearbeiten
@@ -387,6 +419,7 @@ RULE:link.checkout.vouchers.addresses.edit.billing
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.addresses.select
   TARGET:/checkout/VoucherAddresses.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/addresses/select-billing-address
   PATH:checkout/giftvouchers/addresses/select-billing-address
   PATH:kasa/geschenkgutscheine/adressen/rechnungsadresse-waehlen
@@ -403,6 +436,7 @@ RULE:link.checkout.vouchers.addresses.select
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.canceled
   TARGET:/checkout/VoucherFinal.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/cancelled
   PATH:checkout/giftvouchers/cancelled
   PATH:kasa/geschenkgutscheine/abgebrochen
@@ -419,6 +453,7 @@ RULE:link.checkout.vouchers.canceled
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.failed
   TARGET:/checkout/VoucherFinal.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/failed
   PATH:checkout/giftvouchers/failed
   PATH:kasa/geschenkgutscheine/fehlgeschlagen
@@ -435,6 +470,7 @@ RULE:link.checkout.vouchers.failed
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.feedback
   TARGET:/checkout/VoucherFeedback.action
+  TARGET-TYPE: STRIPES
   PATH:geschenkgutschein-bestellung/meinung
   PATH:presentkort-bestallning/asikt
   PATH:voucher-commande/evaluation
@@ -444,6 +480,7 @@ RULE:link.checkout.vouchers.feedback
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.payment
   TARGET:/checkout/VoucherPaymentMethod.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/payment
   PATH:checkout/giftvouchers/payment
   PATH:kasa/geschenkgutscheine/rodzaj-platnosci
@@ -458,6 +495,7 @@ RULE:link.checkout.vouchers.payment
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.paymentMethod.delete
   TARGET:/checkout/VoucherPaymentMethod.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/delete-payment-method
   PATH:checkout/giftvouchers/delete-payment-method
   PATH:kasa/geschenkgutscheine/zahlart-loeschen
@@ -474,6 +512,7 @@ RULE:link.checkout.vouchers.paymentMethod.delete
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.print
   TARGET:/checkout/VoucherFinal.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/print
   PATH:checkout/giftvouchers/print
   PATH:kasa/geschenkgutscheine/druck
@@ -490,6 +529,7 @@ RULE:link.checkout.vouchers.print
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.redirect
   TARGET:/checkout/VoucherFinal.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/redirect
   PATH:checkout/giftvouchers/redirect
   PATH:kasa/geschenkgutscheine/weiterleitung
@@ -505,6 +545,7 @@ RULE:link.checkout.vouchers.redirect
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.stepConfirmation
   TARGET:/checkout/VoucherConfirm.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/overview
   PATH:checkout/giftvouchers/overview
   PATH:kasa/geschenkgutscheine/zestawienie
@@ -519,6 +560,7 @@ RULE:link.checkout.vouchers.stepConfirmation
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.success
   TARGET:/checkout/VoucherFinal.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/ordered
   PATH:checkout/giftvouchers/ordered
   PATH:kasa/geschenkgutscheine/bestellt
@@ -535,6 +577,7 @@ RULE:link.checkout.vouchers.success
 --------------------------------------------------------------------------------
 RULE:link.checkout.vouchers.success.external
   TARGET:/checkout/VoucherFinal.action
+  TARGET-TYPE: STRIPES
   PATH:checkout/buoni-regali/paid
   PATH:checkout/giftvouchers/paid
   PATH:kasa/geschenkgutscheine/bezahlt
@@ -551,6 +594,7 @@ RULE:link.checkout.vouchers.success.external
 --------------------------------------------------------------------------------
 RULE:link.contact
   TARGET:/Contact.action
+  TARGET-TYPE: STRIPES
   PATH:contact
   PATH:kontakt
 
@@ -558,6 +602,7 @@ RULE:link.contact
 --------------------------------------------------------------------------------
 RULE:link.customer.login
   TARGET:/customer/Login.action
+  TARGET-TYPE: STRIPES
   PATH:login
   PATH:nom-utilisateur
   PATH:uye-girisi
@@ -566,6 +611,7 @@ RULE:link.customer.login
 --------------------------------------------------------------------------------
 RULE:link.customer.logout
   TARGET:/customer/Login.action
+  TARGET-TYPE: STRIPES
   PATH:deconnexion
   PATH:logout
   PARAM:NAME=logout;FIXEDVALUE=;FIRST=true
@@ -574,6 +620,7 @@ RULE:link.customer.logout
 --------------------------------------------------------------------------------
 RULE:link.customer.new.password
   TARGET:/customer/Login.action
+  TARGET-TYPE: STRIPES
   PATH:neues-passwort
   PATH:new-password
   PATH:nieuwe-wachtwoord
@@ -588,6 +635,7 @@ RULE:link.customer.new.password
 --------------------------------------------------------------------------------
 RULE:link.customer.welcomeNoAccount
   TARGET:/customer/Login.action
+  TARGET-TYPE: STRIPES
   PATH:welcomenoaccount
   PATH:witamynakoncie
   PARAM:NAME=welcomeNoAccount;FIXEDVALUE=1
@@ -596,6 +644,7 @@ RULE:link.customer.welcomeNoAccount
 --------------------------------------------------------------------------------
 RULE:link.customer.account
   TARGET:/customer/Account.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto
   PATH:benutzerkonto
   PATH:brugerkonto
@@ -611,6 +660,7 @@ RULE:link.customer.account
 --------------------------------------------------------------------------------
 RULE:link.customer.account.edit
   TARGET:/customer/Account.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/installningar
   PATH:benutzerkonto/einstellungen
   PATH:brugerkonto/einstellungen
@@ -627,6 +677,7 @@ RULE:link.customer.account.edit
 --------------------------------------------------------------------------------
 RULE:link.customer.account.update
   TARGET:/customer/Account.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/installningar/spara
   PATH:benutzerkonto/einstellungen/speichern
   PATH:brugerkonto/einstellungen/speichern
@@ -643,6 +694,7 @@ RULE:link.customer.account.update
 --------------------------------------------------------------------------------
 RULE:link.customer.address.add
   TARGET:/customer/Address.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/adressbok/adress/nytt
   PATH:benutzerkonto/adressbuch/adresse/neu
   PATH:brugerkonto/adressebog/adresse/ny
@@ -659,6 +711,7 @@ RULE:link.customer.address.add
 --------------------------------------------------------------------------------
 RULE:link.customer.address.delete
   TARGET:/customer/Address.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/adressbok/adress/radera
   PATH:benutzerkonto/adressbuch/adresse/entfernen
   PATH:brugerkonto/adressebog/adresse/entfernen
@@ -676,6 +729,7 @@ RULE:link.customer.address.delete
 --------------------------------------------------------------------------------
 RULE:link.customer.address.edit
   TARGET:/customer/Address.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/adressbok/adress/redigera
   PATH:benutzerkonto/adressbuch/adresse/bearbeiten
   PATH:brugerkonto/adressebog/adresse/bearbeiten
@@ -693,6 +747,7 @@ RULE:link.customer.address.edit
 --------------------------------------------------------------------------------
 RULE:link.customer.address
   TARGET:/customer/Address.action
+  TARGET-TYPE: STRIPES
   PATH:addresses
   PATH:adress
   PATH:adressbuch
@@ -704,6 +759,7 @@ RULE:link.customer.address
 --------------------------------------------------------------------------------
 RULE:link.customer.addresses
   TARGET:/customer/Address.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/adressbok
   PATH:benutzerkonto/adressbuch
   PATH:brugerkonto/adressebog
@@ -720,6 +776,7 @@ RULE:link.customer.addresses
 --------------------------------------------------------------------------------
 RULE:link.customer.address.save
   TARGET:/customer/Address.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/adressbok/spara/adress
   PATH:benutzerkonto/adressbuch/adresse/speichern
   PATH:brugerkonto/adressebog/adresse/speichern
@@ -736,6 +793,7 @@ RULE:link.customer.address.save
 --------------------------------------------------------------------------------
 RULE:link.customer.address.suggest.byZipAndHousenumber
   TARGET:/customer/AddressSuggest.action
+  TARGET-TYPE: STRIPES
   PATH:customer/suggestAddress
   PARAM:NAME=byZipAndHousenumber;FIXEDVALUE=;FIRST=true
   PARAM:NAME=zip
@@ -745,6 +803,7 @@ RULE:link.customer.address.suggest.byZipAndHousenumber
 --------------------------------------------------------------------------------
 RULE:link.customer.creditAccount
   TARGET:/customer/CreditAccount.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/presentkort
   PATH:benutzerkonto/geschenkgutscheine
   PATH:brugerkonto/gavekort
@@ -761,6 +820,7 @@ RULE:link.customer.creditAccount
 --------------------------------------------------------------------------------
 RULE:link.customer.order.return
   TARGET:/customer/Order.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/utskrift-retur
   PATH:benutzerkonto/drucken-retour
   PATH:brugerkonto/drucken-retour
@@ -778,6 +838,7 @@ RULE:link.customer.order.return
 --------------------------------------------------------------------------------
 RULE:link.customer.orderdetail
   TARGET:/customer/Order.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/bestallning-detaljer
   PATH:benutzerkonto/bestellung-detail
   PATH:brugerkonto/bestellung-detail
@@ -795,6 +856,7 @@ RULE:link.customer.orderdetail
 --------------------------------------------------------------------------------
 RULE:link.customer.orderdetail.print
   TARGET:/customer/Order.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/bestallning-detaljer/utskrift
   PATH:benutzerkonto/bestellung-detail/druck
   PATH:brugerkonto/bestellung-detail/druck
@@ -812,6 +874,7 @@ RULE:link.customer.orderdetail.print
 --------------------------------------------------------------------------------
 RULE:link.customer.orders
   TARGET:/customer/Order.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/bestallning
   PATH:benutzerkonto/bestellungen
   PATH:brugerkonto/bestellungen
@@ -828,6 +891,7 @@ RULE:link.customer.orders
 --------------------------------------------------------------------------------
 RULE:link.customer.newsletter
   TARGET:/customer/Newsletter.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/newsletter
   PATH:benutzerkonto/newsletter
   PATH:brugerkonto/nyhedsbrev
@@ -841,6 +905,7 @@ RULE:link.customer.newsletter
 --------------------------------------------------------------------------------
 RULE:link.customer.newsletter.confirm
   TARGET:/customer/NewsletterConfirm.action
+  TARGET-TYPE: STRIPES
   PATH:newsletter/confirm
   PARAM:NAME=newsletterId;OPTIONAL=true
   PARAM:NAME=confirmHash;OPTIONAL=true
@@ -849,12 +914,14 @@ RULE:link.customer.newsletter.confirm
 --------------------------------------------------------------------------------
 RULE:link.anon.newsletter.subscribe
   TARGET:/customer/NewsletterAnon.action
+  TARGET-TYPE: STRIPES
   PATH:newsletter/subscriber/new
 
 
 --------------------------------------------------------------------------------
 RULE:link.customer.newsletter.unsubscribe
   TARGET:/customer/NewsletterUnsubscribe.action
+  TARGET-TYPE: STRIPES
   PATH:newsletter/unsubscribe
   PARAM:NAME=newsletterId
   PARAM:NAME=hash
@@ -864,6 +931,7 @@ RULE:link.customer.newsletter.unsubscribe
 --------------------------------------------------------------------------------
 RULE:link.customer.newsletter.unsubscribe-all
   TARGET:/customer/NewsletterUnsubscribeAll.action
+  TARGET-TYPE: STRIPES
   PATH:newsletter/unsubscribe-all
   PARAM:NAME=newsletterId
   PARAM:NAME=hash
@@ -873,6 +941,7 @@ RULE:link.customer.newsletter.unsubscribe-all
 --------------------------------------------------------------------------------
 RULE:link.customer.newsletter.unsubscribe-all.send
   TARGET:/customer/NewsletterUnsubscribeAll.action
+  TARGET-TYPE: STRIPES
   PATH:newsletter/unsubscribe-all/post
   PARAM:NAME=doUnsubscribe;FIXEDVALUE=;FIRST=true
 
@@ -880,6 +949,7 @@ RULE:link.customer.newsletter.unsubscribe-all.send
 --------------------------------------------------------------------------------
 RULE:link.customer.newsletter.unsubscribe.send
   TARGET:/customer/NewsletterUnsubscribe.action
+  TARGET-TYPE: STRIPES
   PATH:newsletter/unsubscribe
   PARAM:NAME=doUnsubscribe;FIXEDVALUE=;FIRST=true
 
@@ -887,6 +957,7 @@ RULE:link.customer.newsletter.unsubscribe.send
 --------------------------------------------------------------------------------
 RULE:link.customer.newsletter.update.personal.data
   TARGET:/customer/UpdateNewsletterPersonalData.action
+  TARGET-TYPE: STRIPES
   PATH:newsletter/update/personal-data
   PARAM:NAME=hash
   PARAM:NAME=email
@@ -897,6 +968,7 @@ RULE:link.customer.newsletter.update.personal.data
 --------------------------------------------------------------------------------
 RULE:link.customer.offlineregister.alreadyOrdered
   TARGET:/customer/OfflineRegistration.action
+  TARGET-TYPE: STRIPES
   PATH:outletstore/bereits-bestellt
   PARAM:NAME=alreadyOrdered;FIXEDVALUE=;FIRST=true
 
@@ -904,6 +976,7 @@ RULE:link.customer.offlineregister.alreadyOrdered
 --------------------------------------------------------------------------------
 RULE:link.customer.offlineregister.confirmAddress
   TARGET:/customer/OfflineRegistration.action
+  TARGET-TYPE: STRIPES
   PATH:outletstore/adresse-pruefen
   PARAM:NAME=confirmAddress;FIXEDVALUE=;FIRST=true
 
@@ -911,6 +984,7 @@ RULE:link.customer.offlineregister.confirmAddress
 --------------------------------------------------------------------------------
 RULE:link.customer.offlineregister.editAddress
   TARGET:/customer/OfflineRegistration.action
+  TARGET-TYPE: STRIPES
   PATH:outletstore/adresse-bearbeiten
   PARAM:NAME=editAddress;FIXEDVALUE=;FIRST=true
 
@@ -918,12 +992,14 @@ RULE:link.customer.offlineregister.editAddress
 --------------------------------------------------------------------------------
 RULE:link.customer.offlineregister.login
   TARGET:/customer/OfflineRegistration.action
+  TARGET-TYPE: STRIPES
   PATH:outletstore
 
 
 --------------------------------------------------------------------------------
 RULE:link.customer.offlineregister.register
   TARGET:/customer/OfflineRegistration.action
+  TARGET-TYPE: STRIPES
   PATH:outletstore/anmelden
   PARAM:NAME=showRegister;FIXEDVALUE=;FIRST=true
 
@@ -931,6 +1007,7 @@ RULE:link.customer.offlineregister.register
 --------------------------------------------------------------------------------
 RULE:link.customer.offlineregister.success
   TARGET:/customer/OfflineRegistration.action
+  TARGET-TYPE: STRIPES
   PATH:outletstore/bestellung-abgeschlossen
   PARAM:NAME=success;FIXEDVALUE=;FIRST=true
 
@@ -938,6 +1015,7 @@ RULE:link.customer.offlineregister.success
 --------------------------------------------------------------------------------
 RULE:link.customer.offlineregister.backToShop
   TARGET:/customer/OfflineRegistration.action
+  TARGET-TYPE: STRIPES
   PATH:outletstore/zum-shop
   PARAM:NAME=backToShop;FIXEDVALUE=;FIRST=true
 
@@ -945,6 +1023,7 @@ RULE:link.customer.offlineregister.backToShop
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.control.selected.articles
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/bekrafta-artikel
   PATH:benutzerkonto/artikel-bestaetigen
   PATH:brugerkonto/bekraefte-vare
@@ -961,6 +1040,7 @@ RULE:link.customer.onlineretoure.control.selected.articles
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.repayment
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/tillgodobelopp
   PATH:benutzerkonto/gutschrift
   PATH:brugerkonto/tilgodehavende
@@ -977,6 +1057,7 @@ RULE:link.customer.onlineretoure.repayment
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.overview
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/returer
   PATH:benutzerkonto/retouren
   PATH:brugerkonto/returnering
@@ -993,6 +1074,7 @@ RULE:link.customer.onlineretoure.overview
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.remote.print
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/bestall-returetikett
   PATH:benutzerkonto/retourenlabel-anfordern
   PATH:brugerkonto/retourenlabel-anfordern
@@ -1011,6 +1093,7 @@ RULE:link.customer.onlineretoure.remote.print
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.remote.print.send
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/returetikett-bestaellt
   PATH:benutzerkonto/retourenlabel-anfordern-success
   PATH:brugerkonto/retourenlabel-anfordern-success
@@ -1029,6 +1112,7 @@ RULE:link.customer.onlineretoure.remote.print.send
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.print.return.label
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/skriv-ut-returetikett
   PATH:benutzerkonto/retourenlabel-drucken
   PATH:brugerkonto/print-returlabel
@@ -1047,6 +1131,7 @@ RULE:link.customer.onlineretoure.print.return.label
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.submit.selected.articles
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/skriv-ut-returetikett
   PATH:benutzerkonto/retourenlabel-drucken
   PATH:brugerkonto/print-returlabel
@@ -1063,6 +1148,7 @@ RULE:link.customer.onlineretoure.submit.selected.articles
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.return.management
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/hantera-returer
   PATH:benutzerkonto/retouren-verwalten
   PATH:brugerkonto/administrer-returnering
@@ -1081,6 +1167,7 @@ RULE:link.customer.onlineretoure.return.management
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.returnable.orders
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/mina-besteallningar
   PATH:benutzerkonto/meine-bestellungen
   PATH:brugerkonto/mine-bestillinger
@@ -1099,6 +1186,7 @@ RULE:link.customer.onlineretoure.returnable.orders
 --------------------------------------------------------------------------------
 RULE:link.customer.onlineretoure.select.article
   TARGET:/customer/OnlineRetoure.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/valj-artikel
   PATH:benutzerkonto/artikel-waehlen
   PATH:brugerkonto/vaelge-vare
@@ -1116,6 +1204,7 @@ RULE:link.customer.onlineretoure.select.article
 --------------------------------------------------------------------------------
 RULE:link.customer.payment
   TARGET:/customer/Payment.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/betalningssaett
   PATH:benutzerkonto/zahlungsarten
   PATH:brugerkonto/betalingsformer
@@ -1129,6 +1218,7 @@ RULE:link.customer.payment
 --------------------------------------------------------------------------------
 RULE:link.customer.payment.addCreditCard
   TARGET:/customer/Payment.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/betalningssaett/kreditkarte
   PATH:benutzerkonto/zahlungsarten/kreditkarte
   PATH:brugerkonto/betalingsformer/kreditkarte
@@ -1143,6 +1233,7 @@ RULE:link.customer.payment.addCreditCard
 --------------------------------------------------------------------------------
 RULE:link.customer.payment.addDirectDebitBankAccount
   TARGET:/customer/Payment.action
+  TARGET-TYPE: STRIPES
   PATH:anvandarkonto/bankforbindelse
   PATH:benutzerkonto/bankverbindung
   PATH:brugerkonto/bankoplysninger
@@ -1157,6 +1248,7 @@ RULE:link.customer.payment.addDirectDebitBankAccount
 --------------------------------------------------------------------------------
 RULE:link.query.suggest
   TARGET:/Suggest.action
+  TARGET-TYPE: STRIPES
   PATH:suggest
   PARAM:NAME=query;PREFIX=?query=
 
@@ -1164,6 +1256,7 @@ RULE:link.query.suggest
 --------------------------------------------------------------------------------
 RULE:link.customer.publicWishlist
   TARGET:/customer/PublicWishlist.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/pokazac
   PATH:liste-souhaits/montrer
   PATH:oenskelista/visar
@@ -1176,6 +1269,7 @@ RULE:link.customer.publicWishlist
 --------------------------------------------------------------------------------
 RULE:link.customer.publicWishlist.addToCart
   TARGET:/checkout/Cart.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/pokazac/zum-warenkorb
   PATH:liste-souhaits/montrer/ajouterAuPanier
   PATH:oenskelista/visar/till-kundvagnen
@@ -1189,6 +1283,7 @@ RULE:link.customer.publicWishlist.addToCart
 --------------------------------------------------------------------------------
 RULE:link.customer.publicWishlist.snapshot
   TARGET:/customer/PublicWishlist.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/zapisywane
   PATH:liste-souhaits/sauve
   PATH:oenskelista/sparade
@@ -1202,6 +1297,7 @@ RULE:link.customer.publicWishlist.snapshot
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist
   TARGET:/customer/Wishlist.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen
   PATH:liste-souhaits
   PATH:oenskelista
@@ -1213,6 +1309,7 @@ RULE:link.customer.wishlist
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist.add
   TARGET:/customer/Wishlist.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/neu
   PATH:liste-souhaits/nouveau
   PATH:oenskelista/nytt
@@ -1227,6 +1324,7 @@ RULE:link.customer.wishlist.add
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist.addToCart
   TARGET:/checkout/Cart.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/zum-warenkorb
   PATH:liste-souhaits/ajouterAuPanier
   PATH:oenskelista/till-kundvagnen
@@ -1239,6 +1337,7 @@ RULE:link.customer.wishlist.addToCart
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist.ajax.add
   TARGET:/customer/WishlistAjax.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/ajax/add
   PATH:liste-souhaits/ajax/add
   PATH:oenskelista/ajax/add
@@ -1253,6 +1352,7 @@ RULE:link.customer.wishlist.ajax.add
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist.ajax.fbshare
   TARGET:/customer/WishlistAjax.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/ajax/fbshare
   PATH:liste-souhaits/ajax/fbshare
   PATH:oenskelista/ajax/fbshare
@@ -1265,6 +1365,7 @@ RULE:link.customer.wishlist.ajax.fbshare
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist.ajax.item.exists
   TARGET:/customer/WishlistAjax.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/ajax/check
   PATH:liste-souhaits/ajax/check
   PATH:oenskelista/ajax/check
@@ -1279,6 +1380,7 @@ RULE:link.customer.wishlist.ajax.item.exists
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist.ajax.remove
   TARGET:/customer/WishlistAjax.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/ajax/remove
   PATH:liste-souhaits/ajax/remove
   PATH:oenskelista/ajax/remove
@@ -1292,6 +1394,7 @@ RULE:link.customer.wishlist.ajax.remove
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist.remove
   TARGET:/customer/Wishlist.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/entfernen
   PATH:liste-souhaits/supprimer
   PATH:oenskelista/radera
@@ -1305,6 +1408,7 @@ RULE:link.customer.wishlist.remove
 --------------------------------------------------------------------------------
 RULE:link.customer.wishlist.send
   TARGET:/customer/Wishlist.action
+  TARGET-TYPE: STRIPES
   PATH:lista-zyczen/senden
   PATH:liste-souhaits/envoyer
   PATH:oenskelista/skicka
@@ -1317,6 +1421,7 @@ RULE:link.customer.wishlist.send
 --------------------------------------------------------------------------------
 RULE:link.debug.error400
   TARGET:/Debug.action
+  TARGET-TYPE: STRIPES
   PATH:debug/error400
   PARAM:NAME=testBadRequest;FIXEDVALUE=;FIRST=true
 
@@ -1324,6 +1429,7 @@ RULE:link.debug.error400
 --------------------------------------------------------------------------------
 RULE:link.debug.error500
   TARGET:/Debug.action
+  TARGET-TYPE: STRIPES
   PATH:debug/error500
   PARAM:NAME=testInternalServerError;FIXEDVALUE=;FIRST=true
 
@@ -1331,6 +1437,7 @@ RULE:link.debug.error500
 --------------------------------------------------------------------------------
 RULE:link.dump
   TARGET:/Dump.action
+  TARGET-TYPE: STRIPES
   PATH:dump/article-stocks/p4BReMh8
   PARAM:NAME=**from input**;PATHVARIABLE=
 
@@ -1338,6 +1445,7 @@ RULE:link.dump
 --------------------------------------------------------------------------------
 RULE:link.debug.solrdata
   TARGET:/Debug.action
+  TARGET-TYPE: STRIPES
   PATH:debug/solr-data
   PARAM:NAME=getSolrData;FIXEDVALUE=;FIRST=true
   PARAM:NAME=sku
@@ -1346,6 +1454,7 @@ RULE:link.debug.solrdata
 --------------------------------------------------------------------------------
 RULE:link.dynareco.image.ch
   TARGET:/reco/DynaReco.action
+  TARGET-TYPE: STRIPES
   PATH:katalog/recoimage.jpg
   PARAM:NAME=image;FIXEDVALUE=;FIRST=true
   PARAM:NAME=customerHash
@@ -1355,6 +1464,7 @@ RULE:link.dynareco.image.ch
 --------------------------------------------------------------------------------
 RULE:link.dynareco.image.sku
   TARGET:/reco/DynaReco.action
+  TARGET-TYPE: STRIPES
   PATH:katalog/recoimage.jpg
   PARAM:NAME=image;FIXEDVALUE=;FIRST=true
   PARAM:NAME=sku
@@ -1364,6 +1474,7 @@ RULE:link.dynareco.image.sku
 --------------------------------------------------------------------------------
 RULE:link.dynareco.link.ch
   TARGET:/reco/DynaReco.action
+  TARGET-TYPE: STRIPES
   PATH:katalog/recolink
   PARAM:NAME=link;FIXEDVALUE=;FIRST=true
   PARAM:NAME=customerHash
@@ -1373,6 +1484,7 @@ RULE:link.dynareco.link.ch
 --------------------------------------------------------------------------------
 RULE:link.dynareco.link.sku
   TARGET:/reco/DynaReco.action
+  TARGET-TYPE: STRIPES
   PATH:katalog/recolink
   PARAM:NAME=link;FIXEDVALUE=;FIRST=true
   PARAM:NAME=sku
@@ -1382,12 +1494,14 @@ RULE:link.dynareco.link.sku
 --------------------------------------------------------------------------------
 RULE:link.home
   TARGET:/Home.action
+  TARGET-TYPE: STRIPES
   PATH:
 
 
 --------------------------------------------------------------------------------
 RULE:link.lookup.article
   TARGET:/catalog/ArticleDetail.action
+  TARGET-TYPE: STRIPES
   PATH:lookup/article
   PARAM:NAME=lookupArticle;FIXEDVALUE=;FIRST=true
   PARAM:NAME=sku
@@ -1396,6 +1510,7 @@ RULE:link.lookup.article
 --------------------------------------------------------------------------------
 RULE:link.lookup.category
   TARGET:/catalog/ArticleDetail.action
+  TARGET-TYPE: STRIPES
   PATH:lookup/category
   PARAM:NAME=lookupCategory;FIXEDVALUE=;FIRST=true
   PARAM:NAME=sku
@@ -1404,6 +1519,7 @@ RULE:link.lookup.category
 --------------------------------------------------------------------------------
 RULE:link.lookup.review
   TARGET:/catalog/ArticleDetail.action
+  TARGET-TYPE: STRIPES
   PATH:lookup/review
   PARAM:NAME=lookupArticle;FIXEDVALUE=;FIRST=true
   PARAM:NAME=sku
@@ -1413,12 +1529,14 @@ RULE:link.lookup.review
 --------------------------------------------------------------------------------
 RULE:link.lottery.form
   TARGET:/Lottery.action
+  TARGET-TYPE: STRIPES
   PATH:lottery-participation
 
 
 --------------------------------------------------------------------------------
 RULE:link.newProducts
   TARGET:/catalog/Category.action
+  TARGET-TYPE: STRIPES
   PATH:neu
   PATH:new
   PATH:nieuw
@@ -1431,6 +1549,7 @@ RULE:link.newProducts
 --------------------------------------------------------------------------------
 RULE:link.partner.cms.block
   TARGET:/AjaxCmsBlock.action
+  TARGET-TYPE: STRIPES
   PATH:partner/cms-block
   PARAM:NAME=key
 
@@ -1438,6 +1557,7 @@ RULE:link.partner.cms.block
 --------------------------------------------------------------------------------
 RULE:link.pds
   TARGET:/catalog/ArticleDetail.action
+  TARGET-TYPE: STRIPES
   PATH:
   PARAM:NAME=urlKey;SUFFIX=.html
 
@@ -1445,6 +1565,7 @@ RULE:link.pds
 --------------------------------------------------------------------------------
 RULE:link.press
   TARGET:/Press.action
+  TARGET-TYPE: STRIPES
   PATH:press/index/post
   PATH:presse/index/poste
 
@@ -1452,6 +1573,7 @@ RULE:link.press
 --------------------------------------------------------------------------------
 RULE:link.recoreco
   TARGET:/RecoReco.action
+  TARGET-TYPE: STRIPES
   PATH:recoreco
   PARAM:NAME=**from input**;PATHVARIABLE=
 
@@ -1459,6 +1581,7 @@ RULE:link.recoreco
 --------------------------------------------------------------------------------
 RULE:link.recoreco.detail
   TARGET:/RecoReco.action
+  TARGET-TYPE: STRIPES
   PATH:recorecoDetail
   PARAM:NAME=ajaxShowDetailRecos;FIXEDVALUE=;FIRST=true
   PARAM:NAME=urlKey
@@ -1469,6 +1592,7 @@ RULE:link.recoreco.detail
 --------------------------------------------------------------------------------
 RULE:link.sizeChart.show
   TARGET:/catalog/SizeChart.action
+  TARGET-TYPE: STRIPES
   PATH:elenco-delle-taglie
   PATH:groessentabelle
   PATH:guide-tailles
@@ -1482,6 +1606,7 @@ RULE:link.sizeChart.show
 --------------------------------------------------------------------------------
 RULE:link.tracking.performance.config
   TARGET:/TrackingPerformance.action
+  TARGET-TYPE: STRIPES
   PATH:trackingperformance/config
   PARAM:NAME=config;FIXEDVALUE=;FIRST=true
 
@@ -1489,6 +1614,7 @@ RULE:link.tracking.performance.config
 --------------------------------------------------------------------------------
 RULE:link.tracking.performance.test
   TARGET:/TrackingPerformance.action
+  TARGET-TYPE: STRIPES
   PATH:trackingperformance
   PARAM:NAME=pixelId
   PARAM:NAME=pageId
@@ -1497,6 +1623,7 @@ RULE:link.tracking.performance.test
 --------------------------------------------------------------------------------
 RULE:link.cookie.test.start
   TARGET:/cookietest/CookieTest.action
+  TARGET-TYPE: STRIPES
   PATH:cookietest/start
   PARAM:NAME=start;FIXEDVALUE=;FIRST=true
   PARAM:NAME=paramTestContentMultiplier;OPTIONAL=true
@@ -1508,6 +1635,7 @@ RULE:link.cookie.test.start
 --------------------------------------------------------------------------------
 RULE:link.voucher
   TARGET:/checkout/Voucher.action
+  TARGET-TYPE: STRIPES
   PATH:buoni-regalo
   PATH:cheque-cadeau
   PATH:gavekort
@@ -1521,6 +1649,7 @@ RULE:link.voucher
 --------------------------------------------------------------------------------
 RULE:link.voucher.simpledropdown
   TARGET:/checkout/Voucher.action
+  TARGET-TYPE: STRIPES
   PATH:buoni-regalo/dropdown
   PATH:cheque-cadeau/dropdown
   PATH:gavekort/dropdown
@@ -1537,6 +1666,7 @@ RULE:link.voucher.simpledropdown
 --------------------------------------------------------------------------------
 RULE:link.voucher.defaultSelectForm
   TARGET:/checkout/Voucher.action
+  TARGET-TYPE: STRIPES
   PATH:buoni-regalo/defaultSelectForm
   PATH:cheque-cadeau/defaultSelectForm
   PATH:gavekort/defaultSelectForm
@@ -1552,48 +1682,56 @@ RULE:link.voucher.defaultSelectForm
 --------------------------------------------------------------------------------
 RULE:link.robots.txt
   TARGET:/seo/RobotsTxt.action
+  TARGET-TYPE: STRIPES
   PATH:robots.txt
 
 
 --------------------------------------------------------------------------------
 RULE:link.xml.sitemap
   TARGET:/seo/XmlSiteMap.action
+  TARGET-TYPE: STRIPES
   PATH:sitemap.xml
 
 
 --------------------------------------------------------------------------------
 RULE:link.400
   TARGET://WEB-INF/jsp/pages/static_pages/400.jsp
+  TARGET-TYPE: STATIC
   PATH:400
 
 
 --------------------------------------------------------------------------------
 RULE:link.404
   TARGET://WEB-INF/jsp/pages/static_pages/404.jsp
+  TARGET-TYPE: STATIC
   PATH:404
 
 
 --------------------------------------------------------------------------------
 RULE:link.500
   TARGET://WEB-INF/jsp/pages/static_pages/500.jsp
+  TARGET-TYPE: STATIC
   PATH:500
 
 
 --------------------------------------------------------------------------------
 RULE:link.test2
   TARGET:/searchtools/SearchDashboard.action
+  TARGET-TYPE: STRIPES
   PATH:searchdashboard
 
 
 --------------------------------------------------------------------------------
 RULE:link.test.searchstats
   TARGET:/searchtools/SearchStats.action
+  TARGET-TYPE: STRIPES
   PATH:searchstats
 
 
 --------------------------------------------------------------------------------
 RULE:link.test.updater
   TARGET:/Updater.action
+  TARGET-TYPE: STRIPES
   PATH:updater
   PARAM:NAME=**from input**;PATHVARIABLE=
 
@@ -1601,40 +1739,47 @@ RULE:link.test.updater
 --------------------------------------------------------------------------------
 RULE:link.test.queriesupload
   TARGET:/searchtools/QueriesUpload.action
+  TARGET-TYPE: STRIPES
   PATH:queriesupload
 
 
 --------------------------------------------------------------------------------
 RULE:link.test.testconcept
   TARGET:/searchtools/TestConcept.action
+  TARGET-TYPE: STRIPES
   PATH:testconcept
 
 
 --------------------------------------------------------------------------------
 RULE:link.test.sessiondata
   TARGET:/performance/SessionDataInfo.action
+  TARGET-TYPE: STRIPES
   PATH:sessiondata
 
 
 --------------------------------------------------------------------------------
 RULE:link.test.normalizeword
   TARGET:/searchtools/NormalizeWord.action
+  TARGET-TYPE: STRIPES
   PATH:normalizeword
 
 
 --------------------------------------------------------------------------------
 RULE:link.test.loadconcept
   TARGET:/searchtools/LoadConcept.action
+  TARGET-TYPE: STRIPES
   PATH:loadconcept
 
 
 --------------------------------------------------------------------------------
 RULE:link.test.testfeature
   TARGET:/searchtools/TestFeature.action
+  TARGET-TYPE: STRIPES
   PATH:testfeature
 
 --------------------------------------------------------------------------------
 RULE:link.springcontroller.test
   TARGET:/foo/bar/{baz}/phleem
+  TARGET-TYPE: SPRING
   PATH:wham
   PARAM:NAME=baz;PATHSEGMENT=1

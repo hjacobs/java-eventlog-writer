@@ -26,6 +26,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 
 import de.zalando.util.web.urlmapping.rule.NoOpMappingRule;
+import de.zalando.util.web.urlmapping.rule.RuleActivationPredicate;
 import de.zalando.util.web.urlmapping.util.Delimiter;
 
 public class RuleContextTest {
@@ -60,10 +61,11 @@ public class RuleContextTest {
             @Override
             public boolean matchesSafely(final RuleContext ruleContext) {
                 try {
-                    return ruleContext.mapRequest(request, new MockHttpServletResponse());
+                    return ruleContext.mapRequest(request, new MockHttpServletResponse(),
+                            RuleActivationPredicate.ALL_ACTIVE);
                 } catch (final UrlMappingException e) {
                     Assert.fail(Throwables.getStackTraceAsString(e));
-                    return false;                                                        // unreachable code
+                    return false;                                                       // unreachable code
                 }
             }
         };
@@ -88,6 +90,11 @@ public class RuleContextTest {
 
                 return "brrr";
             }
+
+            @Override
+            public Integer getPriority() {
+                return null;
+            }
         };
     }
 
@@ -97,6 +104,11 @@ public class RuleContextTest {
             public String getId() {
 
                 return "flapp";
+            }
+
+            @Override
+            public Integer getPriority() {
+                return null;
             }
 
             private static final long serialVersionUID = -3356043622642602886L;

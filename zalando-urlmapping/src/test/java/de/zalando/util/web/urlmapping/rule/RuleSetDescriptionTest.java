@@ -35,7 +35,6 @@ import com.google.common.base.Splitter.MapSplitter;
 import com.google.common.io.OutputSupplier;
 
 import de.zalando.util.web.urlmapping.RuleContext;
-import de.zalando.util.web.urlmapping.RuleContext.Builder;
 import de.zalando.util.web.urlmapping.UrlMappingException;
 
 public class RuleSetDescriptionTest {
@@ -76,7 +75,7 @@ public class RuleSetDescriptionTest {
     @Test
     public void testRuleContext() throws Exception {
         final List<RuleSetDescription> rules = createRules();
-        final Builder builder = RuleContext.builder();
+        final RuleContext.Builder builder = RuleContext.builder();
         for (final RuleSetDescription rule : rules) {
             rule.register(builder);
         }
@@ -101,7 +100,7 @@ public class RuleSetDescriptionTest {
     public void testRuleContextFromFile() throws Exception {
         final InputStream stream = RuleSetDescriptionTest.class.getResourceAsStream("/urlmappings.txt");
         final List<RuleSetDescription> rules = RuleSetDescription.deserialize(stream);
-        final Builder builder = RuleContext.builder();
+        final RuleContext.Builder builder = RuleContext.builder();
         for (final RuleSetDescription rule : rules) {
             rule.register(builder);
         }
@@ -114,24 +113,93 @@ public class RuleSetDescriptionTest {
         assertThat(ruleContext,
             maps("admin/login?customer=foo@foo.foo&admin=bar@bar.bar",
                 "/customer/AdminLogin.action?emailCombination=bar@bar.bar:foo@foo.foo"));
+
+        // testing the rule 'RULE:link.springcontroller.test'
         assertThat(ruleContext, maps("wham/bam", "/foo/bar/bam/phleem"));
 
     }
 
+    @Test
+    public void testRuleContextFromFileWithSpring() throws Exception {
+        final InputStream stream = RuleSetDescriptionTest.class.getResourceAsStream("/urlmappings2.txt");
+        final List<RuleSetDescription> rules = RuleSetDescription.deserialize(stream);
+        final RuleContext.Builder builder = RuleContext.builder();
+        for (final RuleSetDescription rule : rules) {
+            rule.register(builder);
+        }
+
+        final RuleContext ruleContext = builder.build();
+
+        // testing the rule 'RULE:link.springcontroller.test'
+        // assertThat(ruleContext, maps("wham/bam", "/foo/bar/bam/phleem"));
+        assertThat(ruleContext, maps("wham/bam?id=10", "/foo/bar/bam/phleem?id=10"));
+
+    }
+
+    @Test
+    public void testRuleContextWithRuleActivationPredicate() throws Exception {
+        final InputStream stream = RuleSetDescriptionTest.class.getResourceAsStream("/urlmappings2.txt");
+        final List<RuleSetDescription> rules = RuleSetDescription.deserialize(stream);
+        final RuleContext.Builder builder = RuleContext.builder();
+        for (final RuleSetDescription rule : rules) {
+            rule.register(builder);
+        }
+
+        final RuleContext ruleContext = builder.build();
+
+        // testing the rule 'RULE:link.springcontroller.test'
+        // assertThat(ruleContext, maps("wham/bam", "/foo/bar/bam/phleem"));
+        assertThat(ruleContext,
+            maps("wham/bam?id=10", "/foo/bar/fallback?id=10",
+                RuleActivationPredicate.Builder.deactivateById("link.springcontroller.test")));
+
+    }
+
+    /**
+     * Checks url-rewritings based on method.
+     *
+     * @throws  Exception
+     */
+    @Test
+    public void testRuleWithRequestMethod() throws Exception {
+        final InputStream stream = RuleSetDescriptionTest.class.getResourceAsStream("/urlmappings2.txt");
+        final List<RuleSetDescription> rules = RuleSetDescription.deserialize(stream);
+        final RuleContext.Builder builder = RuleContext.builder();
+        for (final RuleSetDescription rule : rules) {
+            rule.register(builder);
+        }
+
+        final RuleContext ruleContext = builder.build();
+
+        assertThat(ruleContext, maps("what/path", "/foo/bar1", RuleActivationPredicate.ALL_ACTIVE, "POST"));
+        assertThat(ruleContext, maps("what/path", "/foo/bar2", RuleActivationPredicate.ALL_ACTIVE, "GET"));
+
+    }
+
     private Matcher<RuleContext> maps(final String incoming, final String to) {
+        return maps(incoming, to, RuleActivationPredicate.ALL_ACTIVE, "");
+    }
+
+    private Matcher<RuleContext> maps(final String incoming, final String to, final RuleActivationPredicate predicate) {
+        return maps(incoming, to, predicate, "");
+    }
+
+    private Matcher<RuleContext> maps(final String incoming, final String to, final RuleActivationPredicate predicate,
+            final String requestMethod) {
         return new TypeSafeMatcher<RuleContext>() {
 
             @Override
             public void describeTo(final Description description) {
 
-                description.appendText("a mapping from ").appendValue(incoming).appendText(" to ").appendValue(to);
+                description.appendText("Expect a mapping from ").appendValue(incoming).appendText(" to ").appendValue(
+                    to);
             }
 
             @Override
             public boolean matchesSafely(final RuleContext context) {
                 final MockHttpServletResponse response = new MockHttpServletResponse();
                 try {
-                    if (context.mapRequest(request(incoming), response)) {
+                    if (context.mapRequest(request(incoming, requestMethod), response, predicate)) {
                         assertEquals(to, response.getForwardedUrl());
                         return true;
                     }
@@ -146,8 +214,12 @@ public class RuleSetDescriptionTest {
     }
 
     private MockHttpServletRequest request(final String url) {
+        return request(url, "");
+    }
 
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+    private MockHttpServletRequest request(final String url, final String method) {
+
+        final MockHttpServletRequest request = new MockHttpServletRequest(method, "");
         request.setServerName("www.zalando.de");
 
         final int queryOffset = url.indexOf('?');
@@ -171,6 +243,7 @@ public class RuleSetDescriptionTest {
 
     private RuleSetDescription updater() {
         final RuleSetDescription updater = new RuleSetDescription("link.test.updater");
+        updater.setTargetType(ForwardMappingRule.TargetType.STRIPES);
         updater.setTargetUrl("/Updater.action");
         updater.addPath("updater");
         updater.addPathKey("", true);
@@ -179,6 +252,7 @@ public class RuleSetDescriptionTest {
 
     private RuleSetDescription recoImage() {
         final RuleSetDescription recoImage = new RuleSetDescription("link.dynareco.image.sku");
+        recoImage.setTargetType(ForwardMappingRule.TargetType.STATIC);
         recoImage.setTargetUrl("/reco/DynaReco.action?image=");
         recoImage.addPath("katalog/recoimage.jpg");
         recoImage.addRequestParameter("sku", "sku").addRequestParameter("pos", "position");
@@ -187,6 +261,7 @@ public class RuleSetDescriptionTest {
 
     private RuleSetDescription adminLogin() {
         final RuleSetDescription adminLogin = new RuleSetDescription("link.admin.login.link");
+        adminLogin.setTargetType(ForwardMappingRule.TargetType.STRIPES);
         adminLogin.setTargetUrl("/customer/AdminLogin.action");
         adminLogin.addPath("admin/login");
         adminLogin.addAggregationParameter("emailCombination", ':', Arrays.asList("admin", "customer"));
@@ -195,6 +270,7 @@ public class RuleSetDescriptionTest {
 
     private RuleSetDescription orderCancelled() {
         final RuleSetDescription cancelled = new RuleSetDescription("link.checkout.canceled");
+        cancelled.setTargetType(ForwardMappingRule.TargetType.STRIPES);
         cancelled.setTargetUrl("/checkout/Final.action?cancel=");
         cancelled.addPath("kasse/abgebrochen");
         cancelled.addPath("paiement/annule");
@@ -204,6 +280,7 @@ public class RuleSetDescriptionTest {
 
     private RuleSetDescription someStupidPath() {
         final RuleSetDescription cancelled = new RuleSetDescription("link.some.stupid.path");
+        cancelled.setTargetType(ForwardMappingRule.TargetType.STRIPES);
         cancelled.setTargetUrl("/foo/bar/{baz}/phleem");
         cancelled.addPath("flapp/flupp");
         cancelled.addPath("wapp/wupp");
@@ -213,6 +290,7 @@ public class RuleSetDescriptionTest {
 
     private RuleSetDescription voucherSuccess() {
         final RuleSetDescription voucherSuccess = new RuleSetDescription("link.checkout.vouchers.success");
+        voucherSuccess.setTargetType(ForwardMappingRule.TargetType.STRIPES);
         voucherSuccess.setTargetUrl("/checkout/VoucherFinal.action?success=");
         voucherSuccess.addPath("kasse/geschenkgutscheine/bestellt");
         voucherSuccess.addPath("checkout/giftvouchers/ordered");

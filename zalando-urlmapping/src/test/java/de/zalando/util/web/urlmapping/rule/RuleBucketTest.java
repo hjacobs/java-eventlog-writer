@@ -2,12 +2,18 @@ package de.zalando.util.web.urlmapping.rule;
 
 import static java.util.Collections.emptyMap;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Map;
+
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 
 import org.junit.Test;
 
@@ -35,7 +41,55 @@ public class RuleBucketTest {
 
     }
 
+    @Test
+    public void testFindFlatRuleWithPriority() throws Exception {
+        final Builder builder = RuleBucket.builder();
+        builder.addRootRule(flatRule("foo"));
+        builder.addRootRule(flatRule("id1", "bar", 100));
+        builder.addRootRule(flatRule("id2", "bar", 200));
+
+        final RuleBucket bucket = builder.build();
+        assertNotNull(bucket.findRule(paramMapping("", "foo", "")));
+
+        assertThat(bucket.findRule(paramMapping("", "bar", "")), isMappedToRule("id1"));
+        assertThat(bucket.findRule(paramMapping(deactivate("id1"), "", "bar", "")), isMappedToRule("id2"));
+        assertThat(bucket.findRule(paramMapping(deactivate("id2"), "", "bar", "")), isMappedToRule("id1"));
+
+    }
+
+    private Matcher<? super MappingRule> isMappedToRule(final String id) {
+        return new BaseMatcher<MappingRule>() {
+            @Override
+            public boolean matches(final Object item) {
+                if (!(item instanceof MappingRule)) {
+                    return false;
+                }
+
+                return ((MappingRule) item).getId().equals(id);
+            }
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("Expect a mapping to rule with id ").appendValue(id);
+            }
+
+            @Override
+            public void describeMismatch(final Object item, final Description description) {
+                description.appendText("but was ").appendValue(item.toString());
+            }
+        };
+    }
+
+    private RuleActivationPredicate deactivate(final String id2deactivate) {
+        return RuleActivationPredicate.Builder.deactivateById(id2deactivate);
+    }
+
     private MappingContext paramMapping(final String path, final String... paramKeyValues) {
+        return paramMapping(RuleActivationPredicate.ALL_ACTIVE, path, paramKeyValues);
+    }
+
+    private MappingContext paramMapping(final RuleActivationPredicate rule, final String path,
+            final String... paramKeyValues) {
         checkArgument((paramKeyValues.length % 2) == 0, "Params must be supplied in key / value pairs!");
 
         Map<String, String> params;
@@ -53,10 +107,15 @@ public class RuleBucketTest {
         final MockHttpServletRequest request = new MockHttpServletRequest();
         request.setContextPath(path);
         request.setParameters(params);
-        return MappingContext.create(request, new MockHttpServletResponse());
+        return MappingContext.create(request, new MockHttpServletResponse(), rule);
     }
 
     private MappingRule flatRule(final String paramName) {
+        return flatRule(paramName, paramName, null);
+    }
+
+    private MappingRule flatRule(final String id, final String paramName, final Integer priority) {
+
         return new NoOpMappingRule() {
 
             private static final long serialVersionUID = -7621106177772996186L;
@@ -66,12 +125,26 @@ public class RuleBucketTest {
              */
             @Override
             public boolean appliesTo(final MappingContext mappingContext) {
+                if (!mappingContext.applyRuleActivationPredicate(this)) {
+                    return false;
+                }
+
                 return mappingContext.getRequest().getParameterMap().containsKey(paramName);
             }
 
             @Override
             public String getId() {
-                return paramName;
+                return id;
+            }
+
+            @Override
+            public Integer getPriority() {
+                return priority;
+            }
+
+            @Override
+            public String toString() {
+                return "mappingrule id: " + id;
             }
         };
     }
@@ -86,6 +159,11 @@ public class RuleBucketTest {
             @Override
             public String getId() {
                 return "noop";
+            }
+
+            @Override
+            public Integer getPriority() {
+                return null;
             }
         };
 
@@ -115,7 +193,7 @@ public class RuleBucketTest {
     private MappingContext context(final String path) {
         final MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(path);
-        return MappingContext.create(request, new MockHttpServletResponse());
+        return MappingContext.create(request, new MockHttpServletResponse(), RuleActivationPredicate.ALL_ACTIVE);
     }
 
 }

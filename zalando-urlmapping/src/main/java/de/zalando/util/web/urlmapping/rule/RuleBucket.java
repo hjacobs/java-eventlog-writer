@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
@@ -48,6 +49,14 @@ public class RuleBucket {
 
     private static class Node {
 
+        //J-
+        /**
+         * Ordering:
+         *      1. by Priority (if set)
+         *      2. by handler count
+         *      3. by id's
+         */
+        //J+
         private static final Comparator<MappingRule> COMPARATOR = new Ordering<MappingRule>() {
             @Override
             public String toString() {
@@ -56,8 +65,15 @@ public class RuleBucket {
 
             @Override
             public int compare(final MappingRule left, final MappingRule right) {
-                return ComparisonChain.start().compare(getRuleParams(left), getRuleParams(right))
-                                      .compare(left.getId(), right.getId()).result();
+                //J-
+                return ComparisonChain
+                        .start()
+                            .compare(   Optional.fromNullable(left.getPriority()).or(Integer.MAX_VALUE),
+                                        Optional.fromNullable(right.getPriority()).or(Integer.MAX_VALUE))
+                            .compare(getRuleParams(left), getRuleParams(right))
+                            .compare(left.getId(), right.getId())
+                       .result();
+                //J+
             }
 
             private int getRuleParams(final MappingRule mappingRule) {
@@ -213,7 +229,16 @@ public class RuleBucket {
             }
         }
 
+        // retrieve an order list of rules, where conditional orders come first
         for (final MappingRule rule : node.rules) {
+
+            // check activation predicate
+            if (!mappingContext.applyRuleActivationPredicate(rule)) {
+
+                // skip rules that do not apply the ActivationPredicate
+                continue;
+            }
+
             if (rule.appliesTo(mappingContext)) {
                 return rule;
             }

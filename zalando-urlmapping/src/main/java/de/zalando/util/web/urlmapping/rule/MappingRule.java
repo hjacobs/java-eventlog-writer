@@ -18,6 +18,11 @@ public interface MappingRule extends Serializable {
     String getId();
 
     /**
+     * Priority for rules with the same url.
+     */
+    Integer getPriority();
+
+    /**
      * Check whether the rule can be applied to the current context.
      */
     boolean appliesTo(MappingContext mappingContext);
