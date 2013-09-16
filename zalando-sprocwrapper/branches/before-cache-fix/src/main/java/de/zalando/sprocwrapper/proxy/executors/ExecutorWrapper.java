@@ -102,8 +102,6 @@ public class ExecutorWrapper implements Executor {
 
         try {
 
-            // use do get connection for SQLExceptions
-            // sameConnDs = new SameConnectionDatasource(DataSourceUtils.doGetConnection(ds));
             sameConnDs = new SameConnectionDatasource(ds.getConnection());
 
             setTimeout(sameConnDs.getConnection());

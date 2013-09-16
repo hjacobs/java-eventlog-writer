@@ -116,7 +116,11 @@ public class DbTypeRegister {
         if ("e".equals(typeType)) {
             type.addField(new DbTypeField(typeName, 1, "enum", "enum"));
         } else {
-            type.addField(new DbTypeField(fieldName, fieldPosition, fieldType, fieldTypeName));
+            if (null != fieldName) {
+                type.addField(new DbTypeField(fieldName, fieldPosition, fieldType, fieldTypeName));
+            } else {
+                LOG.warn(typeSchema + "." + typeName + " has no attributes!");
+            }
         }
     }
 
