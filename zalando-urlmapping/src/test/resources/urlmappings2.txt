@@ -1,0 +1,41 @@
+RULE:link.springcontroller.test
+  TARGET:/foo/bar/{baz}/phleem
+  TARGET-TYPE: SPRING
+  PATH:wham
+  PARAM:NAME=baz;PATHSEGMENT=1
+  PARAM:NAME=id;REQUESTPARAM=id
+
+RULE:link.springcontroller.test.fallback
+  TARGET:/foo/bar/fallback
+  TARGET-TYPE: SPRING
+  PATH:wham
+  PARAM:NAME=baz;PATHSEGMENT=1
+  PARAM:NAME=id;REQUESTPARAM=id
+
+----------------------------------------------------------------------------------
+
+RULE:link.springcontroller.method.post.test
+  TARGET:/foo/bar1
+  TARGET-TYPE: SPRING
+  METHOD: POST
+  PATH:what/path
+
+RULE:link.springcontroller.method.get.test
+  TARGET:/foo/bar2
+  TARGET-TYPE: SPRING
+  METHOD: GET
+  PATH:what/path
+
+----------------------------------------------------------------------------------
+
+RULE:link.stripesspring.spring.test
+  TARGET:/foo/bar/{baz}/phleem
+  TARGET-TYPE: SPRING
+  PATH:strspr
+  PARAM:NAME=baz;PATHSEGMENT=1
+
+RULE:link.stripesspring.stripes.test
+  TARGET:/foo/stripes.action
+  TARGET-TYPE: STRIPES
+  PATH:strspr
+  PARAM:NAME=baz;PATHSEGMENT=1
