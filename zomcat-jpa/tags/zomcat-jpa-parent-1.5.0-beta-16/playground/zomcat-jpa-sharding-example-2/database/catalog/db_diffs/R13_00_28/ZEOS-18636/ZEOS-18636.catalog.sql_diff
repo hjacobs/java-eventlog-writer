@@ -1,0 +1,23 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-18636.catalog');
+
+  SET role TO zalando;
+
+  ALTER TABLE zcat_data.article_simple_size_info
+   ADD COLUMN assi_supplier_size1 text,
+   ADD COLUMN assi_supplier_size2 text,
+   ADD COLUMN assi_supplier_size3 text,
+   ADD COLUMN assi_displayed_supplier_size text,
+   ADD COLUMN assi_sort_key1 integer,
+   ADD COLUMN assi_sort_key2 integer,
+   ADD COLUMN assi_sort_key3 integer;
+
+  RESET role;
+
+COMMIT;
+--ROLLBACK;
+

@@ -1,0 +1,18 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-12619.catalog.config');
+
+  SET role TO zalando;
+
+  insert into zcat_commons.app_config (ac_key, ac_value, ac_is_online_updateable)
+                               values ('serviceConfig.articleBulkUpdate.dir', '/data/zalando/storage/catalog/article-bulk-update/', true);
+
+  insert into zcat_commons.app_config (ac_key, ac_value, ac_is_online_updateable)
+                               values ('feature.articleBulkUpdate.verboseReport', 'on', true);
+
+  RESET role;
+
+COMMIT;

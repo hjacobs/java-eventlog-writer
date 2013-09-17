@@ -1,0 +1,14 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-8746.catalog');
+
+    set role to zalando;
+
+    raise exception 'Here a table from other project should be bootstrapped: zomcat-job/database/commons/10_data/04_tables/10_resource_lock.sql';
+
+    reset role;
+
+COMMIT;

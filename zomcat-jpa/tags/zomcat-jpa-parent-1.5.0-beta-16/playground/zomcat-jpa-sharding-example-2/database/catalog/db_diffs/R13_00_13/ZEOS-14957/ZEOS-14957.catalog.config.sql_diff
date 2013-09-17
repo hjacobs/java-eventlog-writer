@@ -1,0 +1,15 @@
+BEGIN;
+
+    select _v.register_patch ('ZEOS-14957.catalog.predeploy');
+
+    set role to zalando;
+
+    update zcat_commons.app_config
+        set ac_value = 'melanie.pries@zalando.de,melanie.domula@zalando.de,brian.gaulden@zalando.de,david.koenig@zalando.de,artur.weber@zalando.de,matthias.heurich@zalando.de,katharina.luxat@zalando.de,katharina.lokwenz@zalando-lounge.de,robert.plewa@zalando-lounge.de'
+        where ac_key = 'priceImport.noFallbacking.allowedUsers';
+
+    reset role;
+
+--ROLLBACK;
+--
+COMMIT;

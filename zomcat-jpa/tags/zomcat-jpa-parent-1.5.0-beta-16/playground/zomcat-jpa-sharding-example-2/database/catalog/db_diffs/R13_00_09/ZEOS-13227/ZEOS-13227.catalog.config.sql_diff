@@ -1,0 +1,25 @@
+BEGIN;
+
+
+
+    select _v.register_patch ('ZEOS-13227.catalog.predeploy');
+
+    set role to zalando;
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('feature.priceImport.noLayouting', 'off', true);
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('feature.priceImport.noFallbacking', 'off', true);
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('priceImport.noLayouting.allowedUsers', 'melanie.pries@zalando.de,melanie.domula@zalando.de,brian.gaulden@zalando.de,david.koenig@zalando.de,artur.weber@zalando.de,matthias.heurich@zalando.de,katharina.luxat@zalando.de', true);
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('priceImport.noFallbacking.allowedUsers', 'melanie.pries@zalando.de,melanie.domula@zalando.de,brian.gaulden@zalando.de,david.koenig@zalando.de,artur.weber@zalando.de,matthias.heurich@zalando.de,katharina.luxat@zalando.de, marie.kastirr@zalando-lounge.de,lucienne.dziekanski@zalando-lounge.de', true);
+
+    reset role;
+
+--ROLLBACK;
+--
+COMMIT;

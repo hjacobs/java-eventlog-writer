@@ -1,0 +1,28 @@
+BEGIN;
+
+  select _v.register_patch('ZEOS-17730.catalog');
+
+  SET role TO zalando;
+
+    ALTER TABLE zcat_commons.csv_import_state
+        ADD COLUMN cis_priority smallint;
+
+    ALTER TABLE zcat_commons.csv_import_state
+         ALTER COLUMN cis_original_file_name DROP NOT NULL;
+
+    ALTER TABLE zcat_commons.csv_import_state
+         ALTER COLUMN cis_file_name DROP NOT NULL;
+
+    UPDATE zcat_commons.csv_import_state
+            SET cis_original_file_name = NULL, cis_file_name = NULL
+            WHERE cis_original_file_name = 'wscall' OR cis_file_name like '%wscall%';
+
+    UPDATE zcat_commons.csv_import_state
+        SET cis_priority = 1
+        WHERE cis_priority IS NULL
+            AND cis_original_file_name IS NOT NULL
+            AND cis_file_name IS NOT NULL;
+
+  RESET role;
+-- ROLLBACK;
+COMMIT;

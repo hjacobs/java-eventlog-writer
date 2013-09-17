@@ -1,0 +1,53 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-18636.catalog.postdeploy');
+
+  SET role TO zalando;
+
+  RESET role;
+
+COMMIT;
+--ROLLBACK;
+
+VACUUM zcat_data.article_simple_size_info;
+
+-- this updates whole article_simple_size_info table, it's ~700k rows
+
+UPDATE zcat_data.article_simple_size_info
+   SET
+      assi_last_modified = now(),
+      assi_last_modified_by = 'ZEOS-18636',
+      assi_flow_id = 'ZEOS-18636',
+      assi_supplier_size1 = supplier_size1,
+      assi_supplier_size2 = supplier_size2,
+      assi_supplier_size3 = supplier_size3,
+      assi_displayed_supplier_size = displayed_supplier_size,
+      assi_sort_key1 = sort_key1,
+      assi_sort_key2 = sort_key2,
+      assi_sort_key3 = sort_key3
+  FROM (
+      SELECT
+          ass_article_simple_sku_id article_simple_sku_id,
+          min(CASE WHEN sdgb_position = 1 THEN size.s_supplier_size END) supplier_size1,
+          min(CASE WHEN sdgb_position = 2 THEN size.s_supplier_size END) supplier_size2,
+          min(CASE WHEN sdgb_position = 3 THEN size.s_supplier_size END) supplier_size3,
+          min(CASE WHEN sdgb_position = 1 THEN coalesce(size_dimension_prefix.sdp_value, '') || size.s_supplier_size END) ||
+                coalesce(min(CASE WHEN sdgb_position = 2 THEN coalesce(size_dimension_prefix.sdp_value, '') || size.s_supplier_size END), '') ||
+                coalesce(min(CASE WHEN sdgb_position = 3 THEN coalesce(size_dimension_prefix.sdp_value, '') || size.s_supplier_size END), '') displayed_supplier_size,
+          min(CASE WHEN sdgb_position = 1 THEN size.s_sort_key END) sort_key1,
+          min(CASE WHEN sdgb_position = 2 THEN size.s_sort_key END) sort_key2,
+          min(CASE WHEN sdgb_position = 3 THEN size.s_sort_key END) sort_key3
+        FROM zcat_data.article_simple_size article_simple_size
+        JOIN zcat_data.article_simple_size_info on assi_article_simple_sku_id = article_simple_size.ass_article_simple_sku_id
+        JOIN zcat_data.article_sku article_sku on (article_sku.as_id = article_simple_size.ass_article_simple_sku_id)
+        JOIN zcat_data.article_model am on (am.am_model_sku_id = article_sku.as_model_id)
+        JOIN zcat_commons.size size on (size.s_code = article_simple_size.ass_size_code and size.s_size_chart_code = ass_size_chart_code)
+        JOIN zcat_commons.size_chart size_chart on (size_chart.sc_code = article_simple_size.ass_size_chart_code)
+        JOIN zcat_commons.size_chart_group size_chart_group on (size_chart_group.scg_id = am.am_size_chart_group_id)
+        JOIN zcat_commons.size_dimension_group_binding size_chart_group_binding on (size_chart_group_binding.sdgb_group_id = scg_dimension_group_id and sdgb_code = size_chart.sc_dimension_code)
+        LEFT JOIN zcat_commons.size_dimension_prefix size_dimension_prefix on (size_dimension_prefix.sdp_id = size_chart_group_binding.sdgb_prefix_id)
+       GROUP BY ass_article_simple_sku_id) size_info
+ WHERE assi_article_simple_sku_id = size_info.article_simple_sku_id;

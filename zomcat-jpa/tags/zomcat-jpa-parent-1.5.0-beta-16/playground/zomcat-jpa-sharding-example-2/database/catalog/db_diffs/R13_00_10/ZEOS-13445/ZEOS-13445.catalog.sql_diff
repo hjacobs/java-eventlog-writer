@@ -1,0 +1,15 @@
+BEGIN;
+
+    -- $Id: $
+    -- $HeadURL: $
+
+    SELECT _v.register_patch('ZEOS-13445.catalog');
+
+    SET role TO zalando;
+
+    ALTER TABLE zcat_commons.price_level ALTER COLUMN pl_is_promotional SET DEFAULT FALSE;
+COMMIT;
+
+UPDATE zcat_commons.price_level SET pl_is_promotional = FALSE WHERE pl_is_promotional IS NULL;
+
+ALTER TABLE zcat_commons.price_level ALTER COLUMN pl_is_promotional SET NOT NULL;

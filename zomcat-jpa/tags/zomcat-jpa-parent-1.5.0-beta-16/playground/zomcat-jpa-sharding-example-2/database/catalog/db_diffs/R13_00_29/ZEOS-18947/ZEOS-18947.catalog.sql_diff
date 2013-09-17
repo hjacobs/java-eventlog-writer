@@ -1,0 +1,16 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-18947.catalog');
+
+  SET role TO zalando;
+
+  \i database/catalog/10_data/04_tables/40_multimedia.sql
+  \i database/catalog/10_data/04_tables/77_article_facet_multimedia.sql
+
+  RESET role;
+
+COMMIT;
+--ROLLBACK;

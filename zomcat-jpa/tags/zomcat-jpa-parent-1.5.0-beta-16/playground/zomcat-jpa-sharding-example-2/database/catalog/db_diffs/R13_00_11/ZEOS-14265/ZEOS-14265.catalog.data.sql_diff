@@ -1,0 +1,17 @@
+BEGIN;
+
+-- $Id$
+-- $HeadURL$
+
+select _v.register_patch('ZEOS-14265.catalog.data');
+
+SET role TO zalando;
+
+    INSERT INTO zcat_commons.option_value (ov_id, ov_option_type, ov_code, ov_name_message_key, ov_is_active, ov_created_by, ov_last_modified_by)
+    VALUES
+    (320, 'TREND', 'DENIM',               'option_value.TREND.DENIM.name',               false, 'bootstrap', 'bootstrap'),
+    (321, 'TREND', 'FEMININE_SILHOUETTE', 'option_value.TREND.FEMININE_SILHOUETTE.name', false, 'bootstrap', 'bootstrap');
+
+RESET role;
+
+COMMIT;

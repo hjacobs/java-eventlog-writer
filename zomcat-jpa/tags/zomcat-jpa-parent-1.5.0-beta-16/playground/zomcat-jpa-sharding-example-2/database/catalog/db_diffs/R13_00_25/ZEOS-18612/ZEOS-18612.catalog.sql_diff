@@ -1,0 +1,18 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch('ZEOS-18612.catalog');
+
+    -- set role to zalando;
+
+    set role to zalando_api_owner;
+    set search_path to zcat_api_r13_00_25, public;
+
+    \i database/catalog/20_api/05_stored_procedures/60_article_export_get_articles_to_export.sql
+
+    RESET role;
+
+COMMIT;
+--ROLLBACK;

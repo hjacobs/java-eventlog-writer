@@ -1,0 +1,23 @@
+BEGIN;
+
+    -- $ID: $
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-16180.catalog.postdeploy');
+
+    set role to zalando;
+
+-- rollback;
+COMMIT;
+
+VACUUM zcat_data.price_definition;
+
+UPDATE zcat_data.price_definition
+   SET pd_created_by = 'bootstrap',
+       pd_last_modified_by = 'bootstrap',
+       pd_flow_id = 'bootstrap'
+ WHERE pd_created_by IS NULL or pd_last_modified_by IS NULL or pd_flow_id IS NULL;
+
+ALTER TABLE zcat_data.price_definition ALTER COLUMN pd_created_by SET NOT NULL;
+ALTER TABLE zcat_data.price_definition ALTER COLUMN pd_last_modified_by SET NOT NULL;
+ALTER TABLE zcat_data.price_definition ALTER COLUMN pd_flow_id SET NOT NULL;

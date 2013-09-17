@@ -1,0 +1,363 @@
+BEGIN;
+
+  SELECT _v.register_patch('ZEOS-12240.catalog');
+
+  SET role TO zalando;
+
+  \i database/catalog/05_commons/04_tables/07_plr_price_change_method.sql
+  \i database/catalog/05_commons/04_tables/08_plr_price_change_information.sql
+  \i database/catalog/05_commons/04_tables/09_plr_article_classification.sql
+
+  \i database/catalog/10_data/04_tables/10_price_level_reason_code.sql
+
+  -- update price_definition
+  ALTER TABLE zcat_data.price_definition
+   ADD COLUMN pd_price_level_reason_code_id integer;
+
+     ALTER TABLE zcat_data.price_definition
+  ADD CONSTRAINT price_definition_pd_price_level_reason_code_id_fkey
+     FOREIGN KEY (pd_price_level_reason_code_id)
+      REFERENCES zcat_data.price_level_reason_code (plrc_id)
+           MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+  -- update price_current
+  ALTER TABLE zcat_data.price_current
+   ADD COLUMN pc_source_price_level_reason_code_id integer;
+
+     ALTER TABLE zcat_data.price_current
+  ADD CONSTRAINT price_current_pc_source_price_level_reason_code_id_fkey
+     FOREIGN KEY (pc_source_price_level_reason_code_id)
+      REFERENCES zcat_data.price_level_reason_code (plrc_id)
+           MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+  ALTER TABLE zcat_data.price_current
+   ADD COLUMN pc_source_promotional_price_level_reason_code_id integer;
+
+     ALTER TABLE zcat_data.price_current
+  ADD CONSTRAINT price_current_pc_source_promotional_price_level_reason_code_fkey
+     FOREIGN KEY (pc_source_promotional_price_level_reason_code_id)
+      REFERENCES zcat_data.price_level_reason_code (plrc_id)
+           MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+  -- update price_archive
+  ALTER TABLE zcat_data.price_archive
+   ADD COLUMN pa_source_price_level_reason_code_id integer;
+
+     ALTER TABLE zcat_data.price_archive
+  ADD CONSTRAINT price_archive_pa_source_price_level_reason_code_id_fkey
+     FOREIGN KEY (pa_source_price_level_reason_code_id)
+      REFERENCES zcat_data.price_level_reason_code (plrc_id)
+           MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+  ALTER TABLE zcat_data.price_archive
+   ADD COLUMN pa_source_promotional_price_level_reason_code_id integer;
+
+     ALTER TABLE zcat_data.price_archive
+  ADD CONSTRAINT price_archive_pa_source_promotional_price_level_reason_code_fkey
+     FOREIGN KEY (pa_source_promotional_price_level_reason_code_id)
+      REFERENCES zcat_data.price_level_reason_code (plrc_id)
+           MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+-- ROLLBACK;
+COMMIT;
+
+-- insert start data
+INSERT INTO zcat_commons.plr_price_change_method(plrpcm_value, plrpcm_description)
+     VALUES ('1', 'Performance'),
+            ('2', 'Marketing'),
+            ('3', 'Assortment'),
+            ('4', 'Competition');
+
+INSERT INTO zcat_commons.plr_price_change_information(plrpci_value, plrpci_description)
+     VALUES ('000', 'None'),
+            ('011', 'Initial Discount'),
+            ('012', 'Further Discount'),
+            ('013', 'Sale'),
+            ('021', 'Category Management'),
+            ('022', 'Newsletter'),
+            ('023', 'Print'),
+            ('024', 'Campaigns'),
+            ('025', 'Others'),
+            ('031', 'Testing'),
+            ('041', 'Brandshop'),
+            ('042', 'Amazon'),
+            ('043', 'Asos'),
+            ('044', 'La Redoute'),
+            ('045', 'Nelly'),
+            ('046', 'Otto.de'),
+            ('047', 'Sarenza'),
+            ('048', '3 Suisses'),
+            ('049', 'Yoox'),
+            ('050', 'Spartoo'),
+            ('051', 'Next');
+
+INSERT INTO zcat_commons.plr_article_classification(plrac_value, plrac_description)
+     VALUES ('0', 'None'),
+            ('1', 'Risk Pool'),
+            ('2', 'Key Value Item');
+
+-- excute on all shards
+INSERT INTO zcat_data.price_level_reason_code(plrc_value)
+     VALUES ('1000000'),
+            ('2000000'),
+            ('2022000'),
+            ('2023000'),
+            ('2024000'),
+            ('2025000'),
+            ('3000000'),
+            ('3021000'),
+            ('3031000'),
+            ('4000000');
+
+-- migrate existing price_definitions
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '1000000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0001', 'PLR0011'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2000000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0003', 'PLR0013'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2022000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0023', 'PLR0033'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2023000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0024', 'PLR0034'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2024000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0025', 'PLR0035'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2025000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0026', 'PLR0036'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3000000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0004', 'PLR0014'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3021000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0022', 'PLR0032'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3031000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0021', 'PLR0031'));
+
+UPDATE zcat_data.price_definition
+   SET pd_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '4000000')
+ WHERE pd_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0002', 'PLR0012'));
+
+-- migrate existing prices in price_current
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '1000000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0001', 'PLR0011'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '1000000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0001', 'PLR0011'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2000000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0003', 'PLR0013'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2000000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0003', 'PLR0013'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2022000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0023', 'PLR0033'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2022000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0023', 'PLR0033'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2023000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0024', 'PLR0034'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2023000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0024', 'PLR0034'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2024000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0025', 'PLR0035'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2024000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0025', 'PLR0035'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2025000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0026', 'PLR0036'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2025000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0026', 'PLR0036'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3000000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0004', 'PLR0014'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3000000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0004', 'PLR0014'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3021000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0022', 'PLR0032'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3021000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0022', 'PLR0032'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3031000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0021', 'PLR0031'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3031000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0021', 'PLR0031'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '4000000')
+ WHERE pc_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0002', 'PLR0012'));
+
+UPDATE zcat_data.price_current
+   SET pc_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '4000000')
+ WHERE pc_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0002', 'PLR0012'));
+
+-- migrate existing prices in price_archive
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '1000000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0001', 'PLR0011'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '1000000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0001', 'PLR0011'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2000000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0003', 'PLR0013'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2000000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0003', 'PLR0013'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2022000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0023', 'PLR0033'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2022000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0023', 'PLR0033'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2023000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0024', 'PLR0034'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2023000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0024', 'PLR0034'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2024000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0025', 'PLR0035'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2024000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0025', 'PLR0035'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2025000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0026', 'PLR0036'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '2025000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0026', 'PLR0036'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3000000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0004', 'PLR0014'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3000000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0004', 'PLR0014'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3021000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0022', 'PLR0032'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3021000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0022', 'PLR0032'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3031000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0021', 'PLR0031'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '3031000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0021', 'PLR0031'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '4000000')
+ WHERE pa_source_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0002', 'PLR0012'));
+
+UPDATE zcat_data.price_archive
+   SET pa_source_promotional_price_level_reason_code_id = (SELECT plrc_id FROM zcat_data.price_level_reason_code WHERE plrc_value = '4000000')
+ WHERE pa_source_promotional_price_level_reason_id
+    IN (SELECT plr_id FROM zcat_commons.price_level_reason WHERE plr_code IN ('PLR0002', 'PLR0012'));
