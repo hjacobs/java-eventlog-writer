@@ -1,0 +1,21 @@
+INSERT INTO zcat_commons.color_family (cf_code, cf_name_message_key, cf_created_by, cf_last_modified_by)
+                               VALUES ('A',     'color_family.000',  'foo',         'bar' ),
+                                      ('L',     'color_family.550',  'foo',         'bar' ),
+                                      ('D',     'color_family.150',  'foo',         'bar' ),
+                                      ('Q',     'color_family.800',  'foo',         'bar' ),
+                                      ('G',     'color_family.300',  'foo',         'bar' ),
+                                      ('J',     'color_family.450',  'foo',         'bar' ),
+                                      ('P',     'color_family.750',  'foo',         'bar' ),
+                                      ('H',     'color_family.350',  'foo',         'bar' ),
+                                      ('N',     'color_family.650',  'foo',         'bar' ),
+                                      ('T',     'color_family.950',  'foo',         'bar' ),
+                                      ('I',     'color_family.400',  'foo',         'bar' ),
+                                      ('M',     'color_family.600',  'foo',         'bar' ),
+                                      ('C',     'color_family.100',  'foo',         'bar' ),
+                                      ('F',     'color_family.250',  'foo',         'bar' ),
+                                      ('E',     'color_family.200',  'foo',         'bar' ),
+                                      ('O',     'color_family.700',  'foo',         'bar' ),
+                                      ('K',     'color_family.500',  'foo',         'bar' ),
+                                      ('B',     'color_family.050',  'foo',         'bar' ),
+                                      ('S',     'color_family.900',  'foo',         'bar' );
+

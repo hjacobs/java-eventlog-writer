@@ -1,0 +1,18 @@
+BEGIN;
+
+  select _v.register_patch('ZEOS-17521.catalog');
+
+  SET role TO zalando;
+
+  INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+      VALUES ('jobConfig.priceImportEmailJob.limit', '1000', true),
+             ('jobConfig.priceImportEmailJob.active', 'true', true),
+             ('jobConfig.priceImportEmailJob.appInstanceKey', '*', true),
+             ('jobConfig.priceImportEmailJob.threadCount', '4', true);
+
+  RESET role;
+
+-- ROLLBACK;
+COMMIT;
+  ALTER TYPE zcat_commons.csv_import_status ADD VALUE 'EMAIL_SUCCESSFUL' after 'FAILED';
+  ALTER TYPE zcat_commons.csv_import_status ADD VALUE 'EMAIL_FAILED' after 'EMAIL_SUCCESSFUL';

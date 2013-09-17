@@ -1,0 +1,15 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-14926.catalog');
+
+  SET role TO zalando;
+
+  ALTER TABLE zcat_commons.size_chart ALTER COLUMN sc_code TYPE text;
+
+  RESET role;
+
+COMMIT;
+--ROLLBACK;

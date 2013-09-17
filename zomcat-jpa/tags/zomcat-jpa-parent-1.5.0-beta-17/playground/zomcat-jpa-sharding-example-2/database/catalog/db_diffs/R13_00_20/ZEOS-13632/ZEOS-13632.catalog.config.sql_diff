@@ -1,0 +1,33 @@
+BEGIN;
+
+    select _v.register_patch ('ZEOS-13632.catalog.predeploy');
+
+    set role to zalando;
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('feature.priceImport.newArchitecture', 'off', true);
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+        VALUES ('jobConfig.priceImportRequestJob.appInstanceKey', '*', true);
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+        VALUES ('jobConfig.priceImportCommitJob.appInstanceKey', '*', true);
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+        VALUES ('jobConfig.priceImportCommitJob.limit', '1000', true);
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+        VALUES ('jobConfig.priceImportRequestJob.limit', '1', true);
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+        VALUES ('jobConfig.priceImportRequestJob.active', 'true', true);
+        VALUES ('jobConfig.priceImportCommitJob.active', 'true', true);
+
+
+
+    reset role;
+
+--ROLLBACK;
+--
+COMMIT;
+
