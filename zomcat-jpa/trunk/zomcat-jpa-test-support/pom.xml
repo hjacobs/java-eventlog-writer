@@ -3,7 +3,7 @@
     <parent>
         <groupId>de.zalando</groupId>
         <artifactId>zomcat-jpa-parent</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>1.5.0-beta-16</version>
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zomcat-jpa-test-support</artifactId>
