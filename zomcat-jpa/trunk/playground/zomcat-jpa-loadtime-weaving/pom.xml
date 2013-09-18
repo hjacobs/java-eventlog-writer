@@ -17,7 +17,6 @@
     <properties>
         <!-- DONT KNOW WHY THIS IS NOT TAKEN FROM THE PARENT -->
         <zomcat.jpa.version>1.5.0-SNAPSHOT</zomcat.jpa.version>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
         <dependency>
