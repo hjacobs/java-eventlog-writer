@@ -9,7 +9,6 @@
    <version>0.1-SNAPSHOT</version>
    <description>Example minimal job manager project</description>
    <properties>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <organization>
       <name>Zalando/Technology/Platform</name>
