@@ -9,7 +9,6 @@
     <name>Zomcat JPA EclipseLink Sharding Support</name>
     <description>Zomcat JPA EclipseLink Sharding Support</description>
     <properties>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <organization>
         <name>Zalando/Technology/Application Strategy &amp; Architecture</name>
