@@ -22,11 +22,11 @@
         <name>Zalando/Technology/Shop/Channels/App</name>
     </organization>
 
-    <modules>
-        <module>jsonschema2pojo-core</module>
-        <module>jsonschema2pojo-cli</module>
-        <module>jsonschema2pojo-maven-plugin</module>
-    </modules>
+    <!--<modules>-->
+        <!--<module>jsonschema2pojo-core</module>-->
+        <!--<module>jsonschema2pojo-cli</module>-->
+        <!--<module>jsonschema2pojo-maven-plugin</module>-->
+    <!--</modules>-->
 
     <developers>
         <developer>
