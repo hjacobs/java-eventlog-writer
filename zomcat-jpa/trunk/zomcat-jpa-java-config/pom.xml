@@ -12,7 +12,6 @@
     </organization>
     <description>Spring-Data-JPA Auditing Java Config</description>
     <properties>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
         <dependency>
