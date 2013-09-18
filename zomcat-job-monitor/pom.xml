@@ -33,7 +33,6 @@
         <url>https://svn.zalando.de/reboot-libs/zomcat-job-monitor/trunk)</url>
     </scm>
     <properties>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <build />
     <mailingLists>
