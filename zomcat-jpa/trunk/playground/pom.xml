@@ -16,7 +16,6 @@
     </organization>
     <properties>
         <zomcat.jpa.version>1.5.0-SNAPSHOT</zomcat.jpa.version>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <modules>
         <module>zomcat-jpa-example</module>
