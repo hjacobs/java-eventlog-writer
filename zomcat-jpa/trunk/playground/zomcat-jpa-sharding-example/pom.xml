@@ -18,7 +18,6 @@
         <test.db.host>localhost</test.db.host>
         <test.db.port>5434</test.db.port>
         <test.src.dir>src/test/java</test.src.dir>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
         <dependency>
