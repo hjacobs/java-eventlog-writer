@@ -19,7 +19,6 @@
         <test.db.port>5434</test.db.port>
         <test.db.name>local_zomcat_jpa_db</test.db.name>
         <test.src.dir>src/test/java</test.src.dir>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <dependencies>
         <dependency>
