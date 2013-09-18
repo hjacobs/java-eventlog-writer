@@ -54,7 +54,6 @@
         <maven.version>2.2.1</maven.version>
         <eclipselink.version>2.4.1</eclipselink.version>
         <jpa.version>2.0.0</jpa.version>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
 
     <dependencies>
