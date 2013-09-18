@@ -7,17 +7,18 @@ import static org.junit.Assert.assertThat;
 import static de.zalando.util.web.urlmapping.domain.MappingConstants.OPTIONAL_WILDCARD;
 import static de.zalando.util.web.urlmapping.domain.MappingConstants.WILDCARD;
 
+import java.io.ByteArrayInputStream;
+
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.junit.internal.matchers.TypeSafeMatcher;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -27,6 +28,7 @@ import com.google.common.base.Throwables;
 
 import de.zalando.util.web.urlmapping.rule.NoOpMappingRule;
 import de.zalando.util.web.urlmapping.rule.RuleActivationPredicate;
+import de.zalando.util.web.urlmapping.rule.RuleSetDescription;
 import de.zalando.util.web.urlmapping.util.Delimiter;
 
 public class RuleContextTest {
@@ -50,6 +52,26 @@ public class RuleContextTest {
         assertThat(ruleContext, hasAMappingFor(request("baz/phleem", "foo")));
     }
 
+    @Test
+    public void testComplex() {
+
+        //J-
+        final ByteArrayInputStream stream = new ByteArrayInputStream(
+                ("RULE:link.stripesspring.spring.test\n" +
+                 "  TARGET:/foo/bar/{urlkey}\n" +
+                 "  TARGET-TYPE: SPRING\n" +
+                 "  PATH:/helo\n" +
+                 "  PARAM:NAME=urlkey;PATHSEGMENT=0;").getBytes());
+        //J+
+        final RuleContext.Builder builder = RuleContext.builder();
+        for (final RuleSetDescription ruleSetDescription : RuleSetDescription.deserialize(stream)) {
+            ruleSetDescription.register(builder);
+        }
+
+        RuleContext ruleContext = builder.build();
+        assertThat(ruleContext, hasAMappingFor(request("/helo/what", "/foo/bar/what")));
+    }
+
     private Matcher<RuleContext> hasAMappingFor(final HttpServletRequest request) {
         return new TypeSafeMatcher<RuleContext>() {
 
@@ -65,15 +87,17 @@ public class RuleContextTest {
                             RuleActivationPredicate.ALL_ACTIVE);
                 } catch (final UrlMappingException e) {
                     Assert.fail(Throwables.getStackTraceAsString(e));
-                    return false;                                                       // unreachable code
+                    return false; // unreachable code
                 }
             }
+
         };
     }
 
     private HttpServletRequest request(final String path, final String... parameters) {
         final MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setContextPath(path);
+        request.setContextPath("/");
+        request.setRequestURI(path);
         for (final String param : parameters) {
             request.addParameter(param, "");
         }
