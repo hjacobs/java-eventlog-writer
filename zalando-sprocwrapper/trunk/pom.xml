@@ -17,7 +17,6 @@
         such as enums and hstore.
     </description>
     <properties>
-        <project.build_env.maven>maven3</project.build_env.maven>
     </properties>
     <organization>
         <name>Zalando/Technology/Platform</name>
