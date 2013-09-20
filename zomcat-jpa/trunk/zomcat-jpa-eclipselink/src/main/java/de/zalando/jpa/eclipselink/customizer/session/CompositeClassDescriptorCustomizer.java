@@ -45,7 +45,7 @@ final class CompositeClassDescriptorCustomizer implements ClassDescriptorCustomi
      *
      * @return
      */
-    static ClassDescriptorCustomizer build(final ClassDescriptorCustomizer... classDescriptorCustomizers) {
+    public static ClassDescriptorCustomizer build(final ClassDescriptorCustomizer... classDescriptorCustomizers) {
         CompositeClassDescriptorCustomizer composite = new CompositeClassDescriptorCustomizer();
         composite.customizers.addAll(Lists.newArrayList(
                 Iterables.filter(Arrays.asList(classDescriptorCustomizers), Predicates.notNull())));
@@ -59,7 +59,7 @@ final class CompositeClassDescriptorCustomizer implements ClassDescriptorCustomi
      *
      * @return
      */
-    static ClassDescriptorCustomizer build(final List<ClassDescriptorCustomizer> classDescriptorCustomizers) {
+    public static ClassDescriptorCustomizer build(final List<ClassDescriptorCustomizer> classDescriptorCustomizers) {
         return build(classDescriptorCustomizers.toArray(new ClassDescriptorCustomizer[0]));
     }
 
