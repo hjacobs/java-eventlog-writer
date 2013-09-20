@@ -18,7 +18,6 @@ import static de.zalando.util.web.urlmapping.util.Delimiter.COMMA;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.Writer;
 
 import java.text.MessageFormat;
@@ -26,35 +25,33 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.type.TypeReference;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.common.io.CharStreams;
-import com.google.common.io.InputSupplier;
-import com.google.common.io.LineProcessor;
 import com.google.common.io.OutputSupplier;
-import com.google.common.primitives.Ints;
 
 import de.zalando.util.web.urlmapping.RuleContext;
 import de.zalando.util.web.urlmapping.builder.PathBuilder;
-import de.zalando.util.web.urlmapping.domain.MappingConstants;
 import de.zalando.util.web.urlmapping.param.Handler;
 import de.zalando.util.web.urlmapping.param.PathParamHandler;
 import de.zalando.util.web.urlmapping.param.PathParamHandlers;
@@ -70,71 +67,43 @@ import de.zalando.util.web.urlmapping.util.Helper;
  *
  * @author  Sean Patrick Floyd (sean.floyd@zalando.de)
  */
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
 public class RuleSetDescription {
 
-    private static final String PATH_PREFIX = "PATH:";
-    private static final String RULE_PREFIX = "RULE:";
-    private static final String RULE_PRIORITY = "PRIORITY:";
-    private static final String TARGET_PREFIX = "TARGET:";
-    private static final String PARAM_PREFIX = "PARAM:";
-    private static final String METHOD_PREFIX = "METHOD:";
-    private static final String TARGETTYPE_PREFIX = "TARGET-TYPE:";
+    static final String NEWLINE = "\n";
+    static final String INDENT = "  ";
 
-    private static final String NEWLINE = "\n";
-    private static final String INDENT = "  ";
-
-    private static final MapJoiner MAP_JOINER = Joiner.on(';').withKeyValueSeparator("=");
-
-    private final String id;
+    private String id;
 
     private Integer priority;
 
+    private TreeSet<String> paths = Sets.newTreeSet();
+
+    @JsonProperty
     private List<Parameter> parameters = ImmutableList.of();
-    private final Set<String> paths = Sets.newTreeSet();
-    private String targetUrl;
 
-    /**
-     * This specifies the target-type.
-     */
-    private ForwardMappingRule.TargetType targetType;
+    @JsonProperty
+    private List<RuleMappingTarget> ruleMappingTargets = newArrayList();
 
-    /**
-     * This specifies the request-method for which this rule should be applied: GET, POST, or PUT. Same as the value of
-     * the CGI variable REQUEST_METHOD.<br />
-     * NOTE: this is a string type like the corresponding attribute in HttpServletRequest.
-     */
-    private String requestMethod;
-
-    enum ParamKey {
-        NAME,
-        PREFIX,
-        SUFFIX,
-        REQUESTPARAM,
-        OPTIONAL,
-        AGGREGATE,
-        FIXEDVALUE,
-        FIRST,
-        PATHVARIABLE,
-        PATHSEGMENT,
-        SEO;
-
-        public static ParamKey get(final String key) {
-            for (final ParamKey candidate : values()) {
-                if (candidate.name().equalsIgnoreCase(key)) {
-                    return candidate;
-                }
-            }
-
-            return null;
+    private static final Ordering<Parameter> PARAMETER_ORDERING = new Ordering<Parameter>() {
+        //J-
+        @Override
+        public int compare(final Parameter left, final Parameter right) {
+            return com.google.common.collect.ComparisonChain.start()
+                    .compareTrueFirst(right.isAnyTypeOfPathParam(), left.isAnyTypeOfPathParam())
+                    .compareFalseFirst(left.optional, right.optional)
+                    .result();
         }
-    }
+        //J+
+    };
 
     @Override
     public boolean equals(final Object obj) {
         if (obj instanceof RuleSetDescription) {
             final RuleSetDescription other = (RuleSetDescription) obj;
-            return Objects.equal(id, other.id) && Objects.equal(getTargetUrl(), other.getTargetUrl())
-                    && Objects.equal(paths, other.paths) && Objects.equal(parameters, other.parameters);
+            return Objects.equal(id, other.id) && Objects.equal(paths, other.paths)
+                    && Objects.equal(parameters, other.parameters)
+                    && Objects.equal(ruleMappingTargets, other.ruleMappingTargets);
         } else {
             return false;
         }
@@ -142,42 +111,24 @@ public class RuleSetDescription {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, getTargetUrl(), paths, parameters);
+        return Objects.hashCode(id, paths, parameters, ruleMappingTargets);
     }
 
     @Override
     public String toString() {
 
-        return Objects.toStringHelper(this).add("id", id).add("targetUrl", getTargetUrl())
-                      .add("target-type: ", targetType.name()).add("paths", paths).add("parameters", parameters)
-                      .add("request-method:", requestMethod).toString();
+        return Objects.toStringHelper(this).add("id", id).add("paths", paths)
+                      .add("ruleMappingTargets", ruleMappingTargets).toString();
     }
+
+    RuleSetDescription() { }
 
     public RuleSetDescription(final String id) {
         this.id = id;
     }
 
-    private static final Ordering<Parameter> PARAMETER_ORDERING = new Ordering<Parameter>() {
-//J-
-        @Override
-        public int compare(final Parameter left, final Parameter right) {
-            return com.google.common.collect.ComparisonChain.start()
-                                  .compareTrueFirst(right.isAnyTypeOfPathParam(), left.isAnyTypeOfPathParam())
-                                  .compareFalseFirst(left.optional, right.optional)
-                                  .result();
-        }
-//J+
-    };
-
-    public void sortParams() {
-
-        // path params before non-path params
-        Collections.sort(parameters, PARAMETER_ORDERING);
-    }
-
     public void checkIntegrity() {
         checkState(id != null, "No Id defined in rule");
-        checkState(!Strings.isNullOrEmpty(getTargetUrl()), "No target URL defined in rule");
         checkState(!paths.isEmpty(), "No paths defined in rule");
 
         int lastLength = -1;
@@ -189,6 +140,10 @@ public class RuleSetDescription {
             } else {
                 checkState(thisLength == lastLength, "Rule contains paths of different lengths: ", paths);
             }
+        }
+
+        for (final RuleMappingTarget variant : ruleMappingTargets) {
+            variant.checkIntegrity(id);
         }
     }
 
@@ -208,12 +163,140 @@ public class RuleSetDescription {
         return this;
     }
 
-    private List<Parameter> prepareParams() {
+    /**
+     * Register this Rule Description with a RuleContext Builder.
+     */
+    public void register(final RuleContext.Builder contextBuilder) {
+        checkIntegrity();
+
+        final int length = calculatePathLength(Iterables.get(paths, 0));
+
+        for (RuleMappingTarget var : ruleMappingTargets) {
+
+            Iterable<Parameter> parameters = sortParams();
+
+            final List<Handler> allHandlers = ImmutableList.copyOf(Iterables.transform(parameters,
+                        Parameter.HANDLER_FUNCTION));
+            final MappingRule rule = new ForwardMappingRule(id, priority, var.getTargetUrl(), length, allHandlers,
+                    var.getTargetType(), var.getRequestMethod());
+
+            for (final String basePath : paths) {
+                final PathBuilder builder = new PathBuilder();
+                for (final String pathItem : splitPath(basePath)) {
+                    builder.add(pathItem);
+                }
+
+                for (final Parameter parameter : parameters) {
+                    if (parameter.isPathParam() || parameter.isVariablePathParam() || parameter.isSeoParameter()) {
+                        if (parameter.isOptional()) {
+                            builder.addOptionalWildCard();
+                        } else {
+                            builder.addWildCard();
+                        }
+                    }
+                }
+
+                contextBuilder.addRule(builder.build(), rule);
+            }
+        }
+    }
+
+    public static final String RULE_DELIMITER = repeat(NEWLINE, 2) + repeat("-", 80) + NEWLINE;
+
+    /**
+     * Deserialize a list of rule descriptions from a character stream.
+     */
+    public static List<RuleSetDescription> deserialize(final InputStream data) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+        mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        try {
+
+            return mapper.readValue(new InputStreamReader(data), new TypeReference<List<RuleSetDescription>>() { });
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Got an expection during serlization of rules.", e);
+        }
+    }
+
+    /**
+     * Serialize this rule description.
+     */
+    public void serialize(final OutputSupplier<? extends Writer> writer) throws IOException {
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationConfig.Feature.INDENT_OUTPUT);
+        mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+        mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(writer.getOutput(), this);
+
+    }
+
+    /**
+     * Serialize an iterable of Rule Descriptions.
+     */
+    public static void serialize(final Iterable<RuleSetDescription> rules,
+            final OutputSupplier<? extends Writer> writer) {
+        SerializationConfig config;
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationConfig.Feature.INDENT_OUTPUT);
+        try {
+            mapper.writerWithDefaultPrettyPrinter().writeValue(writer.getOutput(), ImmutableList.copyOf(rules));
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Got an expection during serlization of rules.", e);
+        }
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setPriority(final Integer priority) {
+        this.priority = priority;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    @VisibleForTesting
+    @Nonnull
+    public Set<String> getPaths() {
+        return paths;
+    }
+
+    private static final ImmutableSet<String> TargetTypeStringValues = ImmutableSet.copyOf(Iterables.transform(
+                ImmutableList.copyOf(ForwardMappingRule.TargetType.values()),
+                new Function<ForwardMappingRule.TargetType, String>() {
+                    @Nullable
+                    public String apply(@Nullable final ForwardMappingRule.TargetType input) {
+                        return input.name();
+                    }
+                }));
+
+    public void addRuleMappingTarget(final RuleMappingTarget target) {
+        checkArgument(target != null, "Parameter target must not be null.");
+        ruleMappingTargets.add(target);
+    }
+
+    public List<Parameter> sortParams() {
+
+        // path params before non-path params
+        Collections.sort(prepareParams(), PARAMETER_ORDERING);
+
+        return parameters;
+    }
+
+    List<Parameter> prepareParams() {
         if (parameters.isEmpty()) {
             parameters = newArrayList();
         }
 
         return parameters;
+    }
+
+    public List<Parameter> getParameters() {
+        return prepareParams();
     }
 
     /**
@@ -306,65 +389,131 @@ public class RuleSetDescription {
     }
 
     /**
-     * Register this Rule Description with a RuleContext Builder.
+     * Add a parameter mapping where the incoming path segment will be the key and the supplied parameter will be the
+     * value.
      */
-    public void register(final RuleContext.Builder contextBuilder) {
-        checkIntegrity();
+    public RuleSetDescription addPathKey(final String value) {
+        return addPathKey(value, false);
+    }
 
-        final int length = calculatePathLength(Iterables.get(paths, 0));
-        sortParams();
+    /**
+     * Add a path parameter.
+     *
+     * @param  name  the name of the outgoing parameter
+     */
+    public RuleSetDescription addPathParameter(final String name) {
+        return addPathParameter(name, null, null, false);
+    }
 
-        final List<Handler> allHandlers = ImmutableList.copyOf(Iterables.transform(parameters,
-                    Parameter.HANDLER_FUNCTION));
-        final MappingRule rule = new ForwardMappingRule(id, priority, getTargetUrl(), length, allHandlers, targetType,
-                requestMethod);
-        for (final String basePath : paths) {
-            final PathBuilder builder = new PathBuilder();
-            for (final String pathItem : splitPath(basePath)) {
-                builder.add(pathItem);
-            }
+    /**
+     * Add a fixed key / value mapping.
+     */
+    public RuleSetDescription addFixedParameter(final String name, final String value) {
+        final Parameter param = new Parameter();
+        param.name = name;
+        param.value = value;
+        prepareParams().add(param);
+        return this;
+    }
 
-            for (final Parameter parameter : parameters) {
-                if (parameter.isPathParam() || parameter.isVariablePathParam() || parameter.isSeoParameter()) {
-                    if (parameter.optional) {
-                        builder.addOptionalWildCard();
-                    } else {
-                        builder.addWildCard();
-                    }
+    /**
+     * Add a parameter mapping where the incoming path segment will be the key and the supplied parameter will be the
+     * value. if the boolean flag is set to true, the path key will be optional
+     */
+    public RuleSetDescription addPathKey(final String value, final boolean optional) {
+        final Parameter parameter = new Parameter();
+        parameter.name = FROM_INPUT;
+        parameter.optional = optional;
+        parameter.value = value;
+        prepareParams().add(parameter);
+        return this;
+    }
+
+    /**
+     * Add a path parameter that will be used for rule resolution, but won't change the outgoing mapping.
+     *
+     * @param  optional  if true, the parameter is optional
+     */
+    public RuleSetDescription addSeoParameter(final boolean optional) {
+        final Parameter parameter = new Parameter();
+        parameter.name = SEO;
+        parameter.optional = optional;
+        prepareParams().add(parameter);
+        return this;
+    }
+
+    /**
+     * Add a fixed key / value pair that will always be used as the first parameter.
+     */
+    public RuleSetDescription addFirstParameter(final String name, final String value) {
+        final Parameter param = new Parameter();
+        param.name = name;
+        param.value = value;
+        param.first = true;
+        prepareParams().add(param);
+        return this;
+    }
+
+    enum ParamKey {
+        NAME,
+        PREFIX,
+        SUFFIX,
+        REQUESTPARAM,
+        OPTIONAL,
+        AGGREGATE,
+        FIXEDVALUE,
+        FIRST,
+        PATHVARIABLE,
+        PATHSEGMENT,
+        SEO;
+
+        public static ParamKey get(final String key) {
+            for (final ParamKey candidate : values()) {
+                if (candidate.name().equalsIgnoreCase(key)) {
+                    return candidate;
                 }
             }
 
-            contextBuilder.addRule(builder.build(), rule);
+            return null;
         }
     }
 
-    private static class Parameter {
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
+    static class Parameter {
         private static final String TRUE = Boolean.TRUE.toString();
 
-        public static final Function<Parameter, Handler> HANDLER_FUNCTION =
-            new Function<RuleSetDescription.Parameter, Handler>() {
+        public static final Function<Parameter, Handler> HANDLER_FUNCTION = new Function<Parameter, Handler>() {
 
-                @Override
-                public Handler apply(final Parameter input) {
-                    return input.toHandler();
-                }
-            };
+            @Override
+            public Handler apply(final Parameter input) {
+                return input.toHandler();
+            }
+        };
 
+        @JsonProperty
         private String name;
+        @JsonProperty
+        @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
         private List<String> incomingName = emptyList();
+        @JsonProperty
         private Character delimiter;
+        @JsonProperty
         private String suffix;
+        @JsonProperty
         private String prefix;
+        @JsonProperty
         private boolean first;
+        @JsonProperty
         private boolean optional;
+        @JsonProperty
         private int segment = -1;
-
+        @JsonProperty
         public String value;
 
         @Override
         public boolean equals(final Object obj) {
-            if (obj instanceof RuleSetDescription.Parameter) {
-                final RuleSetDescription.Parameter other = (RuleSetDescription.Parameter) obj;
+            if (obj instanceof Parameter) {
+                final Parameter other = (Parameter) obj;
                 return Objects.equal(name, other.name) && Objects.equal(incomingName, other.incomingName)
                         && Objects.equal(prefix, other.prefix) && Objects.equal(suffix, other.suffix)
                         && Objects.equal(delimiter, other.delimiter) && Objects.equal(optional, other.optional)
@@ -375,10 +524,10 @@ public class RuleSetDescription {
         }
 
         static Parameter deserialize(final String line) {
-            final Set<Entry<String, String>> entrySet = Helper.splitMap(line, '=', ';').entrySet();
+            final Set<Map.Entry<String, String>> entrySet = Helper.splitMap(line, '=', ';').entrySet();
             final Parameter parameter = new Parameter();
 
-            for (final Entry<String, String> entry : entrySet) {
+            for (final Map.Entry<String, String> entry : entrySet) {
                 final String key = entry.getKey();
                 final ParamKey paramKey = ParamKey.get(key);
                 checkArgument(paramKey != null, "Unknown token '%s' in line %s", key, line);
@@ -445,6 +594,10 @@ public class RuleSetDescription {
             }
 
             return parameter;
+        }
+
+        boolean isOptional() {
+            return optional;
         }
 
         private void checkIntegrity() {
@@ -536,61 +689,11 @@ public class RuleSetDescription {
             return segment >= 0 && name != null;
         }
 
-        void serialize(final Appendable appendable) throws IOException {
-            appendable.append(INDENT).append(PARAM_PREFIX);
-
-            final Map<ParamKey, String> paramTokens = Maps.newEnumMap(ParamKey.class);
-            if (!isSeoParameter() && !isVariablePathParam()) {
-                paramTokens.put(ParamKey.NAME, name);
-            }
-
-            if (isSeoParameter()) {
-                paramTokens.put(ParamKey.SEO, TRUE);
-                if (optional) {
-                    paramTokens.put(ParamKey.OPTIONAL, TRUE);
-                }
-            } else if (isSegment()) {
-                paramTokens.put(ParamKey.PATHSEGMENT, String.valueOf(segment));
-                paramTokens.put(ParamKey.NAME, name);
-            } else if (isVariablePathParam()) {
-                paramTokens.put(ParamKey.PATHVARIABLE, value);
-                if (optional) {
-                    paramTokens.put(ParamKey.OPTIONAL, TRUE);
-                }
-            } else if (isFixedParam()) {
-                paramTokens.put(ParamKey.FIXEDVALUE, value);
-                if (first) {
-                    paramTokens.put(ParamKey.FIRST, TRUE);
-                }
-            } else if (isPathParam()) { // it's a path parameter
-                if (optional) {
-                    paramTokens.put(ParamKey.OPTIONAL, TRUE);
-                }
-
-                if (hasSuffix()) {
-                    paramTokens.put(ParamKey.SUFFIX, suffix);
-                }
-
-                if (hasPrefix()) {
-                    paramTokens.put(ParamKey.PREFIX, prefix);
-                }
-            } else {                                // it's a request parameter
-                if (hasSingleIncomingParameter()) { // it's a single mapped request parameter
-                    paramTokens.put(ParamKey.REQUESTPARAM, incomingName.get(0));
-                } else {                            // it's an aggregation
-                    paramTokens.put(ParamKey.AGGREGATE,
-                        COMMA.joiner().appendTo(new StringBuilder().append(delimiter), incomingName).toString());
-                }
-            }
-
-            MAP_JOINER.appendTo(appendable, paramTokens).append(NEWLINE);
-        }
-
-        private boolean isSeoParameter() {
+        boolean isSeoParameter() {
             return SEO.equals(name);
         }
 
-        private boolean isVariablePathParam() {
+        boolean isVariablePathParam() {
             return (value != null) && FROM_INPUT.equals(name);
         }
 
@@ -606,259 +709,16 @@ public class RuleSetDescription {
             return suffix != null;
         }
 
-        private boolean isAnyTypeOfPathParam() {
+        boolean isAnyTypeOfPathParam() {
             return isPathParam() || isSeoParameter() || isVariablePathParam();
         }
 
-        private boolean isPathParam() {
+        boolean isPathParam() {
             return incomingName.isEmpty() && !isFixedParam();
         }
     }
 
-    public static final String RULE_DELIMITER = repeat(NEWLINE, 2) + repeat("-", 80) + NEWLINE;
     private static final String FROM_INPUT = "**from input**";
     private static final String SEO = "**seo**";
-
-    /**
-     * Deserialize a list of rule descriptions from a character stream.
-     */
-    public static List<RuleSetDescription> deserialize(final InputStream data) {
-        try {
-            return CharStreams.readLines(new InputSupplier<Reader>() {
-                        @Override
-                        public Reader getInput() throws IOException {
-                            return new InputStreamReader(data);
-                        }
-                    }, new Deserializer());
-        } catch (final IOException e) {
-            throw Throwables.propagate(e);
-        }
-    }
-
-    /**
-     * Serialize this rule description.
-     */
-    public void serialize(final Appendable appendable) throws IOException {
-        appendable.append(RULE_PREFIX).append(id).append(NEWLINE);
-        appendable.append(INDENT).append(TARGET_PREFIX).append(getTargetUrl()).append(NEWLINE);
-        appendable.append(INDENT).append(TARGETTYPE_PREFIX).append(targetType.name()).append(NEWLINE);
-        if (requestMethod != null) {
-            appendable.append(INDENT).append(METHOD_PREFIX).append(this.requestMethod).append(NEWLINE);
-        }
-
-        if (priority != null) {
-            appendable.append(INDENT).append(RULE_PRIORITY).append(String.valueOf(this.priority)).append(NEWLINE);
-        }
-
-        for (final String path : paths) {
-            appendable.append(INDENT).append(PATH_PREFIX).append(path).append(NEWLINE);
-        }
-
-        for (final Parameter parameter : parameters) {
-            parameter.serialize(appendable);
-        }
-    }
-
-    /**
-     * Serialize an iterable of Rule Descriptions.
-     */
-    public static void serialize(final Iterable<RuleSetDescription> rules,
-            final OutputSupplier<? extends Writer> writer) {
-        try {
-            final StringBuilder appendable = new StringBuilder();
-            String delim = "";
-            for (final RuleSetDescription ruleSetDescription : rules) {
-                appendable.append(delim);
-                ruleSetDescription.serialize(appendable);
-                delim = RULE_DELIMITER;
-            }
-
-            CharStreams.write(appendable, writer);
-        } catch (final Exception e) {
-            throw new IllegalStateException("Error serializing Mapping rules", e);
-        }
-    }
-
-    /**
-     * Add a path parameter.
-     *
-     * @param  name  the name of the outgoing parameter
-     */
-    public RuleSetDescription addPathParameter(final String name) {
-        return addPathParameter(name, null, null, false);
-    }
-
-    public String getTargetUrl() {
-        return targetUrl;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setTargetUrl(final String targetUrl) {
-        this.targetUrl = targetUrl;
-    }
-
-    /**
-     * Add a fixed key / value mapping.
-     */
-    public RuleSetDescription addFixedParameter(final String name, final String value) {
-        final Parameter param = new Parameter();
-        param.name = name;
-        param.value = value;
-        prepareParams().add(param);
-        return this;
-    }
-
-    /**
-     * Add a parameter mapping where the incoming path segment will be the key and the supplied parameter will be the
-     * value.
-     */
-    public RuleSetDescription addPathKey(final String value) {
-        return addPathKey(value, false);
-    }
-
-    /**
-     * Add a parameter mapping where the incoming path segment will be the key and the supplied parameter will be the
-     * value. if the boolean flag is set to true, the path key will be optional
-     */
-    public RuleSetDescription addPathKey(final String value, final boolean optional) {
-        final Parameter parameter = new Parameter();
-        parameter.name = FROM_INPUT;
-        parameter.optional = optional;
-        parameter.value = value;
-        prepareParams().add(parameter);
-        return this;
-    }
-
-    /**
-     * Add a path parameter that will be used for rule resolution, but won't change the outgoing mapping.
-     *
-     * @param  optional  if true, the parameter is optional
-     */
-    public RuleSetDescription addSeoParameter(final boolean optional) {
-        final Parameter parameter = new Parameter();
-        parameter.name = SEO;
-        parameter.optional = optional;
-        prepareParams().add(parameter);
-        return this;
-    }
-
-    /**
-     * Add a fixed key / value pair that will always be used as the first parameter.
-     */
-    public RuleSetDescription addFirstParameter(final String name, final String value) {
-        final Parameter param = new Parameter();
-        param.name = name;
-        param.value = value;
-        param.first = true;
-        prepareParams().add(param);
-        return this;
-    }
-
-    public void setTargetType(final ForwardMappingRule.TargetType targetType) {
-        this.targetType = targetType;
-    }
-
-    private void setRequestMethod(final String requestMethod) {
-        this.requestMethod = requestMethod;
-    }
-
-    public void setPriority(final Integer priority) {
-        this.priority = priority;
-    }
-
-    public Integer getPriority() {
-        return priority;
-    }
-
-    @VisibleForTesting
-    @Nonnull
-    public Set<String> getPaths() {
-        return paths;
-    }
-
-    static class Deserializer implements LineProcessor<List<RuleSetDescription>> {
-
-        private final List<RuleSetDescription> rules = newArrayList();
-        private RuleSetDescription current = null;
-
-        @Override
-        public boolean processLine(final String line) throws IOException {
-
-            final String strippedLine = CharMatcher.WHITESPACE.removeFrom(line);
-            if (strippedLine.startsWith(RULE_PREFIX)) {
-                if (current != null) {
-
-                    // check privious rule definition
-                    checkIntegrity(line, current);
-                }
-
-                final String id = strippedLine.substring(RULE_PREFIX.length());
-                checkArgument(!id.isEmpty(), "Bad rule definition (Rule must have an id): ", line);
-                current = new RuleSetDescription(id);
-                rules.add(current);
-            } else if (strippedLine.startsWith(RULE_PRIORITY)) {
-                final String prio = strippedLine.substring(RULE_PRIORITY.length());
-                checkArgument(Ints.tryParse(prio) != null, "Priority needs to be a number.", line);
-                current.setPriority(Integer.parseInt(prio));
-            } else if (strippedLine.startsWith(PARAM_PREFIX)) {
-                checkArgument(current != null,
-                    "Bad Parameter definition (Parameters can only be defined inside a rule: ", line);
-                current.prepareParams().add(Parameter.deserialize(strippedLine.substring(PARAM_PREFIX.length())));
-            } else if (strippedLine.startsWith(PATH_PREFIX)) {
-                checkArgument(current != null, "Bad path definition: paths can only be defined inside a rule: ", line);
-
-                final String path = strippedLine.substring(PATH_PREFIX.length());
-                checkArgument(MappingConstants.ALLOWED_PATH_CHARACTERS.matchesAllOf(path),
-                    "mapping path contains illegal characters: ", line);
-                current.paths.add(path);
-            } else if (strippedLine.startsWith(TARGET_PREFIX)) {
-                checkArgument(current != null,
-                    "Bad target URL definition: target URL can only be defined inside a rule: ", line);
-                current.setTargetUrl(strippedLine.substring(TARGET_PREFIX.length()));
-            } else if (strippedLine.startsWith(METHOD_PREFIX)) {
-                checkArgument(current != null,
-                    "Bad METHOD definition: METHOD definition can only be defined inside a rule: ", line);
-                current.setRequestMethod(strippedLine.substring(METHOD_PREFIX.length()));
-            } else if (strippedLine.startsWith(TARGETTYPE_PREFIX)) {
-                checkArgument(current != null,
-                    "Bad TARGET-TYPE definition: target type definition can only be defined inside a rule: ", line);
-
-                final String targetTypeStr = strippedLine.substring(TARGETTYPE_PREFIX.length());
-                checkArgument(TargetTypeStringValues.contains(targetTypeStr),
-                    "Bad Target-Type definition: target-type has to be on of " + TargetTypeStringValues.toString()
-                        + ": ", line);
-                current.setTargetType(ForwardMappingRule.TargetType.valueOf(targetTypeStr));
-            }
-
-            return true;
-        }
-
-        @Override
-        public List<RuleSetDescription> getResult() {
-            for (final RuleSetDescription rsd : rules) {
-                rsd.checkIntegrity();
-                rsd.sortParams();
-            }
-
-            return rules;
-        }
-
-    }
-
-    private static void checkIntegrity(final String line, final RuleSetDescription rule) {
-        checkArgument(rule.targetType != null,
-            "Bad rule definition (Rule must have an target-type). See previous rule: ", line);
-    }
-
-    private static final ImmutableSet<String> TargetTypeStringValues = ImmutableSet.copyOf(Iterables.transform(
-                ImmutableList.copyOf(ForwardMappingRule.TargetType.values()),
-                new Function<ForwardMappingRule.TargetType, String>() {
-                    @Nullable
-                    public String apply(@Nullable final ForwardMappingRule.TargetType input) {
-                        return input.name();
-                    }
-                }));
+    private static final Joiner.MapJoiner MAP_JOINER = Joiner.on(';').withKeyValueSeparator("=");
 }

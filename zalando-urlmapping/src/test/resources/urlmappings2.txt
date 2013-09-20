@@ -1,41 +1,87 @@
-RULE:link.springcontroller.test
-  TARGET:/foo/bar/{baz}/phleem
-  TARGET-TYPE: SPRING
-  PATH:wham
-  PARAM:NAME=baz;PATHSEGMENT=1
-  PARAM:NAME=id;REQUESTPARAM=id
+[ {
+  "id" : "link.springcontroller.test",
+  "paths" : [ "wham" ],
+  "parameters" : [ {
+                "name" : "baz",
+                "segment" : 1
+          },
+          {     "name" : "id",
+                "incomingName" : [ "id" ]
+          }
+        ],
+  "ruleMappingTargets" : [ {
+      "targetUrl" : "/foo/bar/{baz}/phleem",
+      "targetType" : "SPRING"
+    }
+  ]
+  },
+// ----------------------------------------------------------------------------------
 
-RULE:link.springcontroller.test.fallback
-  TARGET:/foo/bar/fallback
-  TARGET-TYPE: SPRING
-  PATH:wham
-  PARAM:NAME=baz;PATHSEGMENT=1
-  PARAM:NAME=id;REQUESTPARAM=id
+  {   "id" : "link.springcontroller.test.fallback",
+      "paths" : [ "wham" ],
+      "parameters" : [ {
+                        "name" : "baz",
+                        "segment" : 1
+                    },
+                    {   "name" : "id",
+                        "incomingName" : [ "id" ]
+                    }
+                   ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/foo/bar/fallback",
+          "targetType" : "SPRING"
+        }
+      ]
+  },
+// ----------------------------------------------------------------------------------
 
-----------------------------------------------------------------------------------
+  {   "id" : "link.springcontroller.method.post.test",
+      "paths" : [ "what/path" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/foo/bar1",
+          "targetType" : "SPRING",
+          "requestMethod" : "POST"
+        }
+      ]
+  },
 
-RULE:link.springcontroller.method.post.test
-  TARGET:/foo/bar1
-  TARGET-TYPE: SPRING
-  METHOD: POST
-  PATH:what/path
+  {   "id" : "link.springcontroller.method.get.test",
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/foo/bar2",
+          "targetType" : "SPRING",
+          "requestMethod" : "GET"
+        }
+      ],
+      "paths" : [ "what/path" ]
+  },
 
-RULE:link.springcontroller.method.get.test
-  TARGET:/foo/bar2
-  TARGET-TYPE: SPRING
-  METHOD: GET
-  PATH:what/path
+//----------------------------------------------------------------------------------
 
-----------------------------------------------------------------------------------
+  {   "id" : "link.stripesspring.spring.test",
+      "paths" : [ "strspr" ],
+      "parameters" : [ {
+                      "name" : "baz",
+                      "segment": 1
+                      } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/foo/bar/{baz}/phleem",
+          "targetType" : "SPRING"
+        }
+      ]
 
-RULE:link.stripesspring.spring.test
-  TARGET:/foo/bar/{baz}/phleem
-  TARGET-TYPE: SPRING
-  PATH:strspr
-  PARAM:NAME=baz;PATHSEGMENT=1
+  },
 
-RULE:link.stripesspring.stripes.test
-  TARGET:/foo/stripes.action
-  TARGET-TYPE: STRIPES
-  PATH:strspr
-  PARAM:NAME=baz;PATHSEGMENT=1
+  {   "id" : "link.stripesspring.stripes.test",
+      "paths" : [ "strspr" ],
+      "parameters" : [ {
+                  "name" : "baz",
+                  "segment" : 1
+                  } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/foo/stripes.action",
+          "targetType" : "STRIPES"
+        }
+      ]
+
+  }
+]

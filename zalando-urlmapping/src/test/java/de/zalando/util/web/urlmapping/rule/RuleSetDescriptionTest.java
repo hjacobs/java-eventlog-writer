@@ -9,6 +9,8 @@ import static org.junit.Assert.fail;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+import static junit.framework.Assert.assertNotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -164,6 +166,8 @@ public class RuleSetDescriptionTest {
     public void testRuleWithRequestMethod() throws Exception {
         final InputStream stream = RuleSetDescriptionTest.class.getResourceAsStream("/urlmappings2.txt");
         final List<RuleSetDescription> rules = RuleSetDescription.deserialize(stream);
+        assertNotNull(rules);
+
         final RuleContext.Builder builder = RuleContext.builder();
         for (final RuleSetDescription rule : rules) {
             rule.register(builder);
@@ -243,59 +247,85 @@ public class RuleSetDescriptionTest {
 
     private RuleSetDescription updater() {
         final RuleSetDescription updater = new RuleSetDescription("link.test.updater");
-        updater.setTargetType(ForwardMappingRule.TargetType.STRIPES);
-        updater.setTargetUrl("/Updater.action");
-        updater.addPath("updater");
+
+        RuleMappingTarget target = new RuleMappingTarget();
+        target.setTargetType(ForwardMappingRule.TargetType.STRIPES);
+        target.setTargetUrl("/Updater.action");
+        updater.addRuleMappingTarget(target);
+
         updater.addPathKey("", true);
+        updater.addPath("updater");
+
         return updater;
     }
 
     private RuleSetDescription recoImage() {
         final RuleSetDescription recoImage = new RuleSetDescription("link.dynareco.image.sku");
-        recoImage.setTargetType(ForwardMappingRule.TargetType.STATIC);
-        recoImage.setTargetUrl("/reco/DynaReco.action?image=");
-        recoImage.addPath("katalog/recoimage.jpg");
+
+        RuleMappingTarget target = new RuleMappingTarget();
+        target.setTargetType(ForwardMappingRule.TargetType.STATIC);
+        target.setTargetUrl("/reco/DynaReco.action?image=");
+        recoImage.addRuleMappingTarget(target);
+
         recoImage.addRequestParameter("sku", "sku").addRequestParameter("pos", "position");
+        recoImage.addPath("katalog/recoimage.jpg");
         return recoImage;
     }
 
     private RuleSetDescription adminLogin() {
         final RuleSetDescription adminLogin = new RuleSetDescription("link.admin.login.link");
-        adminLogin.setTargetType(ForwardMappingRule.TargetType.STRIPES);
-        adminLogin.setTargetUrl("/customer/AdminLogin.action");
-        adminLogin.addPath("admin/login");
+
+        RuleMappingTarget target = new RuleMappingTarget();
+        target.setTargetType(ForwardMappingRule.TargetType.STRIPES);
+        target.setTargetUrl("/customer/AdminLogin.action");
+        adminLogin.addRuleMappingTarget(target);
+
         adminLogin.addAggregationParameter("emailCombination", ':', Arrays.asList("admin", "customer"));
+        adminLogin.addPath("admin/login");
         return adminLogin;
     }
 
     private RuleSetDescription orderCancelled() {
         final RuleSetDescription cancelled = new RuleSetDescription("link.checkout.canceled");
-        cancelled.setTargetType(ForwardMappingRule.TargetType.STRIPES);
-        cancelled.setTargetUrl("/checkout/Final.action?cancel=");
+
+        RuleMappingTarget target = new RuleMappingTarget();
+        target.setTargetType(ForwardMappingRule.TargetType.STRIPES);
+        target.setTargetUrl("/checkout/Final.action?cancel=");
+        cancelled.addRuleMappingTarget(target);
+
+        cancelled.addOptionalPathParameter("id");
         cancelled.addPath("kasse/abgebrochen");
         cancelled.addPath("paiement/annule");
-        cancelled.addOptionalPathParameter("id");
         return cancelled;
     }
 
     private RuleSetDescription someStupidPath() {
         final RuleSetDescription cancelled = new RuleSetDescription("link.some.stupid.path");
-        cancelled.setTargetType(ForwardMappingRule.TargetType.STRIPES);
-        cancelled.setTargetUrl("/foo/bar/{baz}/phleem");
+
+        RuleMappingTarget target = new RuleMappingTarget();
+        target.setTargetType(ForwardMappingRule.TargetType.STRIPES);
+        target.setTargetUrl("/foo/bar/{baz}/phleem");
+        cancelled.addRuleMappingTarget(target);
+
+        cancelled.addPathSegmentParameter("baz", 2);
         cancelled.addPath("flapp/flupp");
         cancelled.addPath("wapp/wupp");
-        cancelled.addPathSegmentParameter("baz", 2);
         return cancelled;
     }
 
     private RuleSetDescription voucherSuccess() {
         final RuleSetDescription voucherSuccess = new RuleSetDescription("link.checkout.vouchers.success");
-        voucherSuccess.setTargetType(ForwardMappingRule.TargetType.STRIPES);
-        voucherSuccess.setTargetUrl("/checkout/VoucherFinal.action?success=");
+
+        RuleMappingTarget target = new RuleMappingTarget();
+        target.setTargetType(ForwardMappingRule.TargetType.STRIPES);
+        target.setTargetUrl("/checkout/VoucherFinal.action?success=");
+        voucherSuccess.addRuleMappingTarget(target);
+
+        voucherSuccess.addOptionalPathParameter("id");
         voucherSuccess.addPath("kasse/geschenkgutscheine/bestellt");
         voucherSuccess.addPath("checkout/giftvouchers/ordered");
         voucherSuccess.addPath("kasa/hediye-cekleri/bestellt");
-        voucherSuccess.addOptionalPathParameter("id");
+
         return voucherSuccess;
     }
 

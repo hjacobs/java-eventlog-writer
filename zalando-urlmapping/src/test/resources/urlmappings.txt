@@ -1,1785 +1,679 @@
-RULE:link.admin.login
-  TARGET:/customer/AdminLogin.action
-  TARGET-TYPE: STRIPES
-  PATH:admin/login
-
-
---------------------------------------------------------------------------------
-RULE:link.admin.login.link
-  TARGET:/customer/AdminLogin.action
-  TARGET-TYPE: STRIPES
-  PATH:admin/login
-  PARAM:NAME=emailCombination;AGGREGATE=:admin,customer
-
-
---------------------------------------------------------------------------------
-RULE:link.article.review.save
-  TARGET:/catalog/ArticleDetail.action
-  TARGET-TYPE: STRIPES
-  PATH:article/review/save
-  PARAM:NAME=saveReview;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=urlKey;SUFFIX=.html
-
-
---------------------------------------------------------------------------------
-RULE:link.article.sendfriend.submit
-  TARGET:/catalog/ArticleDetail.action
-  TARGET-TYPE: STRIPES
-  PATH:article/recommendation/submit
-  PARAM:NAME=sendFriendSubmit;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=urlKey;SUFFIX=.html
-
-
---------------------------------------------------------------------------------
-RULE:link.article.sizeReminder.submit
-  TARGET:/catalog/ArticleDetail.action
-  TARGET-TYPE: STRIPES
-  PATH:article/sizereminder/submit
-  PARAM:NAME=sizeReminderSubmit;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=urlKey;SUFFIX=.html
-
-
---------------------------------------------------------------------------------
-RULE:link.brands.active
-  TARGET:/catalog/ActiveBrands.action
-  TARGET-TYPE: STRIPES
-  PATH:activebrands
-
-
---------------------------------------------------------------------------------
-RULE:link.cart
-  TARGET:/checkout/Cart.action
-  TARGET-TYPE: STRIPES
-  PATH:cart
-  PATH:koszyk
-  PATH:kundvagn
-  PATH:panier
-  PATH:sepetim
-  PATH:varekurv
-  PATH:warenkorb
-  PATH:winkelwagen
-
-
---------------------------------------------------------------------------------
-RULE:link.cart.ajax
-  TARGET:/checkout/AjaxCart.action
-  TARGET-TYPE: STRIPES
-  PATH:ajax-cart
-  PATH:ajax-koszyk
-  PATH:ajax-kundvagn
-  PATH:ajax-panier
-  PATH:ajax-sepetim
-  PATH:ajax-varekurv
-  PATH:ajax-warenkorb
-  PATH:ajax-winkelwagen
-
-
---------------------------------------------------------------------------------
-RULE:link.cart.login
-  TARGET:/checkout/Cart.action
-  TARGET-TYPE: STRIPES
-  PATH:cart/login
-  PATH:koszyk/login
-  PATH:kundvagn/login
-  PATH:panier/nom-utilisateur
-  PATH:sepetim/uye-girisi
-  PATH:varekurv/login
-  PATH:warenkorb/login
-  PATH:winkelwagen/login
-  PARAM:NAME=loginToCart;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=email
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.addresses
-  TARGET:/checkout/Addresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/addresses
-  PATH:kasa/adresler
-  PATH:kasa/adresy
-  PATH:kassa/adressen
-  PATH:kassa/adresser
-  PATH:kasse/adressen
-  PATH:kasse/adresser
-  PATH:paiement/adresse
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.addresses.delete
-  TARGET:/checkout/Addresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/addresses/delete-address
-  PATH:kasa/adresler/adresse-loeschen
-  PATH:kasa/adresy/adres-dostawy-usunac
-  PATH:kassa/adressen/adres-verwijderen
-  PATH:kassa/adresser/radera-adress
-  PATH:kasse/adressen/adresse-loeschen
-  PATH:kasse/adresser/adresse-loeschen
-  PATH:paiement/adresse/supprimer-adresse
-  PARAM:NAME=deleteShippingAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.addresses.edit.billing
-  TARGET:/checkout/Addresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/addresses/edit-billing-address
-  PATH:kasa/adresler/fatura-adresi-degistir
-  PATH:kasa/adresy/adres-faktury-edytowac
-  PATH:kassa/adressen/factuuradres-wijzigen
-  PATH:kassa/adresser/andra-fakturaadress
-  PATH:kasse/adressen/rechnungsadresse-bearbeiten
-  PATH:kasse/adresser/rechnungsadresse-bearbeiten
-  PATH:paiement/adresse/modifier-adresse-facturation
-  PARAM:NAME=showEditBillingAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.addresses.edit.shipping
-  TARGET:/checkout/Addresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/addresses/edit-shipping-address
-  PATH:kasa/adresler/teslimat-adresi-degistir
-  PATH:kasa/adresy/adres-dostawy-edytowac
-  PATH:kassa/adressen/verzendadres-wijzigen
-  PATH:kassa/adresser/andra-leveransadress
-  PATH:kasse/adressen/lieferadresse-bearbeiten
-  PATH:kasse/adresser/lieferadresse-bearbeiten
-  PATH:paiement/adresse/modifier-adresse-livraison
-  PARAM:NAME=showEditShippingAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.addresses.kiala
-  TARGET:/checkout/Addresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/addresses/kiala
-  PATH:kasa/adresler/kiala
-  PATH:kasa/adresy/kiala
-  PATH:kassa/adressen/kiala
-  PATH:kassa/adresser/kiala
-  PATH:kasse/adressen/kiala
-  PATH:kasse/adresser/kiala
-  PATH:paiement/adresse/kiala
-  PARAM:NAME=showSelectKialaAddress;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.addresses.kiala.receive
-  TARGET:/checkout/address/external/Kiala.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/kiala/receive
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.addresses.select
-  TARGET:/checkout/Addresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/addresses/select-billing-address
-  PATH:kasa/adresler/rechnungsadresse-waehlen
-  PATH:kasa/adresy/adres-faktury-wybierac
-  PATH:kassa/adressen/select-billing-address
-  PATH:kassa/adresser/valj-fakturaadress
-  PATH:kasse/adressen/rechnungsadresse-waehlen
-  PATH:kasse/adresser/rechnungsadresse-waehlen
-  PATH:paiement/adresse/choisir-adresse-facturation
-  PARAM:NAME=selectBillingAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.addresses.select.shipping
-  TARGET:/checkout/Addresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/addresses/select-shipping-address
-  PATH:kasa/adresler/lieferadresse-waehlen
-  PATH:kasa/adresy/adres-dostawy-wybierac
-  PATH:kassa/adressen/select-shipping-address
-  PATH:kassa/adresser/valj-leveransadress
-  PATH:kasse/adressen/lieferadresse-waehlen
-  PATH:kasse/adresser/lieferadresse-waehlen
-  PATH:paiement/adresse/choisir-adresse-livraison
-  PARAM:NAME=selectShippingAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.canceled
-  TARGET:/checkout/Final.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/cancelled
-  PATH:kasa/abgebrochen
-  PATH:kassa/afgezegd
-  PATH:kassa/avbrutet
-  PATH:kasse/abgebrochen
-  PATH:paiement/annule
-  PARAM:NAME=cancel;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.failed
-  TARGET:/checkout/Final.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/failed
-  PATH:kasa/fehlgeschlagen
-  PATH:kassa/fel
-  PATH:kassa/mislukt
-  PATH:kasse/fehlgeschlagen
-  PATH:paiement/echec
-  PARAM:NAME=failure;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.feedback
-  TARGET:/checkout/Feedback.action
-  TARGET-TYPE: STRIPES
-  PATH:bestallning/asikt
-  PATH:bestelling/feedback
-  PATH:bestellung/meinung
-  PATH:commande/evaluation
-  PATH:order/feedback
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.payment
-  TARGET:/checkout/PaymentMethod.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/payment
-  PATH:kasa/odeme-secenegi
-  PATH:kasa/rodzaj-platnosci
-  PATH:kassa/betaalmethode
-  PATH:kassa/betalningssaett
-  PATH:kasse/zahlungsart
-  PATH:paiement/moyen-paiement
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.paymentMethod.delete
-  TARGET:/checkout/PaymentMethod.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/delete-payment-method
-  PATH:kasa/platnosc-usunac
-  PATH:kasa/zahlart-loeschen
-  PATH:kassa/betaalmethode-verwijderen
-  PATH:kassa/radera-betalningssatt
-  PATH:kasse/zahlart-loeschen
-  PATH:paiement/supprimer-moyen-paiement
-  PARAM:NAME=deletePaymentMethod;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=storedPaymentMethodId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.print
-  TARGET:/checkout/Final.action
-  TARGET-TYPE: STRIPES
-  PATH:bestallning/utskrift
-  PATH:bestelling/print
-  PATH:bestellung/druck
-  PATH:commande/imprimer
-  PATH:order/print
-  PARAM:NAME=print;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.redirect
-  TARGET:/checkout/Final.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/redirect
-  PATH:kasa/weiterleitung
-  PATH:kassa/redigeren
-  PATH:kassa/vidarebefordran
-  PATH:kasse/weiterleitung
-  PATH:paiement/redirection
-  PARAM:NAME=redirect;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.shipping
-  TARGET:/checkout/Shipping.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/shipping
-  PATH:kasa/lieferung
-  PATH:kassa/leverans
-  PATH:kassa/levering
-  PATH:kasse/lieferung
-  PATH:paiement/livraison
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.stepConfirmation
-  TARGET:/checkout/Confirm.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/overview
-  PATH:kasa/uebersicht
-  PATH:kasa/zestawienie
-  PATH:kassa/oeversikt
-  PATH:kassa/overzicht
-  PATH:kasse/uebersicht
-  PATH:paiement/apercu
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.confirmation.deleteShippingAddress
-  TARGET:/checkout/Addresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/overview/delete-address
-  PATH:kasa/uebersicht/adresse-loeschen
-  PATH:kasa/zestawienie/adres-usunac
-  PATH:kassa/oeversikt/radera-adress
-  PATH:kassa/overzicht/adres-verwijderen
-  PATH:kasse/uebersicht/adresse-loeschen
-  PATH:paiement/apercu/supprimer-adresse
-  PARAM:NAME=deleteShippingAddressAndShowStep3;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.success
-  TARGET:/checkout/Final.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/ordered
-  PATH:kasa/bestellt
-  PATH:kassa/bestaellt
-  PATH:kassa/gekocht
-  PATH:kasse/bestellt
-  PATH:paiement/termine
-  PARAM:NAME=success;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.success.external
-  TARGET:/checkout/Final.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/paid
-  PATH:kasa/bezahlt
-  PATH:kassa/betaald
-  PATH:kassa/betalat
-  PATH:kasse/bezahlt
-  PATH:paiement/paye
-  PARAM:NAME=success_external;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.addresses
-  TARGET:/checkout/VoucherAddresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/addresses
-  PATH:checkout/giftvouchers/addresses
-  PATH:kasa/geschenkgutscheine/adressen
-  PATH:kasa/hediye-cekleri/adressen
-  PATH:kassa/presentkort/adress
-  PATH:kassa/vouchers/adressen
-  PATH:kasse/gavekort/adressen
-  PATH:kasse/geschenkgutscheine/adressen
-  PATH:paiement/cheque-cadeau/adresses
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.addresses.delete
-  TARGET:/checkout/VoucherAddresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/addresses/delete-shipping-address
-  PATH:checkout/giftvouchers/addresses/delete-shipping-address
-  PATH:kasa/geschenkgutscheine/adressen/lieferadresse-loeschen
-  PATH:kasa/hediye-cekleri/adressen/lieferadresse-loeschen
-  PATH:kassa/presentkort/adress/radera-leveransadress
-  PATH:kassa/vouchers/adressen/adres-verwijderen
-  PATH:kasse/gavekort/adressen/lieferadresse-loeschen
-  PATH:kasse/geschenkgutscheine/adressen/lieferadresse-loeschen
-  PATH:paiement/cheque-cadeau/adresses/supprimer-adresse
-  PARAM:NAME=deleteShippingAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.addresses.edit.billing
-  TARGET:/checkout/VoucherAddresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/addresses/edit-billing-address
-  PATH:checkout/giftvouchers/addresses/edit-billing-address
-  PATH:kasa/geschenkgutscheine/adressen/rechnungsadresse-bearbeiten
-  PATH:kasa/hediye-cekleri/adressen/fatura-adresi-degistir
-  PATH:kassa/presentkort/adress/andra-fakturaadress
-  PATH:kassa/vouchers/adressen/factuuradres-wijzigen
-  PATH:kasse/gavekort/adressen/rechnungsadresse-bearbeiten
-  PATH:kasse/geschenkgutscheine/adressen/rechnungsadresse-bearbeiten
-  PATH:paiement/cheque-cadeau/adresses/modifier-adresse-facturation
-  PARAM:NAME=showEditBillingAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.addresses.select
-  TARGET:/checkout/VoucherAddresses.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/addresses/select-billing-address
-  PATH:checkout/giftvouchers/addresses/select-billing-address
-  PATH:kasa/geschenkgutscheine/adressen/rechnungsadresse-waehlen
-  PATH:kasa/hediye-cekleri/adressen/rechnungsadresse-waehlen
-  PATH:kassa/presentkort/adress/valj-fakturaadress
-  PATH:kassa/vouchers/adressen/select-billing-address
-  PATH:kasse/gavekort/adressen/rechnungsadresse-waehlen
-  PATH:kasse/geschenkgutscheine/adressen/rechnungsadresse-waehlen
-  PATH:paiement/cheque-cadeau/adresses/choisir-adresse-facturation
-  PARAM:NAME=selectBillingAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.canceled
-  TARGET:/checkout/VoucherFinal.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/cancelled
-  PATH:checkout/giftvouchers/cancelled
-  PATH:kasa/geschenkgutscheine/abgebrochen
-  PATH:kasa/hediye-cekleri/abgebrochen
-  PATH:kassa/presentkort/abgebrochen
-  PATH:kassa/vouchers/cancelled
-  PATH:kasse/gavekort/abgebrochen
-  PATH:kasse/geschenkgutscheine/abgebrochen
-  PATH:paiement/cheque-cadeau/annule
-  PARAM:NAME=failure;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.failed
-  TARGET:/checkout/VoucherFinal.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/failed
-  PATH:checkout/giftvouchers/failed
-  PATH:kasa/geschenkgutscheine/fehlgeschlagen
-  PATH:kasa/hediye-cekleri/fehlgeschlagen
-  PATH:kassa/presentkort/det-uppstod-ett-fel
-  PATH:kassa/vouchers/mislukt
-  PATH:kasse/gavekort/fehlgeschlagen
-  PATH:kasse/geschenkgutscheine/fehlgeschlagen
-  PATH:paiement/cheque-cadeau/echec
-  PARAM:NAME=failure;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.feedback
-  TARGET:/checkout/VoucherFeedback.action
-  TARGET-TYPE: STRIPES
-  PATH:geschenkgutschein-bestellung/meinung
-  PATH:presentkort-bestallning/asikt
-  PATH:voucher-commande/evaluation
-  PATH:voucher-order/feedback
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.payment
-  TARGET:/checkout/VoucherPaymentMethod.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/payment
-  PATH:checkout/giftvouchers/payment
-  PATH:kasa/geschenkgutscheine/rodzaj-platnosci
-  PATH:kasa/hediye-cekleri/zahlungsart
-  PATH:kassa/presentkort/betalningssaett
-  PATH:kassa/vouchers/betaalmethode
-  PATH:kasse/gavekort/zahlungsart
-  PATH:kasse/geschenkgutscheine/zahlungsart
-  PATH:paiement/cheque-cadeau/moyen-paiement
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.paymentMethod.delete
-  TARGET:/checkout/VoucherPaymentMethod.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/delete-payment-method
-  PATH:checkout/giftvouchers/delete-payment-method
-  PATH:kasa/geschenkgutscheine/zahlart-loeschen
-  PATH:kasa/hediye-cekleri/zahlart-loeschen
-  PATH:kassa/presentkort/radera-betalningssatt
-  PATH:kassa/vouchers/betaalmethode-verwijderen
-  PATH:kasse/gavekort/zahlart-loeschen
-  PATH:kasse/geschenkgutscheine/zahlart-loeschen
-  PATH:paiement/cheque-cadeau/supprimer-moyen-paiement
-  PARAM:NAME=deletePaymentMethod;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=storedPaymentMethodId
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.print
-  TARGET:/checkout/VoucherFinal.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/print
-  PATH:checkout/giftvouchers/print
-  PATH:kasa/geschenkgutscheine/druck
-  PATH:kasa/hediye-cekleri/druck
-  PATH:kassa/presentkort/utskrift
-  PATH:kassa/vouchers/print
-  PATH:kasse/gavekort/druck
-  PATH:kasse/geschenkgutscheine/druck
-  PATH:paiement/cheque-cadeau/imprimer
-  PARAM:NAME=print;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.redirect
-  TARGET:/checkout/VoucherFinal.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/redirect
-  PATH:checkout/giftvouchers/redirect
-  PATH:kasa/geschenkgutscheine/weiterleitung
-  PATH:kasa/hediye-cekleri/weiterleitung
-  PATH:kassa/presentkort/vidarebefordran
-  PATH:kassa/vouchers/redigeren
-  PATH:kasse/gavekort/weiterleitung
-  PATH:kasse/geschenkgutscheine/weiterleitung
-  PATH:paiement/cheque-cadeau/redirection
-  PARAM:NAME=redirect;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.stepConfirmation
-  TARGET:/checkout/VoucherConfirm.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/overview
-  PATH:checkout/giftvouchers/overview
-  PATH:kasa/geschenkgutscheine/zestawienie
-  PATH:kasa/hediye-cekleri/uebersicht
-  PATH:kassa/presentkort/oeversikt
-  PATH:kassa/vouchers/overzicht
-  PATH:kasse/gavekort/uebersicht
-  PATH:kasse/geschenkgutscheine/uebersicht
-  PATH:paiement/cheque-cadeau/apercu
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.success
-  TARGET:/checkout/VoucherFinal.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/ordered
-  PATH:checkout/giftvouchers/ordered
-  PATH:kasa/geschenkgutscheine/bestellt
-  PATH:kasa/hediye-cekleri/bestellt
-  PATH:kassa/presentkort/bestaellt
-  PATH:kassa/vouchers/gekocht
-  PATH:kasse/gavekort/bestellt
-  PATH:kasse/geschenkgutscheine/bestellt
-  PATH:paiement/cheque-cadeau/commande
-  PARAM:NAME=success;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.checkout.vouchers.success.external
-  TARGET:/checkout/VoucherFinal.action
-  TARGET-TYPE: STRIPES
-  PATH:checkout/buoni-regali/paid
-  PATH:checkout/giftvouchers/paid
-  PATH:kasa/geschenkgutscheine/bezahlt
-  PATH:kasa/hediye-cekleri/bezahlt
-  PATH:kassa/presentkort/bezahlt
-  PATH:kassa/vouchers/betaald
-  PATH:kasse/gavekort/bezahlt
-  PATH:kasse/geschenkgutscheine/bezahlt
-  PATH:paiement/cheque-cadeau/paye
-  PARAM:NAME=success_external;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=id
-
-
---------------------------------------------------------------------------------
-RULE:link.contact
-  TARGET:/Contact.action
-  TARGET-TYPE: STRIPES
-  PATH:contact
-  PATH:kontakt
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.login
-  TARGET:/customer/Login.action
-  TARGET-TYPE: STRIPES
-  PATH:login
-  PATH:nom-utilisateur
-  PATH:uye-girisi
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.logout
-  TARGET:/customer/Login.action
-  TARGET-TYPE: STRIPES
-  PATH:deconnexion
-  PATH:logout
-  PARAM:NAME=logout;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.new.password
-  TARGET:/customer/Login.action
-  TARGET-TYPE: STRIPES
-  PATH:neues-passwort
-  PATH:new-password
-  PATH:nieuwe-wachtwoord
-  PATH:nouveau-mot-de-passe
-  PATH:nuova-password
-  PATH:nytt-losenord
-  PARAM:NAME=showNewPasswordPage;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=customerHash
-  PARAM:NAME=newPasswordUrlParam
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.welcomeNoAccount
-  TARGET:/customer/Login.action
-  TARGET-TYPE: STRIPES
-  PATH:welcomenoaccount
-  PATH:witamynakoncie
-  PARAM:NAME=welcomeNoAccount;FIXEDVALUE=1
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.account
-  TARGET:/customer/Account.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto
-  PATH:benutzerkonto
-  PATH:brugerkonto
-  PATH:cuenta_de_usuario
-  PATH:kayttajatili
-  PATH:konto-uzytkownika
-  PATH:kullanici-hesabi
-  PATH:mijnaccount
-  PATH:moncompte
-  PATH:myaccount
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.account.edit
-  TARGET:/customer/Account.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/installningar
-  PATH:benutzerkonto/einstellungen
-  PATH:brugerkonto/einstellungen
-  PATH:cuenta_de_usuario/einstellungen
-  PATH:kayttajatili/einstellungen
-  PATH:konto-uzytkownika/ustawienia
-  PATH:kullanici-hesabi/einstellungen
-  PATH:mijnaccount/instellingen
-  PATH:moncompte/parametres
-  PATH:myaccount/settings
-  PARAM:NAME=editAccount;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.account.update
-  TARGET:/customer/Account.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/installningar/spara
-  PATH:benutzerkonto/einstellungen/speichern
-  PATH:brugerkonto/einstellungen/speichern
-  PATH:cuenta_de_usuario/einstellungen/speichern
-  PATH:kayttajatili/einstellungen/speichern
-  PATH:konto-uzytkownika/einstellungen/speichern
-  PATH:kullanici-hesabi/einstellungen/speichern
-  PATH:mijnaccount/instellingen/opslaan
-  PATH:moncompte/parametres/enregistrer
-  PATH:myaccount/settings/update
-  PARAM:NAME=updateAccount;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.address.add
-  TARGET:/customer/Address.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/adressbok/adress/nytt
-  PATH:benutzerkonto/adressbuch/adresse/neu
-  PATH:brugerkonto/adressebog/adresse/ny
-  PATH:cuenta_de_usuario/adressbuch/adresse/neu
-  PATH:kayttajatili/adressbuch/adresse/neu
-  PATH:konto-uzytkownika/ksiazka-adresowa/adres/nowy
-  PATH:kullanici-hesabi/adressbuch/adresse/neu
-  PATH:mijnaccount/adresboek/adres/toevoegen
-  PATH:moncompte/carnet-adresse/adresse/nouvelle
-  PATH:myaccount/addressbook/address/add
-  PARAM:NAME=addAddress;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.address.delete
-  TARGET:/customer/Address.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/adressbok/adress/radera
-  PATH:benutzerkonto/adressbuch/adresse/entfernen
-  PATH:brugerkonto/adressebog/adresse/entfernen
-  PATH:cuenta_de_usuario/adressbuch/adresse/entfernen
-  PATH:kayttajatili/adressbuch/adresse/entfernen
-  PATH:konto-uzytkownika/ksiazka-adresowa/adress/usunac
-  PATH:kullanici-hesabi/adressbuch/adresse/entfernen
-  PATH:mijnaccount/adresboek/adres/verwijderen
-  PATH:moncompte/carnet-adresse/adresse/supprimer
-  PATH:myaccount/addressbook/address/delete
-  PARAM:NAME=deleteAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.address.edit
-  TARGET:/customer/Address.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/adressbok/adress/redigera
-  PATH:benutzerkonto/adressbuch/adresse/bearbeiten
-  PATH:brugerkonto/adressebog/adresse/bearbeiten
-  PATH:cuenta_de_usuario/adressbuch/adresse/bearbeiten
-  PATH:kayttajatili/adressbuch/adresse/bearbeiten
-  PATH:konto-uzytkownika/ksiazka-adresowa/adres/edytowac
-  PATH:kullanici-hesabi/adressbuch/adresse/bearbeiten
-  PATH:mijnaccount/adresboek/adres/wijzigen
-  PATH:moncompte/carnet-adresse/adresse/modifier
-  PATH:myaccount/addressbook/address/edit
-  PARAM:NAME=editAddress;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=addressId
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.address
-  TARGET:/customer/Address.action
-  TARGET-TYPE: STRIPES
-  PATH:addresses
-  PATH:adress
-  PATH:adressbuch
-  PATH:adressen
-  PATH:adresses
-  PATH:ksiazka-adresowa
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.addresses
-  TARGET:/customer/Address.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/adressbok
-  PATH:benutzerkonto/adressbuch
-  PATH:brugerkonto/adressebog
-  PATH:cuenta_de_usuario/adressbuch
-  PATH:kayttajatili/adressbuch
-  PATH:konto-uzytkownika/ksiazka-adresowa
-  PATH:kullanici-hesabi/adressbuch
-  PATH:mijnaccount/adresboek
-  PATH:moncompte/carnet-adresse
-  PATH:myaccount/addressbook
-  PARAM:NAME=listAddresses;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.address.save
-  TARGET:/customer/Address.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/adressbok/spara/adress
-  PATH:benutzerkonto/adressbuch/adresse/speichern
-  PATH:brugerkonto/adressebog/adresse/speichern
-  PATH:cuenta_de_usuario/adressbuch/adresse/speichern
-  PATH:kayttajatili/adressbuch/adresse/speichern
-  PATH:konto-uzytkownika/ksiazka-adresowa/adress/zaoszczedzic
-  PATH:kullanici-hesabi/adressbuch/adresse/speichern
-  PATH:mijnaccount/adresboek/adres/opslaan
-  PATH:moncompte/carnet-adresse/adresse/sauvegarder
-  PATH:myaccount/addressbook/address/save
-  PARAM:NAME=submitAddress;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.address.suggest.byZipAndHousenumber
-  TARGET:/customer/AddressSuggest.action
-  TARGET-TYPE: STRIPES
-  PATH:customer/suggestAddress
-  PARAM:NAME=byZipAndHousenumber;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=zip
-  PARAM:NAME=houseNumber;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.creditAccount
-  TARGET:/customer/CreditAccount.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/presentkort
-  PATH:benutzerkonto/geschenkgutscheine
-  PATH:brugerkonto/gavekort
-  PATH:cuenta_de_usuario/geschenkgutscheine
-  PATH:kayttajatili/geschenkgutscheine
-  PATH:konto-uzytkownika/geschenkgutscheine
-  PATH:kullanici-hesabi/hediye-cekleri
-  PATH:mijnaccount/vouchers
-  PATH:moncompte/cheque-cadeau
-  PATH:myaccount/buoni-regalo
-  PATH:myaccount/giftvouchers
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.order.return
-  TARGET:/customer/Order.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/utskrift-retur
-  PATH:benutzerkonto/drucken-retour
-  PATH:brugerkonto/drucken-retour
-  PATH:cuenta_de_usuario/drucken-retour
-  PATH:kayttajatili/drucken-retour
-  PATH:konto-uzytkownika/drucken-retour
-  PATH:kullanici-hesabi/drucken-retour
-  PATH:mijnaccount/drukken-retour
-  PATH:moncompte/imprimer-retour
-  PATH:myaccount/print-return
-  PARAM:NAME=printReturnLabel;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=orderNumber
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.orderdetail
-  TARGET:/customer/Order.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/bestallning-detaljer
-  PATH:benutzerkonto/bestellung-detail
-  PATH:brugerkonto/bestellung-detail
-  PATH:cuenta_de_usuario/bestellung-detail
-  PATH:kayttajatili/bestellung-detail
-  PATH:konto-uzytkownika/bestellung-detail
-  PATH:kullanici-hesabi/bestellung-detail
-  PATH:mijnaccount/bestelling-detail
-  PATH:moncompte/detail-commandes
-  PATH:myaccount/order-detail
-  PARAM:NAME=gotoOrderDetailPage;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=orderNumber
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.orderdetail.print
-  TARGET:/customer/Order.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/bestallning-detaljer/utskrift
-  PATH:benutzerkonto/bestellung-detail/druck
-  PATH:brugerkonto/bestellung-detail/druck
-  PATH:cuenta_de_usuario/bestellung-detail/druck
-  PATH:kayttajatili/bestellung-detail/druck
-  PATH:konto-uzytkownika/bestellung-detail/druck
-  PATH:kullanici-hesabi/bestellung-detail/druck
-  PATH:mijnaccount/bestelling-detail/drukken
-  PATH:moncompte/detail-commandes/imprimer
-  PATH:myaccount/order-detail/print
-  PARAM:NAME=gotoOrderDetailPagePrint;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=orderNumber
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.orders
-  TARGET:/customer/Order.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/bestallning
-  PATH:benutzerkonto/bestellungen
-  PATH:brugerkonto/bestellungen
-  PATH:cuenta_de_usuario/bestellungen
-  PATH:kayttajatili/bestellungen
-  PATH:konto-uzytkownika/bestellungen
-  PATH:kullanici-hesabi/bestellungen
-  PATH:mijnaccount/bestellingen
-  PATH:moncompte/commandes
-  PATH:myaccount/orders
-  PARAM:NAME=page;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.newsletter
-  TARGET:/customer/Newsletter.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/newsletter
-  PATH:benutzerkonto/newsletter
-  PATH:brugerkonto/nyhedsbrev
-  PATH:konto-uzytkownika/newsletter
-  PATH:kullanici-hesabi/e-bulten
-  PATH:mijnaccount/nieuwsbrief
-  PATH:moncompte/newsletter
-  PATH:myaccount/newsletter
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.newsletter.confirm
-  TARGET:/customer/NewsletterConfirm.action
-  TARGET-TYPE: STRIPES
-  PATH:newsletter/confirm
-  PARAM:NAME=newsletterId;OPTIONAL=true
-  PARAM:NAME=confirmHash;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.anon.newsletter.subscribe
-  TARGET:/customer/NewsletterAnon.action
-  TARGET-TYPE: STRIPES
-  PATH:newsletter/subscriber/new
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.newsletter.unsubscribe
-  TARGET:/customer/NewsletterUnsubscribe.action
-  TARGET-TYPE: STRIPES
-  PATH:newsletter/unsubscribe
-  PARAM:NAME=newsletterId
-  PARAM:NAME=hash
-  PARAM:NAME=email
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.newsletter.unsubscribe-all
-  TARGET:/customer/NewsletterUnsubscribeAll.action
-  TARGET-TYPE: STRIPES
-  PATH:newsletter/unsubscribe-all
-  PARAM:NAME=newsletterId
-  PARAM:NAME=hash
-  PARAM:NAME=email
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.newsletter.unsubscribe-all.send
-  TARGET:/customer/NewsletterUnsubscribeAll.action
-  TARGET-TYPE: STRIPES
-  PATH:newsletter/unsubscribe-all/post
-  PARAM:NAME=doUnsubscribe;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.newsletter.unsubscribe.send
-  TARGET:/customer/NewsletterUnsubscribe.action
-  TARGET-TYPE: STRIPES
-  PATH:newsletter/unsubscribe
-  PARAM:NAME=doUnsubscribe;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.newsletter.update.personal.data
-  TARGET:/customer/UpdateNewsletterPersonalData.action
-  TARGET-TYPE: STRIPES
-  PATH:newsletter/update/personal-data
-  PARAM:NAME=hash
-  PARAM:NAME=email
-  PARAM:NAME=gender
-  PARAM:NAME=target
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.offlineregister.alreadyOrdered
-  TARGET:/customer/OfflineRegistration.action
-  TARGET-TYPE: STRIPES
-  PATH:outletstore/bereits-bestellt
-  PARAM:NAME=alreadyOrdered;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.offlineregister.confirmAddress
-  TARGET:/customer/OfflineRegistration.action
-  TARGET-TYPE: STRIPES
-  PATH:outletstore/adresse-pruefen
-  PARAM:NAME=confirmAddress;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.offlineregister.editAddress
-  TARGET:/customer/OfflineRegistration.action
-  TARGET-TYPE: STRIPES
-  PATH:outletstore/adresse-bearbeiten
-  PARAM:NAME=editAddress;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.offlineregister.login
-  TARGET:/customer/OfflineRegistration.action
-  TARGET-TYPE: STRIPES
-  PATH:outletstore
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.offlineregister.register
-  TARGET:/customer/OfflineRegistration.action
-  TARGET-TYPE: STRIPES
-  PATH:outletstore/anmelden
-  PARAM:NAME=showRegister;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.offlineregister.success
-  TARGET:/customer/OfflineRegistration.action
-  TARGET-TYPE: STRIPES
-  PATH:outletstore/bestellung-abgeschlossen
-  PARAM:NAME=success;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.offlineregister.backToShop
-  TARGET:/customer/OfflineRegistration.action
-  TARGET-TYPE: STRIPES
-  PATH:outletstore/zum-shop
-  PARAM:NAME=backToShop;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.control.selected.articles
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/bekrafta-artikel
-  PATH:benutzerkonto/artikel-bestaetigen
-  PATH:brugerkonto/bekraefte-vare
-  PATH:cuenta_de_usuario/confirmar-articulo
-  PATH:kayttajatili/tuote-vahvistus
-  PATH:konto-uzytkownika/potwierdz-artykul
-  PATH:kullanici-hesabi/artikel-bestaetigen
-  PATH:mijnaccount/article-bevestigen
-  PATH:moncompte/article-confirment
-  PATH:myaccount/article-confirm
-  PATH:myaccount/articolo-confermare
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.repayment
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/tillgodobelopp
-  PATH:benutzerkonto/gutschrift
-  PATH:brugerkonto/tilgodehavende
-  PATH:cuenta_de_usuario/abono-en-cuenta
-  PATH:kayttajatili/hyvitys
-  PATH:konto-uzytkownika/saldo
-  PATH:kullanici-hesabi/arti-bakiye
-  PATH:mijnaccount/krediet
-  PATH:moncompte/credit
-  PATH:myaccount/ammontare
-  PATH:myaccount/credit
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.overview
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/returer
-  PATH:benutzerkonto/retouren
-  PATH:brugerkonto/returnering
-  PATH:cuenta_de_usuario/devoluciones
-  PATH:kayttajatili/palautukset
-  PATH:konto-uzytkownika/zwroty
-  PATH:kullanici-hesabi/retouren
-  PATH:mijnaccount/terugkeren
-  PATH:moncompte/retours
-  PATH:myaccount/returns
-  PATH:myaccount/ritorna
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.remote.print
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/bestall-returetikett
-  PATH:benutzerkonto/retourenlabel-anfordern
-  PATH:brugerkonto/retourenlabel-anfordern
-  PATH:cuenta_de_usuario/retourenlabel-anfordern
-  PATH:kayttajatili/retourenlabel-anfordern
-  PATH:konto-uzytkownika/retourenlabel-anfordern
-  PATH:kullanici-hesabi/retourenlabel-anfordern
-  PATH:mijnaccount/verzoek-retouretiket
-  PATH:moncompte/demande-etiquette-retour
-  PATH:myaccount/request-returnlabel
-  PATH:myaccount/richiesta-etichetta-ritorno
-  PARAM:NAME=showRemotePrintReturnLabel;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=advisedReturnOrderId
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.remote.print.send
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/returetikett-bestaellt
-  PATH:benutzerkonto/retourenlabel-anfordern-success
-  PATH:brugerkonto/retourenlabel-anfordern-success
-  PATH:cuenta_de_usuario/retourenlabel-anfordern-success
-  PATH:kayttajatili/retourenlabel-anfordern-success
-  PATH:konto-uzytkownika/retourenlabel-anfordern-success
-  PATH:kullanici-hesabi/retourenlabel-anfordern-success
-  PATH:mijnaccount/verzoek-retouretiket-success
-  PATH:moncompte/demande-etiquette-retour-success
-  PATH:myaccount/request-returnlabel-success
-  PATH:myaccount/richiesta-etichetta-ritorno-success
-  PARAM:NAME=sendRemotePrintReturnLabel;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=advisedReturnOrderId
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.print.return.label
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/skriv-ut-returetikett
-  PATH:benutzerkonto/retourenlabel-drucken
-  PATH:brugerkonto/print-returlabel
-  PATH:cuenta_de_usuario/imprimir-etiqueta-devolucion
-  PATH:kayttajatili/palautuslomake-tulostus
-  PATH:konto-uzytkownika/drukuj-naklejke-zwrotna
-  PATH:kullanici-hesabi/retourenlabel-drucken
-  PATH:mijnaccount/print-retouretiket
-  PATH:moncompte/imprimer-etiquette-retour
-  PATH:myaccount/print-returnlabel
-  PATH:myaccount/stampa-etichetta-ritorno
-  PARAM:NAME=printReturnLabel;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=advisedReturnOrderId
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.submit.selected.articles
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/skriv-ut-returetikett
-  PATH:benutzerkonto/retourenlabel-drucken
-  PATH:brugerkonto/print-returlabel
-  PATH:cuenta_de_usuario/imprimir-etiqueta-devolucion
-  PATH:kayttajatili/palautuslomake-tulostus
-  PATH:konto-uzytkownika/drukuj-naklejke-zwrotna
-  PATH:kullanici-hesabi/retourenlabel-drucken
-  PATH:mijnaccount/print-retouretiket
-  PATH:moncompte/imprimer-etiquette-retour
-  PATH:myaccount/print-returnlabel
-  PATH:myaccount/stampa-etichetta-ritorno
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.return.management
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/hantera-returer
-  PATH:benutzerkonto/retouren-verwalten
-  PATH:brugerkonto/administrer-returnering
-  PATH:cuenta_de_usuario/administrar-devoluciones
-  PATH:kayttajatili/palautukset-hallinta
-  PATH:konto-uzytkownika/zarzadaj-zwrotami
-  PATH:kullanici-hesabi/retouren-verwalten
-  PATH:mijnaccount/beheer-terug
-  PATH:moncompte/gerer-retours
-  PATH:myaccount/gestire-ritorni
-  PATH:myaccount/manage-returns
-  PARAM:NAME=showReturnManagement;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=page;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.returnable.orders
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/mina-besteallningar
-  PATH:benutzerkonto/meine-bestellungen
-  PATH:brugerkonto/mine-bestillinger
-  PATH:cuenta_de_usuario/mis-pedidos
-  PATH:kayttajatili/omat-tilaukset
-  PATH:konto-uzytkownika/moje-zamowienia
-  PATH:kullanici-hesabi/meine-bestellungen
-  PATH:mijnaccount/mijn-bestellingen
-  PATH:moncompte/mes-commandes
-  PATH:myaccount/miei-ordini
-  PATH:myaccount/my-orders
-  PARAM:NAME=showReturnableOrders;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=page;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.onlineretoure.select.article
-  TARGET:/customer/OnlineRetoure.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/valj-artikel
-  PATH:benutzerkonto/artikel-waehlen
-  PATH:brugerkonto/vaelge-vare
-  PATH:cuenta_de_usuario/seleccionar-articulo
-  PATH:kayttajatili/tuote-valinta
-  PATH:konto-uzytkownika/wybierz-artykul
-  PATH:kullanici-hesabi/artikel-waehlen
-  PATH:mijnaccount/article-selecteren
-  PATH:moncompte/article-choisissez
-  PATH:myaccount/article-choose
-  PATH:myaccount/articolo-scegliere
-  PARAM:NAME=showSelectArticleFromOrder;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.payment
-  TARGET:/customer/Payment.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/betalningssaett
-  PATH:benutzerkonto/zahlungsarten
-  PATH:brugerkonto/betalingsformer
-  PATH:konto-uzytkownika/platnosci
-  PATH:kullanici-hesabi/odeme-secenekleri
-  PATH:mijnaccount/betaalmethoden
-  PATH:moncompte/moyen-paiement
-  PATH:myaccount/payment-methods
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.payment.addCreditCard
-  TARGET:/customer/Payment.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/betalningssaett/kreditkarte
-  PATH:benutzerkonto/zahlungsarten/kreditkarte
-  PATH:brugerkonto/betalingsformer/kreditkarte
-  PATH:konto-uzytkownika/platnosci/kreditkarte
-  PATH:kullanici-hesabi/odeme-secenekleri/kreditkarte
-  PATH:mijnaccount/betaalmethoden/creditcard
-  PATH:moncompte/moyen-paiement/carte-credit
-  PATH:myaccount/payment-methods/creditcard
-  PARAM:NAME=showAddCreditCard;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.payment.addDirectDebitBankAccount
-  TARGET:/customer/Payment.action
-  TARGET-TYPE: STRIPES
-  PATH:anvandarkonto/bankforbindelse
-  PATH:benutzerkonto/bankverbindung
-  PATH:brugerkonto/bankoplysninger
-  PATH:konto-uzytkownika/dane-bankowe
-  PATH:kullanici-hesabi/banka-bilgileri
-  PATH:mijnaccount/bankgegevens
-  PATH:moncompte/compte-bancaire
-  PATH:myaccount/bank-account
-  PARAM:NAME=showAddDirectDebitBankAccount;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.query.suggest
-  TARGET:/Suggest.action
-  TARGET-TYPE: STRIPES
-  PATH:suggest
-  PARAM:NAME=query;PREFIX=?query=
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.publicWishlist
-  TARGET:/customer/PublicWishlist.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/pokazac
-  PATH:liste-souhaits/montrer
-  PATH:oenskelista/visar
-  PATH:verlanglijstje/tonen
-  PATH:wishlist/show
-  PATH:wunschzettel/zeigen
-  PARAM:NAME=customerHash
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.publicWishlist.addToCart
-  TARGET:/checkout/Cart.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/pokazac/zum-warenkorb
-  PATH:liste-souhaits/montrer/ajouterAuPanier
-  PATH:oenskelista/visar/till-kundvagnen
-  PATH:verlanglijstje/tonen/addToCart
-  PATH:wishlist/show/addToCart
-  PATH:wunschzettel/zeigen/zum-warenkorb
-  PARAM:NAME=addPublicWishListToCart;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=customerHash
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.publicWishlist.snapshot
-  TARGET:/customer/PublicWishlist.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/zapisywane
-  PATH:liste-souhaits/sauve
-  PATH:oenskelista/sparade
-  PATH:verlanglijstje/opslaan
-  PATH:wishlist/saved
-  PATH:wunschzettel/gespeichert
-  PARAM:NAME=customerHash
-  PARAM:NAME=snapshot
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist
-  TARGET:/customer/Wishlist.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen
-  PATH:liste-souhaits
-  PATH:oenskelista
-  PATH:verlanglijstje
-  PATH:wishlist
-  PATH:wunschzettel
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist.add
-  TARGET:/customer/Wishlist.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/neu
-  PATH:liste-souhaits/nouveau
-  PATH:oenskelista/nytt
-  PATH:verlanglijstje/toevoegen
-  PATH:wishlist/add
-  PATH:wunschzettel/neu
-  PARAM:NAME=addToWishlist;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=articleSku
-  PARAM:NAME=articleSimpleSku
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist.addToCart
-  TARGET:/checkout/Cart.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/zum-warenkorb
-  PATH:liste-souhaits/ajouterAuPanier
-  PATH:oenskelista/till-kundvagnen
-  PATH:verlanglijstje/addToCart
-  PATH:wishlist/addToCart
-  PATH:wunschzettel/zum-warenkorb
-  PARAM:NAME=addWishListToCart;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist.ajax.add
-  TARGET:/customer/WishlistAjax.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/ajax/add
-  PATH:liste-souhaits/ajax/add
-  PATH:oenskelista/ajax/add
-  PATH:verlanglijstje/ajax/add
-  PATH:wishlist/ajax/add
-  PATH:wunschzettel/ajax/add
-  PARAM:NAME=addToWishlistAjax;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=articleSku
-  PARAM:NAME=articleSimpleSku
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist.ajax.fbshare
-  TARGET:/customer/WishlistAjax.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/ajax/fbshare
-  PATH:liste-souhaits/ajax/fbshare
-  PATH:oenskelista/ajax/fbshare
-  PATH:verlanglijstje/ajax/fbshare
-  PATH:wishlist/ajax/fbshare
-  PATH:wunschzettel/ajax/fbshare
-  PARAM:NAME=facebookShare;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist.ajax.item.exists
-  TARGET:/customer/WishlistAjax.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/ajax/check
-  PATH:liste-souhaits/ajax/check
-  PATH:oenskelista/ajax/check
-  PATH:verlanglijstje/ajax/check
-  PATH:wishlist/ajax/check
-  PATH:wunschzettel/ajax/check
-  PARAM:NAME=existsOnWishlist;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=articleSku
-  PARAM:NAME=articleSimpleSku
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist.ajax.remove
-  TARGET:/customer/WishlistAjax.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/ajax/remove
-  PATH:liste-souhaits/ajax/remove
-  PATH:oenskelista/ajax/remove
-  PATH:verlanglijstje/ajax/remove
-  PATH:wishlist/ajax/remove
-  PATH:wunschzettel/ajax/remove
-  PARAM:NAME=removeFromWishlist;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=wishlistItemId
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist.remove
-  TARGET:/customer/Wishlist.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/entfernen
-  PATH:liste-souhaits/supprimer
-  PATH:oenskelista/radera
-  PATH:verlanglijstje/verwijderen
-  PATH:wishlist/remove
-  PATH:wunschzettel/entfernen
-  PARAM:NAME=removeFromWishlist;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=wishlistItemId
-
-
---------------------------------------------------------------------------------
-RULE:link.customer.wishlist.send
-  TARGET:/customer/Wishlist.action
-  TARGET-TYPE: STRIPES
-  PATH:lista-zyczen/senden
-  PATH:liste-souhaits/envoyer
-  PATH:oenskelista/skicka
-  PATH:verlanglijstje/verzenden
-  PATH:wishlist/send
-  PATH:wunschzettel/senden
-  PARAM:NAME=sendWishlist;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.debug.error400
-  TARGET:/Debug.action
-  TARGET-TYPE: STRIPES
-  PATH:debug/error400
-  PARAM:NAME=testBadRequest;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.debug.error500
-  TARGET:/Debug.action
-  TARGET-TYPE: STRIPES
-  PATH:debug/error500
-  PARAM:NAME=testInternalServerError;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.dump
-  TARGET:/Dump.action
-  TARGET-TYPE: STRIPES
-  PATH:dump/article-stocks/p4BReMh8
-  PARAM:NAME=**from input**;PATHVARIABLE=
-
-
---------------------------------------------------------------------------------
-RULE:link.debug.solrdata
-  TARGET:/Debug.action
-  TARGET-TYPE: STRIPES
-  PATH:debug/solr-data
-  PARAM:NAME=getSolrData;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=sku
-
-
---------------------------------------------------------------------------------
-RULE:link.dynareco.image.ch
-  TARGET:/reco/DynaReco.action
-  TARGET-TYPE: STRIPES
-  PATH:katalog/recoimage.jpg
-  PARAM:NAME=image;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=customerHash
-  PARAM:NAME=position
-
-
---------------------------------------------------------------------------------
-RULE:link.dynareco.image.sku
-  TARGET:/reco/DynaReco.action
-  TARGET-TYPE: STRIPES
-  PATH:katalog/recoimage.jpg
-  PARAM:NAME=image;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=sku
-  PARAM:NAME=position
-
-
---------------------------------------------------------------------------------
-RULE:link.dynareco.link.ch
-  TARGET:/reco/DynaReco.action
-  TARGET-TYPE: STRIPES
-  PATH:katalog/recolink
-  PARAM:NAME=link;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=customerHash
-  PARAM:NAME=position
-
-
---------------------------------------------------------------------------------
-RULE:link.dynareco.link.sku
-  TARGET:/reco/DynaReco.action
-  TARGET-TYPE: STRIPES
-  PATH:katalog/recolink
-  PARAM:NAME=link;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=sku
-  PARAM:NAME=position
-
-
---------------------------------------------------------------------------------
-RULE:link.home
-  TARGET:/Home.action
-  TARGET-TYPE: STRIPES
-  PATH:
-
-
---------------------------------------------------------------------------------
-RULE:link.lookup.article
-  TARGET:/catalog/ArticleDetail.action
-  TARGET-TYPE: STRIPES
-  PATH:lookup/article
-  PARAM:NAME=lookupArticle;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=sku
-
-
---------------------------------------------------------------------------------
-RULE:link.lookup.category
-  TARGET:/catalog/ArticleDetail.action
-  TARGET-TYPE: STRIPES
-  PATH:lookup/category
-  PARAM:NAME=lookupCategory;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=sku
-
-
---------------------------------------------------------------------------------
-RULE:link.lookup.review
-  TARGET:/catalog/ArticleDetail.action
-  TARGET-TYPE: STRIPES
-  PATH:lookup/review
-  PARAM:NAME=lookupArticle;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=sku
-  PARAM:NAME=showReview;FIXEDVALUE=1
-
-
---------------------------------------------------------------------------------
-RULE:link.lottery.form
-  TARGET:/Lottery.action
-  TARGET-TYPE: STRIPES
-  PATH:lottery-participation
-
-
---------------------------------------------------------------------------------
-RULE:link.newProducts
-  TARGET:/catalog/Category.action
-  TARGET-TYPE: STRIPES
-  PATH:neu
-  PATH:new
-  PATH:nieuw
-  PATH:nouveau
-  PATH:ny
-  PARAM:NAME=urlKey;FIXEDVALUE=katalog
-  PARAM:NAME=new;FIXEDVALUE=true
-
-
---------------------------------------------------------------------------------
-RULE:link.partner.cms.block
-  TARGET:/AjaxCmsBlock.action
-  TARGET-TYPE: STRIPES
-  PATH:partner/cms-block
-  PARAM:NAME=key
-
-
---------------------------------------------------------------------------------
-RULE:link.pds
-  TARGET:/catalog/ArticleDetail.action
-  TARGET-TYPE: STRIPES
-  PATH:
-  PARAM:NAME=urlKey;SUFFIX=.html
-
-
---------------------------------------------------------------------------------
-RULE:link.press
-  TARGET:/Press.action
-  TARGET-TYPE: STRIPES
-  PATH:press/index/post
-  PATH:presse/index/poste
-
-
---------------------------------------------------------------------------------
-RULE:link.recoreco
-  TARGET:/RecoReco.action
-  TARGET-TYPE: STRIPES
-  PATH:recoreco
-  PARAM:NAME=**from input**;PATHVARIABLE=
-
-
---------------------------------------------------------------------------------
-RULE:link.recoreco.detail
-  TARGET:/RecoReco.action
-  TARGET-TYPE: STRIPES
-  PATH:recorecoDetail
-  PARAM:NAME=ajaxShowDetailRecos;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=urlKey
-  PARAM:NAME=excludedSkus;OPTIONAL=true
-  PARAM:NAME=size;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.sizeChart.show
-  TARGET:/catalog/SizeChart.action
-  TARGET-TYPE: STRIPES
-  PATH:elenco-delle-taglie
-  PATH:groessentabelle
-  PATH:guide-tailles
-  PATH:maattabel
-  PATH:size-table
-  PATH:storlekstabell
-  PARAM:NAME=category
-  PARAM:NAME=size;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.tracking.performance.config
-  TARGET:/TrackingPerformance.action
-  TARGET-TYPE: STRIPES
-  PATH:trackingperformance/config
-  PARAM:NAME=config;FIXEDVALUE=;FIRST=true
-
-
---------------------------------------------------------------------------------
-RULE:link.tracking.performance.test
-  TARGET:/TrackingPerformance.action
-  TARGET-TYPE: STRIPES
-  PATH:trackingperformance
-  PARAM:NAME=pixelId
-  PARAM:NAME=pageId
-
-
---------------------------------------------------------------------------------
-RULE:link.cookie.test.start
-  TARGET:/cookietest/CookieTest.action
-  TARGET-TYPE: STRIPES
-  PATH:cookietest/start
-  PARAM:NAME=start;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=paramTestContentMultiplier;OPTIONAL=true
-  PARAM:NAME=paramCookieCount;OPTIONAL=true
-  PARAM:NAME=paramStartstep;OPTIONAL=true
-  PARAM:NAME=paramChipsetLength;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.voucher
-  TARGET:/checkout/Voucher.action
-  TARGET-TYPE: STRIPES
-  PATH:buoni-regalo
-  PATH:cheque-cadeau
-  PATH:gavekort
-  PATH:geschenkgutscheine
-  PATH:giftvouchers
-  PATH:hediye-cekleri
-  PATH:presentkort
-  PATH:vouchers
-
-
---------------------------------------------------------------------------------
-RULE:link.voucher.simpledropdown
-  TARGET:/checkout/Voucher.action
-  TARGET-TYPE: STRIPES
-  PATH:buoni-regalo/dropdown
-  PATH:cheque-cadeau/dropdown
-  PATH:gavekort/dropdown
-  PATH:geschenkgutscheine/dropdown
-  PATH:giftvouchers/dropdown
-  PATH:hediye-cekleri/dropdown
-  PATH:presentkort/dropdown
-  PATH:vouchers/dropdown
-  PARAM:NAME=dropdown;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=articleSku;OPTIONAL=true
-  PARAM:NAME=dropdownId;OPTIONAL=true
-
-
---------------------------------------------------------------------------------
-RULE:link.voucher.defaultSelectForm
-  TARGET:/checkout/Voucher.action
-  TARGET-TYPE: STRIPES
-  PATH:buoni-regalo/defaultSelectForm
-  PATH:cheque-cadeau/defaultSelectForm
-  PATH:gavekort/defaultSelectForm
-  PATH:geschenkgutscheine/defaultSelectForm
-  PATH:giftvouchers/defaultSelectForm
-  PATH:hediye-cekleri/defaultSelectForm
-  PATH:presentkort/defaultSelectForm
-  PATH:vouchers/defaultSelectForm
-  PARAM:NAME=defaultSelectForm;FIXEDVALUE=;FIRST=true
-  PARAM:NAME=formId
-
-
---------------------------------------------------------------------------------
-RULE:link.robots.txt
-  TARGET:/seo/RobotsTxt.action
-  TARGET-TYPE: STRIPES
-  PATH:robots.txt
-
-
---------------------------------------------------------------------------------
-RULE:link.xml.sitemap
-  TARGET:/seo/XmlSiteMap.action
-  TARGET-TYPE: STRIPES
-  PATH:sitemap.xml
-
-
---------------------------------------------------------------------------------
-RULE:link.400
-  TARGET://WEB-INF/jsp/pages/static_pages/400.jsp
-  TARGET-TYPE: STATIC
-  PATH:400
-
-
---------------------------------------------------------------------------------
-RULE:link.404
-  TARGET://WEB-INF/jsp/pages/static_pages/404.jsp
-  TARGET-TYPE: STATIC
-  PATH:404
-
-
---------------------------------------------------------------------------------
-RULE:link.500
-  TARGET://WEB-INF/jsp/pages/static_pages/500.jsp
-  TARGET-TYPE: STATIC
-  PATH:500
-
-
---------------------------------------------------------------------------------
-RULE:link.test2
-  TARGET:/searchtools/SearchDashboard.action
-  TARGET-TYPE: STRIPES
-  PATH:searchdashboard
-
-
---------------------------------------------------------------------------------
-RULE:link.test.searchstats
-  TARGET:/searchtools/SearchStats.action
-  TARGET-TYPE: STRIPES
-  PATH:searchstats
-
-
---------------------------------------------------------------------------------
-RULE:link.test.updater
-  TARGET:/Updater.action
-  TARGET-TYPE: STRIPES
-  PATH:updater
-  PARAM:NAME=**from input**;PATHVARIABLE=
-
-
---------------------------------------------------------------------------------
-RULE:link.test.queriesupload
-  TARGET:/searchtools/QueriesUpload.action
-  TARGET-TYPE: STRIPES
-  PATH:queriesupload
-
-
---------------------------------------------------------------------------------
-RULE:link.test.testconcept
-  TARGET:/searchtools/TestConcept.action
-  TARGET-TYPE: STRIPES
-  PATH:testconcept
-
-
---------------------------------------------------------------------------------
-RULE:link.test.sessiondata
-  TARGET:/performance/SessionDataInfo.action
-  TARGET-TYPE: STRIPES
-  PATH:sessiondata
-
-
---------------------------------------------------------------------------------
-RULE:link.test.normalizeword
-  TARGET:/searchtools/NormalizeWord.action
-  TARGET-TYPE: STRIPES
-  PATH:normalizeword
-
-
---------------------------------------------------------------------------------
-RULE:link.test.loadconcept
-  TARGET:/searchtools/LoadConcept.action
-  TARGET-TYPE: STRIPES
-  PATH:loadconcept
-
-
---------------------------------------------------------------------------------
-RULE:link.test.testfeature
-  TARGET:/searchtools/TestFeature.action
-  TARGET-TYPE: STRIPES
-  PATH:testfeature
-
---------------------------------------------------------------------------------
-RULE:link.springcontroller.test
-  TARGET:/foo/bar/{baz}/phleem
-  TARGET-TYPE: SPRING
-  PATH:wham
-  PARAM:NAME=baz;PATHSEGMENT=1
+[
+  {   "id" : "link.admin.login",
+      "paths" : [ "admin/login" ],
+      "ruleMappingTargets" : [ {
+            "targetUrl" : "/customer/AdminLogin.action",
+            "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.admin.login.link",
+      "paths" : [ "admin/login" ],
+      "parameters" : [ {
+            "name" : "emailCombination",
+            "incomingName" : [ "admin", "customer" ],
+            "delimiter" : ":"
+          } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/AdminLogin.action",
+          "targetType" : "STRIPES"
+      } ]
+
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.article.review.save",
+      "paths" : [ "article/review/save" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/catalog/ArticleDetail.action",
+          "targetType" : "STRIPES"
+
+      } ],
+      "parameters" : [ { "name" : "saveReview", "value" :"", "first" : true },
+                       { "name" : "urlKey", "suffix" : ".html" }
+                     ]
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.article.sendfriend.submit",
+      "paths" : [ "article/recommendation/submit" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/catalog/ArticleDetail.action",
+          "targetType" : "STRIPES"
+      } ],
+          "parameters" : [ { "name" : "sendFriendSubmit", "value" : "", "first" : true },
+                           { "name" : "urlKey", "suffix" : ".html" }
+                         ]
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.article.sizeReminder.submit",
+      "paths" : [ "article/sizereminder/submit" ],
+      "ruleMappingTargets" : [ {
+              "targetUrl" : "/catalog/ArticleDetail.action",
+              "targetType" : "STRIPES"
+      } ],
+              "parameters" : [ { "name" : "sizeReminderSubmit", "value" : "", "first" : true },
+                               { "name" : "urlKey", "suffix" : ".html" } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.brands.active",
+      "paths" : [ "activebrands" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/catalog/ActiveBrands.action",
+          "targetType" : "STRIPES"
+      } ]
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.cart",
+      "paths" : ["cart", "koszyk" , "kundvagn", "panier" , "sepetim", "varekurv" , "warenkorb",  "winkelwagen" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Cart.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.cart.ajax",
+      "paths" : ["ajax-cart" , "ajax-koszyk", "ajax-kundvagn" , "ajax-panier", "ajax-sepetim" , "ajax-varekurv", "ajax-warenkorb" , "ajax-winkelwagen"],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/AjaxCart.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.cart.login",
+      "paths" : ["cart/login" , "koszyk/login", "kundvagn/login" , "panier/nom-utilisateur", "sepetim/uye-girisi" , "varekurv/login", "warenkorb/login" , "winkelwagen/login"],
+      "parameters" : [ { "name" : "loginToCart", "value" : "", "first" : true },
+                   { "name" : "email" }
+                 ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Cart.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.checkout.addresses",
+      "paths" : ["checkout/addresses" , "kasa/adresler", "kasa/adresy" , "kassa/adressen", "kassa/adresser" , "kasse/adressen", "kasse/adresser" , "paiement/adresse"],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Addresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.checkout.addresses.delete",
+      "paths" : ["checkout/addresses/delete-address" , "kasa/adresler/adresse-loeschen", "kasa/adresy/adres-dostawy-usunac" , "kassa/adressen/adres-verwijderen", "kassa/adresser/radera-adress" , "kasse/adressen/adresse-loeschen", "kasse/adresser/adresse-loeschen" , "paiement/adresse/supprimer-adresse"],
+      "parameters" : [ { "name" : "deleteShippingAddress", "value" : "", "first" : true },
+                   { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Addresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.checkout.addresses.edit.billing",
+      "paths" : ["checkout/addresses/edit-billing-address" , "kasa/adresler/fatura-adresi-degistir", "kasa/adresy/adres-faktury-edytowac" , "kassa/adressen/factuuradres-wijzigen", "kassa/adresser/andra-fakturaadress" , "kasse/adressen/rechnungsadresse-bearbeiten", "kasse/adresser/rechnungsadresse-bearbeiten" , "paiement/adresse/modifier-adresse-facturation"],
+      "parameters" : [ { "name" : "showEditBillingAddress", "value" : "", "first" : true },
+                       { "name" : "addressId", "optional" : true }
+                     ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Addresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.checkout.addresses.edit.shipping",
+      "paths" : ["checkout/addresses/edit-shipping-address" , "kasa/adresler/teslimat-adresi-degistir", "kasa/adresy/adres-dostawy-edytowac" , "kassa/adressen/verzendadres-wijzigen", "kassa/adresser/andra-leveransadress" , "kasse/adressen/lieferadresse-bearbeiten", "kasse/adresser/lieferadresse-bearbeiten" , "paiement/adresse/modifier-adresse-livraison"],
+      "parameters" : [ { "name" : "showEditShippingAddress", "value" : "", "first" : true },
+                       { "name" : "addressId", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Addresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.checkout.addresses.kiala",
+      "paths" : ["checkout/addresses/kiala" , "kasa/adresler/kiala", "kasa/adresy/kiala" , "kassa/adressen/kiala", "kassa/adresser/kiala" , "kasse/adressen/kiala", "kasse/adresser/kiala" , "paiement/adresse/kiala"],
+      "parameters" : [ { "name" : "showSelectKialaAddress", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Addresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.checkout.addresses.kiala.receive",
+      "paths" : [ "checkout/kiala/receive" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/address/external/Kiala.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.checkout.addresses.select",
+      "paths" : ["checkout/addresses/select-billing-address" , "kasa/adresler/rechnungsadresse-waehlen", "kasa/adresy/adres-faktury-wybierac" , "kassa/adressen/select-billing-address", "kassa/adresser/valj-fakturaadress" , "kasse/adressen/rechnungsadresse-waehlen", "kasse/adresser/rechnungsadresse-waehlen" , "paiement/adresse/choisir-adresse-facturation"],
+      "parameters" : [ { "name" : "selectBillingAddress", "value" : "", "first" : true },
+                       { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Addresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //------------------------------------------------------------------------------------
+  {   "id" : "link.checkout.addresses.select.shipping",
+      "paths" : ["checkout/addresses/select-shipping-address" , "kasa/adresler/lieferadresse-waehlen", "kasa/adresy/adres-dostawy-wybierac" , "kassa/adressen/select-shipping-address", "kassa/adresser/valj-leveransadress" , "kasse/adressen/lieferadresse-waehlen", "kasse/adresser/lieferadresse-waehlen" , "paiement/adresse/choisir-adresse-livraison"],
+      "parameters" : [ { "name" : "selectShippingAddress", "value" : "", "first" : true },
+                       { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Addresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.canceled",
+      "paths" : ["checkout/cancelled" , "kasa/abgebrochen", "kassa/afgezegd" , "kassa/avbrutet", "kasse/abgebrochen" , "paiement/annule"],
+      "parameters" : [ { "name" : "cancel", "value" : "", "first" : true },
+                       { "name" : "id", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Final.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.failed",
+      "paths" : ["checkout/failed" , "kasa/fehlgeschlagen", "kassa/fel" , "kassa/mislukt", "kasse/fehlgeschlagen" , "paiement/echec"],
+      "parameters" : [ { "name" : "failure", "value" : "", "first" : true },
+                       { "name" : "id", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Final.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.feedback",
+      "paths" : ["bestallning/asikt" , "bestelling/feedback", "bestellung/meinung" , "commande/evaluation",  "order/feedback" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Feedback.action",
+      "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.payment",
+      "paths" : ["checkout/payment" , "kasa/odeme-secenegi", "kasa/rodzaj-platnosci" , "kassa/betaalmethode", "kassa/betalningssaett" , "kasse/zahlungsart",  "paiement/moyen-paiement" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/PaymentMethod.action",
+      "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.paymentMethod.delete",
+      "paths" : ["checkout/delete-payment-method" , "kasa/platnosc-usunac", "kasa/zahlart-loeschen" , "kassa/betaalmethode-verwijderen", "kassa/radera-betalningssatt" , "kasse/zahlart-loeschen",  "paiement/supprimer-moyen-paiement" ],
+      "parameters" : [ { "name" : "deletePaymentMethod", "value" : "", "first" : true },
+                       { "name" : "storedPaymentMethodId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/PaymentMethod.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.print",
+      "paths" : ["bestallning/utskrift" , "bestelling/print", "bestellung/druck" , "commande/imprimer",  "order/print" ],
+      "parameters" : [ { "name" : "print", "value" : "", "first" : true },
+                       { "name" : "id" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Final.action",
+      "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.redirect",
+      "paths" : ["checkout/redirect" , "kasa/weiterleitung", "kassa/redigeren" , "kassa/vidarebefordran", "kasse/weiterleitung" , "paiement/redirection"],
+      "parameters" : [ { "name" : "redirect", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Final.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.shipping",
+      "paths" : ["checkout/shipping" , "kasa/lieferung", "kassa/leverans" , "kassa/levering", "kasse/lieferung" , "paiement/livraison"],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Shipping.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.stepConfirmation",
+      "paths" : ["checkout/overview" , "kasa/uebersicht", "kasa/zestawienie" , "kassa/oeversikt", "kassa/overzicht" , "kasse/uebersicht",  "paiement/apercu" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Confirm.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.confirmation.deleteShippingAddress",
+      "paths" : ["checkout/overview/delete-address" , "kasa/uebersicht/adresse-loeschen", "kasa/zestawienie/adres-usunac" , "kassa/oeversikt/radera-adress", "kassa/overzicht/adres-verwijderen" , "kasse/uebersicht/adresse-loeschen",  "paiement/apercu/supprimer-adresse" ],
+      "parameters" : [ { "name" : "deleteShippingAddressAndShowStep3", "value" : "", "first" : true },
+                       { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Addresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.success",
+      "paths" : ["checkout/ordered" , "kasa/bestellt", "kassa/bestaellt" , "kassa/gekocht", "kasse/bestellt" , "paiement/termine"],
+      "parameters" : [ { "name" : "success", "value" : "", "first" : true },
+                       { "name" : "id", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Final.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.success.external",
+      "paths" : ["checkout/paid" , "kasa/bezahlt", "kassa/betaald" , "kassa/betalat", "kasse/bezahlt" , "paiement/paye"],
+      "parameters" : [ { "name" : "success_external", "value" : "", "first" : true },
+                       { "name" : "id" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/Final.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.addresses",
+      "paths" : ["checkout/buoni-regali/addresses" , "checkout/giftvouchers/addresses", "kasa/geschenkgutscheine/adressen" , "kasa/hediye-cekleri/adressen", "kassa/presentkort/adress" , "kassa/vouchers/adressen", "kasse/gavekort/adressen" , "kasse/geschenkgutscheine/adressen",  "paiement/cheque-cadeau/adresses" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherAddresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.addresses.delete",
+      "paths" : ["checkout/buoni-regali/addresses/delete-shipping-address" , "checkout/giftvouchers/addresses/delete-shipping-address", "kasa/geschenkgutscheine/adressen/lieferadresse-loeschen" , "kasa/hediye-cekleri/adressen/lieferadresse-loeschen", "kassa/presentkort/adress/radera-leveransadress" , "kassa/vouchers/adressen/adres-verwijderen", "kasse/gavekort/adressen/lieferadresse-loeschen" , "kasse/geschenkgutscheine/adressen/lieferadresse-loeschen",  "paiement/cheque-cadeau/adresses/supprimer-adresse" ],
+      "parameters" : [ { "name" : "deleteShippingAddress", "value" : "", "first" : true },
+                       { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherAddresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.addresses.edit.billing",
+      "paths" : ["checkout/buoni-regali/addresses/edit-billing-address" , "checkout/giftvouchers/addresses/edit-billing-address", "kasa/geschenkgutscheine/adressen/rechnungsadresse-bearbeiten" , "kasa/hediye-cekleri/adressen/fatura-adresi-degistir", "kassa/presentkort/adress/andra-fakturaadress" , "kassa/vouchers/adressen/factuuradres-wijzigen", "kasse/gavekort/adressen/rechnungsadresse-bearbeiten" , "kasse/geschenkgutscheine/adressen/rechnungsadresse-bearbeiten",  "paiement/cheque-cadeau/adresses/modifier-adresse-facturation" ],
+      "parameters" : [ { "name" : "showEditBillingAddress", "value" : "", "first" : true },
+                       { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherAddresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.addresses.select",
+      "paths" : ["checkout/buoni-regali/addresses/select-billing-address" , "checkout/giftvouchers/addresses/select-billing-address", "kasa/geschenkgutscheine/adressen/rechnungsadresse-waehlen" , "kasa/hediye-cekleri/adressen/rechnungsadresse-waehlen", "kassa/presentkort/adress/valj-fakturaadress" , "kassa/vouchers/adressen/select-billing-address", "kasse/gavekort/adressen/rechnungsadresse-waehlen" , "kasse/geschenkgutscheine/adressen/rechnungsadresse-waehlen",  "paiement/cheque-cadeau/adresses/choisir-adresse-facturation" ],
+      "parameters" : [ { "name" : "selectBillingAddress", "value" : "", "first" : true },
+                       { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherAddresses.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.canceled",
+      "paths" : ["checkout/buoni-regali/cancelled" , "checkout/giftvouchers/cancelled", "kasa/geschenkgutscheine/abgebrochen" , "kasa/hediye-cekleri/abgebrochen", "kassa/presentkort/abgebrochen" , "kassa/vouchers/cancelled", "kasse/gavekort/abgebrochen" , "kasse/geschenkgutscheine/abgebrochen",  "paiement/cheque-cadeau/annule" ],
+      "parameters" : [ { "name" : "failure", "value" : "", "first" : true },
+                       { "name" : "id" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherFinal.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.failed",
+      "paths" : ["checkout/buoni-regali/failed" , "checkout/giftvouchers/failed", "kasa/geschenkgutscheine/fehlgeschlagen" , "kasa/hediye-cekleri/fehlgeschlagen", "kassa/presentkort/det-uppstod-ett-fel" , "kassa/vouchers/mislukt", "kasse/gavekort/fehlgeschlagen" , "kasse/geschenkgutscheine/fehlgeschlagen",  "paiement/cheque-cadeau/echec" ],
+      "parameters" : [ { "name" : "failure", "value" : "", "first" : true },
+                       { "name" : "id" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherFinal.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.feedback",
+      "paths" : ["geschenkgutschein-bestellung/meinung" , "presentkort-bestallning/asikt", "voucher-commande/evaluation" , "voucher-order/feedback"],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherFeedback.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.payment",
+      "paths" : ["checkout/buoni-regali/payment" , "checkout/giftvouchers/payment", "kasa/geschenkgutscheine/rodzaj-platnosci" , "kasa/hediye-cekleri/zahlungsart", "kassa/presentkort/betalningssaett" , "kassa/vouchers/betaalmethode", "kasse/gavekort/zahlungsart" , "kasse/geschenkgutscheine/zahlungsart",  "paiement/cheque-cadeau/moyen-paiement" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherPaymentMethod.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.paymentMethod.delete",
+      "paths" : ["checkout/buoni-regali/delete-payment-method" , "checkout/giftvouchers/delete-payment-method", "kasa/geschenkgutscheine/zahlart-loeschen" , "kasa/hediye-cekleri/zahlart-loeschen", "kassa/presentkort/radera-betalningssatt" , "kassa/vouchers/betaalmethode-verwijderen", "kasse/gavekort/zahlart-loeschen" , "kasse/geschenkgutscheine/zahlart-loeschen",  "paiement/cheque-cadeau/supprimer-moyen-paiement" ],
+      "parameters" : [ { "name" : "deletePaymentMethod", "value" : "", "first" : true },
+                       { "name" : "storedPaymentMethodId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherPaymentMethod.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.print",
+      "paths" : ["checkout/buoni-regali/print" , "checkout/giftvouchers/print", "kasa/geschenkgutscheine/druck" , "kasa/hediye-cekleri/druck", "kassa/presentkort/utskrift" , "kassa/vouchers/print", "kasse/gavekort/druck" , "kasse/geschenkgutscheine/druck",  "paiement/cheque-cadeau/imprimer" ],
+      "parameters" : [ { "name" : "print", "value" : "", "first" : true },
+                       { "name" : "id", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherFinal.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.redirect",
+      "paths" : ["checkout/buoni-regali/redirect" , "checkout/giftvouchers/redirect", "kasa/geschenkgutscheine/weiterleitung" , "kasa/hediye-cekleri/weiterleitung", "kassa/presentkort/vidarebefordran" , "kassa/vouchers/redigeren", "kasse/gavekort/weiterleitung" , "kasse/geschenkgutscheine/weiterleitung",  "paiement/cheque-cadeau/redirection" ],
+      "parameters" : [ { "name" : "redirect", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherFinal.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.stepConfirmation",
+      "paths" : ["checkout/buoni-regali/overview" , "checkout/giftvouchers/overview", "kasa/geschenkgutscheine/zestawienie" , "kasa/hediye-cekleri/uebersicht", "kassa/presentkort/oeversikt" , "kassa/vouchers/overzicht", "kasse/gavekort/uebersicht" , "kasse/geschenkgutscheine/uebersicht",  "paiement/cheque-cadeau/apercu" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherConfirm.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.success",
+      "paths" : ["checkout/buoni-regali/ordered" , "checkout/giftvouchers/ordered", "kasa/geschenkgutscheine/bestellt" , "kasa/hediye-cekleri/bestellt", "kassa/presentkort/bestaellt" , "kassa/vouchers/gekocht", "kasse/gavekort/bestellt" , "kasse/geschenkgutscheine/bestellt",  "paiement/cheque-cadeau/commande" ],
+      "parameters" : [ { "name" : "success", "value" : "", "first" : true },
+                       { "name" : "id", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherFinal.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.checkout.vouchers.success.external",
+      "paths" : ["checkout/buoni-regali/paid" , "checkout/giftvouchers/paid", "kasa/geschenkgutscheine/bezahlt" , "kasa/hediye-cekleri/bezahlt", "kassa/presentkort/bezahlt" , "kassa/vouchers/betaald", "kasse/gavekort/bezahlt" , "kasse/geschenkgutscheine/bezahlt",  "paiement/cheque-cadeau/paye" ],
+      "parameters" : [ { "name" : "success_external", "value" : "", "first" : true },
+                       { "name" : "id" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/checkout/VoucherFinal.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.contact",
+      "paths" : ["contact" , "kontakt"],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/Contact.action",
+          "targetType" : "STRIPES"
+       } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.login",
+      "paths" : ["login" , "nom-utilisateur",  "uye-girisi" ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Login.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.logout",
+      "paths" : ["deconnexion" , "logout"],
+      "parameters" : [ { "name" : "logout", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Login.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.new.password",
+      "paths" : ["neues-passwort" , "new-password", "nieuwe-wachtwoord" , "nouveau-mot-de-passe", "nuova-password" , "nytt-losenord"],
+      "parameters" : [ { "name" : "showNewPasswordPage", "value" : "", "first" : true },
+                       { "name" : "customerHash" },
+                       { "name" : "newPasswordUrlParam" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Login.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.welcomeNoAccount",
+      "paths" : ["welcomenoaccount" , "witamynakoncie"],
+      "parameters" : [ { "name" : "welcomeNoAccount", "value" : "1" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Login.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.account",
+      "paths" : ["anvandarkonto" , "benutzerkonto", "brugerkonto" , "cuenta_de_usuario", "kayttajatili" , "konto-uzytkownika", "kullanici-hesabi" , "mijnaccount", "moncompte" , "myaccount"],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Account.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.account.edit",
+      "paths" : ["anvandarkonto/installningar" , "benutzerkonto/einstellungen", "brugerkonto/einstellungen" , "cuenta_de_usuario/einstellungen", "kayttajatili/einstellungen" , "konto-uzytkownika/ustawienia", "kullanici-hesabi/einstellungen" , "mijnaccount/instellingen", "moncompte/parametres" , "myaccount/settings"],
+      "parameters" : [ { "name" : "editAccount", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Account.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.account.update",
+      "paths" : ["anvandarkonto/installningar/spara" , "benutzerkonto/einstellungen/speichern", "brugerkonto/einstellungen/speichern" , "cuenta_de_usuario/einstellungen/speichern", "kayttajatili/einstellungen/speichern" , "konto-uzytkownika/einstellungen/speichern", "kullanici-hesabi/einstellungen/speichern" , "mijnaccount/instellingen/opslaan", "moncompte/parametres/enregistrer" , "myaccount/settings/update"],
+      "parameters" : [ { "name" : "updateAccount", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Account.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.address.add",
+      "paths" : ["anvandarkonto/adressbok/adress/nytt" , "benutzerkonto/adressbuch/adresse/neu", "brugerkonto/adressebog/adresse/ny" , "cuenta_de_usuario/adressbuch/adresse/neu", "kayttajatili/adressbuch/adresse/neu" , "konto-uzytkownika/ksiazka-adresowa/adres/nowy", "kullanici-hesabi/adressbuch/adresse/neu" , "mijnaccount/adresboek/adres/toevoegen", "moncompte/carnet-adresse/adresse/nouvelle" , "myaccount/addressbook/address/add"],
+      "parameters" : [ { "name" : "addAddress", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Address.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.address.delete",
+      "paths" : ["anvandarkonto/adressbok/adress/radera" , "benutzerkonto/adressbuch/adresse/entfernen", "brugerkonto/adressebog/adresse/entfernen" , "cuenta_de_usuario/adressbuch/adresse/entfernen", "kayttajatili/adressbuch/adresse/entfernen" , "konto-uzytkownika/ksiazka-adresowa/adress/usunac", "kullanici-hesabi/adressbuch/adresse/entfernen" , "mijnaccount/adresboek/adres/verwijderen", "moncompte/carnet-adresse/adresse/supprimer" , "myaccount/addressbook/address/delete"],
+      "parameters" : [ { "name" : "deleteAddress", "value" : "", "first" : true },
+                       { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Address.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.address.edit",
+      "paths" : ["anvandarkonto/adressbok/adress/redigera" , "benutzerkonto/adressbuch/adresse/bearbeiten", "brugerkonto/adressebog/adresse/bearbeiten" , "cuenta_de_usuario/adressbuch/adresse/bearbeiten", "kayttajatili/adressbuch/adresse/bearbeiten" , "konto-uzytkownika/ksiazka-adresowa/adres/edytowac", "kullanici-hesabi/adressbuch/adresse/bearbeiten" , "mijnaccount/adresboek/adres/wijzigen", "moncompte/carnet-adresse/adresse/modifier" , "myaccount/addressbook/address/edit"],
+      "parameters" : [ { "name" : "editAddress", "value" : "", "first" : true },
+                       { "name" : "addressId" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Address.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.address",
+      "paths" : ["addresses" , "adress", "adressbuch" , "adressen", "adresses" , "ksiazka-adresowa"],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Address.action",
+          "targetType" : "STRIPES"
+      } ]
+
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.addresses",
+      "paths" : ["anvandarkonto/adressbok" , "benutzerkonto/adressbuch", "brugerkonto/adressebog" , "cuenta_de_usuario/adressbuch", "kayttajatili/adressbuch" , "konto-uzytkownika/ksiazka-adresowa", "kullanici-hesabi/adressbuch" , "mijnaccount/adresboek", "moncompte/carnet-adresse" , "myaccount/addressbook"],
+      "parameters" : [ { "name" : "listAddresses", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Address.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.address.save",
+      "paths" : ["anvandarkonto/adressbok/spara/adress" , "benutzerkonto/adressbuch/adresse/speichern", "brugerkonto/adressebog/adresse/speichern" , "cuenta_de_usuario/adressbuch/adresse/speichern", "kayttajatili/adressbuch/adresse/speichern" , "konto-uzytkownika/ksiazka-adresowa/adress/zaoszczedzic", "kullanici-hesabi/adressbuch/adresse/speichern" , "mijnaccount/adresboek/adres/opslaan", "moncompte/carnet-adresse/adresse/sauvegarder" , "myaccount/addressbook/address/save"],
+      "parameters" : [ { "name" : "submitAddress", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Address.action",
+          "targetType" : "STRIPES"
+       } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.address.suggest.byZipAndHousenumber",
+      "paths" : [ "customer/suggestAddress" ],
+      "parameters" : [ { "name" : "byZipAndHousenumber", "value" : "", "first" : true },
+                       { "name" : "zip" },
+                       { "name" : "houseNumber", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/AddressSuggest.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.creditAccount",
+      "paths" : ["anvandarkonto/presentkort" , "benutzerkonto/geschenkgutscheine", "brugerkonto/gavekort" , "cuenta_de_usuario/geschenkgutscheine", "kayttajatili/geschenkgutscheine" , "konto-uzytkownika/geschenkgutscheine", "kullanici-hesabi/hediye-cekleri" , "mijnaccount/vouchers", "moncompte/cheque-cadeau" , "myaccount/buoni-regalo",  "myaccount/giftvouchers" ],
+      "ruleMappingTargets" : [ {
+           "targetUrl" : "/customer/CreditAccount.action",
+           "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.order.return",
+      "paths" : ["anvandarkonto/utskrift-retur" , "benutzerkonto/drucken-retour", "brugerkonto/drucken-retour" , "cuenta_de_usuario/drucken-retour", "kayttajatili/drucken-retour" , "konto-uzytkownika/drucken-retour", "kullanici-hesabi/drucken-retour" , "mijnaccount/drukken-retour", "moncompte/imprimer-retour" , "myaccount/print-return"],
+      "parameters" : [ { "name" : "printReturnLabel", "value" : "", "first" : true },
+                       { "name" : "orderNumber" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Order.action",
+          "targetType" : "STRIPES"
+       } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.orderdetail",
+      "paths" : ["anvandarkonto/bestallning-detaljer" , "benutzerkonto/bestellung-detail", "brugerkonto/bestellung-detail" , "cuenta_de_usuario/bestellung-detail", "kayttajatili/bestellung-detail" , "konto-uzytkownika/bestellung-detail", "kullanici-hesabi/bestellung-detail" , "mijnaccount/bestelling-detail", "moncompte/detail-commandes" , "myaccount/order-detail"],
+      "parameters" : [ { "name" : "gotoOrderDetailPage", "value" : "", "first" : true },
+                       { "name" : "orderNumber" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Order.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.orderdetail.print",
+      "paths" : ["anvandarkonto/bestallning-detaljer/utskrift" , "benutzerkonto/bestellung-detail/druck", "brugerkonto/bestellung-detail/druck" , "cuenta_de_usuario/bestellung-detail/druck", "kayttajatili/bestellung-detail/druck" , "konto-uzytkownika/bestellung-detail/druck", "kullanici-hesabi/bestellung-detail/druck" , "mijnaccount/bestelling-detail/drukken", "moncompte/detail-commandes/imprimer" , "myaccount/order-detail/print"],
+      "parameters" : [ { "name" : "gotoOrderDetailPagePrint", "value" : "", "first" : true },
+                       { "name" : "orderNumber" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Order.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.orders",
+      "paths" : ["anvandarkonto/bestallning" , "benutzerkonto/bestellungen", "brugerkonto/bestellungen" , "cuenta_de_usuario/bestellungen", "kayttajatili/bestellungen" , "konto-uzytkownika/bestellungen", "kullanici-hesabi/bestellungen" , "mijnaccount/bestellingen", "moncompte/commandes" , "myaccount/orders"],
+      "parameters" : [ { "name" : "page", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Order.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.newsletter",
+      "paths" : ["anvandarkonto/newsletter" , "benutzerkonto/newsletter", "brugerkonto/nyhedsbrev" , "konto-uzytkownika/newsletter", "kullanici-hesabi/e-bulten" , "mijnaccount/nieuwsbrief", "moncompte/newsletter" , "myaccount/newsletter"],
+      "ruleMappingTargets" : [ {
+        "targetUrl" : "/customer/Newsletter.action",
+        "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.newsletter.confirm",
+      "paths" : [ "newsletter/confirm" ],
+      "parameters" : [ { "name" : "newsletterId", "optional" : true },
+                { "name" : "confirmHash", "optional" : true } ],
+      "ruleMappingTargets" : [ {
+              "targetUrl" : "/customer/Newsletter.action",
+              "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.anon.newsletter.subscribe",
+      "paths" : [ "newsletter/subscriber/new" ],
+      "ruleMappingTargets" : [ {
+              "targetUrl" : "/customer/Newsletter.action",
+              "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.newsletter.unsubscribe",
+      "paths" : [ "newsletter/unsubscribe" ],
+      "parameters" : [ { "name" : "newsletterId" },
+                       { "name" : "hash" },
+                       { "name" : "email" } ],
+      "ruleMappingTargets" : [ {
+              "targetUrl" : "/customer/Newsletter.action",
+              "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.newsletter.unsubscribe-all",
+      "paths" : [ "newsletter/unsubscribe-all" ],
+       "parameters" : [ { "name" : "newsletterId" },
+                        { "name" : "hash" },
+                        { "name" : "email" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Newsletter.action",
+          "targetType" : "STRIPES"
+      } ]
+
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.newsletter.unsubscribe-all.send",
+      "paths" : [ "newsletter/unsubscribe-all/post" ],
+      "parameters" : [ { "name" : "doUnsubscribe", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Newsletter.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.newsletter.unsubscribe.send",
+      "paths" : [ "newsletter/unsubscribe" ],
+      "parameters" : [ { "name" : "doUnsubscribe", "value" : "", "first" : true } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Newsletter.action",
+          "targetType" : "STRIPES"
+      } ]
+
+  },  //----------------------------------------------------------------------------------
+  {   "id" : "link.customer.newsletter.update.personal.data",
+      "paths" : [ "newsletter/update/personal-data" ],
+       "parameters" : [ { "name" : "hash" },
+                        { "name" : "email" },
+                        { "name" : "gender" },
+                        { "name" : "target" } ],
+      "ruleMappingTargets" : [ {
+          "targetUrl" : "/customer/Newsletter.action",
+          "targetType" : "STRIPES"
+      } ]
+  },
+  {   "id" : "link.springcontroller.test",
+      "paths" : [ "wham" ],
+    "parameters" : [ { "name" : "baz", "segment" : 1 } ],
+      "ruleMappingTargets" : [ {
+        "targetUrl" : "/foo/bar/{baz}/phleem",
+        "targetType" : "SPRING"
+      } ]
+  }
+]

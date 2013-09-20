@@ -57,11 +57,19 @@ public class RuleContextTest {
 
         //J-
         final ByteArrayInputStream stream = new ByteArrayInputStream(
-                ("RULE:link.stripesspring.spring.test\n" +
-                 "  TARGET:/foo/bar/{urlkey}\n" +
-                 "  TARGET-TYPE: SPRING\n" +
-                 "  PATH:/helo\n" +
-                 "  PARAM:NAME=urlkey;PATHSEGMENT=0;").getBytes());
+                ("[ {" +
+                        "  'id' : 'link.stripesspring.spring.test'," +
+                        "  'paths' : [ '/helo' ]," +
+                        "  'parameters' : [ {" +
+                        "      'name' : 'urlkey'," +
+                        "      'segment' : 0" +
+                        "    } ]," +
+                        "  'ruleMappingTargets' : [ {" +
+                        "    'targetUrl' : '/foo/bar/{urlkey}'," +
+                        "    'targetType' : 'SPRING'" +
+                        "  } ]" +
+                        "} ]").getBytes());
+
         //J+
         final RuleContext.Builder builder = RuleContext.builder();
         for (final RuleSetDescription ruleSetDescription : RuleSetDescription.deserialize(stream)) {
