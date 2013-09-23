@@ -1,0 +1,16 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-14318.catalog.data');
+
+  SET role TO zalando;
+
+  INSERT INTO zcat_commons.color (c_code, c_family_code, c_name_message_key, c_created_by,  c_last_modified_by)
+                          VALUES ('955',  'Q',           'color.955',        'dbdiff',      'dbdiff'          );
+
+
+  RESET role;
+
+COMMIT;

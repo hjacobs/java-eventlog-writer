@@ -1,0 +1,12 @@
+BEGIN;
+
+    select _v.register_patch ('ZEOS-14934.catalog');
+
+    set role to zalando;
+
+    ALTER TABLE zcat_commons.commodity_group ADD COLUMN cg_is_active boolean NOT NULL DEFAULT true;
+
+    reset role;
+
+--ROLLBACK;
+COMMIT;

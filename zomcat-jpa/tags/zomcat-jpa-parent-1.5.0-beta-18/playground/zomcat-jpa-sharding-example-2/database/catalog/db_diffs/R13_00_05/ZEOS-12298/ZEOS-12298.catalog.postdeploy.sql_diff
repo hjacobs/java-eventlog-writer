@@ -1,0 +1,13 @@
+BEGIN;
+
+    select _v.register_patch ('ZEOS-12298.catalog.postdeploy');
+
+    set role to zalando;
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+         VALUES ('feature.priceImport.recursiveDelete', 'off', true);
+
+    reset role;
+
+--ROLLBACK;
+COMMIT;

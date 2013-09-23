@@ -1,0 +1,28 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-9543.catalog', ARRAY['ZEOS-9490.2.catalog'], null);
+
+    set role to zalando;
+
+    alter table zcat_data.price_current
+        add column pc_source_sku_id integer references zcat_data.article_sku(as_id),
+        add column pc_source_price_level_reason_id integer references zcat_commons.price_level_reason(plr_id),
+        add column pc_source_price_end_date timestamptz,
+        add column pc_source_promotional_sku_id integer references zcat_data.article_sku(as_id),
+        add column pc_source_promotional_price_level_reason_id integer references zcat_commons.price_level_reason(plr_id),
+        add column pc_source_promotional_price_end_date timestamptz;
+
+    alter table zcat_data.price_archive
+        add column pa_source_sku_id integer references zcat_data.article_sku(as_id),
+        add column pa_source_price_level_reason_id integer references zcat_commons.price_level_reason(plr_id),
+        add column pa_source_price_end_date timestamptz,
+        add column pa_source_promotional_sku_id integer references zcat_data.article_sku(as_id),
+        add column pa_source_promotional_price_level_reason_id integer references zcat_commons.price_level_reason(plr_id),
+        add column pa_source_promotional_price_end_date timestamptz;
+
+    reset role;
+
+COMMIT;
