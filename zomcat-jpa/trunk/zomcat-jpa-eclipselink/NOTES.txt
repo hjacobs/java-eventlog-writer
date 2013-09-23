@@ -39,3 +39,10 @@ Wie wir es in Purchasing bisher gemacht haben
     @JoinColumn(name = "sub_pool_id")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     private SubPool subPool;
+
+
+// compare length of generated fks, both are 51 characters
+
+functionalgroupexternalsystemfgesexternalsystemsid
+
+FK_host_database_instance_hdi_databaseinstances_id

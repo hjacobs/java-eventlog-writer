@@ -67,6 +67,7 @@ public class ManyToManyMappingCustomizer extends AbstractColumnNameCustomizer<Ma
         final String lhs = NameUtils.camelCaseToUnderscore(javaClazz.getSimpleName());
 
         final String rhs = NameUtils.camelCaseToUnderscore(referenceClazz.getSimpleName());
+
         final String newTableName = new StringBuilder().append(lhs).append("_").append(rhs).toString();
 
         databaseTable.setName(newTableName);
@@ -88,10 +89,10 @@ public class ManyToManyMappingCustomizer extends AbstractColumnNameCustomizer<Ma
 
         for (DatabaseField field : sourceRelationKeyFields) {
             String fieldName = field.getName();
-            String iconized = NameUtils.iconizeTableName(lhs);
-            String newFieldName = new StringBuilder().append(iconized).append("_").append("id").toString();
+            String iconized = NameUtils.iconizeTableName(newTableName);
+            String newFieldName = new StringBuilder().append(iconized).append("_").append(fieldName.toLowerCase())
+                                                     .toString();
             field.setName(newFieldName);
-// field.setName(fieldName.toLowerCase());
             System.out.println(field.getName());
         }
 
@@ -109,10 +110,10 @@ public class ManyToManyMappingCustomizer extends AbstractColumnNameCustomizer<Ma
 
         for (DatabaseField field : targetRelationKeyField) {
             String fieldName = field.getName();
-            String iconized = NameUtils.iconizeTableName(rhs);
-            String newFieldName = new StringBuilder().append(iconized).append("_").append("id").toString();
+            String iconized = NameUtils.iconizeTableName(newTableName);
+            String newFieldName = new StringBuilder().append(iconized).append("_").append(fieldName.toLowerCase())
+                                                     .toString();
             field.setName(newFieldName);
-// field.setName(fieldName.toLowerCase());
             System.out.println(field.getName());
         }
 
