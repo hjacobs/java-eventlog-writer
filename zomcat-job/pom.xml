@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat Job</name>
     <description>Zomcat Job Support Classes: LockResource and JobManager implementations</description>
-    <version>1.1.16</version>
+    <version>1.1.15</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -27,7 +27,7 @@
             <resource>
                 <directory>.</directory>
                 <includes>
-                    <include>database/commons/01_commons/**/*</include>
+                    <include>database/commons/02_commons/**/*</include>
                 </includes>
                 <excludes>
                     <exclude>database/**/*externals/**/*</exclude>
