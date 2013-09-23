@@ -630,7 +630,7 @@ public class RuleSetDescription {
         }
 
         boolean isPathParam() {
-            return !incomingName.isEmpty() && !isFixedParam();
+            return incomingName.isEmpty() && !isFixedParam();
         }
     }
 
