@@ -8,23 +8,17 @@ import static java.util.Collections.singletonList;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.repeat;
 import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Lists.newArrayList;
-
-import static de.zalando.util.web.urlmapping.util.Delimiter.COMMA;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 
-import java.text.MessageFormat;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -60,7 +54,6 @@ import de.zalando.util.web.urlmapping.param.RequestParamHandler;
 import de.zalando.util.web.urlmapping.param.RequestParamHandlers;
 import de.zalando.util.web.urlmapping.param.UrlPostProcessors;
 import de.zalando.util.web.urlmapping.util.Delimiter;
-import de.zalando.util.web.urlmapping.util.Helper;
 
 /**
  * This class handles serialization and deserialization of rulesets.
@@ -171,33 +164,29 @@ public class RuleSetDescription {
 
         final int length = calculatePathLength(Iterables.get(paths, 0));
 
-        for (RuleMappingTarget var : ruleMappingTargets) {
+        Iterable<Parameter> parameters = sortParams();
 
-            Iterable<Parameter> parameters = sortParams();
+        final List<Handler> allHandlers = ImmutableList.copyOf(Iterables.transform(parameters,
+                    Parameter.HANDLER_FUNCTION));
+        final MappingRule rule = new ForwardMappingRule(id, priority, length, ruleMappingTargets, allHandlers);
 
-            final List<Handler> allHandlers = ImmutableList.copyOf(Iterables.transform(parameters,
-                        Parameter.HANDLER_FUNCTION));
-            final MappingRule rule = new ForwardMappingRule(id, priority, var.getTargetUrl(), length, allHandlers,
-                    var.getTargetType(), var.getRequestMethod());
+        for (final String basePath : paths) {
+            final PathBuilder builder = new PathBuilder();
+            for (final String pathItem : splitPath(basePath)) {
+                builder.add(pathItem);
+            }
 
-            for (final String basePath : paths) {
-                final PathBuilder builder = new PathBuilder();
-                for (final String pathItem : splitPath(basePath)) {
-                    builder.add(pathItem);
-                }
-
-                for (final Parameter parameter : parameters) {
-                    if (parameter.isPathParam() || parameter.isVariablePathParam() || parameter.isSeoParameter()) {
-                        if (parameter.isOptional()) {
-                            builder.addOptionalWildCard();
-                        } else {
-                            builder.addWildCard();
-                        }
+            for (final Parameter parameter : parameters) {
+                if (parameter.isPathParam() || parameter.isVariablePathParam() || parameter.isSeoParameter()) {
+                    if (parameter.isOptional()) {
+                        builder.addOptionalWildCard();
+                    } else {
+                        builder.addWildCard();
                     }
                 }
-
-                contextBuilder.addRule(builder.build(), rule);
             }
+
+            contextBuilder.addRule(builder.build(), rule);
         }
     }
 
@@ -523,79 +512,6 @@ public class RuleSetDescription {
             }
         }
 
-        static Parameter deserialize(final String line) {
-            final Set<Map.Entry<String, String>> entrySet = Helper.splitMap(line, '=', ';').entrySet();
-            final Parameter parameter = new Parameter();
-
-            for (final Map.Entry<String, String> entry : entrySet) {
-                final String key = entry.getKey();
-                final ParamKey paramKey = ParamKey.get(key);
-                checkArgument(paramKey != null, "Unknown token '%s' in line %s", key, line);
-
-                final String value = entry.getValue();
-                switch (paramKey) {
-
-                    case AGGREGATE :
-                        parameter.delimiter = value.charAt(0);
-                        parameter.incomingName = ImmutableList.copyOf(COMMA.splitter().split(value.substring(1)));
-                        break;
-
-                    case NAME :
-                        parameter.name = value;
-                        break;
-
-                    case OPTIONAL :
-                        parameter.optional = Boolean.parseBoolean(value);
-                        break;
-
-                    case PREFIX :
-                        parameter.prefix = emptyToNull(value);
-                        break;
-
-                    case REQUESTPARAM :
-                        parameter.incomingName = ImmutableList.of(value);
-                        break;
-
-                    case SUFFIX :
-                        parameter.suffix = emptyToNull(value);
-                        break;
-
-                    case FIXEDVALUE :
-                        parameter.value = value;
-                        break;
-
-                    case SEO :
-                        parameter.name = SEO;
-                        break;
-
-                    case PATHSEGMENT :
-                        parameter.segment = Integer.parseInt(value);
-                        break;
-
-                    case PATHVARIABLE :
-                        parameter.name = FROM_INPUT;
-                        parameter.value = value;
-                        break;
-
-                    case FIRST :
-                        parameter.first = Boolean.parseBoolean(value);
-                        break;
-
-                    default :
-                        throw new IllegalArgumentException("Type not implemented: " + paramKey);
-                }
-            }
-
-            try {
-                parameter.checkIntegrity();
-            } catch (final IllegalStateException e) {
-                throw new IllegalStateException(MessageFormat.format("Error in Line ''{0}'': ''{1}''", line,
-                        e.getMessage()));
-            }
-
-            return parameter;
-        }
-
         boolean isOptional() {
             return optional;
         }
@@ -714,7 +630,7 @@ public class RuleSetDescription {
         }
 
         boolean isPathParam() {
-            return incomingName.isEmpty() && !isFixedParam();
+            return !incomingName.isEmpty() && !isFixedParam();
         }
     }
 

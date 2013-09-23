@@ -1,5 +1,6 @@
 package de.zalando.util.web.urlmapping.rule;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.limit;
@@ -21,7 +22,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
@@ -43,7 +43,6 @@ public class ForwardMappingRule implements MappingRule {
 
     private static final ImmutableList<String> EMPTY_STRING_LIST = ImmutableList.of("");
     private static final long serialVersionUID = -6311688030427393665L;
-    private final String baseUrl;
     private final List<PathParamHandler> paramHandlers;
     private final List<PostProcessor> postProcessors;
     private final List<RequestParamHandler> requestParamHandlers;
@@ -51,8 +50,7 @@ public class ForwardMappingRule implements MappingRule {
     private final int cardinality;
     private final int handlersCount;
     private final String id;
-    private final TargetType targetType;
-    private final Optional<String> requestMethod;
+    private final List<RuleMappingTarget> ruleMappingTargets;
     @Nullable
     private Integer priority;
 
@@ -62,14 +60,14 @@ public class ForwardMappingRule implements MappingRule {
         STRIPES
     }
 
-    public ForwardMappingRule(@Nonnull final String id, @Nullable final Integer priority, @Nonnull final String baseUrl,
-            final int cardinality, @Nonnull final List<Handler> handlers, @Nonnull final TargetType targetType,
-            @Nonnull final String requestMethod) {
+    public ForwardMappingRule(@Nonnull final String id, @Nullable final Integer priority, final int cardinality,
+            @Nonnull final List<RuleMappingTarget> ruleMappingTargets, @Nonnull final List<Handler> handlers) {
         this.priority = priority;
         this.id = checkNotNull(id, "An id required for all rules");
         this.cardinality = cardinality;
-        this.baseUrl = checkNotNull(baseUrl, "A base URL is required for all rules");
-        this.targetType = checkNotNull(targetType, "A target type is required for all rules");
+        this.ruleMappingTargets = checkNotNull(ruleMappingTargets,
+                "At least one rule mapping target has to be defined");
+        checkArgument(!this.ruleMappingTargets.isEmpty(), "At least one rule mapping target has to be defined.");
 
         final Builder<RequestParamHandler> requestParamsBuilder = ImmutableList.builder();
         final Builder<PathParamHandler> pathParamsBuilder = ImmutableList.builder();
@@ -93,9 +91,6 @@ public class ForwardMappingRule implements MappingRule {
         urlPostProcessors = urlPostProcessorBuilder.build();
         handlersCount = requestParamHandlers.size() + paramHandlers.size() + postProcessors.size()
                 + urlPostProcessors.size();
-        this.requestMethod = (requestMethod == null || requestMethod.isEmpty()) ? Optional.<String>absent()
-                                                                                : Optional.fromNullable(requestMethod);
-
     }
 
     /**
@@ -103,13 +98,6 @@ public class ForwardMappingRule implements MappingRule {
      */
     @Override
     public boolean appliesTo(final MappingContext mappingContext) {
-
-        // check request-method filter (only if request-method is present)
-        if (this.requestMethod.isPresent()) {
-            if (!requestMethod.get().equals(mappingContext.getRequest().getMethod())) {
-                return false;
-            }
-        }
 
         if (!paramHandlers.isEmpty()) {
             Iterable<String> pathItems = mappingContext.getOriginalPathItems();
@@ -140,7 +128,10 @@ public class ForwardMappingRule implements MappingRule {
 
     @Override
     public final void apply(final MappingContext context) throws UrlMappingException {
-        final UrlBuilder urlBuilder = new UrlBuilder(baseUrl);
+
+        String targetUrl = context.applyRuleTargetSwitch(this);
+
+        final UrlBuilder urlBuilder = new UrlBuilder(targetUrl);
         final Map<String, String> mappedParameters = newLinkedHashMap();
         final String basePath;
         final Iterable<String> originalPathItems = context.getOriginalPathItems();
@@ -195,7 +186,8 @@ public class ForwardMappingRule implements MappingRule {
     public boolean equals(final Object obj) {
         if (obj instanceof ForwardMappingRule) {
             final ForwardMappingRule other = (ForwardMappingRule) obj;
-            return Objects.equal(baseUrl, other.baseUrl) && Objects.equal(paramHandlers, other.paramHandlers);
+            return Objects.equal(ruleMappingTargets, other.ruleMappingTargets)
+                    && Objects.equal(paramHandlers, other.paramHandlers);
         } else {
             return false;
         }
@@ -203,12 +195,13 @@ public class ForwardMappingRule implements MappingRule {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(baseUrl, paramHandlers);
+        return Objects.hashCode(ruleMappingTargets, paramHandlers);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("baseUrl", baseUrl).add("paramHandlers", paramHandlers).toString();
+        return Objects.toStringHelper(this).add("ruleMappingTargets", ruleMappingTargets)
+                      .add("paramHandlers", paramHandlers).toString();
     }
 
     public int countHandlers() {
@@ -225,12 +218,7 @@ public class ForwardMappingRule implements MappingRule {
         return priority;
     }
 
-    public String getBaseUrl() {
-        return baseUrl;
+    public List<RuleMappingTarget> getRuleMappingTargets() {
+        return ImmutableList.copyOf(ruleMappingTargets);
     }
-
-    public TargetType getTargetType() {
-        return targetType;
-    }
-
 }

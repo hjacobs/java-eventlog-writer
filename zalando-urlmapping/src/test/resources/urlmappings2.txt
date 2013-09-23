@@ -11,53 +11,33 @@
         ],
   "ruleMappingTargets" : [ {
       "targetUrl" : "/foo/bar/{baz}/phleem",
+      "targetType" : "STRIPES"
+    },
+    {
+      "targetUrl" : "/foo/bar/fallback",
       "targetType" : "SPRING"
-    }
-  ]
+    } ]
   },
 // ----------------------------------------------------------------------------------
 
-  {   "id" : "link.springcontroller.test.fallback",
-      "paths" : [ "wham" ],
-      "parameters" : [ {
-                        "name" : "baz",
-                        "segment" : 1
-                    },
-                    {   "name" : "id",
-                        "incomingName" : [ "id" ]
-                    }
-                   ],
-      "ruleMappingTargets" : [ {
-          "targetUrl" : "/foo/bar/fallback",
-          "targetType" : "SPRING"
-        }
-      ]
-  },
-// ----------------------------------------------------------------------------------
-
-  {   "id" : "link.springcontroller.method.post.test",
+  {   "id" : "link.springcontroller.method.test",
       "paths" : [ "what/path" ],
       "ruleMappingTargets" : [ {
           "targetUrl" : "/foo/bar1",
           "targetType" : "SPRING",
           "requestMethod" : "POST"
-        }
-      ]
-  },
-
-  {   "id" : "link.springcontroller.method.get.test",
-      "ruleMappingTargets" : [ {
+        },
+        {
           "targetUrl" : "/foo/bar2",
           "targetType" : "SPRING",
           "requestMethod" : "GET"
         }
-      ],
-      "paths" : [ "what/path" ]
+      ]
   },
 
 //----------------------------------------------------------------------------------
 
-  {   "id" : "link.stripesspring.spring.test",
+  {   "id" : "link.stripesspring.test",
       "paths" : [ "strspr" ],
       "parameters" : [ {
                       "name" : "baz",
@@ -66,22 +46,11 @@
       "ruleMappingTargets" : [ {
           "targetUrl" : "/foo/bar/{baz}/phleem",
           "targetType" : "SPRING"
-        }
-      ]
-
-  },
-
-  {   "id" : "link.stripesspring.stripes.test",
-      "paths" : [ "strspr" ],
-      "parameters" : [ {
-                  "name" : "baz",
-                  "segment" : 1
-                  } ],
-      "ruleMappingTargets" : [ {
+        },
+        {
           "targetUrl" : "/foo/stripes.action",
           "targetType" : "STRIPES"
         }
       ]
-
   }
 ]

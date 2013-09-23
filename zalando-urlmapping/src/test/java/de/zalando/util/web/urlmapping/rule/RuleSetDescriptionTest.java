@@ -9,8 +9,6 @@ import static org.junit.Assert.fail;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-import static junit.framework.Assert.assertNotNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,44 +149,26 @@ public class RuleSetDescriptionTest {
 
         // testing the rule 'RULE:link.springcontroller.test'
         // assertThat(ruleContext, maps("wham/bam", "/foo/bar/bam/phleem"));
-        assertThat(ruleContext,
-            maps("wham/bam?id=10", "/foo/bar/fallback?id=10",
-                RuleActivationPredicate.Builder.deactivateById("link.springcontroller.test")));
 
-    }
+        RuleTargetSwitchDelegator.Builder switchbuilder = new RuleTargetSwitchDelegator.Builder();
 
-    /**
-     * Checks url-rewritings based on method.
-     *
-     * @throws  Exception
-     */
-    @Test
-    public void testRuleWithRequestMethod() throws Exception {
-        final InputStream stream = RuleSetDescriptionTest.class.getResourceAsStream("/urlmappings2.txt");
-        final List<RuleSetDescription> rules = RuleSetDescription.deserialize(stream);
-        assertNotNull(rules);
+        switchbuilder.add("*", ForwardMappingRule.TargetType.STRIPES);
+        switchbuilder.add("link.springcontroller.test", ForwardMappingRule.TargetType.SPRING);
 
-        final RuleContext.Builder builder = RuleContext.builder();
-        for (final RuleSetDescription rule : rules) {
-            rule.register(builder);
-        }
-
-        final RuleContext ruleContext = builder.build();
-
-        assertThat(ruleContext, maps("what/path", "/foo/bar1", RuleActivationPredicate.ALL_ACTIVE, "POST"));
-        assertThat(ruleContext, maps("what/path", "/foo/bar2", RuleActivationPredicate.ALL_ACTIVE, "GET"));
+        assertThat(ruleContext, maps("wham/bam?id=10", "/foo/bar/fallback?id=10", switchbuilder.build()));
 
     }
 
     private Matcher<RuleContext> maps(final String incoming, final String to) {
-        return maps(incoming, to, RuleActivationPredicate.ALL_ACTIVE, "");
+        return maps(incoming, to, RuleTargetSwitchDelegator.DEFAULT, "");
     }
 
-    private Matcher<RuleContext> maps(final String incoming, final String to, final RuleActivationPredicate predicate) {
-        return maps(incoming, to, predicate, "");
+    private Matcher<RuleContext> maps(final String incoming, final String to,
+            final RuleTargetSwitchDelegator delegator) {
+        return maps(incoming, to, delegator, "");
     }
 
-    private Matcher<RuleContext> maps(final String incoming, final String to, final RuleActivationPredicate predicate,
+    private Matcher<RuleContext> maps(final String incoming, final String to, final RuleTargetSwitchDelegator delegator,
             final String requestMethod) {
         return new TypeSafeMatcher<RuleContext>() {
 
@@ -203,7 +183,7 @@ public class RuleSetDescriptionTest {
             public boolean matchesSafely(final RuleContext context) {
                 final MockHttpServletResponse response = new MockHttpServletResponse();
                 try {
-                    if (context.mapRequest(request(incoming, requestMethod), response, predicate)) {
+                    if (context.mapRequest(request(incoming, requestMethod), response, delegator)) {
                         assertEquals(to, response.getForwardedUrl());
                         return true;
                     }

@@ -232,13 +232,6 @@ public class RuleBucket {
         // retrieve an order list of rules, where conditional orders come first
         for (final MappingRule rule : node.rules) {
 
-            // check activation predicate
-            if (!mappingContext.applyRuleActivationPredicate(rule)) {
-
-                // skip rules that do not apply the ActivationPredicate
-                continue;
-            }
-
             if (rule.appliesTo(mappingContext)) {
                 return rule;
             }

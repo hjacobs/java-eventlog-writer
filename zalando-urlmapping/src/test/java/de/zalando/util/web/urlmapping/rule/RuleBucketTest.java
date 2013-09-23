@@ -52,9 +52,6 @@ public class RuleBucketTest {
         assertNotNull(bucket.findRule(paramMapping("", "foo", "")));
 
         assertThat(bucket.findRule(paramMapping("", "bar", "")), isMappedToRule("id1"));
-        assertThat(bucket.findRule(paramMapping(deactivate("id1"), "", "bar", "")), isMappedToRule("id2"));
-        assertThat(bucket.findRule(paramMapping(deactivate("id2"), "", "bar", "")), isMappedToRule("id1"));
-
     }
 
     private Matcher<? super MappingRule> isMappedToRule(final String id) {
@@ -80,15 +77,11 @@ public class RuleBucketTest {
         };
     }
 
-    private RuleActivationPredicate deactivate(final String id2deactivate) {
-        return RuleActivationPredicate.Builder.deactivateById(id2deactivate);
-    }
-
     private MappingContext paramMapping(final String path, final String... paramKeyValues) {
-        return paramMapping(RuleActivationPredicate.ALL_ACTIVE, path, paramKeyValues);
+        return paramMapping(RuleTargetSwitchDelegator.DEFAULT, path, paramKeyValues);
     }
 
-    private MappingContext paramMapping(final RuleActivationPredicate rule, final String path,
+    private MappingContext paramMapping(final RuleTargetSwitchDelegator delegator, final String path,
             final String... paramKeyValues) {
         checkArgument((paramKeyValues.length % 2) == 0, "Params must be supplied in key / value pairs!");
 
@@ -107,7 +100,7 @@ public class RuleBucketTest {
         final MockHttpServletRequest request = new MockHttpServletRequest();
         request.setContextPath(path);
         request.setParameters(params);
-        return MappingContext.create(request, new MockHttpServletResponse(), rule);
+        return MappingContext.create(request, new MockHttpServletResponse(), delegator);
     }
 
     private MappingRule flatRule(final String paramName) {
@@ -125,10 +118,6 @@ public class RuleBucketTest {
              */
             @Override
             public boolean appliesTo(final MappingContext mappingContext) {
-                if (!mappingContext.applyRuleActivationPredicate(this)) {
-                    return false;
-                }
-
                 return mappingContext.getRequest().getParameterMap().containsKey(paramName);
             }
 
@@ -193,7 +182,7 @@ public class RuleBucketTest {
     private MappingContext context(final String path) {
         final MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(path);
-        return MappingContext.create(request, new MockHttpServletResponse(), RuleActivationPredicate.ALL_ACTIVE);
+        return MappingContext.create(request, new MockHttpServletResponse(), RuleTargetSwitchDelegator.DEFAULT);
     }
 
 }

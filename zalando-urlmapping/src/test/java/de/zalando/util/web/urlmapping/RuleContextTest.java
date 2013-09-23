@@ -27,8 +27,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 
 import de.zalando.util.web.urlmapping.rule.NoOpMappingRule;
-import de.zalando.util.web.urlmapping.rule.RuleActivationPredicate;
 import de.zalando.util.web.urlmapping.rule.RuleSetDescription;
+import de.zalando.util.web.urlmapping.rule.RuleTargetSwitchDelegator;
 import de.zalando.util.web.urlmapping.util.Delimiter;
 
 public class RuleContextTest {
@@ -92,7 +92,7 @@ public class RuleContextTest {
             public boolean matchesSafely(final RuleContext ruleContext) {
                 try {
                     return ruleContext.mapRequest(request, new MockHttpServletResponse(),
-                            RuleActivationPredicate.ALL_ACTIVE);
+                            RuleTargetSwitchDelegator.DEFAULT);
                 } catch (final UrlMappingException e) {
                     Assert.fail(Throwables.getStackTraceAsString(e));
                     return false; // unreachable code
