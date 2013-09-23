@@ -1,0 +1,16 @@
+BEGIN;
+
+  select _v.register_patch('ZEOS-19039.catalog');
+
+  SET role TO zalando;
+
+    ALTER TABLE zcat_data.csv_import_line_state
+      ADD COLUMN cils_last_modified timestamptz DEFAULT now();
+
+    INSERT INTO zcat_commons.app_config(ac_key, ac_value, ac_is_online_updateable)
+             VALUES ('priceImport.email.timeout', '7200', true);
+
+  RESET role;
+
+-- ROLLBACK;
+COMMIT;

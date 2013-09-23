@@ -1,0 +1,14 @@
+BEGIN;
+
+  select _v.register_patch('ZEOS-18910.catalog');
+
+  SET role TO zalando;
+
+    ALTER TABLE zcat_commons.csv_import_state
+      ADD COLUMN cis_lines_count        int,
+      ADD COLUMN cis_invalid_sku_lines  int[];
+
+  RESET role;
+
+-- ROLLBACK;
+COMMIT;
