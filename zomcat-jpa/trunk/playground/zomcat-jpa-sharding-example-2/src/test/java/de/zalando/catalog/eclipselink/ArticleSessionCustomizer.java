@@ -1,6 +1,7 @@
 package de.zalando.catalog.eclipselink;
 
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.classdescriptor.TableNameClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.session.AbstractZomcatSessionCustomizer;
 import de.zalando.jpa.eclipselink.partitioning.customizer.PartitioningAnnotationClassDescriptorCustomizer;
 
@@ -16,10 +17,10 @@ public class ArticleSessionCustomizer extends AbstractZomcatSessionCustomizer {
     public ArticleSessionCustomizer() {
         super();
 
-        final ClassDescriptorCustomizer defaultMappings = defaultZalandoCustomization();
+        final ClassDescriptorCustomizer defaultMappings = defaultColumnNameClassDescriptorCustomizer();
 
-        clazzDescriptorCustomizer = newComposite().with(defaultMappings)
-                                                  .with(new PartitioningAnnotationClassDescriptorCustomizer()).build();
+        clazzDescriptorCustomizer = builder().with(new TableNameClassDescriptorCustomizer()).with(defaultMappings)
+                                             .with(new PartitioningAnnotationClassDescriptorCustomizer()).build();
     }
 
     @Override

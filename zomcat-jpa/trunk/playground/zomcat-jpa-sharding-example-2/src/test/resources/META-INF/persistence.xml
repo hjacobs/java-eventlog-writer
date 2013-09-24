@@ -12,7 +12,7 @@
         <properties>
             <property name="eclipselink.persistence-context.flush-mode" value="COMMIT" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="both"/>
             <property name="eclipselink.weaving" value="false" />
             <property name="eclipselink.session.customizer" value="de.zalando.catalog.eclipselink.ArticleSessionCustomizer"/>
             <property name="eclipselink.logging.logger" value="de.zalando.jpa.eclipselink.Slf4jSessionLog"/>
