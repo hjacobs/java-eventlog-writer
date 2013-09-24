@@ -60,6 +60,7 @@ public @interface SProcCall {
         ZALOS_PRINT_LIST_POSITION_PREPARE(40L),
         GET_ZALOS_INBOUND_BATCHING(41L),
         ZALOS_PRINT_LIST_POSITION_GET_NEXT_DECENTRALIZED(42L),
+        ZALOS_PICK_LIST_START_SEARCH(43L),
 
         /*
          * The values following now don't exist in LockingSproc. To allow adding new values to
