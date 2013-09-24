@@ -1,0 +1,16 @@
+BEGIN;
+
+    -- $ID: $
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-16607.catalog');
+
+    set role to zalando;
+
+    alter table zcat_commons.brand_size_chart_group add column bscg_is_active boolean NOT NULL DEFAULT true;
+
+    reset role;
+
+-- rollback;
+COMMIT;
+

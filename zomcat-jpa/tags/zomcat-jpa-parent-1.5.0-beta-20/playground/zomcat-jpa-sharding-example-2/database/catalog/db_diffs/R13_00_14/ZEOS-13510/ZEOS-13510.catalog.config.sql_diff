@@ -1,0 +1,16 @@
+BEGIN;
+    --SELECT _v.register_patch('ZEOS-13510.catalog.predeploy');
+
+    SET ROLE TO zalando;
+    ALTER TABLE zcat_data.price_definition
+        ADD COLUMN pd_last_modified timestamp with time zone;
+    ALTER TABLE zcat_data.price_definition ALTER COLUMN pd_last_modified SET default now();
+
+COMMIT;
+
+    UPDATE zcat_data.price_definition
+        SET pd_last_modified = now()
+        WHERE pd_last_modified IS NULL;
+
+    ALTER TABLE zcat_data.price_definition
+        ALTER COLUMN pd_last_modified SET NOT NULL;

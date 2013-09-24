@@ -1,0 +1,16 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.unregister_patch ('ZEOS-9490.2.catalog');
+
+    set role to zalando;
+
+    alter table zcat_commons.price_level set schema zcat_data;
+    alter table zcat_commons.price_level_reason set schema zcat_data;
+    alter table zcat_commons.job_processing_information set schema zcat_data;
+
+    reset role;
+
+COMMIT;

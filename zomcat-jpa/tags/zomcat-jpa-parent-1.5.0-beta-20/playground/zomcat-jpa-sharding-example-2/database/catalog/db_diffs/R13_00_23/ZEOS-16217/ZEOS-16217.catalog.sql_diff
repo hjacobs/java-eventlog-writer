@@ -1,0 +1,378 @@
+BEGIN;
+
+  -- $Id$
+  -- $HeadURL$
+
+  select _v.register_patch('ZEOS-16217.catalog');
+
+  SET role TO zalando;
+
+    \i database/catalog/04_option_value/00_create_schema.sql
+    \i database/catalog/04_option_value/04_tables/00_option_value.sql
+    \i database/catalog/04_option_value/04_tables/10_availability.sql
+    \i database/catalog/04_option_value/04_tables/10_bootleg_type.sql
+    \i database/catalog/04_option_value/04_tables/10_closure.sql
+    \i database/catalog/04_option_value/04_tables/10_fit_type.sql
+    \i database/catalog/04_option_value/04_tables/10_fitting.sql
+    \i database/catalog/04_option_value/04_tables/10_heel_type.sql
+    \i database/catalog/04_option_value/04_tables/10_insole_type.sql
+    \i database/catalog/04_option_value/04_tables/10_leather_type.sql
+    \i database/catalog/04_option_value/04_tables/10_leg_type.sql
+    \i database/catalog/04_option_value/04_tables/10_lining_type.sql
+    \i database/catalog/04_option_value/04_tables/10_material_detail.sql
+    \i database/catalog/04_option_value/04_tables/10_material_type.sql
+    \i database/catalog/04_option_value/04_tables/10_neck_line.sql
+    \i database/catalog/04_option_value/04_tables/10_pattern.sql
+    \i database/catalog/04_option_value/04_tables/10_production_material.sql
+    \i database/catalog/04_option_value/04_tables/10_shipping_placement.sql
+    \i database/catalog/04_option_value/04_tables/10_shoe_lining_material.sql
+    \i database/catalog/04_option_value/04_tables/10_shoe_upper.sql
+    \i database/catalog/04_option_value/04_tables/10_sleeve_type.sql
+    \i database/catalog/04_option_value/04_tables/10_sole_type.sql
+    \i database/catalog/04_option_value/04_tables/10_sport_type.sql
+    \i database/catalog/04_option_value/04_tables/10_sub_season.sql
+    \i database/catalog/04_option_value/04_tables/10_sub_sport_type.sql
+    \i database/catalog/04_option_value/04_tables/10_target_group_age.sql
+    \i database/catalog/04_option_value/04_tables/10_tax_classification.sql
+    \i database/catalog/04_option_value/04_tables/10_textile_lining_material.sql
+    \i database/catalog/04_option_value/04_tables/10_textile_membrane.sql
+    \i database/catalog/04_option_value/04_tables/10_textile_upper.sql
+    \i database/catalog/04_option_value/04_tables/10_toe_cap.sql
+    \i database/catalog/04_option_value/04_tables/10_trend.sql
+    \i database/catalog/04_option_value/04_tables/10_type_q.sql
+
+    -- insert initial data
+    insert into zcat_option_value.availability (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('availability')::zcat_commons.option_type;
+
+    insert into zcat_option_value.bootleg_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('bootleg_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.closure (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('closure')::zcat_commons.option_type;
+
+    insert into zcat_option_value.fit_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('fit_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.fitting (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('fitting')::zcat_commons.option_type;
+
+    insert into zcat_option_value.heel_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('heel_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.insole_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('insole_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.leather_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('leather_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.leg_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('leg_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.lining_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('lining_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.material_detail (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('material_detail')::zcat_commons.option_type;
+
+    insert into zcat_option_value.material_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('material_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.neck_line (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('neck_line')::zcat_commons.option_type;
+
+    insert into zcat_option_value.pattern (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('pattern')::zcat_commons.option_type;
+
+    insert into zcat_option_value.production_material (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('production_material')::zcat_commons.option_type;
+
+    insert into zcat_option_value.shipping_placement (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('shipping_placement')::zcat_commons.option_type;
+
+    insert into zcat_option_value.shoe_lining_material (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('shoe_lining_material')::zcat_commons.option_type;
+
+    insert into zcat_option_value.shoe_upper (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('shoe_upper')::zcat_commons.option_type;
+
+    insert into zcat_option_value.sleeve_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('sleeve_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.sole_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('sole_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.sport_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('sport_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.sub_season (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('sub_season')::zcat_commons.option_type;
+
+    insert into zcat_option_value.sub_sport_type (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('sub_sport_type')::zcat_commons.option_type;
+
+    insert into zcat_option_value.target_group_age (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('target_group_age')::zcat_commons.option_type;
+
+    insert into zcat_option_value.tax_classification (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('tax_classification')::zcat_commons.option_type;
+
+    insert into zcat_option_value.textile_lining_material (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('textile_lining_material')::zcat_commons.option_type;
+
+    insert into zcat_option_value.textile_membrane (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('textile_membrane')::zcat_commons.option_type;
+
+    insert into zcat_option_value.textile_upper (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('textile_upper')::zcat_commons.option_type;
+
+    insert into zcat_option_value.toe_cap (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('toe_cap')::zcat_commons.option_type;
+
+    insert into zcat_option_value.trend (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('trend')::zcat_commons.option_type;
+
+    insert into zcat_option_value.type_q (ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key)
+    select ov_id, ov_code, ov_created, ov_created_by, ov_last_modified, ov_last_modified_by, ov_flow_id, ov_name_message_key, ov_is_active, ov_sort_key
+    from zcat_commons.option_value
+    where ov_option_type = upper('type_q')::zcat_commons.option_type;
+
+    ALTER TABLE zcat_commons.material DROP CONSTRAINT material_type_id_check;
+    ALTER TABLE zcat_commons.material DROP CONSTRAINT material_m_type_id_fkey;
+    ALTER TABLE zcat_commons.material ADD CONSTRAINT  material_m_type_id_fkey
+            FOREIGN KEY (m_type_id) REFERENCES zcat_option_value.material_type(ov_id);
+
+    ALTER TABLE zcat_data.article_config DROP CONSTRAINT article_config_sub_season_id_check;
+    ALTER TABLE zcat_data.article_config DROP CONSTRAINT article_config_ac_sub_season_id_fkey;
+    ALTER TABLE zcat_data.article_config ADD CONSTRAINT  article_config_ac_sub_season_id_fkey
+            FOREIGN KEY (ac_sub_season_id) REFERENCES zcat_option_value.sub_season(ov_id);
+
+    ALTER TABLE zcat_data.article_config DROP CONSTRAINT article_config_pattern_id_check;
+    ALTER TABLE zcat_data.article_config DROP CONSTRAINT article_config_ac_pattern_id_fkey;
+    ALTER TABLE zcat_data.article_config ADD CONSTRAINT  article_config_ac_pattern_id_fkey
+            FOREIGN KEY (ac_pattern_id) REFERENCES zcat_option_value.pattern(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_logistics_model DROP CONSTRAINT article_facet_logistics_model_bootleg_type_id_check;
+    ALTER TABLE zcat_data.article_facet_logistics_model DROP CONSTRAINT article_facet_logistics_model_aflm_bootleg_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_logistics_model ADD CONSTRAINT  article_facet_logistics_model_aflm_bootleg_type_id_fkey
+            FOREIGN KEY (aflm_bootleg_type_id) REFERENCES zcat_option_value.bootleg_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_logistics_config DROP CONSTRAINT article_facet_logistics_config_shipping_placement_id_check;
+    ALTER TABLE zcat_data.article_facet_logistics_config DROP CONSTRAINT article_facet_logistics_config_aflc_shipping_placement_id_fkey;
+    ALTER TABLE zcat_data.article_facet_logistics_config ADD CONSTRAINT  article_facet_logistics_config_aflc_shipping_placement_id_fkey
+            FOREIGN KEY (aflc_shipping_placement_id) REFERENCES zcat_option_value.shipping_placement(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_logistics_simple DROP CONSTRAINT article_facet_logistics_simple_shipping_placement_id_check;
+    ALTER TABLE zcat_data.article_facet_logistics_simple DROP CONSTRAINT article_facet_logistics_simple_afls_shipping_placement_id_fkey;
+    ALTER TABLE zcat_data.article_facet_logistics_simple ADD CONSTRAINT  article_facet_logistics_simple_afls_shipping_placement_id_fkey
+            FOREIGN KEY (afls_shipping_placement_id) REFERENCES zcat_option_value.shipping_placement(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_closure_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_closure_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_closure_id_fkey
+            FOREIGN KEY (afsm_closure_id) REFERENCES zcat_option_value.closure(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_fit_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_fit_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_fit_type_id_fkey
+            FOREIGN KEY (afsm_fit_type_id) REFERENCES zcat_option_value.fit_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_fitting_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_fitting_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_fitting_id_fkey
+            FOREIGN KEY (afsm_fitting_id) REFERENCES zcat_option_value.fitting(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_heel_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_heel_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_heel_type_id_fkey
+            FOREIGN KEY (afsm_heel_type_id) REFERENCES zcat_option_value.heel_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_leg_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_leg_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_leg_type_id_fkey
+            FOREIGN KEY (afsm_leg_type_id) REFERENCES zcat_option_value.leg_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_neck_line_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_neck_line_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_neck_line_id_fkey
+            FOREIGN KEY (afsm_neck_line_id) REFERENCES zcat_option_value.neck_line(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_shoe_upper_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_shoe_upper_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_shoe_upper_id_fkey
+            FOREIGN KEY (afsm_shoe_upper_id) REFERENCES zcat_option_value.shoe_upper(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_sleeve_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_sleeve_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_sleeve_type_id_fkey
+            FOREIGN KEY (afsm_sleeve_type_id) REFERENCES zcat_option_value.sleeve_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_sport_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_sport_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_sport_type_id_fkey
+            FOREIGN KEY (afsm_sport_type_id) REFERENCES zcat_option_value.sport_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_sub_sport_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_sub_sport_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_sub_sport_type_id_fkey
+            FOREIGN KEY (afsm_sub_sport_type_id) REFERENCES zcat_option_value.sub_sport_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_textile_membrane_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_textile_membrane_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_textile_membrane_id_fkey
+            FOREIGN KEY (afsm_textile_membrane_id) REFERENCES zcat_option_value.textile_membrane(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_config_toe_cap_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_model DROP CONSTRAINT article_facet_sales_model_afsm_toe_cap_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_model ADD CONSTRAINT  article_facet_sales_model_afsm_toe_cap_id_fkey
+            FOREIGN KEY (afsm_toe_cap_id) REFERENCES zcat_option_value.toe_cap(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_insole_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_insole_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_insole_type_id_fkey
+            FOREIGN KEY (afsc_insole_type_id) REFERENCES zcat_option_value.insole_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_leather_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_leather_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_leather_type_id_fkey
+            FOREIGN KEY (afsc_leather_type_id) REFERENCES zcat_option_value.leather_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_lining_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_lining_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_lining_type_id_fkey
+            FOREIGN KEY (afsc_lining_type_id) REFERENCES zcat_option_value.lining_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_shoe_lining_material_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_shoe_lining_material_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_shoe_lining_material_id_fkey
+            FOREIGN KEY (afsc_shoe_lining_material_id) REFERENCES zcat_option_value.shoe_lining_material(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_shoe_upper_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_shoe_upper_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_shoe_upper_id_fkey
+            FOREIGN KEY (afsc_shoe_upper_id) REFERENCES zcat_option_value.shoe_upper(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_sole_type_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_sole_type_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_sole_type_id_fkey
+            FOREIGN KEY (afsc_sole_type_id) REFERENCES zcat_option_value.sole_type(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_target_group_age_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_target_group_age_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_target_group_age_id_fkey
+            FOREIGN KEY (afsc_target_group_age_id) REFERENCES zcat_option_value.target_group_age(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_textile_lining_material_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_textile_lining_material_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_textile_lining_material_id_fkey
+            FOREIGN KEY (afsc_textile_lining_material_id) REFERENCES zcat_option_value.textile_lining_material(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_textile_upper_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_textile_upper_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_textile_upper_id_fkey
+            FOREIGN KEY (afsc_textile_upper_id) REFERENCES zcat_option_value.textile_upper(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_trend1_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_trend1_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_trend1_id_fkey
+            FOREIGN KEY (afsc_trend1_id) REFERENCES zcat_option_value.trend(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_trend2_id_check;
+    ALTER TABLE zcat_data.article_facet_sales_config DROP CONSTRAINT article_facet_sales_config_afsc_trend2_id_fkey;
+    ALTER TABLE zcat_data.article_facet_sales_config ADD CONSTRAINT  article_facet_sales_config_afsc_trend2_id_fkey
+            FOREIGN KEY (afsc_trend2_id) REFERENCES zcat_option_value.trend(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_accounting_model DROP CONSTRAINT article_facet_accounting_model_input_tax_classification_id_chec;
+    ALTER TABLE zcat_data.article_facet_accounting_model DROP CONSTRAINT article_facet_accounting_mode_afam_input_tax_classificatio_fkey;
+    ALTER TABLE zcat_data.article_facet_accounting_model ADD CONSTRAINT  article_facet_accounting_mode_afam_input_tax_classificatio_fkey
+            FOREIGN KEY (afam_input_tax_classification_id) REFERENCES zcat_option_value.tax_classification(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_accounting_model DROP CONSTRAINT article_facet_accounting_model_value_added_tax_classification_i;
+    ALTER TABLE zcat_data.article_facet_accounting_model DROP CONSTRAINT article_facet_accounting_mode_afam_value_added_tax_classif_fkey;
+    ALTER TABLE zcat_data.article_facet_accounting_model ADD CONSTRAINT  article_facet_accounting_mode_afam_value_added_tax_classif_fkey
+            FOREIGN KEY (afam_value_added_tax_classification_id) REFERENCES zcat_option_value.tax_classification(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_supplier_config DROP CONSTRAINT article_facet_supplier_config_availability_id_check;
+    ALTER TABLE zcat_data.article_facet_supplier_config DROP CONSTRAINT article_facet_supplier_config_afsc_availability_id_fkey;
+    ALTER TABLE zcat_data.article_facet_supplier_config ADD CONSTRAINT  article_facet_supplier_config_afsc_availability_id_fkey
+            FOREIGN KEY (afsc_availability_id) REFERENCES zcat_option_value.availability(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_production_model DROP CONSTRAINT article_facet_production_config_material_id_check;
+    ALTER TABLE zcat_data.article_facet_production_model DROP CONSTRAINT article_facet_production_model_afpm_material_id_fkey;
+    ALTER TABLE zcat_data.article_facet_production_model ADD CONSTRAINT  article_facet_production_model_afpm_material_id_fkey
+            FOREIGN KEY (afpm_material_id) REFERENCES zcat_option_value.production_material(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_production_model DROP CONSTRAINT article_facet_production_config_type_q_id_check;
+    ALTER TABLE zcat_data.article_facet_production_model DROP CONSTRAINT article_facet_production_model_afpm_type_q_id_fkey;
+    ALTER TABLE zcat_data.article_facet_production_model ADD CONSTRAINT  article_facet_production_model_afpm_type_q_id_fkey
+            FOREIGN KEY (afpm_type_q_id) REFERENCES zcat_option_value.type_q(ov_id);
+
+    ALTER TABLE zcat_data.article_facet_production_config DROP CONSTRAINT article_facet_production_config_material_detail_id_check;
+    ALTER TABLE zcat_data.article_facet_production_config DROP CONSTRAINT article_facet_production_config_afpc_material_detail_id_fkey;
+    ALTER TABLE zcat_data.article_facet_production_config ADD CONSTRAINT  article_facet_production_config_afpc_material_detail_id_fkey
+            FOREIGN KEY (afpc_material_detail_id) REFERENCES zcat_option_value.material_detail(ov_id);
+
+  RESET role;
+
+COMMIT;
+--ROLLBACK;

@@ -1,0 +1,20 @@
+BEGIN;
+
+    -- $Id$
+    -- $HeadURL$
+
+    select _v.register_patch ('ZEOS-8802.catalog');
+
+    set role to zalando;
+
+    ALTER TABLE zcat_data.article_sku ADD COLUMN as_is_legacy boolean NOT NULL DEFAULT false;
+
+    DROP INDEX zcat_data.article_sku_as_sku_idx;
+
+    CREATE UNIQUE INDEX ON zcat_data.article_sku (as_sku text_pattern_ops) WHERE NOT as_is_legacy OR as_sku_type = 'SIMPLE';
+    CREATE UNIQUE INDEX ON zcat_data.article_sku (as_sku text_pattern_ops, as_sku_type) WHERE as_is_legacy AND as_sku_type != 'SIMPLE';
+
+    reset role;
+
+--ROLLBACK;
+COMMIT;
