@@ -81,7 +81,7 @@ public class ManyToManyMappingCustomizer extends AbstractColumnNameCustomizer<Ma
         for (DatabaseField field : sourcekeyFields) {
             String fieldName = field.getName();
             field.setName(fieldName.toLowerCase());
-            System.out.println(field.getName());
+// System.out.println(field.getName());
         }
 
         // sourceRelationKeyField zum beispiel : deploymentset_projects.DeploymentSet_ID
@@ -89,11 +89,17 @@ public class ManyToManyMappingCustomizer extends AbstractColumnNameCustomizer<Ma
 
         for (DatabaseField field : sourceRelationKeyFields) {
             String fieldName = field.getName();
+            if (fieldName.endsWith("_ID")) {
+                fieldName = fieldName.substring(0, fieldName.indexOf("_ID"));
+            }
+
             String iconized = NameUtils.iconizeTableName(newTableName);
-            String newFieldName = new StringBuilder().append(iconized).append("_").append(fieldName.toLowerCase())
-                                                     .toString();
+
+            String newFieldName = new StringBuilder().append(iconized).append("_")
+                                                     .append(NameUtils.camelCaseToUnderscore(fieldName)).append("_")
+                                                     .append("id").toString();
             field.setName(newFieldName);
-            System.out.println(field.getName());
+// System.out.println(field.getName());
         }
 
         // targetKeyField zum beispiel : project.p_id
@@ -102,7 +108,7 @@ public class ManyToManyMappingCustomizer extends AbstractColumnNameCustomizer<Ma
         for (DatabaseField field : targetKeyFields) {
             String fieldName = field.getName();
             field.setName(fieldName.toLowerCase());
-            System.out.println(field.getName());
+// System.out.println(field.getName());
         }
 
         // targetRelationKeyField zum Beispiel deploymentset_projects.projects_ID
@@ -110,11 +116,17 @@ public class ManyToManyMappingCustomizer extends AbstractColumnNameCustomizer<Ma
 
         for (DatabaseField field : targetRelationKeyField) {
             String fieldName = field.getName();
+            if (fieldName.endsWith("_ID")) {
+                fieldName = fieldName.substring(0, fieldName.indexOf("_ID"));
+            }
+
             String iconized = NameUtils.iconizeTableName(newTableName);
-            String newFieldName = new StringBuilder().append(iconized).append("_").append(fieldName.toLowerCase())
+            String newFieldName = new StringBuilder().append(iconized).append("_")
+                                                     .append(NameUtils.camelCaseToUnderscore(
+                                                             referenceClazz.getSimpleName())).append("_").append("id")
                                                      .toString();
             field.setName(newFieldName);
-            System.out.println(field.getName());
+// System.out.println(field.getName());
         }
 
     }
