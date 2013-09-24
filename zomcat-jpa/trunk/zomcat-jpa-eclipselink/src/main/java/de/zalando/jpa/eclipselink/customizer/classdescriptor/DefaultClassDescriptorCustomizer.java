@@ -1,5 +1,10 @@
 package de.zalando.jpa.eclipselink.customizer.classdescriptor;
 
+import static com.google.common.base.Predicates.notNull;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Embeddable;
@@ -8,6 +13,7 @@ import org.eclipse.persistence.descriptors.ClassDescriptor;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.sessions.Session;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import de.zalando.jpa.eclipselink.LogSupport;
@@ -89,7 +95,23 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void registerColumnNameCustomizer(final ColumnNameCustomizer columnNameCustomizer) {
+        Preconditions.checkNotNull(columnNameCustomizer, "ColumnNameCustomizer should not be null");
         columnNameCustomizerRegistry.put(columnNameCustomizer.supportedDatabaseMapping(), columnNameCustomizer);
+    }
+
+    /**
+     * Registers a list of {@link ColumnNameCustomizer}s in this registry.
+     *
+     * @param  columnNameCustomizers  a list of {@link ColumnNameCustomizer}s
+     *
+     * @see    #registerColumnNameCustomizer(ColumnNameCustomizer)
+     */
+    @SuppressWarnings("rawtypes")
+    public void registerColumnNameCustomizer(final List<ColumnNameCustomizer> columnNameCustomizers) {
+        List<ColumnNameCustomizer> nonNullList = newArrayList(filter(columnNameCustomizers, notNull()));
+        for (ColumnNameCustomizer c : nonNullList) {
+            registerColumnNameCustomizer(c);
+        }
     }
 
     /**
@@ -101,6 +123,20 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void registerConverterCustomizer(final ConverterCustomizer converterCustomizer) {
         converterCustomizerRegistry.put(converterCustomizer.supportedDatabaseMapping(), converterCustomizer);
+    }
+
+    /**
+     * Registers a list of {@link ConverterCustomizer}s in the registry.
+     *
+     * @param  converterCustomizers
+     *
+     * @see    #registerConverterCustomizer(ConverterCustomizer)
+     */
+    public void registerConverterCustomizer(final List<ConverterCustomizer> converterCustomizers) {
+        List<ConverterCustomizer> nonNullList = newArrayList(filter(converterCustomizers, notNull()));
+        for (ConverterCustomizer c : nonNullList) {
+            registerConverterCustomizer(c);
+        }
     }
 
     /**

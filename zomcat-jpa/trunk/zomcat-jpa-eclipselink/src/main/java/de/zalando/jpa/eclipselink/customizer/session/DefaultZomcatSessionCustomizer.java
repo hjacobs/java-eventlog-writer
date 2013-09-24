@@ -6,7 +6,6 @@ import org.eclipse.persistence.mappings.OneToManyMapping;
 
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.TableNameClassDescriptorCustomizer;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.ManyToManyMappingCustomizer;
 
 /**
  * The {@link DefaultZomcatSessionCustomizer} registers
@@ -22,11 +21,9 @@ public class DefaultZomcatSessionCustomizer extends AbstractZomcatSessionCustomi
     public DefaultZomcatSessionCustomizer() {
         super();
 
-        clazzDescriptorCustomizer =
-            new CompositeClassDescriptorCustomizer().build(new TableNameClassDescriptorCustomizer(),
-                defaultZalandoColumnNameCustomizer().with(new ManyToManyMappingCustomizer()).build());
-
-// clazzDescriptorCustomizer = defaultZalandoCustomization();
+        // TableNameClassDescriptorCustomizer should always be the first
+        clazzDescriptorCustomizer = builder().with(new TableNameClassDescriptorCustomizer())
+                                             .with(defaultColumnNameClassDescriptorCustomizer()).build();
 
     }
 

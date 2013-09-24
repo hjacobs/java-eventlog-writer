@@ -9,16 +9,15 @@ import org.eclipse.persistence.descriptors.ClassDescriptor;
 import org.eclipse.persistence.sessions.Session;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import de.zalando.jpa.eclipselink.LogSupport;
-import de.zalando.jpa.eclipselink.customizer.classdescriptor.ChangePolicyClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.DefaultClassDescriptorCustomizer;
-import de.zalando.jpa.eclipselink.customizer.classdescriptor.TableNameClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ConverterCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingColumnNameCustomizer;
-import de.zalando.jpa.eclipselink.customizer.databasemapping.ManyToOneMappingColumnNameCustomizer;
+import de.zalando.jpa.eclipselink.customizer.databasemapping.ManyToManyMappingCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.OneToManyMappingColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.OneToOneMappingColumnNameCustomizer;
 
@@ -55,7 +54,61 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
 
     public abstract ClassDescriptorCustomizer getClassDescriptorCustomizer();
 
-    // TODO, refactor this, make it a bit more understandable
+    /**
+     * Returns a list of all {@link ColumnNameCustomizer}s for default behavior.
+     *
+     * @return  list of {@link ColumnNameCustomizer}
+     *
+     * @see     DirectToFieldMappingColumnNameCustomizer
+     * @see     OneToManyMappingColumnNameCustomizer
+     * @see     OneToOneMappingColumnNameCustomizer
+     * @see     ManyToManyMappingCustomizer
+     */
+    public static List<ColumnNameCustomizer> defaultColumnNameCustomizers() {
+        List<ColumnNameCustomizer> columnNameCustomizer = Lists.newLinkedList();
+        columnNameCustomizer.add(new DirectToFieldMappingColumnNameCustomizer());
+        columnNameCustomizer.add(new OneToManyMappingColumnNameCustomizer());
+        columnNameCustomizer.add(new OneToOneMappingColumnNameCustomizer());
+        columnNameCustomizer.add(new ManyToManyMappingCustomizer());
+        return columnNameCustomizer;
+    }
+
+    /**
+     * Returns an empty Lists until now.
+     *
+     * @return
+     */
+    public static List<ConverterCustomizer> defaultConverterCustomizer() {
+        return Lists.newArrayList();
+    }
+
+    /**
+     * Returns an {@link ClassDescriptorCustomizer} that wrapped the default {@link ColumnNameCustomizer}s.
+     *
+     * @see  DefaultClassDescriptorCustomizer
+     */
+    public static ClassDescriptorCustomizer defaultColumnNameClassDescriptorCustomizer() {
+        return newClassDescriptorCustomizer(defaultColumnNameCustomizers(), new ArrayList<ConverterCustomizer>());
+    }
+
+    /**
+     * Returns an {@link ClassDescriptorCustomizer} that wrapped all {@link ColumnNameCustomizer}s and
+     * {@link ConverterCustomizer}s provided by the arguments.
+     *
+     * @param   columnNameCustomizers
+     * @param   converterCustomizers
+     *
+     * @return
+     */
+    public static ClassDescriptorCustomizer newClassDescriptorCustomizer(
+            final List<ColumnNameCustomizer> columnNameCustomizers,
+            final List<ConverterCustomizer> converterCustomizers) {
+        DefaultClassDescriptorCustomizer d = new DefaultClassDescriptorCustomizer();
+        d.registerColumnNameCustomizer(defaultColumnNameCustomizers());
+        d.registerConverterCustomizer(converterCustomizers);
+        return d;
+    }
+
     /**
      * An BuilderStep.
      *
@@ -69,86 +122,10 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
     }
 
     /**
-     * An BuilderStep.
-     *
-     * @author  jbellmann
+     * @return  and builder to compose multiple {@link ClassDescriptorCustomizer} into one
+     *          {@link ClassDescriptorCustomizer}.
      */
-    public static interface ColumnNameCustomizerCompositeBuilder {
-
-        ColumnNameCustomizerCompositeBuilder with(ColumnNameCustomizer columnNameCustomizer);
-
-        ColumnNameCustomizerCompositeBuilder with(ConverterCustomizer converterCustomizer);
-
-        ClassDescriptorCustomizerBuilder and();
-
-        ClassDescriptorCustomizer build();
-
-    }
-
-    public static ColumnNameCustomizerCompositeBuilder newBuilder() {
-        return new CNCustomizerBuilder();
-    }
-
-    public static ClassDescriptorCustomizer defaultZalandoCustomization() {
-        return defaultZalandoCustomizationBuilder().build();
-    }
-
-    public static ClassDescriptorCustomizerBuilder defaultZalandoCustomizationBuilder() {
-        return newComposite().with(defaultZalandoColumnNameCustomizer().build())
-                             .with(new ChangePolicyClassDescriptorCustomizer()).with(
-                                 new TableNameClassDescriptorCustomizer());
-    }
-
-    public static ColumnNameCustomizerCompositeBuilder defaultZalandoColumnNameCustomizer() {
-        return new CNCustomizerBuilder().with(new DirectToFieldMappingColumnNameCustomizer())
-                                        .with(new OneToManyMappingColumnNameCustomizer())
-                                        .with(new OneToOneMappingColumnNameCustomizer()).with(
-                                            new ManyToOneMappingColumnNameCustomizer());
-    }
-
-    /**
-     * @author  jbellmann
-     */
-    static final class CNCustomizerBuilder implements ColumnNameCustomizerCompositeBuilder {
-
-        private final List<ColumnNameCustomizer> columnNameCustomizer = new ArrayList<ColumnNameCustomizer>();
-        private final List<ConverterCustomizer> converterCustomizer = new ArrayList<ConverterCustomizer>();
-
-        @Override
-        public ColumnNameCustomizerCompositeBuilder with(final ColumnNameCustomizer columnNameCustomizer) {
-            this.columnNameCustomizer.add(columnNameCustomizer);
-            return this;
-        }
-
-        @Override
-        public ColumnNameCustomizerCompositeBuilder with(final ConverterCustomizer converterCustomizer) {
-            this.converterCustomizer.add(converterCustomizer);
-            return this;
-        }
-
-        @Override
-        public ClassDescriptorCustomizerBuilder and() {
-
-            return new Builder().with(build());
-        }
-
-        @Override
-        public ClassDescriptorCustomizer build() {
-            DefaultClassDescriptorCustomizer dcdc = new DefaultClassDescriptorCustomizer();
-            for (ColumnNameCustomizer<?> cnc : this.columnNameCustomizer) {
-                dcdc.registerColumnNameCustomizer(cnc);
-            }
-
-            //
-            for (ConverterCustomizer<?> cnc : this.converterCustomizer) {
-                dcdc.registerConverterCustomizer(cnc);
-            }
-
-            return dcdc;
-        }
-    }
-
-    public static ClassDescriptorCustomizerBuilder newComposite() {
+    public static ClassDescriptorCustomizerBuilder builder() {
         return new Builder();
     }
 

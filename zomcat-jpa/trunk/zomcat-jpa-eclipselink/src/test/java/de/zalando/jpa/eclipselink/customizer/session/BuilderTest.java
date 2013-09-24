@@ -26,8 +26,8 @@ public class BuilderTest {
 
         @Override
         public ClassDescriptorCustomizer getClassDescriptorCustomizer() {
-            return newComposite().with(new DefaultClassDescriptorCustomizer())
-                                 .with(new ChangePolicyClassDescriptorCustomizer()).build();
+            return builder().with(new DefaultClassDescriptorCustomizer())
+                            .with(new ChangePolicyClassDescriptorCustomizer()).build();
         }
 
     }

@@ -12,9 +12,9 @@ public class ProjectSessionCustomizer extends AbstractZomcatSessionCustomizer {
 
     public ProjectSessionCustomizer() {
 
-        final ClassDescriptorCustomizer zalandoDefaults = defaultZalandoCustomization();
+        final ClassDescriptorCustomizer zalandoDefaults = defaultColumnNameClassDescriptorCustomizer();
 
-        clazzDescriptorCustomizer = newComposite().with(zalandoDefaults).build();
+        clazzDescriptorCustomizer = builder().with(zalandoDefaults).build();
     }
 
     @Override
