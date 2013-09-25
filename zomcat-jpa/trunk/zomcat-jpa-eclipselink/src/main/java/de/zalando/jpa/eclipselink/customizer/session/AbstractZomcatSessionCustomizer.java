@@ -18,6 +18,7 @@ import de.zalando.jpa.eclipselink.customizer.databasemapping.ColumnNameCustomize
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ConverterCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ManyToManyMappingCustomizer;
+import de.zalando.jpa.eclipselink.customizer.databasemapping.ManyToOneMappingColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.OneToManyMappingColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.OneToOneMappingColumnNameCustomizer;
 
@@ -66,9 +67,13 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
      */
     public static List<ColumnNameCustomizer> defaultColumnNameCustomizers() {
         List<ColumnNameCustomizer> columnNameCustomizer = Lists.newLinkedList();
+
         columnNameCustomizer.add(new DirectToFieldMappingColumnNameCustomizer());
+
         columnNameCustomizer.add(new OneToManyMappingColumnNameCustomizer());
         columnNameCustomizer.add(new OneToOneMappingColumnNameCustomizer());
+
+        columnNameCustomizer.add(new ManyToOneMappingColumnNameCustomizer());
         columnNameCustomizer.add(new ManyToManyMappingCustomizer());
         return columnNameCustomizer;
     }
@@ -104,7 +109,7 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
             final List<ColumnNameCustomizer> columnNameCustomizers,
             final List<ConverterCustomizer> converterCustomizers) {
         DefaultClassDescriptorCustomizer d = new DefaultClassDescriptorCustomizer();
-        d.registerColumnNameCustomizer(defaultColumnNameCustomizers());
+        d.registerColumnNameCustomizer(columnNameCustomizers);
         d.registerConverterCustomizer(converterCustomizers);
         return d;
     }
