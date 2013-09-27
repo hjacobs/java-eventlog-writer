@@ -29,6 +29,7 @@
     <bean id="flowIdOutbound" class="de.zalando.zomcat.cxf.FlowIdOutboundInterceptor"/>
     <bean id="executionContextInbound" class="de.zalando.zomcat.cxf.ExecutionContextInboundInterceptor"/>
     <bean id="executionContextOutbound" class="de.zalando.zomcat.cxf.ExecutionContextOutboundInterceptor"/>
+    <bean id="hostInstanceOutbound" class="de.zalando.zomcat.cxf.HostInstanceOutboundInterceptor"/>
 
     <bean id="webServiceAuthorizationLogServiceImpl" class="de.zalando.zomcat.cxf.authorization.impl.WebServiceAuthorizationLogServiceImpl"/>
     <bean id="webServiceAuthorizationConfig" class="de.zalando.zomcat.cxf.authorization.impl.AccessConfigImpl">

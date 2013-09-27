@@ -35,6 +35,7 @@
             <ref bean="logOutbound"/>
             <ref bean="executionContextOutbound" />
             <ref bean="flowIdOutbound"/>
+            <ref bean="hostInstanceOutbound"/>
         </cxf:outInterceptors>
         <cxf:inFaultInterceptors>
             <ref bean="flowIdInbound" />
@@ -45,6 +46,7 @@
             <ref bean="logOutbound"/>
             <ref bean="executionContextOutbound" />
             <ref bean="flowIdOutbound"/>
+            <ref bean="hostInstanceOutbound"/>
         </cxf:outFaultInterceptors>
     </cxf:bus>
 </beans>
