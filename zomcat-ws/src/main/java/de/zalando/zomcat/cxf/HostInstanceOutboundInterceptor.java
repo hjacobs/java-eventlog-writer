@@ -13,9 +13,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.zalando.zomcat.configuration.AppInstanceContextProvider;
 
 /**
@@ -24,7 +21,6 @@ import de.zalando.zomcat.configuration.AppInstanceContextProvider;
  * @author  Rodrigo Reis [rodrigo.reis (at) zalando.de]
  */
 public class HostInstanceOutboundInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final Logger LOG = LoggerFactory.getLogger(HostInstanceOutboundInterceptor.class);
 
     /**
      * The HTTP Header for host and instance.
@@ -45,7 +41,6 @@ public class HostInstanceOutboundInterceptor extends AbstractPhaseInterceptor<Me
 
     @Override
     public void handleMessage(final Message message) throws Fault {
-        LOG.debug("Entered host instance interceptor...");
 
         // Host and instance code provided by AppInstanceContextProvider
         String hostInstance = provider.getHost() + ":" + provider.getInstanceCode();
