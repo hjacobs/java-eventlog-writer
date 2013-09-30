@@ -58,10 +58,7 @@ public class HostInstanceOutboundInterceptor extends AbstractPhaseInterceptor<Me
         // Insert host and instance into the message headers
         map.put(X_HOST_INSTANCE, Arrays.asList(hostInstance));
 
-        if (isRequestor(message)) {
-            // no response header available. do nothing, do not remove the
-            // context
-        } else {
+        if (!isRequestor(message)) {
 
             // this is the response and the end of the call.
             // add the host and instance code to the response and remove it from our
