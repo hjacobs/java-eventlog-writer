@@ -3,6 +3,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <artifactId>zalando-parent</artifactId>
+        <groupId>de.zalando</groupId>
+        <version>2.1.144</version>
+      </parent>
+
     <artifactId>jsonschema2pojo-maven-plugin</artifactId>
     <groupId>org.jsonschema2pojo</groupId>
     <version>0.3.8-z</version>
@@ -79,6 +85,13 @@
 
     <reporting>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
