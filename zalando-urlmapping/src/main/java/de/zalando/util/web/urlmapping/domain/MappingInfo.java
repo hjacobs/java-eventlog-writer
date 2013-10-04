@@ -2,6 +2,7 @@ package de.zalando.util.web.urlmapping.domain;
 
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Optional;
@@ -40,7 +41,7 @@ public final class MappingInfo {
     /**
      * Register the MappingInfo as request attribute of the supplied request.
      */
-    public void tieToRequest(final HttpServletRequest request) {
+    public void tieToRequest(final ServletRequest request) {
         request.setAttribute(MAPPINGINFO_ATTRIBUTE_NAME, this);
     }
 

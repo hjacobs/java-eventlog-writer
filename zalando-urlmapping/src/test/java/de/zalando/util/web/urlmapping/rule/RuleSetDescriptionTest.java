@@ -107,7 +107,7 @@ public class RuleSetDescriptionTest {
 
         final RuleContext ruleContext = builder.build();
         assertThat(ruleContext,
-            maps("kasse/geschenkgutscheine/bestellt/123", "/checkout/VoucherFinal.action?success=&id=123"));
+            maps("kasse/geschenkgutscheine/bestellt/123?a=10", "/checkout/VoucherFinal.action?success=&id=123"));
         assertThat(ruleContext, maps("kasse/geschenkgutscheine/bestellt", "/checkout/VoucherFinal.action?success="));
         assertThat(ruleContext, maps("kasse/geschenkgutscheine/bestellt/", "/checkout/VoucherFinal.action?success="));
         assertThat(ruleContext,

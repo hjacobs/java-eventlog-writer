@@ -162,7 +162,10 @@ public class ForwardMappingRule implements MappingRule {
             postProcessor.postProcess(urlBuilder, context, mappedParameters);
         }
 
-        urlBuilder.takeRemainingParametersFromOriginalMapping(context.getParameterMap());
+        // Note: Deactivated because of 'forward' behavior:
+        // Note: the original parameters will be passed to this forward (because they are part of the 'request'
+        // object. New parameters are added by encoding in the 'internalUrl'
+        // !! Do not call!! "urlBuilder.takeRemainingParametersFromOriginalMapping(context.getParameterMap());"
 
         String internalUrl = urlBuilder.build();
 
