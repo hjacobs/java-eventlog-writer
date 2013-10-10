@@ -57,7 +57,7 @@ public class Log4jMBean implements LoggingMBean, Serializable {
          * The result of Level.toLevel(String level) needs to be validated, because when given a wrong logging level it
          * defaults to DEBUG.
          */
-        Preconditions.checkArgument(level.equals(Level.toLevel(level).toString()), "Invalid logging level: %s", level);
+        Preconditions.checkArgument(Level.toLevel(level, null) != null, "Invalid logging level: %s", level);
 
         Logger logger = LogManager.getLogger(category);
         logger.setLevel(Level.toLevel(level));
