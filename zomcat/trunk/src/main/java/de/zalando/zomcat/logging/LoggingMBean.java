@@ -7,8 +7,6 @@ package de.zalando.zomcat.logging;
  */
 public interface LoggingMBean {
 
-    // TODO why not add categories to logging?
-
     /**
      * Sets the logger of the specified category to the specified level.
      *
