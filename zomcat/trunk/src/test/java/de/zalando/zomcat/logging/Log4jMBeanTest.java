@@ -78,6 +78,12 @@ public class Log4jMBeanTest {
         loggingBean.setLoggerLevel("de.zalando.zomcat", null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetLoggingLevelWithWrongLevelParameter() {
+
+        loggingBean.setLoggerLevel("de.zalando.zomcat", "IAMNOTALOGGINGLEVEL");
+    }
+
     @Test(expected = NullPointerException.class)
     public void testSetLoggingLevelWithAllNullParameters() {
 
