@@ -58,14 +58,15 @@ public class DefaultClassDescriptorCustomizer extends LogSupport implements Clas
             // columnNames
             ColumnNameCustomizer<DatabaseMapping> columnNameCustomizer = getColumnNameCustomizer(databaseMapping);
 
-            if (isNoOpCustomizer(columnNameCustomizer)) {
-                logFinest(session, NO_COL_CUSTOMIZER, databaseMapping.getClass().getName());
-            }
+// if (isNoOpCustomizer(columnNameCustomizer)) {
+// logFinest(session, NO_COL_CUSTOMIZER, databaseMapping.getClass().getName());
+// }
 
             columnNameCustomizer.customizeColumnName(clazzDescriptor.getTableName(), databaseMapping, session);
 
             // converter
             ConverterCustomizer<DatabaseMapping> converterCustomizer = getConverterCustomizer(databaseMapping);
+
             if (isNoOpCustomizer(converterCustomizer)) {
                 logFinest(session, NO_CONV_CUSTOMIZER, databaseMapping.getClass().getName());
             }

@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import de.zalando.jpa.eclipselink.LogSupport;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.ClassDescriptorCustomizer;
 import de.zalando.jpa.eclipselink.customizer.classdescriptor.DefaultClassDescriptorCustomizer;
+import de.zalando.jpa.eclipselink.customizer.databasemapping.AggregateObjectMappingColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ColumnNameCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.ConverterCustomizer;
 import de.zalando.jpa.eclipselink.customizer.databasemapping.DirectToFieldMappingColumnNameCustomizer;
@@ -75,6 +76,7 @@ public abstract class AbstractZomcatSessionCustomizer extends LogSupport impleme
 
         columnNameCustomizer.add(new ManyToOneMappingColumnNameCustomizer());
         columnNameCustomizer.add(new ManyToManyMappingCustomizer());
+        columnNameCustomizer.add(new AggregateObjectMappingColumnNameCustomizer());
         return columnNameCustomizer;
     }
 
