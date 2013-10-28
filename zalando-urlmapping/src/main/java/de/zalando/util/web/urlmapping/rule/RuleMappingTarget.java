@@ -34,11 +34,11 @@ public class RuleMappingTarget {
 
     public RuleMappingTarget() { }
 
-    ForwardMappingRule.TargetType getTargetType() {
+    public ForwardMappingRule.TargetType getTargetType() {
         return targetType;
     }
 
-    String getRequestMethod() {
+    public String getRequestMethod() {
         return requestMethod;
     }
 
