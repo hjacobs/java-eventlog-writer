@@ -24,11 +24,6 @@ import de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider;
 public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcService, ArrayDataSourceProvider>
     implements ExampleSProcService {
 
-    @Override
-    public ExampleEnum getExampleEnum() {
-        return sproc.getExampleEnum();
-    }
-
     @Autowired
     public ExampleSProcServiceImpl(@Qualifier("testDataSourceProvider") final ArrayDataSourceProvider p) {
         super(p, ExampleSProcService.class);
@@ -396,30 +391,5 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     @Override
     public int createOrder(final String orderNumber, final TobisAmount amount) {
         return sproc.createOrder(orderNumber, amount);
-    }
-
-    @Override
-    public LookupType getValueForTypeLookup() {
-        return sproc.getValueForTypeLookup();
-    }
-
-    @Override
-    public List<LookupType> getValueForTypeLookupList() {
-        return sproc.getValueForTypeLookupList();
-    }
-
-    @Override
-    public WrapperLookup getValueForTypeLookupInnerList() {
-        return sproc.getValueForTypeLookupInnerList();
-    }
-
-    @Override
-    public WrapperLookupSchema getValueForTypeLookupSchema() {
-        return sproc.getValueForTypeLookupSchema();
-    }
-
-    @Override
-    public int testInheritanceFunction(final TestInheritanceChild c) {
-        return sproc.testInheritanceFunction(c);
     }
 }

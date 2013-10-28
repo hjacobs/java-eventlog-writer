@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 /**
  * @author  jmussler
  */
-
 public class TobisAmount {
 
     public TobisAmount() { }

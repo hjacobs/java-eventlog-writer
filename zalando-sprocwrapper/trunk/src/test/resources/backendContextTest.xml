@@ -25,24 +25,14 @@
     <context:component-scan base-package="de.zalando" />
     <context:annotation-config />
 
-    <bean id="testDataSource" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
-        <property name="driverClass" value="org.postgresql.Driver" />
-        <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
-        <property name="username" value="${frontend.sproc.datasource.username}" />
-        <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="initSQL" value="SET search_path to ztest_shard, public;" />
-        <property name="minConnectionsPerPartition" value="5" />
-        <property name="maxConnectionsPerPartition" value="5" />
-    </bean>
-
     <bean id="testDataSource1" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
         <property name="driverClass" value="org.postgresql.Driver" />
         <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="initSQL" value="SET search_path to ztest_shard1, ztest_shard, public;" />
-        <property name="minConnectionsPerPartition" value="5" />
-        <property name="maxConnectionsPerPartition" value="5" />
+        <property name="initSQL" value="SET search_path to ztest_shard1, public;" />
+        <property name="minConnectionsPerPartition" value="15" />
+        <property name="maxConnectionsPerPartition" value="15" />
     </bean>
 
     <bean id="testDataSource2" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
@@ -50,9 +40,9 @@
         <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="initSQL" value="SET search_path to ztest_shard2, ztest_shard, public;" />
-        <property name="minConnectionsPerPartition" value="5" />
-        <property name="maxConnectionsPerPartition" value="5" />
+        <property name="initSQL" value="SET search_path to ztest_shard2, public;" />
+        <property name="minConnectionsPerPartition" value="15" />
+        <property name="maxConnectionsPerPartition" value="15" />
     </bean>
 
     <bean id="testDataSource3" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
@@ -61,8 +51,8 @@
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
         <property name="initSQL" value="SET TIME ZONE 'PST8PDT'; SET search_path to ztest_shard1, public;" />
-        <property name="minConnectionsPerPartition" value="5" />
-        <property name="maxConnectionsPerPartition" value="5" />
+        <property name="minConnectionsPerPartition" value="15" />
+        <property name="maxConnectionsPerPartition" value="15" />
     </bean>
 
     <bean id="testDataSourceProviderOtherTimeZone" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">

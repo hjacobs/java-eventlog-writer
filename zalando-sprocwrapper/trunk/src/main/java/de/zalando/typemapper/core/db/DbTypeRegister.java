@@ -10,33 +10,31 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.util.StringUtils;
 
 public class DbTypeRegister {
 
-    // optimize for concurrent reads, since we should have a small amount of writes.
-    // Use the copy on write pattern concurrency pattern.
-    // Use volatile variable to guaranty that any thread that reads the field will see the most recently written value
-    private static volatile Map<String, DbTypeRegister> registers = ImmutableMap.of();
+    private static final Logger LOG = LoggerFactory.getLogger(DbTypeRegister.class);
 
+    private static Map<String, DbTypeRegister> registers = null;
     private static Map<String, DbType> dbTypeCache = new ConcurrentHashMap<>();
 
-    private final Map<String, DbType> types;
-    private final Map<String, String> typeFQN;
-    private final List<String> searchPath;
+    private Map<String, DbType> types = null;
+    private Map<String, List<String>> typeNameToFQN = null;
+    private List<String> searchPath = null;
 
     public DbTypeRegister(final Connection connection) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
             searchPath = getSearchPath(connection);
+            typeNameToFQN = new HashMap<String, List<String>>();
             types = new HashMap<String, DbType>();
-
-            final HashMap<String, List<String>> typeNameToFQN = new HashMap<String, List<String>>();
 
             //J-
             statement = connection.prepareStatement(
@@ -74,11 +72,8 @@ public class DbTypeRegister {
                 final int fieldPosition = resultSet.getInt(i++);
                 final boolean isArray = resultSet.getBoolean(i++);
 
-                addField(typeSchema, typeName, fieldName, fieldPosition, fieldType, fieldTypeName, typeType, isArray,
-                    typeNameToFQN);
+                addField(typeSchema, typeName, fieldName, fieldPosition, fieldType, fieldTypeName, typeType, isArray);
             }
-
-            typeFQN = buildTypeFQN(typeNameToFQN);
         } finally {
             if (resultSet != null) {
                 resultSet.close();
@@ -108,23 +103,28 @@ public class DbTypeRegister {
 
     private void addField(final String typeSchema, final String typeName, final String fieldName,
             final int fieldPosition, final String fieldType, final String fieldTypeName, final String typeType,
-            final boolean isArray, final Map<String, List<String>> typeNameToFQN) {
+            final boolean isArray) {
         final String typeId = getTypeIdentifier(typeSchema, typeName);
         DbType type = types.get(typeId);
         if (type == null) {
             type = new DbType(typeSchema, typeName);
-            addType(type, typeNameToFQN);
+            addType(type);
+
         }
 
         // do we have an enum?
         if ("e".equals(typeType)) {
             type.addField(new DbTypeField(typeName, 1, "enum", "enum"));
         } else {
-            type.addField(new DbTypeField(fieldName, fieldPosition, fieldType, fieldTypeName));
+            if (null != fieldName) {
+                type.addField(new DbTypeField(fieldName, fieldPosition, fieldType, fieldTypeName));
+            } else {
+                LOG.warn(typeSchema + "." + typeName + " has no attributes!");
+            }
         }
     }
 
-    private void addType(final DbType type, final Map<String, List<String>> typeNameToFQN) {
+    private void addType(final DbType type) {
         final String id = getTypeIdentifier(type.getSchema(), type.getName());
         types.put(id, type);
 
@@ -137,81 +137,63 @@ public class DbTypeRegister {
         list.add(id);
     }
 
-    // this method was rewritten for better performance, so we don't have to calculate the fqName multiple times.
-    // I kept the business logic, although we have wrong concepts here which should be fixed.
-    private Map<String, String> buildTypeFQN(final Map<String, List<String>> typeNameToFQN) {
-        final ImmutableMap.Builder<String, String> result = ImmutableMap.builder();
-
-        for (final Entry<String, List<String>> entry : typeNameToFQN.entrySet()) {
-            final List<String> types = entry.getValue();
-
-            // Code smell: this code is here for backward compatibility reasons. This should be improved with time.
-            // if the sproc specifies the schema of one type, we might end up using the wrong type (with same name
-            // but different schema because we "resolve" the conflict using the search path which is not correct.
-            // Main problems:
-            // 1 - One might hard code the schema on the sproc and SP might use the wrong type
-            // 2 - We might have the same jdbc URL with different search paths
-            final String fqn = types.size() == 1 ? types.get(0) : SearchPathSchemaFilter.filter(types, searchPath);
-            if (fqn != null) {
-
-                // if it's null, we shouldn't put it on the map
-                result.put(entry.getKey(), fqn);
-            }
-        }
-
-        return result.build();
-    }
-
     private String getTypeIdentifier(final String typeSchema, final String typeName) {
         return typeSchema + "." + typeName;
     }
 
     public static DbType getDbType(final String name, final Connection connection) throws SQLException {
-        DbTypeRegister register = getRegistry(connection);
-
-        // fqName concept is wrong. we should know not only the name, but the schema as well. This should be reworked.
-        final String fqName = register.typeFQN.get(name);
-
-        return fqName == null ? null : register.types.get(fqName);
-    }
-
-    // copy on write design pattern. Slow on writes, but really fast on reads. This pattern fits our
-    // situation because we are not expecting so many different jdbc urls.
-    public static DbTypeRegister getRegistry(final Connection connection) throws SQLException {
-
-        // if connection URL is null we can't proceed. fail fast
-        Preconditions.checkNotNull(connection);
-
-        final String connectionURL = connection.getMetaData().getURL();
-        Preconditions.checkNotNull(connection.getMetaData().getURL(), "connection URL is null");
-
-        // check if we have the value in memory
-        DbTypeRegister cachedRegisters = registers.get(connectionURL);
-
-        // First check (no locking)
-        if (cachedRegisters == null) {
-            synchronized (DbTypeRegister.class) {
-                cachedRegisters = registers.get(connectionURL);
-
-                // Second check (with locking)
-                if (cachedRegisters == null) {
-                    cachedRegisters = new DbTypeRegister(connection);
-
-                    // read optimization. We are not expecting so many different DBMS URLs, so read is really fast and
-                    // the write is a little bit slower which is ok because most of the
-                    // times we will use what we have in memory.  Copy all previous entries to the new immutable map.
-                    // This soudnd't happen very often.
-                    registers = ImmutableMap.<String, DbTypeRegister>builder().putAll(registers)
-                                            .put(connectionURL, cachedRegisters).build();
+        final Map<String, DbTypeRegister> registry = initRegistry("default", connection);
+        DbType dbType = dbTypeCache.get(name);
+        if (dbType == null) {
+            for (final DbTypeRegister register : registry.values()) {
+                final List<String> list = register.typeNameToFQN.get(name);
+                if (list != null) {
+                    if (list.size() == 1) {
+                        dbType = register.types.get(list.get(0));
+                        dbTypeCache.put(name, dbType);
+                        break;
+                    } else {
+                        final String fqName = SearchPathSchemaFilter.filter(list, register.searchPath);
+                        if (fqName != null) {
+                            final DbType result = register.types.get(fqName);
+                            if (result != null) {
+                                dbType = result;
+                                dbTypeCache.put(name, dbType);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        return cachedRegisters;
+        return dbType;
+    }
+
+    public static synchronized Map<String, DbTypeRegister> initRegistry(final String name, final Connection connection)
+        throws SQLException {
+        if (registers == null) {
+            registers = new HashMap<String, DbTypeRegister>();
+        }
+
+        if (!registers.containsKey(name)) {
+            final DbTypeRegister register = new DbTypeRegister(connection);
+            registers.put(name, register);
+
+            final String searchPath = StringUtils.arrayToDelimitedString(register.getSearchPath().toArray(), ", ");
+            LOG.info("Initialized type register '{}' with search path '{}' and {} types",
+                new Object[] {name, searchPath, register.getTypes().size()});
+        }
+
+        return registers;
     }
 
     public static void reInitRegister(final Connection connection) throws SQLException {
+        if (registers == null) {
+            registers = new HashMap<String, DbTypeRegister>();
+        }
+
         dbTypeCache.clear();
-        registers = ImmutableMap.of(connection.getMetaData().getURL(), new DbTypeRegister(connection));
+        registers.put("default", new DbTypeRegister(connection));
     }
 }

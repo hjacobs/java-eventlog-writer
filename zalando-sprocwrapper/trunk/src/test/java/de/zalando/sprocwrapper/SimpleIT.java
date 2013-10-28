@@ -64,13 +64,8 @@ import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
-import de.zalando.sprocwrapper.example.LookupType;
-import de.zalando.sprocwrapper.example.LookupTypeSchema;
 import de.zalando.sprocwrapper.example.Order;
-import de.zalando.sprocwrapper.example.TestInheritanceChild;
 import de.zalando.sprocwrapper.example.TobisAmount;
-import de.zalando.sprocwrapper.example.WrapperLookup;
-import de.zalando.sprocwrapper.example.WrapperLookupSchema;
 
 import de.zalando.typemapper.parser.DateTimeUtil;
 
@@ -86,10 +81,6 @@ public class SimpleIT {
 
     @Autowired
     private ExampleNamespacedSProcService exampleNamespacedSProcService;
-
-    @Autowired
-    @Qualifier("testDataSource")
-    private DataSource dataSource;
 
     @Autowired
     @Qualifier("testDataSource1")
@@ -852,69 +843,5 @@ public class SimpleIT {
         Order o = exampleSProcService.getOrders(i);
 
         assertEquals(o.amount.amount.compareTo(b), 0);
-    }
-
-    @Ignore
-    @Test
-    public void testEnumReturnValueU() {
-        ExampleEnum e = exampleSProcService.getExampleEnum();
-        assertEquals(e, ExampleEnum.ENUM_CONST_2);
-    }
-
-    @Test
-    public void testTypeLookupBug() {
-        LookupType t = exampleSProcService.getValueForTypeLookup();
-        assertNotNull(t);
-        assertEquals(1, t.a);
-        assertEquals(2, t.b);
-    }
-
-    @Test
-    public void testTypeLookupBugWithList() {
-        List<LookupType> t = exampleSProcService.getValueForTypeLookupList();
-        assertNotNull(t);
-        assertEquals(1, t.size());
-
-        LookupType entry = t.get(0);
-        assertEquals(1, entry.a);
-        assertEquals(2, entry.b);
-    }
-
-    @Test
-    public void testTypeLookupBugWithInnerList() throws Exception {
-        WrapperLookup t = exampleSProcService.getValueForTypeLookupInnerList();
-        assertNotNull(t);
-        assertEquals(1, t.count);
-
-        List<LookupType> bugs = t.bugs;
-        assertNotNull(bugs);
-        assertEquals(1, bugs.size());
-
-        LookupType entry = bugs.get(0);
-        assertEquals(1, entry.a);
-        assertEquals(2, entry.b);
-    }
-
-    @Test
-    @Ignore
-    public void testTypeLookupBugWithSchema() throws Exception {
-        WrapperLookupSchema t = exampleSProcService.getValueForTypeLookupSchema();
-        assertNotNull(t);
-        assertEquals(1, t.count);
-
-        List<LookupTypeSchema> bugs = t.bugs;
-        assertNotNull(bugs);
-        assertEquals(1, bugs.size());
-
-        LookupTypeSchema entry = bugs.get(0);
-        assertEquals(1, entry.a);
-        assertEquals(2, entry.b);
-    }
-
-    @Test
-    public void testInheritanceInParameter() throws Exception {
-        TestInheritanceChild child = new TestInheritanceChild(1, 5, 7);
-        int result = exampleSProcService.testInheritanceFunction(child);
-        assertEquals(13, result);
     }
 }

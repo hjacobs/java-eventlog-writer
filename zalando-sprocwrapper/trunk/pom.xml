@@ -8,7 +8,7 @@
     </parent>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>1.1.1</version>
+    <version>1.0.18</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
     <description>Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces
@@ -16,8 +16,6 @@
         convention-over-configuration). Supports sharding, advisory locking, statement timeouts and PostgreSQL types
         such as enums and hstore.
     </description>
-    <properties>
-    </properties>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -176,7 +174,6 @@
                                 </goals>
                                 <configuration>
                                     <sqlCommand>
-                                        DROP SCHEMA IF EXISTS ztest_shard CASCADE;
                                         DROP SCHEMA IF EXISTS ztest_shard1 CASCADE;
                                         DROP SCHEMA IF EXISTS ztest_shard2 CASCADE;
                                     </sqlCommand>

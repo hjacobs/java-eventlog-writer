@@ -10,8 +10,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.jdbc.datasource.DataSourceUtils;
-
 import de.zalando.sprocwrapper.SProcCall.AdvisoryLock;
 import de.zalando.sprocwrapper.dsprovider.SameConnectionDatasource;
 
@@ -104,8 +102,7 @@ public class ExecutorWrapper implements Executor {
 
         try {
 
-            // use do get connection for SQLExceptions
-            sameConnDs = new SameConnectionDatasource(DataSourceUtils.doGetConnection(ds));
+            sameConnDs = new SameConnectionDatasource(ds.getConnection());
 
             setTimeout(sameConnDs.getConnection());
 
