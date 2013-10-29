@@ -23,11 +23,6 @@ import de.zalando.zomcat.configuration.AppInstanceContextProvider;
 public class HostInstanceOutboundInterceptor extends AbstractPhaseInterceptor<Message> {
 
     /**
-     * The HTTP Header for host and instance.
-     */
-    public static final String X_HOST_INSTANCE = "x-host-instance";
-
-    /**
      * The context provider of the current Application instance.
      */
     public static AppInstanceContextProvider provider = AppInstanceContextProvider.fromManifestOnFilesystem();
@@ -56,7 +51,7 @@ public class HostInstanceOutboundInterceptor extends AbstractPhaseInterceptor<Me
         }
 
         // Insert host and instance into the message headers
-        map.put(X_HOST_INSTANCE, Arrays.asList(hostInstance));
+        map.put(HttpHeaders.HOST_INSTANCE, Arrays.asList(hostInstance));
 
         if (!isRequestor(message)) {
 
@@ -66,7 +61,7 @@ public class HostInstanceOutboundInterceptor extends AbstractPhaseInterceptor<Me
             final HttpServletResponse httpServletResponse = (HttpServletResponse) message.get(
                     AbstractHTTPDestination.HTTP_RESPONSE);
 
-            httpServletResponse.setHeader(X_HOST_INSTANCE, hostInstance);
+            httpServletResponse.setHeader(HttpHeaders.HOST_INSTANCE, hostInstance);
 
         }
     }
