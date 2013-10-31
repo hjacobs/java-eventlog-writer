@@ -20,8 +20,6 @@ import de.zalando.zomcat.ExecutionContext;
 public class ExecutionContextInboundInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = LoggerFactory.getLogger(ExecutionContextInboundInterceptor.class);
 
-    public static final String X_EXECUTION_CONTEXT = "x-execution-context";
-
     public ExecutionContextInboundInterceptor() {
         super(Phase.RECEIVE);
     }
@@ -47,7 +45,7 @@ public class ExecutionContextInboundInterceptor extends AbstractPhaseInterceptor
             if (httpServletRequest == null) {
                 LOG.error("httpServletRequest must not be null.");
             } else {
-                final String serializedExecutionContexts = httpServletRequest.getHeader(X_EXECUTION_CONTEXT);
+                final String serializedExecutionContexts = HttpHeaders.EXECUTION_CONTEXT.get(httpServletRequest);
                 if (serializedExecutionContexts != null) {
                     ExecutionContext.addSerialized(serializedExecutionContexts);
                 }

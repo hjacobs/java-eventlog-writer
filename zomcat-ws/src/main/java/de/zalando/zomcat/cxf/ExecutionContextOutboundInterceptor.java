@@ -43,7 +43,7 @@ public class ExecutionContextOutboundInterceptor extends AbstractPhaseIntercepto
             }
 
             final String serializedExecutionContext = ExecutionContext.serialize();
-            map.put(ExecutionContextInboundInterceptor.X_EXECUTION_CONTEXT, Arrays.asList(serializedExecutionContext));
+            map.put(HttpHeaders.EXECUTION_CONTEXT.toString(), Arrays.asList(serializedExecutionContext));
 
             if (isRequestor(message)) {
 
@@ -65,8 +65,7 @@ public class ExecutionContextOutboundInterceptor extends AbstractPhaseIntercepto
                 // FlowId.peekFlowId());
                 // }
 
-                httpServletResponse.setHeader(ExecutionContextInboundInterceptor.X_EXECUTION_CONTEXT,
-                    serializedExecutionContext);
+                HttpHeaders.EXECUTION_CONTEXT.set(httpServletResponse, serializedExecutionContext);
             }
         }
     }

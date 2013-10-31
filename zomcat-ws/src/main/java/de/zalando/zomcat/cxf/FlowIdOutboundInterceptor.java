@@ -12,9 +12,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.zalando.zomcat.flowid.FlowId;
 
 /**
@@ -23,7 +20,6 @@ import de.zalando.zomcat.flowid.FlowId;
  * @author  carsten.wolters
  */
 public class FlowIdOutboundInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final Logger LOG = LoggerFactory.getLogger(FlowIdOutboundInterceptor.class);
 
     public FlowIdOutboundInterceptor() {
         super(Phase.PRE_STREAM);
@@ -45,7 +41,7 @@ public class FlowIdOutboundInterceptor extends AbstractPhaseInterceptor<Message>
             message.put(Message.PROTOCOL_HEADERS, map);
         }
 
-        map.put(FlowIdInboundInterceptor.X_FLOW_ID, Arrays.asList(FlowId.peekFlowId()));
+        map.put(HttpHeaders.FLOW_ID.toString(), Arrays.asList(FlowId.peekFlowId()));
 
         if (isRequestor(message)) {
 
@@ -64,7 +60,7 @@ public class FlowIdOutboundInterceptor extends AbstractPhaseInterceptor<Message>
                 final HttpServletResponse httpServletResponse = (HttpServletResponse) message.get(
                         AbstractHTTPDestination.HTTP_RESPONSE);
 
-                httpServletResponse.setHeader(FlowIdInboundInterceptor.X_FLOW_ID, FlowId.popFlowId());
+                HttpHeaders.FLOW_ID.set(httpServletResponse, FlowId.popFlowId());
             }
         }
     }

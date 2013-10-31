@@ -1,5 +1,6 @@
 package de.zalando.zomcat.io;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -7,18 +8,15 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 /**
  * The class implements an output stream, which collects the number of bytes written to the stream. Whenever an
  * application writes to this stream, an internal counter tracks the total number of bytes written.
  *
  * @author  rreis
  */
-public class StatsCollectorOutputStream extends OutputStream {
-
-    /**
-     * The underlying output stream to be used.
-     */
-    protected OutputStream out;
+public class StatsCollectorOutputStream extends FilterOutputStream {
 
     /**
      * The current number of bytes written to the stream.
@@ -36,12 +34,7 @@ public class StatsCollectorOutputStream extends OutputStream {
      * @param  out  the underlying output stream.
      */
     public StatsCollectorOutputStream(final OutputStream out) {
-        super();
-        if (out == null) {
-            throw new IllegalArgumentException("Stream may not be null");
-        }
-
-        this.out = out;
+        super(Preconditions.checkNotNull(out, "Stream cannot be null"));
     }
 
     /**
@@ -115,27 +108,10 @@ public class StatsCollectorOutputStream extends OutputStream {
      */
     @Override
     public void write(final int b) throws IOException {
-        out.write(b);
+        super.write(b);
 
         // Increment the total number of bytes written
         bytesWritten++;
-    }
-
-    /**
-     * Writes <code>b.length</code> bytes to this output stream.
-     *
-     * <p>The write method of this output stream calls the write method of its underlying output stream, that is, it
-     * performs <code>out.write(b)</code>. Also increments the total number of bytes written to the stream.
-     *
-     * @param      b  the data to be written.
-     *
-     * @exception  IOException  if an I/O error occurs.
-     */
-    @Override
-    public void write(final byte[] b) throws IOException {
-        out.write(b);
-
-        bytesWritten += b.length;
     }
 
     /**
@@ -154,22 +130,9 @@ public class StatsCollectorOutputStream extends OutputStream {
      */
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
-        out.write(b, off, len);
+        super.write(b, off, len);
 
         bytesWritten += len;
-    }
-
-    /**
-     * Flushes this output stream and forces any buffered output bytes to be written out to the stream.
-     *
-     * <p>The <code>flush</code> method of this output stream calls the <code>flush</code> method of its underlying
-     * output stream.
-     *
-     * @exception  IOException  if an I/O error occurs.
-     */
-    @Override
-    public void flush() throws IOException {
-        out.flush();
     }
 
     /**
@@ -186,8 +149,7 @@ public class StatsCollectorOutputStream extends OutputStream {
      */
     @Override
     public void close() throws IOException {
-        out.flush();
-        out.close();
+        super.close();
 
         // Notify all callbacks that the stream is closed.
         if (null != callbacks) {

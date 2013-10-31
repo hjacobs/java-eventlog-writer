@@ -20,8 +20,6 @@ import de.zalando.zomcat.flowid.FlowId;
 public class FlowIdInboundInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = LoggerFactory.getLogger(FlowIdInboundInterceptor.class);
 
-    public static final String X_FLOW_ID = "x-flow-id";
-
     public FlowIdInboundInterceptor() {
         super(Phase.RECEIVE);
     }
@@ -51,22 +49,12 @@ public class FlowIdInboundInterceptor extends AbstractPhaseInterceptor<Message> 
             if (httpServletRequest == null) {
                 LOG.error("httpServletRequest must not be null.");
             } else {
-                String flowId = httpServletRequest.getHeader(X_FLOW_ID);
-                String from = "(from http-header)";
+                String flowId = HttpHeaders.FLOW_ID.get(httpServletRequest);
                 if (flowId == null) {
-                    flowId = httpServletRequest.getHeader(X_FLOW_ID.toUpperCase());
-                    if (flowId == null) {
-                        flowId = FlowId.generateFlowId();
-                        from = "(from UUID-generator)";
-                    }
+                    flowId = FlowId.generateFlowId();
                 }
 
-                // add a diagnostic message to the context:
                 FlowId.pushFlowId(flowId);
-                // if (LOG.isDebugEnabled()) {
-                // LOG.debug("server receiver adds flowId " + from + " to context: " + FlowId.peekFlowId());
-                // }
-
                 FlowId.getScope().enter(flowId);
             }
         }

@@ -51,7 +51,7 @@ public class HostInstanceOutboundInterceptor extends AbstractPhaseInterceptor<Me
         }
 
         // Insert host and instance into the message headers
-        map.put(HttpHeaders.HOST_INSTANCE, Arrays.asList(hostInstance));
+        map.put(HttpHeaders.HOST_INSTANCE.toString(), Arrays.asList(hostInstance));
 
         if (!isRequestor(message)) {
 
@@ -61,8 +61,7 @@ public class HostInstanceOutboundInterceptor extends AbstractPhaseInterceptor<Me
             final HttpServletResponse httpServletResponse = (HttpServletResponse) message.get(
                     AbstractHTTPDestination.HTTP_RESPONSE);
 
-            httpServletResponse.setHeader(HttpHeaders.HOST_INSTANCE, hostInstance);
-
+            HttpHeaders.HOST_INSTANCE.set(httpServletResponse, hostInstance);
         }
     }
 }

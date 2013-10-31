@@ -44,7 +44,8 @@ import de.zalando.zomcat.io.StatsCollectorOutputStreamCallback;
  * @author  rreis
  * @see     MetricsCollectorInInterceptor
  */
-public class MetricsCollectorOutInterceptor extends AbstractPhaseInterceptor<Message> {
+public class MetricsCollectorOutInterceptor extends AbstractPhaseInterceptor<Message>
+    implements StatsCollectorOutputStreamCallback {
 
     /**
      * The logging object for this class.
@@ -61,6 +62,16 @@ public class MetricsCollectorOutInterceptor extends AbstractPhaseInterceptor<Mes
     }
 
     /**
+     * The log message where the response time will be inserted.
+     */
+    private WebServiceMetrics metrics;
+
+    /**
+     * The message contained in the web service.
+     */
+    private Message serviceMessage;
+
+    /**
      * Retrieves the relevant metrics from the specified message and outputs through the current logging system.
      *
      * <p>All metrics depend on the inclusion of a <code>MetricsCollectorInInterceptor</code> in the inbound chain.
@@ -73,17 +84,6 @@ public class MetricsCollectorOutInterceptor extends AbstractPhaseInterceptor<Mes
      */
     @Override
     public void handleMessage(final Message message) throws Fault {
-        StringBuffer preparedLog = new StringBuffer();
-
-        // Get the response time
-        long responseTime = System.currentTimeMillis();
-
-        // Calculate execution time, if applicable - i.e., we're precessing a response.
-        Long requestTime = (Long) message.getExchange().get("de.zalando.requestmillis");
-        Long executionTime = null;
-        if (requestTime != null) {
-            executionTime = Long.valueOf(responseTime - requestTime);
-        }
 
         // Get's the HTTP response. It's an error if it's not present in the message.
         final HttpServletResponse response = (HttpServletResponse) message.get(AbstractHTTPDestination.HTTP_RESPONSE);
@@ -92,57 +92,59 @@ public class MetricsCollectorOutInterceptor extends AbstractPhaseInterceptor<Mes
             return;
         }
 
-        // Get info from the opposite Interceptor and prepare a String for log processing.
-        preparedLog.append((String) message.getExchange().get("de.zalando.wsmetrics"));
-        preparedLog.append(" {} ");
-        preparedLog.append(executionTime);
+        serviceMessage = message;
+
+        // Get the response time
+        long responseTime = System.nanoTime();
+
+        // Get collected metrics from Inbound Interceptor
+        metrics = serviceMessage.getExchange().get(WebServiceMetrics.class);
+        if (metrics != null) {
+            metrics = new WebServiceMetrics.Builder().fromInstance(metrics)
+                                                     .field(MetricsFields.SERVICE_RESPONSE_TIME, responseTime).build();
+        } else {
+            metrics = new WebServiceMetrics.Builder().field(MetricsFields.SERVICE_RESPONSE_TIME, responseTime).build();
+        }
 
         /*
          * Wrap the message's output stream inside a StatsCollector, with the ability to count the response size in
          * bytes.
          */
         StatsCollectorOutputStream statsOs = new StatsCollectorOutputStream(message.getContent(OutputStream.class));
-        message.setContent(OutputStream.class, statsOs);
 
         // Register our callback, which will effectively log the metrics when the response size is available.
-        statsOs.registerCallback(new LoggingOutCallBack(preparedLog.toString()));
+        statsOs.registerCallback(this);
+        serviceMessage.setContent(OutputStream.class, statsOs);
+
     }
 
     /**
-     * A callback used by <code>MetricsCollectorOutInterceptor</code> to retrieve the response size from a message's
-     * output stream.
+     * Logs to the current logging system, after the specified stream is closed, including the response size.
      *
-     * <p>The aforementioned interceptor will register this callback, which will retrieve the response size, and
-     * effectively log the overall response metrics.
-     *
-     * @author  rreis
-     * @see     MetricsCollectorOutInterceptor
+     * @param  os  the output stream where this callback is registered.
      */
-    class LoggingOutCallBack implements StatsCollectorOutputStreamCallback {
+    @Override
+    public void onClose(final StatsCollectorOutputStream os) {
+        long responseSize = os.getBytesWritten();
 
-        /**
-         * The log message where the response time will be inserted.
-         */
-        private String logMessage;
+        // Insert response size in metrics
+        metrics = new WebServiceMetrics.Builder().fromInstance(metrics).field(MetricsFields.RESPONSE_SIZE, responseSize)
+                                                 .build();
 
-        /**
-         * Constructs a new instance, with the specified logMessage.
-         *
-         * @param  logMessage  the log message where the response time will be inserted.
-         */
-        public LoggingOutCallBack(final String logMessage) {
-            this.logMessage = logMessage;
-        }
+        // Update metrics in Exchange
+        serviceMessage.getExchange().put(WebServiceMetrics.class, metrics);
 
-        /**
-         * Logs to the current logging system, after the specified stream is closed, including the response size.
-         *
-         * @param  os  the output stream where this callback is registered.
-         */
-        @Override
-        public void onClose(final StatsCollectorOutputStream os) {
-            LOG.info(logMessage, os.getBytesWritten());
-        }
+        // Calculate execution time
+        long executionTime = (Long) metrics.get(MetricsFields.SERVICE_RESPONSE_TIME)
+                - (Long) metrics.get(MetricsFields.SERVICE_REQUEST_TIME);
+
+        // Output log
+        LOG.info("{} {} {} {}:{} {} {} {} {}",
+            new Object[] {
+                metrics.get(MetricsFields.FLOW_ID), metrics.get(MetricsFields.CLIENT_IP),
+                metrics.get(MetricsFields.SERVICE_IP), metrics.get(MetricsFields.SERVICE_HOST),
+                metrics.get(MetricsFields.SERVICE_INSTANCE), metrics.get(MetricsFields.SERVICE_NAME),
+                metrics.get(MetricsFields.SERVICE_OPERATION), metrics.get(MetricsFields.RESPONSE_SIZE), executionTime
+            });
     }
-
 }
