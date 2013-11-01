@@ -2,6 +2,8 @@ package de.zalando.zomcat.cxf.metrics;
 
 import java.io.OutputStream;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,6 +15,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.Clock;
 import com.codahale.metrics.MetricRegistry;
 
 import de.zalando.zomcat.cxf.HttpHeaders;
@@ -25,6 +28,8 @@ public class MetricsCollector implements MetricsListener {
      * The logging object for this class.
      */
     private static final Logger LOG = LoggerFactory.getLogger(MetricsCollector.class);
+
+    private final Clock clock = Clock.defaultClock();
 
     private final MetricRegistry registry;
 
@@ -43,6 +48,7 @@ public class MetricsCollector implements MetricsListener {
         }
 
         // Collect metrics from Message
+        long serviceRequestTime = clock.getTick();
         String flowId = HttpHeaders.FLOW_ID.get(request);
         String clientIp = request.getRemoteAddr();
         int requestSize = request.getContentLength();
@@ -51,7 +57,11 @@ public class MetricsCollector implements MetricsListener {
         String instance = HttpHeaders.INSTANCE.get(request);
         String serviceName = ((QName) message.get(Message.WSDL_SERVICE)).getLocalPart();
         String operation = ((QName) message.get(Message.WSDL_OPERATION)).getLocalPart();
-        long serviceRequestTime = System.nanoTime();
+
+        String keyPrefix = MetricRegistry.name(serviceName, operation);
+
+        registry.meter(MetricRegistry.name(keyPrefix, MetricsFields.REQUEST_COUNT.toString())).mark();
+        registry.histogram(MetricRegistry.name(keyPrefix, MetricsFields.REQUEST_SIZE.toString())).update(requestSize);
 
         // Instantiate metrics and add to Exchange
         WebServiceMetrics metrics = new WebServiceMetrics.Builder().field(MetricsFields.FLOW_ID, flowId)
@@ -62,8 +72,9 @@ public class MetricsCollector implements MetricsListener {
                                                                    .field(MetricsFields.SERVICE_INSTANCE, instance)
                                                                    .field(MetricsFields.SERVICE_NAME, serviceName)
                                                                    .field(MetricsFields.SERVICE_OPERATION, operation)
-                                                                   .field(MetricsFields.SERVICE_REQUEST_TIME,
+                                                                   .field(MetricsFields.REQUEST_TIME,
                 serviceRequestTime).build();
+
         message.getExchange().put(WebServiceMetrics.class, metrics);
 
         // Log the metrics
@@ -83,24 +94,27 @@ public class MetricsCollector implements MetricsListener {
         }
 
         // Get the response time
-        long responseTime = System.nanoTime();
+        long responseTime = clock.getTick();
+        cxfMessage.setContent(OutputStream.class, buildOutputStream(cxfMessage, responseTime));
 
-        /*
-         * Wrap the message's output stream inside a StatsCollector, with the ability to count the response size in
-         * bytes.
-         */
+    }
+
+    /*
+     * Wrap the message's output stream inside a StatsCollector, with the ability to count the response size in
+     * bytes.
+     */
+    protected StatsCollectorOutputStream buildOutputStream(final Message cxfMessage, final long responseTime) {
         StatsCollectorOutputStream statsOs = new StatsCollectorOutputStream(cxfMessage.getContent(OutputStream.class));
 
         // Register our callback, which will effectively log the metrics when the response size is available.
         statsOs.registerCallback(new MetricsCollectorCallback(cxfMessage, responseTime));
-        cxfMessage.setContent(OutputStream.class, statsOs);
 
+        return statsOs;
     }
 
     protected class MetricsCollectorCallback implements StatsCollectorOutputStreamCallback {
 
         private final Message cxfMessage;
-
         private long responseTime;
 
         public MetricsCollectorCallback(final Message cxfMessage, final long responseTime) {
@@ -118,7 +132,15 @@ public class MetricsCollector implements MetricsListener {
             cxfMessage.getExchange().put(WebServiceMetrics.class, metrics);
 
             // Calculate execution time
-            long executionTime = responseTime - (Long) metrics.get(MetricsFields.SERVICE_REQUEST_TIME);
+            long executionDelta = responseTime - metrics.get(MetricsFields.REQUEST_TIME);
+
+            String keyPrefix = MetricRegistry.name(metrics.get(MetricsFields.SERVICE_NAME),
+                    metrics.get(MetricsFields.SERVICE_OPERATION));
+
+            registry.histogram(MetricRegistry.name(keyPrefix, MetricsFields.RESPONSE_SIZE.toString())).update(
+                responseSize);
+            registry.timer(MetricRegistry.name(keyPrefix, MetricsFields.DURATION.toString())).update(executionDelta,
+                TimeUnit.NANOSECONDS);
 
             // Output log
             LOG.info("{} {} {} {}:{} {} {} {} {}",
@@ -126,7 +148,7 @@ public class MetricsCollector implements MetricsListener {
                     metrics.get(MetricsFields.FLOW_ID), metrics.get(MetricsFields.CLIENT_IP),
                     metrics.get(MetricsFields.SERVICE_IP), metrics.get(MetricsFields.SERVICE_HOST),
                     metrics.get(MetricsFields.SERVICE_INSTANCE), metrics.get(MetricsFields.SERVICE_NAME),
-                    metrics.get(MetricsFields.SERVICE_OPERATION), responseSize, executionTime
+                    metrics.get(MetricsFields.SERVICE_OPERATION), responseSize, executionDelta
                 });
         }
     }

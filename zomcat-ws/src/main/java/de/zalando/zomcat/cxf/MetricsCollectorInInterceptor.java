@@ -5,6 +5,9 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.zalando.zomcat.cxf.metrics.MetricsListener;
 
 /**
@@ -39,6 +42,11 @@ import de.zalando.zomcat.cxf.metrics.MetricsListener;
  */
 public class MetricsCollectorInInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    /**
+     * The logging object for this class.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(MetricsCollectorInInterceptor.class);
+
     private final MetricsListener listener;
 
     /**
@@ -60,6 +68,10 @@ public class MetricsCollectorInInterceptor extends AbstractPhaseInterceptor<Mess
      */
     @Override
     public void handleMessage(final Message message) throws Fault {
-        listener.onRequest(message);
+        try {
+            listener.onRequest(message);
+        } catch (Exception e) {
+            LOG.error("Exception in metrics interceptor", e);
+        }
     }
 }

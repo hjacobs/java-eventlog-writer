@@ -17,9 +17,18 @@
 
     <!-- Metrics collector -->
     <bean id="cxfMetricsListener" class="de.zalando.zomcat.cxf.metrics.MetricsCollector">
-        <constructor-arg ref="cxfMetricsRegistry"/>
+        <constructor-arg ref="cxfMetricRegistry"/>
     </bean>
     <bean id="cxfMetricRegistry" class="com.codahale.metrics.MetricRegistry"/>
+
+    <!-- JMX publisher -->
+    <bean id="jmxMetricPublisher" class="de.zalando.zomcat.cxf.metrics.JMXMetricsPublisher"
+        factory-method="createInstance"
+        init-method="start"
+        destroy-method="stop">
+        <constructor-arg value="de.zalando.metrics"/>
+        <constructor-arg ref="cxfMetricRegistry"/>
+    </bean>
 
     <cxf:bus>
         <cxf:inInterceptors>

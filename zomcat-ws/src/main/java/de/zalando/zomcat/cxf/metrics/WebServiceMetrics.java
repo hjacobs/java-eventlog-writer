@@ -49,8 +49,10 @@ public class WebServiceMetrics {
          */
         public <T> Builder field(final MetricsFields<T> key, final T value) {
             Preconditions.checkNotNull(key, "Key cannot be null");
+            if (value != null) {
+                fields.put(key, value);
+            }
 
-            fields.put(key, value);
             return this;
         }
 

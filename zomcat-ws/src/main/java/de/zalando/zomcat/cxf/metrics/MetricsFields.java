@@ -10,80 +10,66 @@ package de.zalando.zomcat.cxf.metrics;
  */
 public class MetricsFields<T> {
 
+    public static final MetricsFields<Integer> REQUEST_COUNT = new MetricsFields<>("request.count");
+
+    public static final MetricsFields<Integer> ERROR_COUNT = new MetricsFields<>("error.count");
+
     /**
      * The IP address of the web service requester.
      */
-    public static final MetricsFields<String> CLIENT_IP = new MetricsFields<>("de.zalando.cxf.exchange.client.ip");
-
-    /**
-     * Time that the request left from the service requester.
-     */
-    public static final MetricsFields<Long> CLIENT_REQUEST_TIME = new MetricsFields<>(
-            "de.zalando.cxf.exchange.client.request.time");
-
-    /**
-     * Time that the response arrived to the service requestor.
-     */
-    public static final MetricsFields<Long> CLIENT_RESPONSE_TIME = new MetricsFields<>(
-            "de.zalando.cxf.exchange.client.response.time");
+    public static final MetricsFields<String> CLIENT_IP = new MetricsFields<>("client.ip");
 
     /**
      * Size of the request message, in bytes.
      */
-    public static final MetricsFields<Integer> REQUEST_SIZE = new MetricsFields<>(
-            "de.zalando.cxf.exchange.request.size");
+    public static final MetricsFields<Integer> REQUEST_SIZE = new MetricsFields<>("request.size");
 
     /**
      * Size of the response message, in bytes.
      */
-    public static final MetricsFields<Integer> RESPONSE_SIZE = new MetricsFields<>(
-            "de.zalando.cxf.exchange.response.size");
+    public static final MetricsFields<Integer> RESPONSE_SIZE = new MetricsFields<>("response.size");
 
     /**
      * Flow ID associated with the web service operation.
      */
-    public static final MetricsFields<String> FLOW_ID = new MetricsFields<>("de.zalando.cxf.exchange.flow-id");
+    public static final MetricsFields<String> FLOW_ID = new MetricsFields<>("flow-id");
 
     /**
      * IP address of the web service provider.
      */
-    public static final MetricsFields<String> SERVICE_IP = new MetricsFields<>("de.zalando.cxf.exchange.service.ip");
+    public static final MetricsFields<String> SERVICE_IP = new MetricsFields<>("service.ip");
 
     /**
      * Host of the web service provider.
      */
-    public static final MetricsFields<String> SERVICE_HOST = new MetricsFields<>(
-            "de.zalando.cxf.exchange.service.host");
+    public static final MetricsFields<String> SERVICE_HOST = new MetricsFields<>("service.host");
 
     /**
      * Instance of the web service provider.
      */
-    public static final MetricsFields<String> SERVICE_INSTANCE = new MetricsFields<>(
-            "de.zalando.cxf.exchange.service.instance");
+    public static final MetricsFields<String> SERVICE_INSTANCE = new MetricsFields<>("service.instance");
 
     /**
      * Time that the request arrived to the service provider.
      */
-    public static final MetricsFields<Long> SERVICE_REQUEST_TIME = new MetricsFields<>(
-            "de.zalando.cxf.exchange.service.request.time");
+    public static final MetricsFields<Long> REQUEST_TIME = new MetricsFields<>("request.time");
 
     /**
      * Time that the response left from the service provider.
      */
-    public static final MetricsFields<Long> SERVICE_RESPONSE_TIME = new MetricsFields<>(
-            "de.zalando.cxf.exchange.service.response.time");
+    public static final MetricsFields<Long> RESPONSE_TIME = new MetricsFields<>("response.time");
+
+    public static final MetricsFields<Long> DURATION = new MetricsFields<>("duration");
 
     /**
      * Name of the web service.
      */
-    public static final MetricsFields<String> SERVICE_NAME = new MetricsFields<>(
-            "de.zalando.cxf.exchange.service.name");
+    public static final MetricsFields<String> SERVICE_NAME = new MetricsFields<>("service.name");
 
     /**
      * Operation of the web service.
      */
-    public static final MetricsFields<String> SERVICE_OPERATION = new MetricsFields<>(
-            "de.zalando.cxf.exchange.service.operation");
+    public static final MetricsFields<String> SERVICE_OPERATION = new MetricsFields<>("service.operation");
 
     /**
      * Key for this metrics field.
@@ -104,7 +90,8 @@ public class MetricsFields<T> {
      *
      * @return  the key associated to this field.
      */
-    public String getKey() {
+    @Override
+    public String toString() {
         return key;
     }
 }
