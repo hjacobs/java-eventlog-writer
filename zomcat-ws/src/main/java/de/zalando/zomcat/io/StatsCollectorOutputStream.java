@@ -21,12 +21,12 @@ public class StatsCollectorOutputStream extends FilterOutputStream {
     /**
      * The current number of bytes written to the stream.
      */
-    private long bytesWritten = 0;
+    private int bytesWritten = 0;
 
     /**
      * A list of objects interested in relevant events from this stream.
      */
-    private List<StatsCollectorOutputStreamCallback> callbacks;
+    private final List<StatsCollectorOutputStreamCallback> callbacks = new LinkedList<>();
 
     /**
      * Creates a new instance to write data to the specified output stream.
@@ -47,12 +47,6 @@ public class StatsCollectorOutputStream extends FilterOutputStream {
      * @see    StatsCollectorOutputStreamCallback
      */
     public void registerCallback(final StatsCollectorOutputStreamCallback callback) {
-
-        // Creates the list of callbacks, in case it doesn't exist.
-        if (null == callbacks) {
-            callbacks = new LinkedList<>();
-        }
-
         callbacks.add(callback);
     }
 
@@ -92,7 +86,7 @@ public class StatsCollectorOutputStream extends FilterOutputStream {
      *
      * @return  the current count of bytes.
      */
-    public long getBytesWritten() {
+    public int getBytesWritten() {
         return bytesWritten;
     }
 

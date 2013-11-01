@@ -1,8 +1,10 @@
-package de.zalando.zomcat.cxf;
+package de.zalando.zomcat.cxf.metrics;
 
-import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * A container for all the metrics collected in a Web Service operation.
@@ -20,7 +22,7 @@ public class WebServiceMetrics {
      *
      * @see  MEtricsFields
      */
-    private final EnumMap<MetricsFields, Object> fields;
+    private final Map<MetricsFields<?>, Object> fields;
 
     /**
      * Constructor of <code>WebServiceMetrics</code>, in a <i>builder</i> pattern.
@@ -35,7 +37,7 @@ public class WebServiceMetrics {
         /**
          * A map containing all the values to store in the resulting <code>WebServiceMetrics</code>.
          */
-        private EnumMap<MetricsFields, Object> fields = new EnumMap<>(MetricsFields.class);
+        private Map<MetricsFields<?>, Object> fields = new HashMap<>();
 
         /**
          * Returns this object, added with the field specified by the provided key and value inserted.
@@ -45,7 +47,7 @@ public class WebServiceMetrics {
          *
          * @return  this object, added with the specified field.
          */
-        public Builder field(final MetricsFields key, final Object value) {
+        public <T> Builder field(final MetricsFields<T> key, final T value) {
             Preconditions.checkNotNull(key, "Key cannot be null");
 
             fields.put(key, value);
@@ -83,7 +85,7 @@ public class WebServiceMetrics {
      * @param  builder  a <code>Builder</code> with the fields to include.
      */
     private WebServiceMetrics(final Builder builder) {
-        fields = builder.fields;
+        fields = ImmutableMap.copyOf(builder.fields);
     }
 
     /**
@@ -93,8 +95,10 @@ public class WebServiceMetrics {
      *
      * @return  the assocaited value, or <code>null</code> if it doesn't exist.
      */
-    public Object get(final MetricsFields key) {
+    @SuppressWarnings("unchecked")
+    public <T> T get(final MetricsFields<T> key) {
         Preconditions.checkNotNull(key, "Key cannot be null");
-        return fields.get(key);
+
+        return (T) fields.get(key);
     }
 }
