@@ -10,8 +10,14 @@ package de.zalando.zomcat.cxf.metrics;
  */
 public class MetricsFields<T> {
 
+    /**
+     * The total number of requests made to the Web Service.
+     */
     public static final MetricsFields<Integer> REQUEST_COUNT = new MetricsFields<>("request.count");
 
+    /**
+     * The total number of errors occurred in the web service.
+     */
     public static final MetricsFields<Integer> ERROR_COUNT = new MetricsFields<>("error.count");
 
     /**
@@ -59,6 +65,9 @@ public class MetricsFields<T> {
      */
     public static final MetricsFields<Long> RESPONSE_TIME = new MetricsFields<>("response.time");
 
+    /**
+     * The execution time of the Web Service operation.
+     */
     public static final MetricsFields<Long> DURATION = new MetricsFields<>("duration");
 
     /**
@@ -71,16 +80,27 @@ public class MetricsFields<T> {
      */
     public static final MetricsFields<String> SERVICE_OPERATION = new MetricsFields<>("service.operation");
 
-    // faults
+    /**
+     * Total count of checked application faults.
+     */
     public static final MetricsFields<Integer> CHECKED_APPLICATION_FAULT = new MetricsFields<>(
-            "checked.application.fault");
+            "fault.application.checked");
 
+    /**
+     * Total count of unchecked application faults.
+     */
     public static final MetricsFields<Integer> UNCHECKED_APPLICATION_FAULT = new MetricsFields<>(
-            "unchecked.application.fault");
+            "fault.application.unchecked");
 
-    public static final MetricsFields<Integer> LOGICAL_RUNTIME_FAULT = new MetricsFields<>("logical.runtime.fault");
+    /**
+     * Total count of logical runtime faults.
+     */
+    public static final MetricsFields<Integer> LOGICAL_RUNTIME_FAULT = new MetricsFields<>("fault.runtime.logical");
 
-    public static final MetricsFields<Integer> RUNTIME_FAULT = new MetricsFields<>("runtime.fault");
+    /**
+     * Total count of runtime faults.
+     */
+    public static final MetricsFields<Integer> RUNTIME_FAULT = new MetricsFields<>("fault.runtime");
 
     /**
      * Key for this metrics field.
