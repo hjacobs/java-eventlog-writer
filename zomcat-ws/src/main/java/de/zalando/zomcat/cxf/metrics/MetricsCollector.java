@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
@@ -61,21 +62,28 @@ public class MetricsCollector implements MetricsListener {
         String keyPrefix = MetricRegistry.name(serviceName, operation);
 
         registry.meter(MetricRegistry.name(keyPrefix, MetricsFields.REQUEST_COUNT.toString())).mark();
-        registry.histogram(MetricRegistry.name(keyPrefix, MetricsFields.REQUEST_SIZE.toString())).update(requestSize);
 
-        // Instantiate metrics and add to Exchange
-        WebServiceMetrics metrics = new WebServiceMetrics.Builder().field(MetricsFields.FLOW_ID, flowId)
-                                                                   .field(MetricsFields.CLIENT_IP, clientIp)
-                                                                   .field(MetricsFields.REQUEST_SIZE, requestSize)
-                                                                   .field(MetricsFields.SERVICE_IP, serviceIp)
-                                                                   .field(MetricsFields.SERVICE_HOST, host)
-                                                                   .field(MetricsFields.SERVICE_INSTANCE, instance)
-                                                                   .field(MetricsFields.SERVICE_NAME, serviceName)
-                                                                   .field(MetricsFields.SERVICE_OPERATION, operation)
-                                                                   .field(MetricsFields.REQUEST_TIME,
-                serviceRequestTime).build();
+        if (requestSize != -1) {
+            registry.histogram(MetricRegistry.name(keyPrefix, MetricsFields.REQUEST_SIZE.toString())).update(
+                requestSize);
+        }
 
-        message.getExchange().put(WebServiceMetrics.class, metrics);
+        Exchange ex = message.getExchange();
+
+        if (!ex.isOneWay()) {
+
+            // Instantiate metrics and add to Exchange
+            WebServiceMetrics metrics = new WebServiceMetrics.Builder().field(MetricsFields.FLOW_ID, flowId)
+                                                                       .field(MetricsFields.CLIENT_IP, clientIp)
+                                                                       .field(MetricsFields.REQUEST_SIZE, requestSize)
+                                                                       .field(MetricsFields.SERVICE_IP, serviceIp)
+                                                                       .field(MetricsFields.SERVICE_HOST, host)
+                                                                       .field(MetricsFields.SERVICE_INSTANCE, instance)
+                                                                       .field(MetricsFields.SERVICE_NAME, serviceName)
+                                                                       .field(MetricsFields.SERVICE_OPERATION,
+                    operation).field(MetricsFields.REQUEST_TIME, serviceRequestTime).build();
+            ex.put(WebServiceMetrics.class, metrics);
+        }
 
         // Log the metrics
         LOG.info("{} {} {} {}:{} {} {} {} null",
