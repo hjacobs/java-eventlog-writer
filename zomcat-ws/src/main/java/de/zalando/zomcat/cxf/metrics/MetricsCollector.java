@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
@@ -18,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Clock;
 import com.codahale.metrics.MetricRegistry;
+
+import com.google.common.base.Preconditions;
 
 import de.zalando.zomcat.cxf.HttpHeaders;
 import de.zalando.zomcat.io.StatsCollectorOutputStream;
@@ -40,6 +43,7 @@ public class MetricsCollector implements MetricsListener {
 
     @Override
     public void onRequest(final Message message) {
+        Preconditions.checkNotNull(message, "message");
 
         // Gets the HTTP request. It's an error if it's not present in the message.
         final HttpServletRequest request = (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
@@ -92,6 +96,7 @@ public class MetricsCollector implements MetricsListener {
 
     @Override
     public void onResponse(final Message cxfMessage) {
+        Preconditions.checkNotNull(cxfMessage, "cxfMessage");
 
         // Get's the HTTP response. It's an error if it's not present in the message.
         final HttpServletResponse response = (HttpServletResponse) cxfMessage.get(
@@ -104,7 +109,38 @@ public class MetricsCollector implements MetricsListener {
         // Get the response time
         long responseTime = clock.getTick();
         cxfMessage.setContent(OutputStream.class, buildOutputStream(cxfMessage, responseTime));
+    }
 
+    @Override
+    public void handleFault(final Message message) {
+        Preconditions.checkNotNull(message, "message");
+
+        String serviceName = ((QName) message.get(Message.WSDL_SERVICE)).getLocalPart();
+        String operation = ((QName) message.get(Message.WSDL_OPERATION)).getLocalPart();
+
+        String keyPrefix = MetricRegistry.name(serviceName, operation);
+
+        FaultMode mode = message.get(FaultMode.class);
+        switch (mode) {
+
+            case CHECKED_APPLICATION_FAULT :
+                registry.meter(MetricRegistry.name(keyPrefix, MetricsFields.CHECKED_APPLICATION_FAULT.toString()))
+                        .mark();
+                break;
+
+            case LOGICAL_RUNTIME_FAULT :
+                registry.meter(MetricRegistry.name(keyPrefix, MetricsFields.LOGICAL_RUNTIME_FAULT.toString())).mark();
+                break;
+
+            case UNCHECKED_APPLICATION_FAULT :
+                registry.meter(MetricRegistry.name(keyPrefix, MetricsFields.UNCHECKED_APPLICATION_FAULT.toString()))
+                        .mark();
+                break;
+
+            case RUNTIME_FAULT :
+            default :
+                registry.meter(MetricRegistry.name(keyPrefix, MetricsFields.RUNTIME_FAULT.toString())).mark();
+        }
     }
 
     /*

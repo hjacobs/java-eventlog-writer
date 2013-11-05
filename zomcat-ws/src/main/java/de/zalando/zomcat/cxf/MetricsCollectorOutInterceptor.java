@@ -73,7 +73,16 @@ public class MetricsCollectorOutInterceptor extends AbstractPhaseInterceptor<Mes
         try {
             listener.onResponse(message);
         } catch (Exception e) {
-            LOG.error("Exception in metrics interceptor", e);
+            LOG.error("Exception in metrics interceptor while handling message", e);
+        }
+    }
+
+    @Override
+    public void handleFault(final Message message) {
+        try {
+            listener.handleFault(message);
+        } catch (Exception e) {
+            LOG.error("Exception in metrics interceptor while handling fault", e);
         }
     }
 }

@@ -71,6 +71,17 @@ public class MetricsFields<T> {
      */
     public static final MetricsFields<String> SERVICE_OPERATION = new MetricsFields<>("service.operation");
 
+    // faults
+    public static final MetricsFields<Integer> CHECKED_APPLICATION_FAULT = new MetricsFields<>(
+            "checked.application.fault");
+
+    public static final MetricsFields<Integer> UNCHECKED_APPLICATION_FAULT = new MetricsFields<>(
+            "unchecked.application.fault");
+
+    public static final MetricsFields<Integer> LOGICAL_RUNTIME_FAULT = new MetricsFields<>("logical.runtime.fault");
+
+    public static final MetricsFields<Integer> RUNTIME_FAULT = new MetricsFields<>("runtime.fault");
+
     /**
      * Key for this metrics field.
      */

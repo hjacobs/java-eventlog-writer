@@ -6,4 +6,6 @@ public interface MetricsListener {
     void onRequest(Message m);
 
     void onResponse(Message m);
+
+    void handleFault(Message fault);
 }
