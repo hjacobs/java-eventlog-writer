@@ -102,9 +102,7 @@ public class StatsCollectorOutputStream extends FilterOutputStream {
      */
     @Override
     public void write(final int b) throws IOException {
-        super.write(b);
-
-        // Increment the total number of bytes written
+        out.write(b);
         bytesWritten++;
     }
 
@@ -124,8 +122,7 @@ public class StatsCollectorOutputStream extends FilterOutputStream {
      */
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
-        super.write(b, off, len);
-
+        out.write(b, off, len);
         bytesWritten += len;
     }
 
@@ -146,10 +143,8 @@ public class StatsCollectorOutputStream extends FilterOutputStream {
         super.close();
 
         // Notify all callbacks that the stream is closed.
-        if (null != callbacks) {
-            for (StatsCollectorOutputStreamCallback cb : callbacks) {
-                cb.onClose(this);
-            }
+        for (StatsCollectorOutputStreamCallback cb : callbacks) {
+            cb.onClose(this);
         }
     }
 }

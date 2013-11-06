@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat WS</name>
     <description>Zomcat Webservice/CXF Support Classes (server side)</description>
-    <version>1.0.34</version>
+    <version>1.0.35</version>
     <organization>
         <name>Zalando/Technology/Platform</name>
     </organization>
@@ -72,10 +72,6 @@
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-management</artifactId>
         </dependency>
     </dependencies>
 </project>

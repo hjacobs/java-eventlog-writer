@@ -25,6 +25,7 @@ import com.google.common.base.Preconditions;
 import de.zalando.zomcat.configuration.AppInstanceContextProvider;
 import de.zalando.zomcat.cxf.HttpHeaders;
 import de.zalando.zomcat.cxf.MetricsCollectorOutInterceptor;
+import de.zalando.zomcat.flowid.FlowId;
 import de.zalando.zomcat.io.StatsCollectorOutputStream;
 import de.zalando.zomcat.io.StatsCollectorOutputStreamCallback;
 
@@ -43,6 +44,8 @@ public class MetricsCollector implements MetricsListener {
      * The logging object for this class.
      */
     private static final Logger LOG = LoggerFactory.getLogger(MetricsCollector.class);
+
+    public static final long ONE_KB = 1024;
 
     /**
      * Provider of the current host and instance information.
@@ -114,15 +117,19 @@ public class MetricsCollector implements MetricsListener {
         }
 
         // Collect metrics from Message
-        long serviceRequestTime = clock.getTick();
-        String flowId = HttpHeaders.FLOW_ID.get(request);
-        String clientIp = request.getRemoteAddr();
-        int requestSize = request.getContentLength();
-        String serviceIp = request.getLocalAddr();
-        String host = provider.getHost();
-        String instance = provider.getInstanceCode();
-        String serviceName = ((QName) message.get(Message.WSDL_SERVICE)).getLocalPart();
-        String operation = ((QName) message.get(Message.WSDL_OPERATION)).getLocalPart();
+        final long serviceRequestTime = clock.getTick();
+        final String clientIp = request.getRemoteAddr();
+        final int requestSize = request.getContentLength();
+        final String serviceIp = request.getLocalAddr();
+        final String host = provider.getHost();
+        final String instance = provider.getInstanceCode();
+        final String serviceName = ((QName) message.get(Message.WSDL_SERVICE)).getLocalPart();
+        final String operation = ((QName) message.get(Message.WSDL_OPERATION)).getLocalPart();
+
+        String flowId = FlowId.peekFlowId();
+        if (flowId == null || flowId.isEmpty()) {
+            flowId = HttpHeaders.FLOW_ID.get(request);
+        }
 
         // Metrics are registered with prefix servicename.operation
         String keyPrefix = MetricRegistry.name(serviceName, operation);
@@ -206,15 +213,15 @@ public class MetricsCollector implements MetricsListener {
                 TimeUnit.NANOSECONDS);
 
             // Output log
-            LOG.info("RESPONSE [flow-id {}] [duration {}]",
-                new Object[] {metrics.get(MetricsFields.FLOW_ID), executionDelta});
+            LOG.info("RESPONSE [flow-id {}] [duration {} ms]", metrics.get(MetricsFields.FLOW_ID),
+                TimeUnit.NANOSECONDS.toMillis(executionDelta));
 
         } else {
             LOG.error("No metrics found in CXF exchange. Cannot calculate execution duration");
         }
 
         // Wraps the existing output stream with one capable of recording response size.
-        cxfMessage.setContent(OutputStream.class, buildOutputStream(cxfMessage));
+        cxfMessage.setContent(OutputStream.class, buildOutputStream(responseTime, cxfMessage));
     }
 
     /**
@@ -245,8 +252,12 @@ public class MetricsCollector implements MetricsListener {
 
         String keyPrefix = MetricRegistry.name(serviceName, operation);
 
-        FaultMode mode = message.get(FaultMode.class);
         String faultClass = null;
+        FaultMode mode = message.get(FaultMode.class);
+        if (mode == null) {
+            mode = FaultMode.RUNTIME_FAULT;
+        }
+
         switch (mode) {
 
             case CHECKED_APPLICATION_FAULT :
@@ -274,7 +285,7 @@ public class MetricsCollector implements MetricsListener {
         WebServiceMetrics metrics = message.getExchange().get(WebServiceMetrics.class);
 
         // Output log
-        LOG.error("FAULT [flow-id {}] [fault-type {}]", new Object[] {metrics.get(MetricsFields.FLOW_ID), faultClass});
+        LOG.error("FAULT [flow-id {}] [fault-type {}]", metrics.get(MetricsFields.FLOW_ID), faultClass);
     }
 
     /**
@@ -284,11 +295,11 @@ public class MetricsCollector implements MetricsListener {
      *
      * @return  the resulting output stream.
      */
-    protected StatsCollectorOutputStream buildOutputStream(final Message cxfMessage) {
+    protected StatsCollectorOutputStream buildOutputStream(final long responseBuiltTime, final Message cxfMessage) {
         StatsCollectorOutputStream statsOs = new StatsCollectorOutputStream(cxfMessage.getContent(OutputStream.class));
 
         // Register our callback, which will effectively log the metrics when the response size is available.
-        statsOs.registerCallback(new MetricsCollectorCallback(cxfMessage));
+        statsOs.registerCallback(new MetricsCollectorCallback(responseBuiltTime, cxfMessage));
 
         return statsOs;
     }
@@ -303,6 +314,8 @@ public class MetricsCollector implements MetricsListener {
      */
     protected class MetricsCollectorCallback implements StatsCollectorOutputStreamCallback {
 
+        private final long responseBuiltTime;
+
         /**
          * The response message from the Web Service.
          */
@@ -313,8 +326,9 @@ public class MetricsCollector implements MetricsListener {
          *
          * @param  cxfMessage  the CXF response message.
          */
-        public MetricsCollectorCallback(final Message cxfMessage) {
+        public MetricsCollectorCallback(final Long responseBuiltTime, final Message cxfMessage) {
             this.cxfMessage = cxfMessage;
+            this.responseBuiltTime = responseBuiltTime;
         }
 
         /**
@@ -326,6 +340,7 @@ public class MetricsCollector implements MetricsListener {
          */
         @Override
         public void onClose(final StatsCollectorOutputStream os) {
+            long now = clock.getTick();
             long responseSize = os.getBytesWritten();
 
             WebServiceMetrics metrics = cxfMessage.getExchange().get(WebServiceMetrics.class);
@@ -338,8 +353,11 @@ public class MetricsCollector implements MetricsListener {
                 responseSize);
 
             // Output log
-            LOG.info("WRITE [flow-id {}] [response-size {}]",
-                new Object[] {metrics.get(MetricsFields.FLOW_ID), responseSize});
+            LOG.info("WRITE [flow-id {}] [response-size {} KB] [duration {} ms]",
+                new Object[] {
+                    metrics.get(MetricsFields.FLOW_ID), responseSize / ONE_KB,
+                    TimeUnit.NANOSECONDS.toMillis(now - responseBuiltTime)
+                });
         }
     }
 }
