@@ -21,10 +21,6 @@
     </bean>
     <bean id="cxfMetricRegistry" class="com.codahale.metrics.MetricRegistry"/>
 
-    <bean id="CounterRepository" class="org.apache.cxf.management.counters.CounterRepository">
-        <property name="bus" ref="cxf" />
-    </bean>
-
     <!-- JMX publisher -->
     <bean id="jmxMetricPublisher" class="de.zalando.zomcat.cxf.metrics.JMXMetricsPublisher"
         factory-method="createInstance"
@@ -34,7 +30,7 @@
         <constructor-arg ref="cxfMetricRegistry"/>
     </bean>
 
-    <cxf:bus bus="cxf">
+    <cxf:bus>
         <cxf:inInterceptors>
             <ref bean="metricsCollectorInbound" />
         </cxf:inInterceptors>
