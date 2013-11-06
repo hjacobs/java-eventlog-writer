@@ -22,6 +22,7 @@ import com.codahale.metrics.MetricRegistry;
 
 import com.google.common.base.Preconditions;
 
+import de.zalando.zomcat.configuration.AppInstanceContextProvider;
 import de.zalando.zomcat.cxf.HttpHeaders;
 import de.zalando.zomcat.cxf.MetricsCollectorOutInterceptor;
 import de.zalando.zomcat.io.StatsCollectorOutputStream;
@@ -42,6 +43,14 @@ public class MetricsCollector implements MetricsListener {
      * The logging object for this class.
      */
     private static final Logger LOG = LoggerFactory.getLogger(MetricsCollector.class);
+
+    /**
+     * Provider of the current host and instance information.
+     */
+    private static final AppInstanceContextProvider provider = AppInstanceContextProvider.fromManifestOnFilesystem();
+
+    /**
+     */
 
     /**
      * The clock used to collect timed events, e.g. request/response instant.
@@ -110,8 +119,8 @@ public class MetricsCollector implements MetricsListener {
         String clientIp = request.getRemoteAddr();
         int requestSize = request.getContentLength();
         String serviceIp = request.getLocalAddr();
-        String host = HttpHeaders.HOST.get(request);
-        String instance = HttpHeaders.INSTANCE.get(request);
+        String host = provider.getHost();
+        String instance = provider.getInstanceCode();
         String serviceName = ((QName) message.get(Message.WSDL_SERVICE)).getLocalPart();
         String operation = ((QName) message.get(Message.WSDL_OPERATION)).getLocalPart();
 
