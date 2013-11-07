@@ -16,6 +16,8 @@ import de.zalando.appconfig.Configuration;
 import de.zalando.appconfig.ConfigurationResource;
 import de.zalando.appconfig.cache.ConfigurationCache;
 
+import de.zalando.config.domain.ConfigValue;
+
 public class MockConfiguration implements Configuration {
 
     private final Map<String, String> values = Maps.newHashMap();
@@ -384,6 +386,28 @@ public class MockConfiguration implements Configuration {
 
     @Override
     public Set<ConfigCtx> getSpecifiedContexts(final String key) {
+        return null;
+    }
+
+    @Override
+    public <T> T getConfig(final String key, final ConfigCtx context, final Class<T> resultType, final T defaultValue) {
+        return null;
+    }
+
+    @Override
+    public <T> T getConfig(final String key, final ConfigCtx context, final Type resultType, final T defaultValue) {
+        return null;
+    }
+
+    @Override
+    public <T> T getConfig(final String key, final ConfigCtx context, final Class<T> resultType,
+            final ConfigValue defaultValue) {
+        return null;
+    }
+
+    @Override
+    public <T> T getConfig(final String key, final ConfigCtx context, final Type resultType,
+            final ConfigValue defaultValue) {
         return null;
     }
 
