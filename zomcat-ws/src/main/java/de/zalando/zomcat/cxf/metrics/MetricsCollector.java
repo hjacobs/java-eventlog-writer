@@ -45,7 +45,7 @@ public class MetricsCollector implements MetricsListener {
      */
     private static final Logger LOG = LoggerFactory.getLogger(MetricsCollector.class);
 
-    public static final long ONE_KB = 1024;
+    public static final int ONE_KB = 1024;
 
     /**
      * Provider of the current host and instance information.
@@ -97,7 +97,7 @@ public class MetricsCollector implements MetricsListener {
      *     host:instance</code> (as defined in the request HTTP Header);</li>
      *   <li><b>Service</b> - the service being accessed;</li>
      *   <li><b>Operation</b> - the operation being invoked;</li>
-     *   <li><b>Request Size</b> - the size of the request, in bytes;</li>
+     *   <li><b>Request Size</b> - the size of the request, in KBytes;</li>
      * </ul>
      *
      * <p>Additionally, the request count and size are recorded through the registered <code>MetricRegistry</code> in
@@ -119,7 +119,7 @@ public class MetricsCollector implements MetricsListener {
         // Collect metrics from Message
         final long serviceRequestTime = clock.getTick();
         final String clientIp = request.getRemoteAddr();
-        final int requestSize = request.getContentLength();
+        final int requestSize = request.getContentLength() / ONE_KB;
         final String serviceIp = request.getLocalAddr();
         final String host = provider.getHost();
         final String instance = provider.getInstanceCode();
@@ -164,7 +164,7 @@ public class MetricsCollector implements MetricsListener {
 
         // Log the metrics
         LOG.info("REQUEST [flow-id {}] [client ip {}] [service ip:{} host:{} instance:{} name:{} operation:{}] "
-                + "[request-size {}]",
+                + "[request-size {} KB]",
             new Object[] {flowId, clientIp, serviceIp, host, instance, serviceName, operation, requestSize});
     }
 
@@ -203,18 +203,17 @@ public class MetricsCollector implements MetricsListener {
 
         if (metrics != null) {
 
-            // Calculate execution time and record in metrics registry
-            long executionDelta = responseTime - metrics.get(MetricsFields.REQUEST_TIME);
+            // Calculate execution time in milliseconds and record in metrics registry
+            long executionDelta = TimeUnit.NANOSECONDS.toMillis(responseTime - metrics.get(MetricsFields.REQUEST_TIME));
 
             String keyPrefix = MetricRegistry.name(metrics.get(MetricsFields.SERVICE_NAME),
                     metrics.get(MetricsFields.SERVICE_OPERATION));
 
-            registry.timer(MetricRegistry.name(keyPrefix, MetricsFields.DURATION.toString())).update(executionDelta,
-                TimeUnit.NANOSECONDS);
+            registry.timer(MetricRegistry.name(keyPrefix, MetricsFields.EXECUTION_DURATION.toString())).update(
+                executionDelta, TimeUnit.MILLISECONDS);
 
             // Output log
-            LOG.info("RESPONSE [flow-id {}] [duration {} ms]", metrics.get(MetricsFields.FLOW_ID),
-                TimeUnit.NANOSECONDS.toMillis(executionDelta));
+            LOG.info("RESPONSE [flow-id {}] [duration {} ms]", metrics.get(MetricsFields.FLOW_ID), executionDelta);
 
         } else {
             LOG.error("No metrics found in CXF exchange. Cannot calculate execution duration");
@@ -340,24 +339,23 @@ public class MetricsCollector implements MetricsListener {
          */
         @Override
         public void onClose(final StatsCollectorOutputStream os) {
-            long now = clock.getTick();
-            long responseSize = os.getBytesWritten();
+            long writeDelta = TimeUnit.NANOSECONDS.toMillis(clock.getTick() - responseBuiltTime);
+            long responseSize = os.getBytesWritten() / ONE_KB;
 
             WebServiceMetrics metrics = cxfMessage.getExchange().get(WebServiceMetrics.class);
 
-            // Records response size in Metrics
+            // Records response size and write duration in Metrics
             String keyPrefix = MetricRegistry.name(metrics.get(MetricsFields.SERVICE_NAME),
                     metrics.get(MetricsFields.SERVICE_OPERATION));
 
             registry.histogram(MetricRegistry.name(keyPrefix, MetricsFields.RESPONSE_SIZE.toString())).update(
                 responseSize);
+            registry.timer(MetricRegistry.name(keyPrefix, MetricsFields.WRITE_DURATION.toString())).update(writeDelta,
+                TimeUnit.MILLISECONDS);
 
             // Output log
             LOG.info("WRITE [flow-id {}] [response-size {} KB] [duration {} ms]",
-                new Object[] {
-                    metrics.get(MetricsFields.FLOW_ID), responseSize / ONE_KB,
-                    TimeUnit.NANOSECONDS.toMillis(now - responseBuiltTime)
-                });
+                new Object[] {metrics.get(MetricsFields.FLOW_ID), responseSize, writeDelta});
         }
     }
 }

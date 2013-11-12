@@ -68,7 +68,12 @@ public class MetricsFields<T> {
     /**
      * The execution time of the Web Service operation.
      */
-    public static final MetricsFields<Long> DURATION = new MetricsFields<>("duration");
+    public static final MetricsFields<Long> EXECUTION_DURATION = new MetricsFields<>("execution.duration");
+
+    /**
+     * The execution time of writing the response to the requester.
+     */
+    public static final MetricsFields<Long> WRITE_DURATION = new MetricsFields<>("write.duration");
 
     /**
      * Name of the web service.
