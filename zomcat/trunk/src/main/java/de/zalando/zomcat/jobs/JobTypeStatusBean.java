@@ -2,8 +2,6 @@ package de.zalando.zomcat.jobs;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -129,15 +127,7 @@ public class JobTypeStatusBean {
      *          list. The bean's are the same objects!
      */
     public List<FinishedWorkerBean> getHistory() {
-        final List<FinishedWorkerBean> list = new LinkedList<FinishedWorkerBean>();
-
-        final Iterator<FinishedWorkerBean> iter = history.iterator();
-
-        while (iter.hasNext()) {
-            list.add(iter.next());
-        }
-
-        return list;
+        return history.view();
     }
 
     public void addFinishedWorkerBean(final FinishedWorkerBean finishedWorkerBean) {

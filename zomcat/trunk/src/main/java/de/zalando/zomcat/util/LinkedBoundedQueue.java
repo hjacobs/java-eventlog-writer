@@ -1,7 +1,9 @@
 package de.zalando.zomcat.util;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * basic queue for storing the last x elements. It is backed up by a <code>LinkedList</code>. If the optional capacity
@@ -25,20 +27,6 @@ public class LinkedBoundedQueue<E> {
     }
 
     /**
-     * clear queue.
-     */
-    public void clear() {
-        elements.clear();
-    }
-
-    /**
-     * @return  actual size of queue
-     */
-    public int size() {
-        return elements.size();
-    }
-
-    /**
      * @param  element  the element to be added at first position
      */
     public void add(final E element) {
@@ -51,33 +39,18 @@ public class LinkedBoundedQueue<E> {
         }
     }
 
-    /**
-     * @return  the first (newest) element
-     */
-    public E getFirst() {
-        return elements.getFirst();
-    }
+    public List<E> view() {
+        final List<E> result = new LinkedList<>();
 
-    /**
-     * @return  the last (oldest) element
-     */
-    public E getLast() {
-        return elements.getLast();
-    }
+        synchronized (guard) {
 
-    /**
-     * @return  iterator for elements. It will not be protected against modifications in order to get better
-     *          performance. If some elements are removed in this iteration, the queue will be modified, too!
-     */
-    public Iterator<E> iterator() {
-        return elements.iterator();
-    }
+            final Iterator<E> iter = elements.iterator();
+            while (iter.hasNext()) {
+                result.add(iter.next());
+            }
+        }
 
-    /**
-     * @return  flag if queue is empty
-     */
-    public boolean isEmpty() {
-        return elements.isEmpty();
+        return Collections.unmodifiableList(result);
     }
 
     /**
@@ -89,7 +62,7 @@ public class LinkedBoundedQueue<E> {
         builder.append("LinkedBoundedQueue [capacity=");
         builder.append(capacity);
         builder.append(", elements=");
-        builder.append(elements);
+        builder.append(view());
         builder.append("]");
         return builder.toString();
     }
