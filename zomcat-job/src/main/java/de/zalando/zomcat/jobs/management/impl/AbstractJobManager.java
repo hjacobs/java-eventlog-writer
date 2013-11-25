@@ -453,6 +453,17 @@ public abstract class AbstractJobManager implements JobManager, JobListener, Run
             retVal = false;
         }
 
+        // If Job Group is inactive
+        if (jobConfig.getJobGroupConfig() != null && !jobConfig.getJobGroupConfig().isJobGroupActive()) {
+            retVal = false;
+        }
+
+        // If JobGroup is active but locally overridden
+        if (jobConfig.getJobGroupConfig() != null && jobConfig.getJobGroupConfig().isJobGroupActive()
+                && overrideGroupConfigActive != null && overrideGroupConfigActive == false) {
+            retVal = false;
+        }
+
         // If Job is not Active - and no Override exists - Job is not active
         if (!jobConfig.isActive() && (overrideConfigActive == null)) {
             retVal = false;

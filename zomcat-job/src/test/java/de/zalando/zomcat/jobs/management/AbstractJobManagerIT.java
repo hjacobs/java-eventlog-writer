@@ -49,27 +49,48 @@ public abstract class AbstractJobManagerIT {
     /**
      * Create a single {@link JobSchedulingConfiguration} instance for given Parameters.
      *
-     * @param   cronExpression   The CRON Expression
-     * @param   jobClass         The Jobs Fully Qualified Classname
-     * @param   jobData          The JobData Parameter Map
-     * @param   appInstanceKeys  Allowed AppInstanceKeys to use
-     * @param   active           The active State of Job
-     * @param   jobGroupName     The JobGroup Name - <code>null</code> for default group
+     * @param   cronExpression       The CRON Expression
+     * @param   jobClass             The Jobs Fully Qualified Classname
+     * @param   jobData              The JobData Parameter Map
+     * @param   appInstanceKeys      Allowed AppInstanceKeys to use
+     * @param   active               The active State of Job
+     * @param   jobGroupName         The JobGroup Name - <code>null</code> for default group
+     * @param   jobGroupActiveState  Active State for JobGroup
      *
      * @return  The {@link JobSchedulingConfiguration} instance created from given Data
      */
     private JobSchedulingConfiguration createJobSchedulingConfiguration(final String cronExpression,
             final String jobClass, final Map<String, String> jobData, final Set<String> appInstanceKeys,
-            final boolean active, final String jobGroupName) {
+            final boolean active, final String jobGroupName, final boolean jobGroupActiveState) {
         JobGroupConfig jobGroupConfig = null;
         if (jobGroupName != null) {
-            jobGroupConfig = new JobGroupConfig(jobGroupName, true, null);
+            jobGroupConfig = new JobGroupConfig(jobGroupName, jobGroupActiveState, null);
         }
 
         final JobConfig jobConfig = new JobConfig(appInstanceKeys, 50, 1000, active, jobGroupConfig);
         final JobSchedulingConfiguration retVal = new JobSchedulingConfiguration(cronExpression, jobClass,
                 "Some Job Description", jobData, jobConfig);
         return retVal;
+    }
+
+    /**
+     * Create a single {@link JobSchedulingConfiguration} instance for given Parameters.
+     *
+     * @param   cronExpression       The CRON Expression
+     * @param   jobClass             The Jobs Fully Qualified Classname
+     * @param   jobData              The JobData Parameter Map
+     * @param   appInstanceKeys      Allowed AppInstanceKeys to use
+     * @param   active               The active State of Job
+     * @param   jobGroupName         The JobGroup Name - <code>null</code> for default group
+     * @param   jobGroupActiveState  Active State for JobGroup
+     *
+     * @return  The {@link JobSchedulingConfiguration} instance created from given Data
+     */
+    private JobSchedulingConfiguration createJobSchedulingConfiguration(final String cronExpression,
+            final String jobClass, final Map<String, String> jobData, final Set<String> appInstanceKeys,
+            final boolean active, final String jobGroupName) {
+        return createJobSchedulingConfiguration(cronExpression, jobClass, jobData, appInstanceKeys, active,
+                jobGroupName, true);
     }
 
     @Before
@@ -815,6 +836,104 @@ public abstract class AbstractJobManagerIT {
             assertEquals(jobManagerToTest.getScheduledManagedJobs().size(), 3);
             assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
             assertEquals(jobManagerToTest.getUnscheduledManagedJobs().size(), 1);
+
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(null);
+            jobManagerToTest.updateJobSchedulingConfigurations();
+
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertTrue(jobManagerToTest.getManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+            jobManagerToTest.shutdown();
+
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertTrue(jobManagerToTest.getManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+        } finally {
+            try {
+                jobManagerToTest.shutdown();
+            } catch (final JobManagerException e) { }
+        }
+    }
+
+    /**
+     * Test update of JobSchedulingConfiguration.
+     *
+     * @throws  JobManagerException  if any unanticipated error occurs (fatal exception may only occur if the
+     *                               {@link JobSchedulingConfigurationProvider} throws an exception)
+     */
+    @Test
+    public void testUpdateSchedulingConfigurationWithJobGroupActiveStateChange() throws JobManagerException,
+        InterruptedException {
+        try {
+            final Map<String, String> jobData = Maps.newHashMap();
+            jobData.put("someKey", "someValue");
+
+            final List<JobSchedulingConfiguration> jobSchedulingConfigurations = Lists.newArrayList();
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, "TestGroup"));
+
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", jobData, Sets.newHashSet("local_local"), false,
+                    null));
+
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob2Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, "TestGroup"));
+
+            jobSchedulingConfigurations.add(createJobSchedulingConfiguration("0 0 1 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob2Job", jobData, Sets.newHashSet("local_local"), true,
+                    null));
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(null);
+
+            assertNotNull(jobManagerToTest);
+
+            jobManagerToTest.startup();
+
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertTrue(jobManagerToTest.getManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertTrue(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+
+            ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(jobSchedulingConfigurations);
+            jobManagerToTest.updateJobSchedulingConfigurations();
+
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getManagedJobs().size(), 4);
+            assertFalse(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getScheduledManagedJobs().size(), 3);
+            assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getUnscheduledManagedJobs().size(), 1);
+
+            JobSchedulingConfiguration jsc = createJobSchedulingConfiguration("0 0 0 * * ?",
+                    "de.zalando.zomcat.jobs.management.TestJob1Job", new HashMap<String, String>(),
+                    Sets.newHashSet("local_local"), true, "TestGroup", false);
+            jobSchedulingConfigurations.remove(0);
+            jobSchedulingConfigurations.add(0, jsc);
+
+            // Update JSCs with Deactivate JobGroupConfig
+            jobManagerToTest.updateJobSchedulingConfigurations();
+
+            assertNotNull(jobManagerToTest.getManagedJobs());
+            assertNotNull(jobManagerToTest.getScheduledManagedJobs());
+            assertNotNull(jobManagerToTest.getUnscheduledManagedJobs());
+            assertFalse(jobManagerToTest.getManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getManagedJobs().size(), 4);
+            assertFalse(jobManagerToTest.getScheduledManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getScheduledManagedJobs().size(), 2);
+            assertFalse(jobManagerToTest.getUnscheduledManagedJobs().isEmpty());
+            assertEquals(jobManagerToTest.getUnscheduledManagedJobs().size(), 2);
 
             ((TestJobSchedulingConfigProvider) configProvider).setConfigurationsToProvide(null);
             jobManagerToTest.updateJobSchedulingConfigurations();
