@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.zalando.zomcat.flowid.FlowId;
+import de.zalando.zomcat.flowid.FlowScope;
 
 /**
  * This interceptor managed the flow id from/to the http-header at RECEIVE time.
@@ -43,6 +44,14 @@ public class FlowIdInboundInterceptor extends AbstractPhaseInterceptor<Message> 
             // this thread (maybe from a previous aborted worker thread)
             FlowId.clear();
 
+            final FlowScope scope = FlowId.getScope();
+
+            if (scope.isActive()) {
+                final String previousFlowId = scope.getConversationId();
+                LOG.warn("Flow scope [" + previousFlowId + "] was still active. Somebody missed to exit it before?!");
+                scope.exit(previousFlowId);
+            }
+
             // Try to get the flow id from the header or generate a new one:
             final HttpServletRequest httpServletRequest = (HttpServletRequest) message.get(
                     AbstractHTTPDestination.HTTP_REQUEST);
@@ -55,7 +64,7 @@ public class FlowIdInboundInterceptor extends AbstractPhaseInterceptor<Message> 
                 }
 
                 FlowId.pushFlowId(flowId);
-                FlowId.getScope().enter(flowId);
+                scope.enter(flowId);
             }
         }
     }
