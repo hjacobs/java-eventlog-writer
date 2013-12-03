@@ -48,7 +48,7 @@ public class FlowIdInboundInterceptor extends AbstractPhaseInterceptor<Message> 
 
             if (scope.isActive()) {
                 final String previousFlowId = scope.getConversationId();
-                LOG.warn("Flow scope [" + previousFlowId + "] was still active. Somebody missed to exit it before?!");
+                LOG.debug("Flow scope [" + previousFlowId + "] was still active. Somebody missed to exit it before?!");
                 scope.exit(previousFlowId);
             }
 
