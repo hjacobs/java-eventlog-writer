@@ -13,7 +13,7 @@
     <version>0.1-SNAPSHOT</version>
     <description>Example minimal job manager project</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Platform/Software</name>
     </organization>
     <properties>
         <test.src.dir>src/test/java</test.src.dir>
