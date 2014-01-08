@@ -13,7 +13,7 @@
     <description>Zomcat Webservice/CXF Client Support Classes (e.g. WebServiceClientFactoryBean), to be used in *-client artifacts.</description>
     <version>1.1.1</version>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Platform/Software</name>
     </organization>
     <properties>
     </properties>
