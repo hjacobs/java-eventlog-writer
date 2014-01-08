@@ -7,7 +7,7 @@
     <version>0.1</version>
     <description>Super POM for Zomcat Job Monitor backend</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Platform/Software</name>
     </organization>
     <profiles>
         <profile>
