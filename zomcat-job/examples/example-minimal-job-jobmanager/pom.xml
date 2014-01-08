@@ -11,7 +11,7 @@
    <properties>
     </properties>
     <organization>
-      <name>Zalando/Technology/Platform</name>
+      <name>Zalando/Technology/Platform/Software</name>
    </organization>
    <modules>
       <module>backend</module>
