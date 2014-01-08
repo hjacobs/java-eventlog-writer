@@ -13,7 +13,7 @@
     <name>Job Monitor Test/Example Project</name>
     <description>Example/test web application for job monitor servlet.</description>
     <organization>
-        <name>Zalando/Technology/Platform</name>
+        <name>Zalando/Technology/Platform/Software</name>
     </organization>
     <properties>
         <jetty.version>7.5.0.v20110901</jetty.version>
