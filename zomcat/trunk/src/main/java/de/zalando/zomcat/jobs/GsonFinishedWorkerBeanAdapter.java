@@ -33,6 +33,7 @@ public class GsonFinishedWorkerBeanAdapter implements InstanceCreator<FinishedWo
         final Map<String, Object> map = new HashMap<String, Object>();
 
         map.put("id", src.getId());
+        map.put("flowId", src.getFlowId());
 
         final DateTime internalStartTime = src.getInternalStartTime();
 
