@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import de.zalando.zomcat.HeartbeatMode;
 import de.zalando.zomcat.HostStatus;
+import de.zalando.zomcat.util.FileBackedToggle;
 
 @ManagedResource(objectName = "Zalando:name=Heartbeat Status Bean")
 @Component("heartbeatStatusBean")
@@ -18,7 +19,7 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
 
     public static final String BEAN_NAME = "heartbeatStatusBean";
 
-    private HeartbeatMode heartbeatMode = HeartbeatMode.OK;
+    private final FileBackedToggle heartbeatEnabled = new FileBackedToggle("zomcat-heartbeat-disabled", true);
 
     /**
      * @see  HeartbeatStatusMBean#toggleHeartbeatMode()
@@ -26,13 +27,8 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     @ManagedOperation(description = "Toggles the HeartbeatMode between OK and DEPLOY")
     @Override
     public String toggleHeartbeatMode() {
-        if (HeartbeatMode.OK.equals(heartbeatMode)) {
-            heartbeatMode = HeartbeatMode.DEPLOY;
-        } else {
-            heartbeatMode = HeartbeatMode.OK;
-        }
-
-        return heartbeatMode.toString();
+        heartbeatEnabled.toggle();
+        return getHeartbeatMode();
     }
 
     /**
@@ -41,36 +37,24 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     @ManagedOperation(description = "Returns the actual HeartbeatMode")
     @Override
     public String getHeartbeatMode() {
-        if (heartbeatMode == null) {
-            return null;
-        }
-
-        return heartbeatMode.toString();
+        return getHeartbeatModeAsEnum().toString();
     }
 
     /**
      * @return  the actual HeartbeatMode or <code>null</code> if not set
      */
     public HeartbeatMode getHeartbeatModeAsEnum() {
-        if (heartbeatMode == null) {
-            return null;
-        }
-
-        return heartbeatMode;
+        return heartbeatEnabled.get() ? HeartbeatMode.OK : HeartbeatMode.DEPLOY;
     }
 
     public String getLoadbalancerMessage() {
-        if (heartbeatMode == null) {
-            return null;
-        }
-
         if (!HostStatus.isAllocated()) {
 
             // make sure that the LB status is disabled if the host-status is not production ready
             return HeartbeatMode.DEPLOY.getLoadbalancerMessage();
         }
 
-        return heartbeatMode.getLoadbalancerMessage();
+        return getHeartbeatModeAsEnum().getLoadbalancerMessage();
     }
 
     /**
@@ -79,7 +63,7 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     @ManagedOperation(description = "sets the new HeartbeatMode")
     @Override
     public void setHeartbeatMode(final HeartbeatMode heartbeatMode) {
-        this.heartbeatMode = heartbeatMode;
+        heartbeatEnabled.set(heartbeatMode == HeartbeatMode.OK);
     }
 
     /**
@@ -88,7 +72,7 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     @ManagedOperation(description = "sets the new HeartbeatMode")
     @Override
     public void setHeartbeatMode(final String heartbeatModeAsString) {
-        this.heartbeatMode = HeartbeatMode.valueOf(heartbeatModeAsString);
+        setHeartbeatMode(HeartbeatMode.valueOf(heartbeatModeAsString));
     }
 
     /**
@@ -97,9 +81,7 @@ public class HeartbeatStatusBean implements HeartbeatStatusMBean, Serializable {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("HeartbeatStatusBean [heartbeatMode=");
-        builder.append(heartbeatMode);
-        builder.append("]");
+        builder.append("HeartbeatStatusBean");
         return builder.toString();
     }
 }

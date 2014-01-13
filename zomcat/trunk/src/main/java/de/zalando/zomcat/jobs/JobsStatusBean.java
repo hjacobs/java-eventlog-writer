@@ -53,6 +53,7 @@ import de.zalando.zomcat.OperationMode;
 import de.zalando.zomcat.jobs.management.JobManager;
 import de.zalando.zomcat.jobs.management.JobManagerException;
 import de.zalando.zomcat.jobs.management.JobManagerManagedJob;
+import de.zalando.zomcat.util.FileBackedToggle;
 
 /**
  * Bean holding all informations about quartz jobs.
@@ -69,10 +70,10 @@ public class JobsStatusBean implements JobsStatusMBean {
 
     public static final String BEAN_NAME = "jobsStatusBean";
 
-    private OperationMode operationMode = OperationMode.NORMAL;
+    private final FileBackedToggle jobsEnabled = new FileBackedToggle("zomcat-jobs-disabled", true);
 
-    private final SortedMap<String, JobTypeStatusBean> jobs = new TreeMap<String, JobTypeStatusBean>();
-    private final SortedMap<String, JobGroupTypeStatusBean> groups = new TreeMap<String, JobGroupTypeStatusBean>();
+    private final SortedMap<String, JobTypeStatusBean> jobs = new TreeMap<>();
+    private final SortedMap<String, JobGroupTypeStatusBean> groups = new TreeMap<>();
 
     private Set<Class<? extends AbstractJob>> runningWorkerImplementations;
     private DateTime lastJobConfigRefesh;
@@ -136,9 +137,7 @@ public class JobsStatusBean implements JobsStatusMBean {
                                 curJob.getJobSchedulingConfig().getJobDescription(),
                                 curJob.getJobSchedulingConfig().getJobConfig(), jobInfoBean);
                         jobs.put(curJob.getJobSchedulingConfig().getJobClass(), jobTypeStatusBean);
-                    } catch (final SchedulerException e) {
-                        LOG.error(e.getMessage(), e);
-                    } catch (final ClassNotFoundException e) {
+                    } catch (final SchedulerException | ClassNotFoundException e) {
                         LOG.error(e.getMessage(), e);
                     }
                 }
@@ -154,9 +153,7 @@ public class JobsStatusBean implements JobsStatusMBean {
                                 curJob.getJobSchedulingConfig().getJobDescription(),
                                 curJob.getJobSchedulingConfig().getJobConfig(), jobInfoBean);
                         jobs.put(curJob.getJobSchedulingConfig().getJobClass(), jobTypeStatusBean);
-                    } catch (final SchedulerException e) {
-                        LOG.error(e.getMessage(), e);
-                    } catch (final ClassNotFoundException e) {
+                    } catch (final SchedulerException | ClassNotFoundException e) {
                         LOG.error(e.getMessage(), e);
                     }
 
@@ -292,7 +289,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     private void toggleJobManagerOperationMode() {
         if (isJobManagerAvailable()) {
             try {
-                jobManager.setMaintenanceModeActive(this.operationMode == OperationMode.MAINTENANCE);
+                jobManager.setMaintenanceModeActive(!jobsEnabled.get());
             } catch (final JobManagerException e) {
                 LOG.error("An error occured setting Maintenance Mode on JobManager. Error was: [{}]", e.getMessage(),
                     e);
@@ -306,14 +303,9 @@ public class JobsStatusBean implements JobsStatusMBean {
     @ManagedOperation(description = "Toggles between NORMAL and MAINTENANCE OperationMode")
     @Override
     public String toggleOperationMode() {
-        if (OperationMode.NORMAL.equals(operationMode)) {
-            operationMode = OperationMode.MAINTENANCE;
-        } else {
-            operationMode = OperationMode.NORMAL;
-        }
-
+        jobsEnabled.toggle();
         toggleJobManagerOperationMode();
-        return operationMode.toString();
+        return getOperationMode();
     }
 
     /**
@@ -322,19 +314,11 @@ public class JobsStatusBean implements JobsStatusMBean {
     @ManagedOperation(description = "Returns the actual OperationMode")
     @Override
     public String getOperationMode() {
-        if (operationMode == null) {
-            return null;
-        }
-
-        return operationMode.toString();
+        return getOperationModeAsEnum().toString();
     }
 
     public OperationMode getOperationModeAsEnum() {
-        if (operationMode == null) {
-            return null;
-        }
-
-        return operationMode;
+        return jobsEnabled.get() ? OperationMode.NORMAL : OperationMode.MAINTENANCE;
     }
 
     /**
@@ -342,7 +326,7 @@ public class JobsStatusBean implements JobsStatusMBean {
      */
     @Override
     public void setOperationMode(final OperationMode operationMode) {
-        this.operationMode = operationMode;
+        jobsEnabled.set(operationMode == OperationMode.NORMAL);
         toggleJobManagerOperationMode();
     }
 
@@ -352,8 +336,7 @@ public class JobsStatusBean implements JobsStatusMBean {
     @ManagedOperation(description = "sets the new OperationMode")
     @Override
     public void setOperationMode(final String operationMode) {
-        this.operationMode = OperationMode.valueOf(operationMode);
-        toggleJobManagerOperationMode();
+        setOperationMode(OperationMode.valueOf(operationMode));
     }
 
     /**
@@ -504,9 +487,7 @@ public class JobsStatusBean implements JobsStatusMBean {
                 final JobManagerManagedJob jobToToggle = getManagedJobByClass(jobTypeStatusBean.getJobClass());
                 jobManager.toggleJob(jobToToggle.getJobSchedulingConfig(), running);
                 jobTypeStatusBean.setDisabled(!running);
-            } catch (final JobManagerException e) {
-                LOG.error(e.getMessage(), e);
-            } catch (final IllegalArgumentException e) {
+            } catch (final JobManagerException | IllegalArgumentException e) {
                 LOG.error(e.getMessage(), e);
             }
 
@@ -584,9 +565,7 @@ public class JobsStatusBean implements JobsStatusMBean {
                         jobToToggle.getQuartzJobDetail().getName());
                 jobManager.toggleJob(jobToToggle.getJobSchedulingConfig(), !isScheduled);
                 statusBean.setDisabled(!statusBean.isDisabled());
-            } catch (final JobManagerException e) {
-                LOG.error(e.getMessage(), e);
-            } catch (final IllegalArgumentException e) {
+            } catch (final JobManagerException | IllegalArgumentException e) {
                 LOG.error(e.getMessage(), e);
             }
         } else {
@@ -607,7 +586,7 @@ public class JobsStatusBean implements JobsStatusMBean {
 
         final Collection<JobTypeStatusBean> values = getJobs().values();
 
-        final ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        final ArrayList<Map<String, String>> list = new ArrayList<>();
 
         if (values == null) {
             return list;
@@ -711,9 +690,7 @@ public class JobsStatusBean implements JobsStatusMBean {
                 final JobManagerManagedJob jobToTrigger = getManagedJobByClass(jobTypeStatusBean.getJobClass());
                 jobManager.triggerJob(jobToTrigger.getJobSchedulingConfig(), true);
                 success = true;
-            } catch (final JobManagerException e) {
-                LOG.error(e.getMessage(), e);
-            } catch (final IllegalArgumentException e) {
+            } catch (final JobManagerException | IllegalArgumentException e) {
                 LOG.error(e.getMessage(), e);
             }
 
@@ -729,14 +706,12 @@ public class JobsStatusBean implements JobsStatusMBean {
         final StringBuilder builder = new StringBuilder();
         builder.append("JobsStatusBean [jobs=");
         builder.append(getJobs());
-        builder.append(", operationMode=");
-        builder.append(operationMode);
         builder.append("]");
         return builder.toString();
     }
 
     private Set<JobGroupConfig> getJobGroupConfigs() {
-        final Set<JobGroupConfig> set = new TreeSet<JobGroupConfig>(new Comparator<JobGroupConfig>() {
+        final Set<JobGroupConfig> set = new TreeSet<>(new Comparator<JobGroupConfig>() {
                     @Override
                     public int compare(final JobGroupConfig o1, final JobGroupConfig o2) {
                         if (o1 == null && o2 == null) {

@@ -65,7 +65,6 @@ public class StatusServlet extends HttpServlet {
     private static final String DS_STRING = "DataSource.";
 
     public static final String VIEW_PARAMETER_NAME = "view";
-    public static final String VIEW_VALUE_EHCACHE_SIZES_AS_JSON = "ehcacheSizesAsJson";
 
     private static final FastDateFormat FDF = FastDateFormat.getInstance("dd.MM.yyyy HH:mm:ss:SSSS");
 
@@ -101,14 +100,12 @@ public class StatusServlet extends HttpServlet {
         getThreadInfos(pageContent);
 
         response.setContentType("text/plain");
-
-        final PrintWriter writer = response.getWriter();
-
-        writer.println("Server's Status");
-        writer.println();
-        writer.println(pageContent);
-        writer.flush();
-        writer.close();
+        try(PrintWriter writer = response.getWriter()) {
+            writer.println("Server's Status");
+            writer.println();
+            writer.println(pageContent);
+            writer.flush();
+        }
 
         pageContent.delete(0, pageContent.length());
     }
@@ -202,17 +199,8 @@ public class StatusServlet extends HttpServlet {
 
             pageContent.append(NEW_LINE);
             pageContent.append(NEW_LINE);
-        } catch (final NullPointerException e) {
-            LOG.error(e, e);
-        } catch (final MalformedObjectNameException e) {
-            LOG.error(e, e);
-        } catch (final AttributeNotFoundException e) {
-            LOG.error(e, e);
-        } catch (final InstanceNotFoundException e) {
-            LOG.error(e, e);
-        } catch (final MBeanException e) {
-            LOG.error(e, e);
-        } catch (final ReflectionException e) {
+        } catch (final NullPointerException | MalformedObjectNameException | AttributeNotFoundException
+                | InstanceNotFoundException | MBeanException | ReflectionException e) {
             LOG.error(e, e);
         }
 
