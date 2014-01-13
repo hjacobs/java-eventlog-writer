@@ -40,7 +40,7 @@ public class FileBackedToggle {
     }
 
     public void set(final boolean value) {
-        if (trueIfNotExists && value || (!trueIfNotExists && !value)) {
+        if (trueIfNotExists == value) {
             try {
                 Files.deleteIfExists(path);
             } catch (IOException ex) {
