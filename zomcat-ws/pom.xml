@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat WS</name>
     <description>Zomcat Webservice/CXF Support Classes (server side)</description>
-    <version>1.0.39</version>
+    <version>1.0.40</version>
     <organization>
         <name>Zalando/Technology/Platform/Software</name>
     </organization>
