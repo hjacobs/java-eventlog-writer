@@ -20,6 +20,7 @@
 
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
 
     <!-- interceptors -->
     <bean id="logInbound" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
