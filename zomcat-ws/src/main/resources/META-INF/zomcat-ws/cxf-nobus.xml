@@ -20,6 +20,8 @@
 
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+
+    <!-- DO NOT REMOVE THE FOLLOWING LINE! Without it backend projects won't run! See PF-885, ZOOPORT-4489 -->
     <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
 
     <!-- interceptors -->
