@@ -13,8 +13,6 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +32,6 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppInstanceContextProvider.class);
 
-    private static final String MANIFEST_PATH = "/META-INF/MANIFEST.MF";
     private static final String VERSION_KEY = "Implementation-Tag";
     private static final String ENVIRONMENT_KEY = "X-Environment";
     private static final String PROJECT_KEY = "X-Project";
@@ -180,49 +177,6 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
         }
 
         return appInstanceKey;
-    }
-
-    /**
-     * Tries to open the MANIFEST.MF via the given ServletContext.
-     *
-     * @return  AppInstanceContextProvider
-     */
-    @Deprecated
-    public static AppInstanceContextProvider fromServletContext(final ServletContext context) {
-        final String instanceCode = System.getProperty(SystemConstants.SYSTEM_PROPERTY_NAME_JVM_PROCESS_NAME);
-        String host;
-
-        try {
-            host = java.net.InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            LOG.debug("Unable to get hostname", e);
-            host = null;
-        }
-
-        if (context != null) {
-            try {
-                final InputStream is = context.getResourceAsStream(MANIFEST_PATH);
-                if (is != null) {
-                    return new AppInstanceContextProvider(host, instanceCode, new Manifest(is));
-                } else {
-                    LOG.debug("Unable to read META-INF/MANIFEST.MF, probably running locally");
-                }
-            } catch (IOException e) {
-                LOG.debug("Unable to read META-INF/MANIFEST.MF", e);
-            }
-        }
-
-        return new AppInstanceContextProvider(host, instanceCode, null);
-    }
-
-    /**
-     * Tries to get the ServletContext via Spring's ContextLoader. Will not work locally or in unit tests
-     *
-     * @return  AppInstanceContextProvider
-     */
-    @Deprecated
-    public static AppInstanceContextProvider fromSpringWebApplicationContext() {
-        return fromManifestOnFilesystem();
     }
 
     /**
