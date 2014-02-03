@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.zalando.domain.DataCenter;
 import de.zalando.domain.Environment;
 
 public class AppInstanceContextProviderTest {
@@ -45,5 +46,22 @@ public class AppInstanceContextProviderTest {
 
         AppInstanceContextProvider provider = new AppInstanceContextProvider(null, null, manifest);
         Assert.assertEquals("R13_00_14", provider.getVersion());
+    }
+
+    @Test
+    public void testGetProjectName() {
+        System.setProperty("zomcat.project", "de.zalando:shop");
+        Assert.assertEquals("shop", AppInstanceContextProvider.fromManifestOnFilesystem().getProjectName());
+    }
+
+    @Test
+    public void testGetDataCenter() {
+        System.setProperty("zomcat.dataCenter", "ITR");
+        Assert.assertEquals(DataCenter.ITR, AppInstanceContextProvider.fromManifestOnFilesystem().getDataCenter());
+    }
+
+    @Test
+    public void testGetInstanceCode() {
+        Assert.assertEquals("1234", new AppInstanceContextProvider("", "p1234", null).getInstanceCode());
     }
 }

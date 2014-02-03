@@ -18,134 +18,187 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import de.zalando.domain.DataCenter;
 import de.zalando.domain.Environment;
 
 import de.zalando.zomcat.SystemConstants;
 
 /**
- * This class is trying to gather information about the application from the MANIFEST.MF file which is assumed to be on
- * the classpath. The information is written to MANIFEST.MF by DeployCtl, so this class will only return nulls locally
+ * This class is trying to gather information about the application from the MANIFEST.MF file. The information in
+ * MANIFEST.MF is written by DeployCtl, so this class will only return nulls locally
  *
  * @author  mjuenemann
  */
 public class AppInstanceContextProvider implements AppInstanceKeySource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AppInstanceContextProvider.class);
+    private static enum Context {
+        PROJECT_ID("zomcat.project", "X-Project"),
+        ENVIRONMENT("zomcat.environment", "X-Environment"),
+        DATA_CENTER("zomcat.dataCenter", "X-DataCenter"),
+        VERSION("zomcat.implementationTag", "Implementation-Tag");
 
-    private static final String VERSION_KEY = "Implementation-Tag";
-    private static final String ENVIRONMENT_KEY = "X-Environment";
-    private static final String PROJECT_KEY = "X-Project";
+        private final String systemProperty;
+        private final String manifestKey;
+
+        private Context(final String systemProperty, final String manifestKey) {
+            this.systemProperty = systemProperty;
+            this.manifestKey = manifestKey;
+        }
+
+        /**
+         * Tries to retrieve the actual value for the context from the system properties. If it was not found there, it
+         * tries to read it from the given manifest
+         *
+         * @param   manifest  The manifest written by deployctl. May be null locally
+         *
+         * @return  The value or null if the value could not be retrieved
+         */
+        public String retrieveValue(final Manifest manifest) {
+            String value = System.getProperty(systemProperty);
+
+            if (value == null && manifest != null) {
+                value = manifest.getMainAttributes().getValue(manifestKey);
+            }
+
+            return value;
+        }
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(AppInstanceContextProvider.class);
     private static final String PROJECT_SEPARATOR = ":";
     private static final Pattern SEGMENT_FROM_HOST_PATTERN = Pattern.compile("[0-9]+$");
     private static final int SEGMENT_COUNT = 3;
 
     private final String host;
+    private final Integer segment;
     private final String instanceCode;
-    private final Manifest manifest;
+    private final String projectId;
+    private final String projectName;
+    private final String version;
+    private final Environment environment;
+    private final DataCenter dataCenter;
 
+    /**
+     * This constructor will try to determine the contexts from the system properties. If it can't find a property
+     * there, it will look for it in the given manifest.
+     *
+     * @param       host          The host we are currently running on
+     * @param       instanceCode  The deployctl code of the current instance. If it has the format p1234 it will be
+     *                            converted to 1234. May be null locally
+     * @param       manifest      The manifest written by deployctl. May be null locally
+     *
+     * @deprecated  This constructor should be private. Use one of the public factory methods to construct this object,
+     *              for example .fromManifestOnFileystem
+     */
+    @Deprecated
     public AppInstanceContextProvider(final String host, final String instanceCode, final Manifest manifest) {
-        this.host = host;
-        this.manifest = manifest;
+        this(host, instanceCode, Context.PROJECT_ID.retrieveValue(manifest), Context.VERSION.retrieveValue(manifest),
+            Context.ENVIRONMENT.retrieveValue(manifest), Context.DATA_CENTER.retrieveValue(manifest));
+    }
 
+    /**
+     * This constructor determines the contexts solely from the given parameters. It does not access system properties
+     * or the manifest.
+     *
+     * @param  host             The host we are currently running on
+     * @param  instanceCode     The deployctl code of the current instance. If it has the format p1234 it will be
+     *                          converted to 1234
+     * @param  projectId        The current project's id in the format groupId:artifactId. The artifactId will be
+     *                          extracted and used as project name
+     * @param  version          The version of the current instance
+     * @param  environmentCode  The current environment in deployctl format, e.g. "release-staging", "live". It will be
+     *                          converted to the de.zalando.domain.Environment enum and an error will be logged if the
+     *                          conversion fails
+     * @param  dataCenterCode   The data center which the instance is running in. If the code can not be found in the
+     *                          de.zalando.domain.DataCenter enum, an error will be logged
+     */
+    private AppInstanceContextProvider(final String host, final String instanceCode, final String projectId,
+            final String version, final String environmentCode, final String dataCenterCode) {
+
+        // Host and Segment
+        Integer segment = null;
+        if (host != null) {
+            final Matcher matcher = SEGMENT_FROM_HOST_PATTERN.matcher(host);
+            if (matcher.find()) {
+                segment = (Integer.valueOf(matcher.group()) - 1) % SEGMENT_COUNT + 1;
+            }
+        }
+
+        this.segment = segment;
+        this.host = host;
+
+        // InstanceCode (p3600 => 3600)
         if (instanceCode != null && instanceCode.length() == 5) {
-            this.instanceCode = instanceCode.substring(1); // p3600 => 3600
+            this.instanceCode = instanceCode.substring(1);
         } else if (instanceCode != null && instanceCode.length() == 4) {
             this.instanceCode = instanceCode;
         } else {
             this.instanceCode = null;
         }
-    }
 
-    /**
-     * @return  String Project id (e.g. de.zalando:visualmatchingengine-backend) or null if it could not be read from
-     *          the MANIFEST (locally for example)
-     */
-    public String getProjectId() {
-        if (manifest != null) {
-            return manifest.getMainAttributes().getValue(PROJECT_KEY);
-        }
-
-        return null;
-    }
-
-    /**
-     * @return  String Project name (e.g. visualmatchingengine-backend) or null if it could not be read from the
-     *          MANIFEST (locally for example)
-     */
-    public String getProjectName() {
-        if (manifest != null) {
-
-            final String project = getProjectId();
-            final int pos = project.indexOf(PROJECT_SEPARATOR);
-            if (pos > -1) {
-                return project.substring(pos + 1);
-            }
-
-            return project;
+        // ProjectId and ProjectName
+        int pos;
+        this.projectId = projectId;
+        if (projectId != null && (pos = projectId.indexOf(PROJECT_SEPARATOR)) > -1) {
+            this.projectName = projectId.substring(pos + 1);
         } else {
-            return null;
+            this.projectName = null;
         }
+
+        // Environment, DataCenter, Version
+        Environment environment = null;
+        if (environmentCode != null) {
+            try {
+                environment = Environment.valueOf(environmentCode.toUpperCase().replace('-', '_'));
+            } catch (IllegalArgumentException e) {
+                LOG.error("DeployCtl X-Environment doesn't match Environment enum", e);
+            }
+        }
+
+        DataCenter dataCenter = null;
+        if (dataCenterCode != null) {
+            try {
+                dataCenter = DataCenter.valueOf(dataCenterCode);
+            } catch (IllegalArgumentException e) {
+                LOG.error("DeployCtl X-DataCenter doesn't match Environment enum", e);
+            }
+        }
+
+        this.environment = environment;
+        this.dataCenter = dataCenter;
+        this.version = version;
     }
 
-    /**
-     * @return  String Instance code (e.g. "9620") or null if it could not be read from the MANIFEST (locally for
-     *          example)
-     */
-    public String getInstanceCode() {
-        return instanceCode;
-    }
-
-    /**
-     * @return  String Hostname of the current machine
-     */
     public String getHost() {
         return host;
     }
 
-    /**
-     * @return  Integer Segment of the current instance. Is simple calculated by taking the number at the end of the
-     *          hostname and taking it modulo 3, so it's not really reliable
-     */
     public Integer getSegment() {
-        if (getHost() != null) {
-            Matcher matcher = SEGMENT_FROM_HOST_PATTERN.matcher(getHost());
-            if (matcher.find()) {
-                return (Integer.valueOf(matcher.group()) - 1) % SEGMENT_COUNT + 1;
-            }
-        }
-
-        return null;
+        return segment;
     }
 
-    /**
-     * @return  Environment Environment (e.g. RELEASE_STAGING) or null if it could not be read from the MANIFEST
-     *          (locally for example)
-     */
-    public Environment getEnvironment() {
-        if (manifest != null) {
-            final String env = manifest.getMainAttributes().getValue(ENVIRONMENT_KEY);
-            if (env != null) {
-                try {
-                    return Environment.valueOf(env.toUpperCase().replace('-', '_'));
-                } catch (IllegalArgumentException e) {
-                    LOG.error("DeployCtl X-Environment doesn't match Environment enum", e);
-                }
-            }
-        }
-
-        return null;
+    public String getInstanceCode() {
+        return instanceCode;
     }
 
-    /**
-     * @return  String Version (e.g. "R13_00_24-SHOP-001") or null if it could not be read from the MANIFEST (locally
-     *          for example)
-     */
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
     public String getVersion() {
-        if (manifest != null) {
-            return manifest.getMainAttributes().getValue(VERSION_KEY);
-        } else {
-            return null;
-        }
+        return version;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public DataCenter getDataCenter() {
+        return dataCenter;
     }
 
     /**
