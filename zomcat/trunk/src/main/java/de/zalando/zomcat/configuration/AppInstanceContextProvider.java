@@ -35,7 +35,7 @@ public class AppInstanceContextProvider implements AppInstanceKeySource {
         PROJECT_ID("zomcat.project", "X-Project"),
         ENVIRONMENT("zomcat.environment", "X-Environment"),
         DATA_CENTER("zomcat.dataCenter", "X-DataCenter"),
-        VERSION("zomcat.implementationTag", "Implementation-Tag");
+        VERSION("zomcat.tag", "Implementation-Tag");
 
         private final String systemProperty;
         private final String manifestKey;
