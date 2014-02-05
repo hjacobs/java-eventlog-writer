@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat Appconfig Integration</name>
     <description>Zomcat Application Config Abstract Classes, also contains JobConfigSourceImpl (using "jobConfig.*.*" properties)</description>
-    <version>1.0.18</version>
+    <version>1.0.19</version>
     <organization>
         <name>Zalando/Technology/Platform/Software</name>
     </organization>
