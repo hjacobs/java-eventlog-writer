@@ -44,13 +44,13 @@ public class FileBackedToggle {
             try {
                 Files.deleteIfExists(path);
             } catch (IOException ex) {
-                LOG.error("Failed to delete file {}", path);
+                LOG.error("Failed to delete file {}", path.toAbsolutePath(), ex);
             }
         } else {
             try {
                 Files.createFile(path);
             } catch (IOException ex) {
-                LOG.error("Failed to create file {}", path);
+                LOG.error("Failed to create file {}", path.toAbsolutePath(), ex);
             }
         }
     }
