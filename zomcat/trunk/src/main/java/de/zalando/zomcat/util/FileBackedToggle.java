@@ -2,6 +2,7 @@ package de.zalando.zomcat.util;
 
 import java.io.IOException;
 
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,6 +50,8 @@ public class FileBackedToggle {
         } else {
             try {
                 Files.createFile(path);
+            } catch (FileAlreadyExistsException e) {
+                // the file is already there
             } catch (IOException ex) {
                 LOG.error("Failed to create file {}", path.toAbsolutePath(), ex);
             }
