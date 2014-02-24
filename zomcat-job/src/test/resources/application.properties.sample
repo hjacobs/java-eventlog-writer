@@ -17,3 +17,19 @@ frontend.sproc.datasource.statisticsEnabled = 0
 frontend.sproc.datasource.disableJMX = 1
 frontend.sproc.datasource.connectionTimeoutInMs = 5000
 frontend.sproc.datasource.disableConnectionTracking = 1
+
+# Redis configurations
+job.lock.redis.host = localhost
+job.lock.redis.port = 6379
+job.lock.redis.maxIdle = 8
+job.lock.redis.minIdle = 0
+job.lock.redis.maxActive = 8
+job.lock.redis.maxWait = -1
+job.lock.redis.whenExhaustedAction = 1
+job.lock.redis.testOnBorrow = true
+job.lock.redis.testOnReturn = false
+job.lock.redis.testWhileIdle = true
+job.lock.redis.timeBetweenEvictionRunsMillis = 30000
+job.lock.redis.numTestsPerEvictionRun = -1
+job.lock.redis.minEvictableIdleTimeMillis = 60000
+job.lock.redis.softMinEvictableIdleTimeMillis = -1

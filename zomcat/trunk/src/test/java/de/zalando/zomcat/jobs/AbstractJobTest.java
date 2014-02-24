@@ -68,6 +68,7 @@ public class AbstractJobTest {
         TestLockResourceManager lockResourceManager = new TestLockResourceManager();
 
         ApplicationContext context = EasyMock.createMock(ApplicationContext.class);
+        EasyMock.expect(context.containsBean("redisLockResourceManager")).andReturn(false).once();
         EasyMock.expect(context.getBean("lockResourceManager", LockResourceManager.class))
                 .andReturn(lockResourceManager).once();
         EasyMock.replay(context);
@@ -110,6 +111,7 @@ public class AbstractJobTest {
         EasyMock.expectLastCall().andThrow(releaseException).once();
 
         ApplicationContext context = EasyMock.createMock(ApplicationContext.class);
+        EasyMock.expect(context.containsBean("redisLockResourceManager")).andReturn(false).once();
         EasyMock.expect(context.getBean("lockResourceManager", LockResourceManager.class)).andReturn(resourceManager)
                 .once();
         EasyMock.replay(context, resourceManager);

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.5"
+   xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+   <description>Example</description>
+   <display-name>Example</display-name>
+   <listener>
+      <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+   </listener>
+   <context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>WEB-INF/spring-context.xml</param-value>
+   </context-param>
+
+   <!-- JobsMonitor - servlet for monitoring the jobs -->
+   <servlet>
+      <servlet-name>JobsMonitor</servlet-name>
+      <servlet-class>de.zalando.zomcat.servlet.JobsMonitorServlet</servlet-class>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
+   <servlet-mapping>
+      <servlet-name>JobsMonitor</servlet-name>
+      <url-pattern>/jobs.monitor2</url-pattern>
+   </servlet-mapping>
+
+    <!-- TriggerJobServlet - servlet for triggering jobs instantly -->
+    <servlet>
+        <servlet-name>TriggerJobServlet</servlet-name>
+        <servlet-class>de.zalando.zomcat.servlet.TriggerJobServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TriggerJobServlet</servlet-name>
+        <url-pattern>/triggerJob</url-pattern>
+    </servlet-mapping>
+
+      <!-- ToggleJobModeServlet - servlet for toggling heartbeat mode between ok/deploy -->
+    <servlet>
+        <servlet-name>ToggleJobModeServlet</servlet-name>
+        <servlet-class>de.zalando.zomcat.servlet.ToggleJobModeServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ToggleJobModeServlet</servlet-name>
+        <url-pattern>/toggleJobMode</url-pattern>
+    </servlet-mapping>
+
+    <!-- ToggleOperationMode - servlet for toggling operation mode between normal/maintenance -->
+    <servlet>
+        <servlet-name>ToggleOperationMode</servlet-name>
+        <servlet-class>de.zalando.zomcat.servlet.ToggleOperationModeServlet</servlet-class>
+        <load-on-startup>4</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ToggleOperationMode</servlet-name>
+        <url-pattern>/toggleOperationMode</url-pattern>
+    </servlet-mapping>
+
+     <!-- ToggleHeartbeatMode - servlet for toggling heartbeat mode between ok/deploy -->
+    <servlet>
+        <servlet-name>ToggleHeartbeatMode</servlet-name>
+        <servlet-class>de.zalando.zomcat.servlet.ToggleHeartbeatModeServlet</servlet-class>
+        <load-on-startup>5</load-on-startup>
+    </servlet>
+     <servlet-mapping>
+        <servlet-name>ToggleHeartbeatMode</servlet-name>
+        <url-pattern>/toggleHeartbeatMode</url-pattern>
+    </servlet-mapping>
+</web-app>

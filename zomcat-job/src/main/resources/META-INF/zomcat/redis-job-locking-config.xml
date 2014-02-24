@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+    <bean id="redisConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="${job.lock.redis.maxIdle}"/>
+        <property name="minIdle" value="${job.lock.redis.minIdle}"/>
+        <property name="maxActive" value="${job.lock.redis.maxActive}"/>
+        <property name="maxWait" value="${job.lock.redis.maxWait}"/>
+        <property name="whenExhaustedAction" value="${job.lock.redis.whenExhaustedAction}"/>
+        <property name="testOnBorrow" value="${job.lock.redis.testOnBorrow}"/>
+        <property name="testOnReturn" value="${job.lock.redis.testOnReturn}"/>
+        <property name="testWhileIdle" value="${job.lock.redis.testWhileIdle}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${job.lock.redis.timeBetweenEvictionRunsMillis}"/>
+        <property name="numTestsPerEvictionRun" value="${job.lock.redis.numTestsPerEvictionRun}"/>
+        <property name="minEvictableIdleTimeMillis" value="${job.lock.redis.minEvictableIdleTimeMillis}"/>
+        <property name="softMinEvictableIdleTimeMillis" value="${job.lock.redis.softMinEvictableIdleTimeMillis}"/>
+    </bean>
+
+    <bean id="redisConnectionPool" class="redis.clients.jedis.JedisPool" destroy-method="destroy">
+        <constructor-arg index="0" ref="redisConfig" />
+        <constructor-arg index="1" value="${job.lock.redis.host}" />
+        <constructor-arg index="2" value="${job.lock.redis.port}" />
+    </bean>
+</beans>

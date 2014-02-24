@@ -9,38 +9,28 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.junit.runner.RunWith;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import junit.framework.Assert;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
-public class LockResourceManagerIT {
+public abstract class AbstractLockResourceManagerIT {
 
     private static final String FLOWID = "flowid";
     private static final String TEST_COMPONENT = "test_component";
     private static final String TEST_RESOURCE = "test_resource";
     private static final long TEST_EXPECTED_MAXIMUM_DURATION = 60000;
 
-    private static final int CONCURRENT_CLIENTS = 20;
-    private static final int CLIENT_INVOCATIONS = 20;
+    private static final int CONCURRENT_CLIENTS = 50;
+    private static final int CLIENT_INVOCATIONS = 250;
 
     // timeout in milliseconds
     private static final long CONCURRENT_EXECUTION_TIMEOUT = 5000;
 
-    @Autowired
-    private LockResourceManagerImpl lockResourceManager;
+    private LockResourceManager lockResourceManager;
 
     @Before
     public void setUp() {
+        lockResourceManager = getLockResourceManager();
         lockResourceManager.releaseLock(TEST_RESOURCE, FLOWID);
     }
 
@@ -161,4 +151,7 @@ public class LockResourceManagerIT {
             executorService.shutdown();
         }
     }
+
+    // factory method
+    protected abstract LockResourceManager getLockResourceManager();
 }
