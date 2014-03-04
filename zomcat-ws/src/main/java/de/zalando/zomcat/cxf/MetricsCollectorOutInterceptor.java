@@ -2,6 +2,7 @@ package de.zalando.zomcat.cxf;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
@@ -53,10 +54,12 @@ public class MetricsCollectorOutInterceptor extends AbstractPhaseInterceptor<Mes
      */
     @Override
     public void handleMessage(final Message message) throws Fault {
-        try {
-            listener.onResponse(message);
-        } catch (Exception e) {
-            LOG.error("Exception in metrics interceptor while handling message", e);
+        if (!MessageUtils.isRequestor(message)) {
+            try {
+                listener.onResponse(message);
+            } catch (Exception e) {
+                LOG.error("Exception in metrics interceptor while handling message", e);
+            }
         }
     }
 
@@ -70,10 +73,12 @@ public class MetricsCollectorOutInterceptor extends AbstractPhaseInterceptor<Mes
      */
     @Override
     public void handleFault(final Message message) {
-        try {
-            listener.onFault(message);
-        } catch (Exception e) {
-            LOG.error("Exception in metrics interceptor while handling fault", e);
+        if (!MessageUtils.isRequestor(message)) {
+            try {
+                listener.onFault(message);
+            } catch (Exception e) {
+                LOG.error("Exception in metrics interceptor while handling fault", e);
+            }
         }
     }
 }
