@@ -7,11 +7,53 @@ import glob
 import os
 import subprocess
 from deployctl.client import DeployCtl
+from keyczar import keyczart
+from keyczar import keyinfo
 
 
-def distribute_public_keys(base_dir):
+def create_directory(target, key_type, environment, project):
+    path = os.path.join(target, 'zomcat-keys', key_type, environment, project)
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
+
+
+def create_private_key(location, name):
+    keyczart.Create(location, name, keyinfo.DECRYPT_AND_ENCRYPT, asymmetric='rsa')
+    keyczart.AddKey(location, 'PRIMARY')
+    logging.debug('Created private key in %s', location)
+
+
+def export_public_key(private_key_location, target):
+    keyczart.PubKey(private_key_location, target)
+    logging.debug('Exported public key to %s', target)
+
+
+def create_key_pair(environment, project, target):
+    path = create_directory(target, 'private', environment, project)
+    create_private_key(path, '%s-%s' % (project, environment))
+    export_public_key(path, create_directory(target, 'public', environment, project))
+
+
+def generate_key_pairs(base_dir, env):
     client = DeployCtl()
-    instances = client.get_instances(env='live', project='config-frontend')
+    instances = client.get_instances(env=env)
+
+    projects = set()
+    for instance in instances:
+        if instance.status in ('PROVISIONING', 'ALLOCATED'):
+            projects.add(instance.project)
+
+    for project in sorted(projects):
+        path = os.path.join(base_dir, 'zomcat-keys', 'private', env, project)
+        if not os.path.isdir(path):
+            logging.info('Creating key pair for %s %s..', env, project)
+            create_key_pair(env, project, base_dir)
+
+
+def distribute_public_keys(base_dir, environment):
+    client = DeployCtl()
+    instances = client.get_instances(env=environment, project='config-frontend')
 
     files = glob.glob(os.path.join(base_dir, 'zomcat-keys', 'public'))  # , '*', '*'))
     for fn in files:
@@ -22,9 +64,9 @@ def distribute_public_keys(base_dir):
                                   instance=instance.instance)])
 
 
-def distribute_private_keys(base_dir):
+def distribute_private_keys(base_dir, environment):
     client = DeployCtl()
-    files = glob.glob(os.path.join(base_dir, 'zomcat-keys', 'private', '*', '*'))
+    files = glob.glob(os.path.join(base_dir, 'zomcat-keys', 'private', environment, '*'))
     for fn in files:
         parts = fn.split('/')
         env, project = parts[-2:]
@@ -44,8 +86,10 @@ def distribute_private_keys(base_dir):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('environment')
     parser.add_argument('directory')
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
-    distribute_public_keys(args.directory)
-    distribute_private_keys(args.directory)
+    generate_key_pairs(args.directory, args.environment)
+    distribute_public_keys(args.directory, args.environment)
+    distribute_private_keys(args.directory, args.environment)
