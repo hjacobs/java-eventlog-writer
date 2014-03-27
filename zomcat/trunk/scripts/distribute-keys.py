@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+Helper script to generate Zomcat/Zompy keypairs for DeployCtl projects ("applications")
+and distribute them to config-frontend (public keys) and application instances (private keys).
+'''
+
 import argparse
 import logging
 import glob
 import os
+import sys
 import subprocess
 from deployctl.client import DeployCtl
 from keyczar import keyczart
@@ -37,6 +43,7 @@ def create_key_pair(environment, project, target):
 
 def generate_key_pairs(base_dir, env):
     client = DeployCtl()
+    logging.info('Loading %s instances..', env)
     instances = client.get_instances(env=env)
 
     projects = set()
@@ -46,7 +53,9 @@ def generate_key_pairs(base_dir, env):
 
     for project in sorted(projects):
         path = os.path.join(base_dir, 'zomcat-keys', 'private', env, project)
-        if not os.path.isdir(path):
+        if os.path.isdir(path):
+            logging.info('Found existing key pair for %s %s', env, project)
+        else:
             logging.info('Creating key pair for %s %s..', env, project)
             create_key_pair(env, project, base_dir)
 
@@ -85,11 +94,16 @@ def distribute_private_keys(base_dir, environment):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('environment')
-    parser.add_argument('directory')
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('environment', help='DeployCtl environment to generate/distribute keypairs for')
+    parser.add_argument('directory',
+                        help='Directory to store/load keypairs from. Must already contain "zomcat-keys" folder.')
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
+    if not os.path.isdir(os.path.join(args.directory, 'zomcat-keys')):
+        # we will abort for safety reasons (running the script with an empty dir might re-generate and distribute all keys by accident!)
+        logging.error('Directory does not contain a "zomcat-keys" folder. Aborting.')
+        sys.exit(1)
     generate_key_pairs(args.directory, args.environment)
     distribute_public_keys(args.directory, args.environment)
     distribute_private_keys(args.directory, args.environment)
