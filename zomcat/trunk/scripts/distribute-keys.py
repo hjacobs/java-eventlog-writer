@@ -41,7 +41,7 @@ def create_key_pair(environment, project, target):
     export_public_key(path, create_directory(target, 'public', environment, project))
 
 
-def generate_key_pairs(base_dir, env):
+def generate_key_pairs(base_dir, env, project_filter):
     client = DeployCtl()
     logging.info('Loading %s instances..', env)
     instances = client.get_instances(env=env)
@@ -52,6 +52,9 @@ def generate_key_pairs(base_dir, env):
             projects.add(instance.project)
 
     for project in sorted(projects):
+        if project_filter and project_filter not in project:
+            logging.debug('Skipping project %s', project)
+            continue
         path = os.path.join(base_dir, 'zomcat-keys', 'private', env, project)
         if os.path.isdir(path):
             logging.info('Found existing key pair for %s %s', env, project)
@@ -73,12 +76,15 @@ def distribute_public_keys(base_dir, environment):
                                   instance=instance.instance)])
 
 
-def distribute_private_keys(base_dir, environment):
+def distribute_private_keys(base_dir, environment, project_filter):
     client = DeployCtl()
     files = glob.glob(os.path.join(base_dir, 'zomcat-keys', 'private', environment, '*'))
     for fn in files:
         parts = fn.split('/')
         env, project = parts[-2:]
+        if project_filter and project_filter not in project:
+            logging.debug('Skipping project %s', project)
+            continue
         instances = client.get_instances(env=env, project=project)
         for instance in instances:
             if instance.status not in ('PROVISIONING', 'ALLOCATED'):
@@ -98,12 +104,18 @@ if __name__ == '__main__':
     parser.add_argument('environment', help='DeployCtl environment to generate/distribute keypairs for')
     parser.add_argument('directory',
                         help='Directory to store/load keypairs from. Must already contain "zomcat-keys" folder.')
+    parser.add_argument('--project',
+                        help='Only generate/distribute keypairs for projects matching the given pattern (substring).')
+    parser.add_argument('--no-distribute-public', action='store_true', help='Do not distribute public keys')
+    parser.add_argument('--no-distribute-private', action='store_true', help='Do not distribute private keys')
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
     if not os.path.isdir(os.path.join(args.directory, 'zomcat-keys')):
         # we will abort for safety reasons (running the script with an empty dir might re-generate and distribute all keys by accident!)
         logging.error('Directory does not contain a "zomcat-keys" folder. Aborting.')
         sys.exit(1)
-    generate_key_pairs(args.directory, args.environment)
-    distribute_public_keys(args.directory, args.environment)
-    distribute_private_keys(args.directory, args.environment)
+    generate_key_pairs(args.directory, args.environment, args.project)
+    if not args.no_distribute_public:
+        distribute_public_keys(args.directory, args.environment)
+    if not args.no_distribute_private:
+        distribute_private_keys(args.directory, args.environment, args.project)
