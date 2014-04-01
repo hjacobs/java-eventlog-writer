@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Zomcat Job</name>
     <description>Zomcat Job Support Classes: LockResource and JobManager implementations</description>
-    <version>1.1.20</version>
+    <version>1.1.21</version>
     <organization>
         <name>Zalando/Technology/Platform/Software</name>
     </organization>
