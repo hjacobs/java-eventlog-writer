@@ -50,11 +50,11 @@ public class RedisLockResourceManagerImpl extends AbstractLockResourceManager {
     @Override
     public boolean acquireLock(final String lockingComponent, final String resource, final String flowId,
             final long expectedMaximumDuration) {
-        LOG.info("Acquiring lock on {} for {}", new String[] {resource, lockingComponent});
+        LOG.info("Acquiring lock on {} for {}", resource, lockingComponent);
 
         final String key = buildKey(resource);
         try {
-            final String value = buildPayload(lockingComponent, resource, expectedMaximumDuration);
+            final String value = buildPayload(lockingComponent, resource, flowId, expectedMaximumDuration);
 
             // setup everything before retrieving a connection from the pool
             final Jedis jedis = redisPool.getResource();
@@ -100,10 +100,10 @@ public class RedisLockResourceManagerImpl extends AbstractLockResourceManager {
         return new StringBuilder(lockKeyPrefix).append(KEY_SEPARATOR).append(resource).toString();
     }
 
-    private String buildPayload(final String lockingComponent, final String resource,
+    private String buildPayload(final String lockingComponent, final String resource, final String flowId,
             final long expectedMaximumDuration) throws IOException {
 
-        return jsonMapper.writeValueAsString(new LockDetails(host, instanceCode, lockingComponent, resource,
+        return jsonMapper.writeValueAsString(new LockDetails(host, instanceCode, lockingComponent, resource, flowId,
                     expectedMaximumDuration));
     }
 
@@ -115,14 +115,16 @@ public class RedisLockResourceManagerImpl extends AbstractLockResourceManager {
         private final String instanceCode;
         private final String lockingComponent;
         private final String resource;
+        private final String flowId;
         private final long expectedMaximumDuration;
 
         public LockDetails(final String host, final String instanceCode, final String lockingComponent,
-                final String resource, final long expectedMaximumDuration) {
+                final String resource, final String flowId, final long expectedMaximumDuration) {
             this.host = host;
             this.instanceCode = instanceCode;
             this.lockingComponent = lockingComponent;
             this.resource = resource;
+            this.flowId = flowId;
             this.expectedMaximumDuration = expectedMaximumDuration;
         }
 
@@ -144,6 +146,10 @@ public class RedisLockResourceManagerImpl extends AbstractLockResourceManager {
 
         public String getResource() {
             return resource;
+        }
+
+        public String getFlowId() {
+            return flowId;
         }
 
         public long getExpectedMaximumDuration() {
