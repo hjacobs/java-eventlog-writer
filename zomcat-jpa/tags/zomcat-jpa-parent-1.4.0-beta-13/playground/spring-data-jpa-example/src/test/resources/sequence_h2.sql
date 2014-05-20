@@ -1,3 +1,0 @@
---CREATE SEQUENCE zzj_data.article_model_id_seq START WITH 1 INCREMENT BY 2 CACHE 1;
---CREATE SEQUENCE zzj_data.article_config_id_seq START WITH 2 INCREMENT BY 2 CACHE 1;
---CREATE SEQUENCE zzj_data.article_simple_id_seq START WITH 1 INCREMENT BY 1 CACHE 1;

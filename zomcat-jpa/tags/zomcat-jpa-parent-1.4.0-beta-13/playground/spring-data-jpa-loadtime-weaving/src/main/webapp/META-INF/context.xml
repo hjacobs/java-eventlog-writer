@@ -1,3 +1,0 @@
-<Context path="/weaving" docBase="/my/webApp/location">
-    <Loader loaderClass="org.springframework.instrument.classloading.tomcat.TomcatInstrumentableClassLoader"/>
-</Context>
