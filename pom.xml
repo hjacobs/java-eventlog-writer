@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>Event Log</name>
     <description>Event Log Library: API to log business events</description>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <organization>
         <name>Zalando/Technology/Platform/Software</name>
     </organization>
