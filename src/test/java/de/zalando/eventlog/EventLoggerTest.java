@@ -6,8 +6,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import de.zalando.zomcat.flowid.FlowId;
-
 /**
  * @author  hjacobs
  */
@@ -78,7 +76,6 @@ public class EventLoggerTest {
 
         logger.log(new EventTypeTest(), "TESTVAL1", "TAB\tinhere!", "end of row");
 
-        FlowId.generateAndPushFlowId();
         logger.log(new EventTypeTest(), "A", "B");
         logger.log(new EventTypeTest2(), "BLUB", "bla");
     }
