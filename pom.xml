@@ -6,6 +6,7 @@
     <packaging>jar</packaging>
     <name>Event Log</name>
     <description>Event Log Library: API to log business events</description>
+    <url>https://github.com/zalando/java-eventlog-writer</url>
     <version>1.0.8</version>
     <organization>
         <name>Zalando SE</name>
