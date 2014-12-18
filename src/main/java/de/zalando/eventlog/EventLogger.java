@@ -26,11 +26,11 @@ public class EventLogger {
     private static final Logger LOG = Logger.getLogger(EventLogger.class);
 
     // enforce naming convention: for example do not allow underscores in field names!
-    private static Pattern VALID_FIELD_NAME_PATTERN = Pattern.compile("^[a-z][a-zA-Z0-9]*$");
+    private static final Pattern VALID_FIELD_NAME_PATTERN = Pattern.compile("^[a-z][a-zA-Z0-9]*$");
 
     private static EventLogger instance;
 
-    private Map<Integer, Boolean> eventTypes = Maps.newConcurrentMap();
+    private final Map<Integer, Boolean> eventTypes = Maps.newConcurrentMap();
 
     public static EventLogger getLogger(final Class clazz) {
         if (instance == null) {
