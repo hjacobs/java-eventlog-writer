@@ -11,6 +11,29 @@
         <name>Zalando SE</name>
         <url>http://tech.zalando.com/</url>
     </organization>
+    <scm>
+        <connection>scm:git:git://github.com/zalando/java-eventlog-writer.git</connection>
+        <developerConnection>scm:git:git@github.com:zalando/java-eventlog-writer.git</developerConnection>
+        <url>https://github.com/zalando/java-eventlog-writer.git</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/zalando/java-eventlog-writer/issues</url>
+    </issueManagement>
+    <licenses>
+        <license>
+            <name>Apache License</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Henning Jacobs</name>
+            <email>henning.jacobs@zalando.de</email>
+            <organization>Zalando SE</organization>
+            <organizationUrl>http://tech.zalando.com/</organizationUrl>
+        </developer>
+    </developers>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
