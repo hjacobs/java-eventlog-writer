@@ -1,1 +1,4 @@
-targeteventlog.layout*eventlog.log*
+.idea
+*.iml
+target
+targeteventlog.layout*eventlog.log*
